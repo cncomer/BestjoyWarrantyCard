@@ -77,6 +77,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	public String mXingHao;
 	public String mSHBianHao;
 	public String mBXPhone;
+	public String mBXDate;
 	/**这个变量的值为0,1，表示是否有发票*/
 	public String mFPaddr = "0";
 	public String mBuyDate;

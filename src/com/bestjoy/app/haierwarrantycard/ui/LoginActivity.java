@@ -169,7 +169,8 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		@Override
 		protected Boolean doInBackground(Void... params) {
 			StringBuilder sb = new StringBuilder(HaierServiceObject.SERVICE_URL);
-			sb.append("GetPwd.ashx?cell=").append(mTelInput.getText().toString().trim());
+			sb.append("login.ashx?cell=").append(mTelInput.getText().toString().trim())
+			.append("pwd=").append(mPasswordInput.getText().toString().trim());
 			InputStream is = null;
 			try {
 				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());

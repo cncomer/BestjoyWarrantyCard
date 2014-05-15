@@ -31,7 +31,7 @@ import com.bestjoy.app.haierwarrantycard.utils.BitmapUtils;
 import com.bestjoy.app.haierwarrantycard.utils.MenuHandlerUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 
-public class MainActivity extends BaseActionbarActivity {
+public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
 	private LinearLayout mDotsLayout;
 	private ViewPager mAdsViewPager;
 	private boolean mAdsViewPagerIsScrolling = false;
@@ -88,8 +88,12 @@ public class MainActivity extends BaseActionbarActivity {
 			}
 		});
 		
-		ModleSettings.addModelsAdapter(this, (ListView) findViewById(R.id.listview));
+		//ModleSettings.addModelsAdapter(this, (ListView) findViewById(R.id.listview));
 		UpdateService.startUpdateServiceOnAppLaunch(mContext);
+		
+		findViewById(R.id.my_baoxiu_card).setOnClickListener(this);
+		findViewById(R.id.telecontrol).setOnClickListener(this);
+		findViewById(R.id.scan_qr_code).setOnClickListener(this);
 	}
 	
 	@Override
@@ -286,6 +290,24 @@ public class MainActivity extends BaseActionbarActivity {
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		context.startActivity(intent);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.my_baoxiu_card:
+			if (HaierAccountManager.getInstance().hasBaoxiuCards()) {
+				MyChooseDevicesActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
+			} else {
+				NewCardActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
+			}
+			break;
+		case R.id.telecontrol:
+			break;
+		case R.id.scan_qr_code:
+			break;
+		}
+		
 	}
 
 }

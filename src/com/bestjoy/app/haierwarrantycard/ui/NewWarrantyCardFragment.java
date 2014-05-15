@@ -57,7 +57,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	private Button mSaveBtn;
 	private TextView mDatePickBtn;
 	private ImageView mBillImageView;
-	private EditText mTypeInput, mPinpaiInput, mModelInput, mBianhaoInput, mBaoxiuTelInput, mTagInput;
+	private EditText mTypeInput, mPinpaiInput, mModelInput, mBianhaoInput, mBaoxiuTelInput, mBaoxiuDate, mTagInput;
 	private EditText mPriceInput, mYanbaoTimeInput, mYanbaoComponyInput, mYanbaoTelInput;
 	private Calendar mCalendar;
 	/**购买途径*/
@@ -112,6 +112,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		 mModelInput = (EditText) view.findViewById(R.id.product_model_input);
 		 mBianhaoInput = (EditText) view.findViewById(R.id.product_sn_input);
 		 mBaoxiuTelInput = (EditText) view.findViewById(R.id.product_tel_input);
+		 mBaoxiuDate = (EditText) view.findViewById(R.id.product_baoxiu_date);
 		 //购买日期
 		 mDatePickBtn = (TextView) view.findViewById(R.id.product_buy_date);
 		 mDatePickBtn.setOnClickListener(this);
@@ -196,6 +197,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			mModelInput.getText().clear();
 			mBianhaoInput.getText().clear();
 			mBaoxiuTelInput.getText().clear();
+			mBaoxiuDate.getText().clear();
 			mPriceInput.getText().clear();
 			//mTujingInput.getText().clear();
 			mHaierPopView.getText().clear();
@@ -210,6 +212,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			mBianhaoInput.setText(object.mSHBianHao);
 			
 			mBaoxiuTelInput.setText(object.mBXPhone);
+			mBaoxiuDate.setText(object.mBXDate);
 			mPriceInput.setText(object.mBuyPrice);
 			//mTujingInput.setText(object.mBuyTuJing);
 			mHaierPopView.setText(object.mBuyTuJing);
@@ -265,6 +268,10 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			if (!TextUtils.isEmpty(object.mBXPhone)) {
 				mBaoxiuTelInput.setText(object.mBXPhone);
 			}
+
+			if (!TextUtils.isEmpty(object.mBXDate)) {
+				mBaoxiuDate.setText(object.mBXDate);
+			}
 		}
 	}
 	
@@ -274,6 +281,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		mBaoxiuCardObject.mXingHao = mModelInput.getText().toString().trim();
 		mBaoxiuCardObject.mSHBianHao = mBianhaoInput.getText().toString().trim();
 		mBaoxiuCardObject.mBXPhone = mBaoxiuTelInput.getText().toString().trim();
+		mBaoxiuCardObject.mBXDate = mBaoxiuDate.getText().toString().trim();
 		
 		mBaoxiuCardObject.mBuyDate = BaoxiuCardObject.BUY_DATE_TIME_FORMAT.format(mCalendar.getTime());
 		mBaoxiuCardObject.mBuyPrice = mPriceInput.getText().toString().trim();
@@ -436,6 +444,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			.append("|").append(baoxiuCardObject.mCardName)
 			.append("|").append(baoxiuCardObject.mYBPhone);
 			paramValue.append("|").append(baoxiuCardObject.getBase64StringFromBillAvator());
+			paramValue.append("|").append(baoxiuCardObject.mWY);
 			DebugUtils.logD(TAG, "param " + paramValue.toString());
 			try {
 //				StringBuilder paramValue = new StringBuilder(/*HaierServiceObject.SERVICE_URL + "AddBaoXiu.ashx?"*/"http://115.29.231.29/UploadBaoXiu.asmx/UpLoadData?");
@@ -444,7 +453,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 //					paramValue.append("&imgstr=\"").append(baoxiuCardObject.getBase64StringFromBillAvator().replaceAll("\\+", "*")).append("\"");
 //				}
 //				is = NetworkUtils.openContectionLocked(paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
-				is = NetworkUtils.openPostContectionLocked("http://115.29.231.29/UploadBaoXiu.asmx/UpdaLoad", "Para", paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				is = NetworkUtils.openPostContectionLocked("http://dzbxk.com/bestjoy/UploadBaoXiu.asmx/AddBaoXiuData", "Para", paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				try {
 					haierResultObject = HaierResultObject.parse(NetworkUtils.getContentFromInput(is));
 					DebugUtils.logD(TAG, "StatusCode = " + haierResultObject.mStatusCode);
@@ -777,6 +786,9 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		}
 		if (!TextUtils.isEmpty(object.mBXPhone)) {
 			mBaoxiuTelInput.setText(object.mBXPhone);
+		}
+		if (!TextUtils.isEmpty(object.mBXDate)) {
+			mBaoxiuDate.setText(object.mBXDate);
 		}
 	}
 	

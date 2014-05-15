@@ -118,8 +118,8 @@
     </style>
     
       <style name="DefaultShapeButton">
-        <item name="android:background">@drawable/default_black_btn</item>
-        <item name="android:textColor">#ffffffff</item>
+        <item name="android:background">@color/blue</item>
+        <item name="android:textColor">@color/blk</item>
         <item name="android:paddingLeft">10dip</item>
         <item name="android:paddingRight">10dip</item>
         <item name="android:textStyle">bold</item>

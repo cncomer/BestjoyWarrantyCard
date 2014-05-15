@@ -115,25 +115,15 @@ public class RegisterConfirmActivity extends BaseActionbarActivity implements Vi
 		protected Boolean doInBackground(String... params) {
 			mError = null;
 			InputStream is = null;
-			final int LENGTH = 8;
+			final int LENGTH = 3;
 			String[] urls = new String[LENGTH];
 			String[] paths = new String[LENGTH];
 			urls[0] = HaierServiceObject.SERVICE_URL + "Register.ashx?cell=";
 			paths[0] = mAccountObject.mAccountTel;
 			urls[1] = "&UserName=";
 			paths[1] = mAccountObject.mAccountName;
-			urls[2] = "&Shen=";
-			paths[2] = mHomeObject.mHomeProvince;
-			urls[3] = "&Shi=";
-			paths[3] = mHomeObject.mHomeCity;
-			urls[4] = "&Qu=";
-			paths[4] = mHomeObject.mHomeDis;
-			urls[5] = "&detail=";
-			paths[5] = mHomeObject.mHomePlaceDetail;
-			urls[6] = "&pwd=";
-			paths[6] = mAccountObject.mAccountPwd;
-			urls[7] = "&Tag=";
-			paths[7] = usrHomeNameEditText.getText().toString().trim();
+			urls[2] = "&pwd=";
+			paths[2] = mAccountObject.mAccountPwd;
 			DebugUtils.logD(TAG, "urls = " + Arrays.toString(urls));
 			DebugUtils.logD(TAG, "paths = " + Arrays.toString(paths));
 			try {

@@ -11,7 +11,7 @@ import com.bestjoy.app.haierwarrantycard.utils.DebugUtils;
 
 public class HaierServiceObject {
 
-	public static final String SERVICE_URL = "http://115.29.231.29/Haier/";
+	public static final String SERVICE_URL = "http://dzbxk.com/bestjoy/";
 	
 	public static final String PRODUCT_AVATOR_URL= "http://115.29.231.29/proimg/";
 	/**发票路径的前缀*/
