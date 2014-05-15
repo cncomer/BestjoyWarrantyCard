@@ -89,7 +89,7 @@
 	    <TextView style="@style/ProductInfo"
 	        android:text="@string/product_baoxiu_date"/>
 	    <EditText android:id="@+id/product_baoxiu_date"
-	        android:layout_width="80dip"
+	        android:layout_width="50dip"
 	        android:layout_height="wrap_content"
 	        android:background="@drawable/edit_text_holo_light"/>
 	    <TextView style="@style/ProductInfo"
