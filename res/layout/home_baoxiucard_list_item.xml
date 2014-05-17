@@ -38,43 +38,16 @@
             android:text="@string/product_debug_placeholder"/>
     </LinearLayout>
     
-    <FrameLayout android:layout_width="wrap_content"
-        android:layout_margin="4dip"
-        android:id="@+id/component"
-    	android:layout_height="wrap_content">
-       <ImageView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:src="@drawable/baoxiu_component"
-	        android:scaleType="fitCenter"/>
-       <TextView android:id="@+id/title2"
-           android:layout_width="fill_parent"
-           android:layout_height="wrap_content"
-           android:textColor="@color/wt"
-           android:singleLine="true"
-           android:layout_gravity="center_horizontal"
-           android:layout_marginTop="2dip"
-           />
-    </FrameLayout>
+     <ImageView android:id="@+id/flag_guobao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/flag_guobao"
+        android:visibility="gone"
+        android:scaleType="fitCenter"/>
     
-    <FrameLayout android:layout_width="50dip"
-        android:layout_margin="4dip"
-    	android:layout_height="wrap_content">
-       <ImageView android:id="@+id/zhengji"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:src="@drawable/baoxiu_zhengji"
-	        android:scaleType="fitCenter"/>
-       <TextView android:id="@+id/title3"
-           android:layout_width="fill_parent"
-           android:layout_height="wrap_content"
-           android:textColor="@color/wt"
-           android:singleLine="true"
-           android:textSize="12sp"
-            android:layout_marginTop="2dip"
-            android:text="3650天"
-            android:gravity="center_horizontal"
-           android:layout_gravity="center_horizontal"/>
-    </FrameLayout>
-    
+    <TextView android:id="@+id/flag_baoxiu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ff1a4f95"
+        android:background="@drawable/baoxiu_zhengji"/>
 </LinearLayout>

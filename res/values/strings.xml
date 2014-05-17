@@ -45,6 +45,7 @@
        <string name="title_my_product">我的家电</string>
        <string name="product_type">类型</string>
        <string name="product_brand">品牌</string>
+       <string name="product_brand_full">品牌名称</string>
        <string name="product_model">型号</string>
        <string name="product_sn">商品编号</string>
        <string name="product_baoxiu_date">保修期(年)</string>
@@ -354,4 +355,11 @@
          
          <string name="button_telecontrol">遥控神器</string>
          <string name="button_qr_scan">扫码王</string>
+         
+          <string name="text_fapiao_date">发票日期</string>
+         <string name="button_malfunction">故障报修</string>
+         <string name="button_maintenance_componnet">购买维修配件</string>
+         <string name="button_maintenance_point">最近的报修点</string>
+         <string name="text_baoxiu_validate">还剩</string>
+         <string name="unit_day">天</string>
 </resources>

@@ -40,6 +40,18 @@ public class ServiceObject {
 		  return sb.toString();
 	}
 	
+	public static String getCreateBaoxiucardUri() {
+		StringBuilder sb = new StringBuilder("http://www.dzbxk.com/");
+		sb.append("UploadBaoXiu.asmx/").append("AddBaoXiuData");
+		return sb.toString();
+	}
+	
+	public static String getUpdateBaoxiucardUri() {
+		StringBuilder sb = new StringBuilder("http://www.dzbxk.com/");
+		sb.append("UploadBaoXiu.asmx/").append("UpdateBaoXiuData");
+		return sb.toString();
+	}
+	
 	/**
 	 * http://115.29.231.29/Fapiao/20140421/01324df60b0734de0f973c7907af55fc.jpg
 	 * @param ky

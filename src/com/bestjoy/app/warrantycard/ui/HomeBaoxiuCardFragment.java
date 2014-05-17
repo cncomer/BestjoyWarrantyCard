@@ -156,10 +156,9 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 				holder._tag = (TextView) view.findViewById(R.id.tag);
 				holder._pinpai = (TextView) view.findViewById(R.id.pinpai);
 				holder._xinghao = (TextView) view.findViewById(R.id.xinghao);
-				holder._title2 = (TextView) view.findViewById(R.id.title2);
-				holder._title3 = (TextView) view.findViewById(R.id.title3);
+				holder._flag_baoxiu = (TextView) view.findViewById(R.id.flag_baoxiu);
+				holder._flag_guobao = (ImageView) view.findViewById(R.id.flag_guobao);
 				holder._avator = (ImageView) view.findViewById(R.id.avator);
-				holder._component = view.findViewById(R.id.component);
 				view.setTag(holder);
 			}
 			//设置view
@@ -173,23 +172,16 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 			//整机保修
 			int validity = card.getBaoxiuValidity();
 			if (validity > 0) {
+				holder._flag_baoxiu.setVisibility(View.VISIBLE);
+				holder._flag_guobao.setVisibility(View.GONE);
 				if (validity > 9999) {
-					holder._title3.setText(getString(R.string.baoxiucard_validity_toomuch));
+					holder._flag_baoxiu.setText(getString(R.string.baoxiucard_validity_toomuch));
 				} else {
-					holder._title3.setText(getString(R.string.baoxiucard_validity, validity));
+					holder._flag_baoxiu.setText(getString(R.string.baoxiucard_validity, validity));
 				}
 			} else {
-				holder._title3.setText(getString(R.string.baoxiucard_outdate));
-			}
-			
-			//主要部件保修
-			validity = card.getComponentBaoxiuValidity();
-			//目前不显示部件保修
-			holder._component.setVisibility(View.INVISIBLE);
-			if (validity > 0) {
-				holder._title2.setText(getString(R.string.baoxiucard_validity, validity));
-			} else {
-				holder._title2.setText(getString(R.string.baoxiucard_outdate));
+				holder._flag_baoxiu.setVisibility(View.GONE);
+				holder._flag_guobao.setVisibility(View.VISIBLE);
 			}
 			
 		}
@@ -198,10 +190,10 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 	
 	private static final class ViewHolder {
 		//分别是保修卡名字，品牌， 型号， 部件保修剩余时间， 整机保修剩余时间
-		private TextView _tag, _pinpai, _xinghao, _title2, _title3;
+		private TextView _tag, _pinpai, _xinghao;
 		//分别是部件保修和整机保修布局(整个)
-		private View _component, _zhengji;
-		private ImageView _avator;
+		private ImageView _avator, _flag_guobao;
+		private TextView _flag_baoxiu;
 		private BaoxiuCardObject _card;
 		
 	}

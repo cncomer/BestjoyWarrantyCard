@@ -452,8 +452,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 //					paramValue.append("&imgstr=\"").append(baoxiuCardObject.getBase64StringFromBillAvator().replaceAll("\\+", "*")).append("\"");
 //				}
 //				is = NetworkUtils.openContectionLocked(paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
-				String url = ServiceObject.SERVICE_URL + "UploadBaoXiu.asmx/AddBaoXiuData";
-				is = NetworkUtils.openPostContectionLocked(url, "Para", paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				is = NetworkUtils.openPostContectionLocked(ServiceObject.getCreateBaoxiucardUri(), "Para", paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				try {
 					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 					DebugUtils.logD(TAG, "StatusCode = " + serviceResultObject.mStatusCode);
@@ -570,7 +569,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			//更新保修卡信息
 			BaoxiuCardObject baoxiuCardObject = getmBaoxiuCardObject();
 			DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask BID " + baoxiuCardObject.mBID);
-			ServiceResultObject ServiceResultObject = new ServiceResultObject();
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			InputStream is = null;
 //			final int LENGTH = 14;
 //			String[] urls = new String[LENGTH];
@@ -626,10 +625,10 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			
 			try {
 //				is = NetworkUtils.openContectionLocked(urls, paths, MyApplication.getInstance().getSecurityKeyValuesObject());
-				is = NetworkUtils.openPostContectionLocked("http://115.29.231.29/UploadBaoXiu.asmx/UpdateBaoXiu", "ara", paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				is = NetworkUtils.openPostContectionLocked(ServiceObject.getUpdateBaoxiucardUri(), "Para", paramValue.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				
-				ServiceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
-				if (ServiceResultObject.isOpSuccessfully()) {
+				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				if (serviceResultObject.isOpSuccessfully()) {
 					//将临时图片存成发票
 					boolean savedBill = baoxiuCardObject.saveBillAvatorTempFileLocked();
 					if (savedBill) {
@@ -647,14 +646,14 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 						
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				ServiceResultObject.mStatusMessage = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} catch (IOException e) {
 				e.printStackTrace();
-				ServiceResultObject.mStatusMessage = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} finally {
 				NetworkUtils.closeInputStream(is);
 			}
-			return ServiceResultObject;
+			return serviceResultObject;
 		}
 
 		@Override

@@ -40,17 +40,13 @@ import com.shwy.bestjoy.utils.NotifyRegistrant;
 
 public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 	private static final String TOKEN = CardViewActivity.class.getName();
-	private EditText mAskInput;
-	//private Handler mHandler;
-	private Button mSpeakButton;
-	private SpeechRecognizerEngine mSpeechRecognizerEngine;
 	//按钮
-	private Button mSaveBtn, mOnekeyInstallBtn, mOnekeyRepairBtn;
+	private Button mOnekeyInstallBtn, mOnekeyRepairBtn;
 	//商品信息
-	private TextView mNameInput, mPinpaiInput, mModelInput, mBianhaoInput, mBaoxiuTelInput;
+	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText;
 	private TextView mDatePickBtn, mPriceInput, mTujingInput, mYanbaoTimeInput, mYanbaoComponyInput, mYanbaoTelInput;
 	
-	private ImageView mAvatorView, mPolicyView, mQaView, mGuideView, mBillView;
+	private ImageView mAvatorView, mUsageView, mPolicyView, mQaView, mGuideView, mBillView;
 	
 	private BaoxiuCardObject mBaoxiuCardObject;
 	
@@ -75,49 +71,19 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		
 		setContentView(R.layout.activity_card_view);
 		
-		mNameInput = (TextView) findViewById(R.id.name);
 		//商品信息
 		 mPinpaiInput = (TextView) findViewById(R.id.product_brand_input);
 		 mModelInput = (TextView) findViewById(R.id.product_model_input);
-		 mBianhaoInput = (TextView) findViewById(R.id.product_sn_input);
-		 mBaoxiuTelInput = (TextView) findViewById(R.id.product_tel_input);
-		 mDatePickBtn = (TextView) findViewById(R.id.product_buy_date);
-		 mPriceInput = (TextView) findViewById(R.id.product_buy_cost);
-		 mTujingInput = (TextView) findViewById(R.id.product_buy_entry);
-		 mYanbaoTimeInput = (TextView) findViewById(R.id.product_buy_delay_time);
-		 mYanbaoComponyInput = (TextView) findViewById(R.id.product_buy_delay_componey);
-		 mYanbaoTelInput = (TextView) findViewById(R.id.product_buy_delay_componey_tel);
+		 mBaoxiuInput = (TextView) findViewById(R.id.baoxiu_input);
+		 mYanbaoText = (TextView) findViewById(R.id.yanbao); 
+		 mYanbaoInput = (TextView) findViewById(R.id.yanbao_input);
 		
-//		 //语音
-//		 mAskInput = (EditText) findViewById(R.id.product_ask_online_input);
-//		 mSpeakButton =  (Button) findViewById(R.id.button_speak);
-//		 mSpeakButton.setOnClickListener(this);
-//		 mSpeechRecognizerEngine = SpeechRecognizerEngine.getInstance(mContext);
-//		 mSpeechRecognizerEngine.setResultText(mAskInput);
-//		 
-//		 mSaveBtn = (Button) findViewById(R.id.button_save);
-//		 mSaveBtn.setOnClickListener(this);
-		 
 		 mAvatorView = (ImageView) findViewById(R.id.avator);
 		 mAvatorView.setOnClickListener(this);
 		 
-		 mQaView = (ImageView) findViewById(R.id.button_qa);
-		 mQaView.setOnClickListener(this);
-		 
-		 mPolicyView = (ImageView) findViewById(R.id.button_policy);
-		 mPolicyView.setOnClickListener(this);
-		 
-		 mGuideView = (ImageView) findViewById(R.id.button_guide);
-		 mGuideView.setOnClickListener(this);
 		 
 		 mBillView = (ImageView) findViewById(R.id.button_bill);
 		 mBillView.setOnClickListener(this);
-		 
-		 mOnekeyInstallBtn = (Button) findViewById(R.id.button_onekey_install);
-		 mOnekeyInstallBtn.setOnClickListener(this);
-		 
-		 mOnekeyRepairBtn = (Button) findViewById(R.id.button_onekey_repair);
-		 mOnekeyRepairBtn.setOnClickListener(this);
 		 
 		 populateView();
 		

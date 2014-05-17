@@ -554,7 +554,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		sb.append(cardType);
 		return sb.toString();
 	}
-	private static final int mAvatorWidth = 320, mAvatorHeight = 480;
+	private static final int mAvatorWidth = 480, mAvatorHeight = 800;
 	public static final String PHOTOID_SEPERATOR = "_";
 	/**占位符号*/
 	public static final String PHOTOID_PLASEHOLDER = "00_00_00";

@@ -180,12 +180,14 @@
 		        android:layout_height="1dip"
 		        android:layout_marginTop="10dip"/>
             
-            <Button android:background="@drawable/default_black_btn"
-                android:layout_width="wrap_content"
+            <Button 
+                android:background="@drawable/default_blue_btn"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="#ffffffff"
                 android:id="@+id/button_save"
+                android:text="@string/button_save"
                 android:layout_marginTop="10dip"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="60dip"/>
