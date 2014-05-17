@@ -35,10 +35,10 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.view.View;
 
-import com.bestjoy.app.haierwarrantycard.R;
-import com.bestjoy.app.haierwarrantycard.ui.CaptureActivity;
-import com.bestjoy.app.haierwarrantycard.ui.CaptureActivityHandler;
-import com.bestjoy.app.haierwarrantycard.ui.PreferencesActivity;
+import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.warrantycard.ui.CaptureActivity;
+import com.bestjoy.app.warrantycard.ui.CaptureActivityHandler;
+import com.bestjoy.app.warrantycard.ui.PreferencesActivity;
 import com.google.zxing.Result;
 import com.shwy.bestjoy.utils.LocaleManager;
 

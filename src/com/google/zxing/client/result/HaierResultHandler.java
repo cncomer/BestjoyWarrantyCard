@@ -12,20 +12,19 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.bestjoy.app.haierwarrantycard.HaierServiceObject;
-import com.bestjoy.app.haierwarrantycard.MyApplication;
-import com.bestjoy.app.haierwarrantycard.R;
-import com.bestjoy.app.haierwarrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.haierwarrantycard.ui.NewCardActivity;
-import com.bestjoy.app.haierwarrantycard.ui.model.ModleSettings;
+import com.bestjoy.app.bjwarrantycard.MyApplication;
+import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.ui.NewCardActivity;
+import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.google.zxing.client.result.HaierParsedResult.HaierBaoxiuCardParser;
-import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.NetworkUtils;
 
 public final class HaierResultHandler extends ResultHandler {
 
-	public static final String QUERY_SERVICE = HaierServiceObject.SERVICE_URL + "TransCode.ashx?oid=";
+	public static final String QUERY_SERVICE = ServiceObject.SERVICE_URL + "TransCode.ashx?oid=";
   private static final int[] buttons = {
 	  R.string.button_ignore,
       R.string.menu_new_card,

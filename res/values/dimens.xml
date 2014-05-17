@@ -9,9 +9,9 @@
     <dimen name="ads_height">279dip</dimen>
     <dimen name="ads_width">480dip</dimen>
     
-     <dimen name="title_logo_height">60dip</dimen>
+     <dimen name="title_logo_height">67dip</dimen>
     <dimen name="title_scan_height">50dip</dimen>
-    
+    <dimen name="title_logo_height_in_action_bar">67dip</dimen>
     <dimen name="login_title_logo_height">98dip</dimen>
     <dimen name="login_title_logo_width">480dip</dimen>
     

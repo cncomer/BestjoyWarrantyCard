@@ -2,13 +2,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="match_parent" 
-    android:background="#ff1e1e1e">
+    android:background="#ff212121">
     <LinearLayout android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical">
         <!-- dalei -->
         <TextView 
-            android:textColor="#ffb06154"
+            android:textColor="@color/fenlei"
 		    android:textSize="18sp"
 		    android:paddingLeft="10dip"
 		    android:paddingRight="10dip"
@@ -23,7 +23,7 @@
             android:text="@string/title_dalei"/>
         <View android:layout_height="1dip"
             android:layout_width="fill_parent"
-            android:background="#ff7a5954"/>
+            android:background="@color/fenlei_divider_line"/>
         <ListView android:id="@+id/dalei"
 	        android:layout_width="fill_parent"
 	        android:layout_height="0dip"
@@ -35,7 +35,7 @@
         
         <!-- xiaolei -->
         <TextView 
-            android:textColor="#ffb06154"
+            android:textColor="@color/fenlei"
 		    android:textSize="18sp"
 		    android:paddingLeft="10dip"
 		    android:paddingRight="10dip"
@@ -50,7 +50,7 @@
             android:text="@string/title_xiaolei"/>
         <View android:layout_height="1dip"
             android:layout_width="fill_parent"
-            android:background="#ff7a5954"/>
+            android:background="@color/fenlei_divider_line"/>
         <ListView android:id="@+id/xiaolei"
 	        android:layout_width="fill_parent"
 	        android:layout_height="0dip"
@@ -62,7 +62,7 @@
         
         <!-- pinpai -->
         <TextView 
-            android:textColor="#ffb06154"
+            android:textColor="@color/fenlei"
 		    android:textSize="18sp"
 		    android:paddingLeft="10dip"
 		    android:paddingRight="10dip"
@@ -77,7 +77,7 @@
             android:text="@string/title_pinpai"/>
         <View android:layout_height="1dip"
             android:layout_width="fill_parent"
-            android:background="#ff7a5954"/>
+            android:background="@color/fenlei_divider_line"/>
         <ListView android:id="@+id/pinpai"
 	        android:layout_width="fill_parent"
 	        android:layout_height="0dip"
@@ -89,7 +89,7 @@
         
         <!-- 型号 -->
         <TextView 
-            android:textColor="#ffb06154"
+            android:textColor="@color/fenlei"
 		    android:textSize="18sp"
 		    android:paddingLeft="10dip"
 		    android:paddingRight="10dip"
@@ -104,7 +104,7 @@
             android:text="@string/title_xinghao"/>
         <View android:layout_height="1dip"
             android:layout_width="fill_parent"
-            android:background="#ff7a5954"/>
+            android:background="@color/fenlei_divider_line"/>
         <ListView android:id="@+id/xinghao"
 	        android:layout_width="fill_parent"
 	        android:layout_height="0dip"

@@ -8,6 +8,7 @@
     <string name="hello_world">Hello world!</string>
     
     <string name="button_register">新用户注册</string>
+    <string name="button_register_now">"马上注册>"</string>
      <string name="button_find_password">找回密码</string>
     <string name="button_new_card">新建保修卡</string>
     <string name="button_edit_card">编辑保修卡</string>
@@ -20,7 +21,9 @@
       <string name="button_next">下一步</string>
        <string name="button_confirm">新建保修卡</string>
     
-    <string name="msg_unsupport_operation">"该功能暂不支持"</string>
+    <string name="msg_unsupport_operation">暂未开放</string>
+    <string name="msg_need_login_operation">请先登录</string>
+    <string name="msg_need_home_operation">请先新建一个家</string>
      <string name="msg_no_sdcard">"未检测到SD卡,无法使用相机"</string>
      <string name="dialog_msg_media_unmounted">无法访问外置存储卡,请检查....</string>
       
@@ -128,6 +131,7 @@
     <string name="msg_input_usrtel_password">请输入你的手机号和密码</string>
     
     <string name="my_home">我的家</string>
+    <string name="hint_input_home_name">输入家名称</string>
     <string name="parent_home">父母家</string>
     <string name="parent_home2">岳父母家</string>
     <string name="address_pcs">省/市</string>
@@ -326,6 +330,11 @@
          <string name="hint_input_new_password">请输入你的新密码</string>
          <string name="hint_reinput_new_password">请再次输入你的新密码</string>
          
+          <string name="hint_input_password">输入你的密码</string>
+         <string name="hint_input_confirm_password">输入你的确认密码</string>
+         <string name="hint_input_usrname">输入你的用户名</string>
+          <string name="hint_input_tel">输入你的手机号码</string>
+         
          <string name="msg_input_old_password_error">输入的当前密码有误，请重新输入...</string>
          <string name="msg_input_new_password_error">你输入的新密码不一致，请确认重新输入</string>
          <string name="select_date_out_of_service_tips">预约安装时间必须大于今天</string>
@@ -343,7 +352,6 @@
          <string name="buy_place_9">400热线</string>
          <string name="buy_place_10">其他渠道</string>
          
-         <string name="my_baoxiu_card">我的保修卡</string>
-         <string name="telecontrol">遥控神器</string>
-         <string name="scan_qr_code">扫码王</string>
+         <string name="button_telecontrol">遥控神器</string>
+         <string name="button_qr_scan">扫码王</string>
 </resources>

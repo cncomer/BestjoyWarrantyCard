@@ -19,7 +19,7 @@
         android:layout_marginLeft="10dip"
         android:textColor="#ff000000" />
 
-    <com.bestjoy.app.haierwarrantycard.ui.NoParentStateImageView android:id="@+id/flag"
+    <com.bestjoy.app.warrantycard.ui.NoParentStateImageView android:id="@+id/flag"
         android:background="@android:drawable/list_selector_background"
         android:clickable="true"
         android:layout_marginLeft="20dip"

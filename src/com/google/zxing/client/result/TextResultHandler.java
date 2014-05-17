@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.bestjoy.app.haierwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.R;
 
 /**
  * This class handles TextParsedResult as well as unknown formats. It's the fallback handler.

@@ -16,7 +16,7 @@
 	        android:divider="#ff7a5954"
 	        android:layout_marginLeft="@dimen/choose_device_choose_slidingmenu_offset"
 	        android:layout_weight="1.0"/>
-	    <com.bestjoy.app.haierwarrantycard.view.LetterSideBar
+	    <com.bestjoy.app.warrantycard.view.LetterSideBar
 	        android:id="@+id/letterBar"
 	        android:layout_width="20dip"
 	        android:layout_height="fill_parent" />

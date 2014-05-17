@@ -22,6 +22,8 @@
 	        android:paddingLeft="8dip"
 	        android:paddingRight="8dip"
 	        android:textSize="12sp"
+	        android:textColor="@color/blk"
+	        android:background="@drawable/default_green_btn"
 	        android:layout_height="30dip"/>
 	</LinearLayout>
 	

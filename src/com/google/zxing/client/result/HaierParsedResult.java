@@ -25,9 +25,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.text.TextUtils;
 
-import com.bestjoy.app.haierwarrantycard.HaierServiceObject;
-import com.bestjoy.app.haierwarrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.haierwarrantycard.utils.DebugUtils;
+import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.InfoInterfaceImpl;
 
 /**
@@ -100,9 +100,9 @@ public final class HaierParsedResult extends ParsedResult {
 		 	       	    	if (!"1".equals(msgCode)) error = nextTextElement(parser);
 		       		    } else if ("Brand".equals(tag)) {
 		 	       	    	baoxiuCardObject.mPinPai = nextTextElement(parser);
-		 	       	    	if (HaierServiceObject.isHaierPinpai(baoxiuCardObject.mPinPai)) {
+		 	       	    	if (ServiceObject.isHaierPinpai(baoxiuCardObject.mPinPai)) {
 		 	       	    		//如果是海尔品牌，我们自动填入售后服务电话
-		 	       	    	    baoxiuCardObject.mBXPhone = HaierServiceObject.BX_PHONE;
+		 	       	    	    baoxiuCardObject.mBXPhone = ServiceObject.BX_PHONE;
 		 	       	    	}
 		       		    } else if ("Class".equals(tag)) {
 		       		    	String classContent = nextTextElement(parser);

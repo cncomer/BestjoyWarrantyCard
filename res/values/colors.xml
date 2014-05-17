@@ -13,6 +13,13 @@
     <drawable name="button_pink">#ffff7872</drawable>
     <drawable name="button_pink_on">#fff5acb5</drawable>
     
+    <drawable name="button_blue">#ff1a4f95</drawable>
+    <drawable name="button_blue_on">#ff173a69</drawable>
+    
+    <drawable name="button_green">#ff1ed1aa</drawable>
+    <drawable name="button_green_on">#ff198870</drawable>
+    
+    
     <color name="default_pop_background">#cf393f4d</color>
     
     <color name="viewfinder_laser">#ff07ae22</color>
@@ -30,4 +37,11 @@
   <color name="result_points">#c000ff00</color>
   <color name="result_text">#ffffffff</color>
   <color name="result_view">#b0000000</color>
+  
+  <!-- 选择设备开始 -->
+  <color name="fenlei">#ff3064b0</color>
+  <color name="fenlei_divider_line">#ff1b395b</color>
+  <color name="fenlei_item">#ff3667ac</color>
+  <!-- 选择设备结束 -->
+  
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.bestjoy.app.haierwarrantycard.view.ProCityDisEditView 
+<com.bestjoy.app.warrantycard.view.ProCityDisEditView 
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:cncom="http://schemas.android.com/apk/res/com.bestjoy.app.haierwarrantycard"
+    xmlns:cncom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="@string/address_pcs" />
 
-        <com.bestjoy.app.haierwarrantycard.view.AddressCompleteEditText
+        <com.bestjoy.app.warrantycard.view.AddressCompleteEditText
             android:id="@+id/input_province"
             cncom:completionThreshold="0"
             style="@style/ProductInfoInputPlace"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:text="@string/province" />
 
-        <com.bestjoy.app.haierwarrantycard.view.AddressCompleteEditText
+        <com.bestjoy.app.warrantycard.view.AddressCompleteEditText
             android:id="@+id/input_city"
             style="@style/ProductInfoInputPlace"
             android:inputType="none" />
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="@string/city" />
 
-        <com.bestjoy.app.haierwarrantycard.view.AddressCompleteEditText
+        <com.bestjoy.app.warrantycard.view.AddressCompleteEditText
             android:id="@+id/input_district"
             style="@style/ProductInfoInputPlace"
             android:inputType="none" />
@@ -65,9 +65,9 @@
             android:layout_height="wrap_content"
             android:text="@string/address" />
 
-        <com.bestjoy.app.haierwarrantycard.view.AddressCompleteEditText 
+        <com.bestjoy.app.warrantycard.view.AddressCompleteEditText 
         	style="@style/ProductInfoInput"
             android:id="@+id/address" />
     </LinearLayout>
 
-</com.bestjoy.app.haierwarrantycard.view.ProCityDisEditView>
+</com.bestjoy.app.warrantycard.view.ProCityDisEditView>

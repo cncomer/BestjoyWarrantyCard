@@ -26,26 +26,28 @@
 	            android:layout_height="wrap_content"
 	            android:layout_centerVertical="true"
 	            android:orientation="vertical">
-            <TextView android:textColor="#ff000000"
+            <TextView android:textColor="@color/wt"
 	            android:layout_width="wrap_content"
 	            android:text="@string/title_scan_desc1"
 	            android:layout_marginBottom="1dip"
 	            android:layout_height="wrap_content"/>
-	        <TextView android:textColor="#ff000000"
+	        <TextView android:textColor="@color/wt"
 	            android:layout_width="wrap_content"
 	            android:text="@string/title_scan_desc2"
 	            android:layout_height="wrap_content"/>
         </LinearLayout>
        <Button android:id="@+id/button_scan_qrcode"
            android:layout_alignParentRight="true"
-           android:layout_height="wrap_content"
            android:layout_width="wrap_content"
            android:layout_marginRight="10dip"
            android:textColor="@color/blk"
            android:layout_centerVertical="true"
-            android:padding="6dip"
-            android:textSize="16sp"
-           android:background="@drawable/button_start_scan"/>
+           android:text="@string/title_scan_button"
+            android:paddingLeft="8dip"
+	        android:paddingRight="8dip"
+            android:textSize="14sp"
+            android:layout_height="34dip"
+           android:background="@drawable/default_green_btn"/>
     </RelativeLayout>
     
     <View android:background="@color/light_gray"
@@ -72,8 +74,9 @@
 		        android:layout_marginTop="10dip"/>
             
             <LinearLayout android:layout_height="fill_parent"
-            	android:layout_width="wrap_content"
+            	android:layout_width="fill_parent"
             	android:gravity="center_vertical"
+            	android:background="@color/light_gray"
             	android:orientation="horizontal">
                 <TextView style="@style/ProductInfo"
 	        		android:text="@string/product_bill"/>

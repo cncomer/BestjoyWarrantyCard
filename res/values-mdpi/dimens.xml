@@ -9,6 +9,7 @@
     <dimen name="ads_width">320dip</dimen>
     
      <dimen name="title_logo_height">60dip</dimen>
+     <dimen name="title_logo_height_in_action_bar">67dip</dimen>
     <dimen name="title_scan_height">50dip</dimen>
     
      <dimen name="login_title_logo_height">65dip</dimen>
