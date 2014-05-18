@@ -365,4 +365,7 @@
          <string name="unit_day">天</string>
          <string name="unit_year">年</string>
          <string name="unit_half_year">半年</string>
+         <string name="repair_yuyue">维修预约</string>
+         <string name="install_yuyue">安装预约</string>
+         <string name="button_send">发送</string>
 </resources>

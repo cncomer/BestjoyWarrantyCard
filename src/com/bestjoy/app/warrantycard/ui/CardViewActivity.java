@@ -2,7 +2,6 @@ package com.bestjoy.app.warrantycard.ui;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -15,10 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -30,9 +25,6 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HaierAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
-import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
-import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
-import com.bestjoy.app.warrantycard.utils.TextViewUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.Intents;
@@ -41,17 +33,16 @@ import com.shwy.bestjoy.utils.NotifyRegistrant;
 
 public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 	private static final String TOKEN = CardViewActivity.class.getName();
-	//商品信息
-	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText, mFapiaoDateInput;
-	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
-	private ImageView mAvatorView, mUsageView, mFlagYanbao;
-	private Button mBillView;
+
+	private CardViewFragment mContent;
 	private BaoxiuCardObject mBaoxiuCardObject;
 	
 	private HomeObject mHomeObject;
 	
 	private Handler mHandler;
-	
+
+	/**表示是否是第一次进入*/
+	private boolean mIsFirstOnResume = true;
 	private Bundle mBundles;
 
 	@Override
@@ -67,98 +58,15 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		setContentView(R.layout.activity_card_view);
-		
-		//商品信息
-		 mPinpaiInput = (TextView) findViewById(R.id.product_brand_input);
-		 mModelInput = (TextView) findViewById(R.id.product_model_input);
-		 mBaoxiuInput = (TextView) findViewById(R.id.baoxiu_input);
-		 mYanbaoText = (TextView) findViewById(R.id.yanbao); 
-		 mYanbaoInput = (TextView) findViewById(R.id.yanbao_input);
-		 
-		 TextViewUtils.setBoldText(mPinpaiInput);
-		 TextViewUtils.setBoldText(mModelInput);
-		 TextViewUtils.setBoldText(mBaoxiuInput);
-		 TextViewUtils.setBoldText(mYanbaoInput);
-		
-		 mAvatorView = (ImageView) findViewById(R.id.avator);
-		 mAvatorView.setOnClickListener(this);
-		 
-		 mFapiaoDateInput = (TextView) findViewById(R.id.fapiao_date_input);
-		 //已延保标示
-		 mFlagYanbao = (ImageView) findViewById(R.id.flag_yanbao); 
-		 
-		 mBillView = (Button) findViewById(R.id.button_bill);
-		 mBillView.setOnClickListener(this);
-		 
-		 mUsageView = (ImageView) findViewById(R.id.button_usage);
-		 mUsageView.setOnClickListener(this);
-		 
-		 mMalfunctionBtn = (TextView) findViewById(R.id.button_malfunction);
-         mMaintenancePointBtn = (TextView) findViewById(R.id.button_maintenance_point);
-         mBuyMaintenanceComponentBtn = (TextView) findViewById(R.id.button_maintenance_componnet);
-         mMalfunctionBtn.setOnClickListener(this);
-         mMaintenancePointBtn.setOnClickListener(this);
-         mBuyMaintenanceComponentBtn.setOnClickListener(this);
-         
-         
-		 populateView();
-		
+		mContent = new CardViewFragment();
+		// set the Above View
+		setContentView(R.layout.card_content_frame);
+		getSupportFragmentManager()
+		.beginTransaction()
+		.replace(R.id.content_frame, mContent)
+		.commit();
 	}
-	
-	private void populateView() {
-		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mKY)) {
-			 PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mAvatorView, mBaoxiuCardObject.mKY, null, PhotoManagerUtilsV2.TaskType.HOME_DEVICE_AVATOR);
-		 }
-		 if (!mBaoxiuCardObject.hasBillAvator()) {
-			 mBillView.setVisibility(View.INVISIBLE);
-			 mFapiaoDateInput.setVisibility(View.INVISIBLE);
-		 } else {
-			 mBillView.setVisibility(View.VISIBLE);
-			 mFapiaoDateInput.setVisibility(View.VISIBLE);
-			 try {
-				 mFapiaoDateInput.setText(BaoxiuCardObject.DATE_FORMAT_FAPIAO_TIME.format(BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate)));
-			 } catch (ParseException e) {
-				 mFapiaoDateInput.setText(mBaoxiuCardObject.mBuyDate);
-			 }
-		 }
-		 
-		 mPinpaiInput.setText(BaoxiuCardObject.getTagName(mBaoxiuCardObject.mCardName, mBaoxiuCardObject.mPinPai, mBaoxiuCardObject.mLeiXin));
-		 mModelInput.setText(mBaoxiuCardObject.mXingHao);
-		 
-		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mWY)) {
-			 //保修期，这里单位是年
-			 float year = Float.valueOf(mBaoxiuCardObject.mWY);
-			 if (year > 0 && (year - 0.5f) < 0.00001f) {
-				 mBaoxiuInput.setText(R.string.unit_half_year);
-			 } else {
-				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
-			 }
-		 }
-		
-		 mYanbaoInput.setVisibility(View.INVISIBLE);
-		 mYanbaoText.setVisibility(View.INVISIBLE);
-		 mFlagYanbao.setVisibility(View.INVISIBLE);
-		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mYanBaoTime)) {
-			//延保期，单位是年
-			 float year = Float.valueOf(mBaoxiuCardObject.mYanBaoTime);
-			 if (year > 0) {
-				 mYanbaoInput.setVisibility(View.VISIBLE);
-				 mYanbaoText.setVisibility(View.VISIBLE);
-				 mFlagYanbao.setVisibility(View.VISIBLE);
-				 if ((year - 0.5f) < 0.00001f) {
-					 mYanbaoInput.setText(R.string.unit_half_year);
-				 } else {
-					 mYanbaoInput.setText(mBaoxiuCardObject.mYanBaoTime + getString(R.string.unit_year));
-				 }
-			 }
-			
-			 
-		 }
-		 mHomeObject = HomeObject.getHomeObject();
-	}
-	
-	
+
 	 @Override
      public boolean onCreateOptionsMenu(Menu menu) {
   	     getSupportMenuInflater().inflate(R.menu.card_view_activity_menu, menu);
@@ -273,9 +181,10 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 
 	@Override
 	protected boolean checkIntent(Intent intent) {
-		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
+		//mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
 		mBundles = intent.getExtras();
-		return mBaoxiuCardObject != null && mBaoxiuCardObject.mBID > 0 && mBundles != null;
+		//return mBaoxiuCardObject != null && mBaoxiuCardObject.mBID > 0 && mBundles != null;
+		return mBundles != null;
 	}
 	
 	private DeleteCardAsyncTask mDeleteCardAsyncTask;
