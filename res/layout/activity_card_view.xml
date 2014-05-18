@@ -82,7 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#ffff9d00"
-                    android:text="@string/product_time"/>
+                    android:text="@string/product_yanbao_time"/>
                 
                  <TextView android:id="@+id/yanbao_input"
                     android:layout_below="@+id/yanbao"

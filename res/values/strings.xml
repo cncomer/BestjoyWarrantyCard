@@ -51,6 +51,7 @@
        <string name="product_baoxiu_date">保修期(年)</string>
        <string name="product_beizhu">备注标签</string>
        <string name="product_time">保修期</string>
+       <string name="product_yanbao_time">延保期</string>
        <string name="product_tel">客服电话</string>
        <string name="product_where">购买地点</string>
        <string name="product_bill">发票</string>

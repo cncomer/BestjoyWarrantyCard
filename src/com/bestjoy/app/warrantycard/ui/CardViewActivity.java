@@ -129,30 +129,32 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mWY)) {
 			 //保修期，这里单位是年
 			 float year = Float.valueOf(mBaoxiuCardObject.mWY);
-			 if ((year - 0.5f) < 0.00001f) {
+			 if (year > 0 && (year - 0.5f) < 0.00001f) {
 				 mBaoxiuInput.setText(R.string.unit_half_year);
 			 } else {
 				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
 			 }
 		 }
 		
+		 mYanbaoInput.setVisibility(View.INVISIBLE);
+		 mYanbaoText.setVisibility(View.INVISIBLE);
+		 mFlagYanbao.setVisibility(View.INVISIBLE);
 		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mYanBaoTime)) {
-			 mYanbaoInput.setVisibility(View.VISIBLE);
-			 mYanbaoText.setVisibility(View.VISIBLE);
-			 mFlagYanbao.setVisibility(View.VISIBLE);
 			//延保期，单位是年
 			 float year = Float.valueOf(mBaoxiuCardObject.mYanBaoTime);
-			 if ((year - 0.5f) < 0.00001f) {
-				 mYanbaoInput.setText(R.string.unit_half_year);
-			 } else {
-				 mYanbaoInput.setText(mBaoxiuCardObject.mYanBaoTime + getString(R.string.unit_year));
+			 if (year > 0) {
+				 mYanbaoInput.setVisibility(View.VISIBLE);
+				 mYanbaoText.setVisibility(View.VISIBLE);
+				 mFlagYanbao.setVisibility(View.VISIBLE);
+				 if ((year - 0.5f) < 0.00001f) {
+					 mYanbaoInput.setText(R.string.unit_half_year);
+				 } else {
+					 mYanbaoInput.setText(mBaoxiuCardObject.mYanBaoTime + getString(R.string.unit_year));
+				 }
 			 }
-		 } else {
-			 mYanbaoInput.setVisibility(View.INVISIBLE);
-			 mYanbaoText.setVisibility(View.INVISIBLE);
-			 mFlagYanbao.setVisibility(View.INVISIBLE);
+			
+			 
 		 }
-		 
 		 mHomeObject = HomeObject.getHomeObject();
 	}
 	
