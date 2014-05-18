@@ -52,6 +52,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 			return;
 		}
 		mHandler = new Handler();
+		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
 		BaoxiuCardObject.showBill(mContext, null);
 		NotifyRegistrant.getInstance().register(mHandler);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
@@ -181,10 +182,9 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 
 	@Override
 	protected boolean checkIntent(Intent intent) {
-		//mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
 		mBundles = intent.getExtras();
-		//return mBaoxiuCardObject != null && mBaoxiuCardObject.mBID > 0 && mBundles != null;
-		return mBundles != null;
+		return mBaoxiuCardObject != null && mBaoxiuCardObject.mBID > 0 && mBundles != null;
 	}
 	
 	private DeleteCardAsyncTask mDeleteCardAsyncTask;

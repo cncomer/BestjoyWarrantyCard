@@ -94,10 +94,12 @@ public class HomeObject implements InfoInterface{
 	};
 	
 	public static final String[] DISTRICT_PROJECTION = new String[]{
-		DeviceDBHelper.DEVICE_DIS_ID,
-		DeviceDBHelper.DEVICE_DIS_NAME,
-		DeviceDBHelper.DEVICE_DIS_CID,
-		"_id",
+		DeviceDBHelper.DEVICE_HAIER_REGION_CODE,
+		DeviceDBHelper.DEVICE_HAIER_COUNTRY,
+		DeviceDBHelper.DEVICE_HAIER_PROVICE,
+		DeviceDBHelper.DEVICE_HAIER_CITY,
+		DeviceDBHelper.DEVICE_HAIER_REGION_NAME,
+		DeviceDBHelper.DEVICE_HAIER_ADMIN_CODE,
 	};
 	
 	public static final String SELECTION_PROVINCE_NAME = DeviceDBHelper.DEVICE_PRO_NAME + "=?";
@@ -195,10 +197,10 @@ public class HomeObject implements InfoInterface{
 	}
 	
 	public static String getDisID(ContentResolver cr, String disName) {
-		String selection = DeviceDBHelper.DEVICE_DIS_NAME + " like '" + disName + "%'";
-		Cursor cursor = cr.query(BjnoteContent.District.CONTENT_URI, DISTRICT_PROJECTION, selection, null, null);
+		String selection = DeviceDBHelper.DEVICE_HAIER_REGION_NAME + " like '" + disName + "%'";
+		Cursor cursor = cr.query(BjnoteContent.HaierRegion.CONTENT_URI, DISTRICT_PROJECTION, selection, null, null);
 		if(cursor.moveToNext()) {
-			return cursor.getString(cursor.getColumnIndex(DeviceDBHelper.DEVICE_DIS_ID));
+			return cursor.getString(cursor.getColumnIndex(DeviceDBHelper.DEVICE_HAIER_ADMIN_CODE));
 		}
 		
 		return null;
