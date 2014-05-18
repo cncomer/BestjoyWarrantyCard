@@ -140,7 +140,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		//init layouts
 		mProductNameView.setText(baoxiuCardObject.mLeiXin);
 		mProductInfoVew.setText(baoxiuCardObject.mPinPai + " " + baoxiuCardObject.mXingHao);
-		mAccountInfoView.setText(HaierAccountManager.getInstance().getAccountObject().mAccountName + " " + HaierAccountManager.getInstance().getAccountObject().mAccountTel);
+		mAccountInfoView.setText(MyAccountManager.getInstance().getAccountObject().mAccountName + " " + MyAccountManager.getInstance().getAccountObject().mAccountTel);
 		mContactPlaceView.setText(mHomeObject.mHomeProvince + mHomeObject.mHomeCity + mHomeObject.mHomeDis + mHomeObject.mHomePlaceDetail);
 	}
 	
