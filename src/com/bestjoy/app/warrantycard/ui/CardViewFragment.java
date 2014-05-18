@@ -21,6 +21,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
@@ -46,7 +49,6 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	private ImageView mAvatorView, mUsageView, mFlagYanbao;
 	private Button mBillView;
 	private BaoxiuCardObject mBaoxiuCardObject;
-	private NewRepairCardFragment mRepairContent;
 	
 	private HomeObject mHomeObject;
 	
@@ -57,18 +59,20 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		mHandler = new Handler();
 		BaoxiuCardObject.showBill(getActivity(), null);
 		NotifyRegistrant.getInstance().register(mHandler);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
 		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
-		mRepairContent = new NewRepairCardFragment();
+		mHomeObject = HomeObject.getHomeObject();
+		mBundles = getArguments();
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-			View view = inflater.inflate(R.layout.activity_card_view, container, true);
+			View view = inflater.inflate(R.layout.activity_card_view, container, false);
 
 			//商品信息
 			 mPinpaiInput = (TextView) view.findViewById(R.id.product_brand_input);
@@ -102,9 +106,8 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	         mMaintenancePointBtn.setOnClickListener(this);
 	         mBuyMaintenanceComponentBtn.setOnClickListener(this);
 	         
-	         
 			 populateView();
-		return super.onCreateView(inflater, container, savedInstanceState);
+		return view;
 	}
 
 	private void populateView() {
@@ -156,8 +159,27 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			
 			 
 		 }
-		 mHomeObject = HomeObject.getHomeObject();
 	}
+	
+	 @Override
+     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		 inflater.inflate(R.menu.card_view_activity_menu, menu);
+     }
+	 
+	 @Override
+	 public boolean onOptionsItemSelected(MenuItem menuItem) {
+		 switch(menuItem.getItemId()) {
+		 case R.string.menu_edit:
+			 BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
+			 NewCardActivity.startIntent(getActivity(), mBundles);
+			 getActivity().finish();
+			 break;
+		 case R.string.menu_delete:
+			 showDeleteDialog();
+			 break;
+		 }
+		 return super.onOptionsItemSelected(menuItem);
+	 }
 	 
 	 private void showDeleteDialog() {
 		 new AlertDialog.Builder(getActivity())
@@ -166,7 +188,6 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					//删除卡片
 					 if (ComConnectivityManager.getInstance().isConnected()) {
 						 delteCardAsync();
 					 } else {
@@ -177,6 +198,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			.setNegativeButton(android.R.string.cancel, null)
 			.show();
 	}
+	 
 
 	@Override
 	public void onClick(View v) {
@@ -188,13 +210,16 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		case R.id.button_usage:
 			break;
 		case R.id.button_malfunction:
+			NewRepairCardFragment repairContent = new NewRepairCardFragment();
 			getActivity().getSupportFragmentManager()
 			.beginTransaction()
 			.setCustomAnimations(R.anim.frag_fade_in, R.anim.frag_fade_out)
-			.replace(R.id.content_frame, mRepairContent)
+			.replace(R.id.content_frame, repairContent)
+			.addToBackStack("NewRepairCardFragment")
 			.commit();
-			mRepairContent.updateInfoInterface(mBaoxiuCardObject);
-			mRepairContent.updateInfoInterface(mHomeObject);
+			repairContent.updateInfoInterface(mBaoxiuCardObject);
+			repairContent.updateInfoInterface(mHomeObject);
+			repairContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
 			break;
 		case R.id.button_maintenance_point:
 		case R.id.button_maintenance_componnet:

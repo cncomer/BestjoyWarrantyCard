@@ -56,7 +56,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	//private HaierProCityDisEditPopView mProCityDisEditPopView;
 	private BaoxiuCardObject mBaoxiuCardObject;
 	private HomeObject mHomeObject;
-	
+	private AccountObject mAccountObject;
 	//预约信息
 	private TextView mYuyueDate, mYuyueTime;
 	private TextView mProductNameView, mProductInfoVew, mAccountInfoView, mContactPlaceView;
@@ -130,32 +130,32 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 //mYuyueTime.setText(DateUtils.TOPIC_TIME_FORMAT.format(mCalendar.getTime()));
 		 mYuyueDate.setOnClickListener(this);
 		 mYuyueTime.setOnClickListener(this);
-		 
+		 populateBaoxiuInfoView(mBaoxiuCardObject);
+		 populateHomeInfoView(mHomeObject);
+		 populateContactInfoView(mAccountObject);
 		return view;
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		populateBaoxiuInfoView(mBaoxiuCardObject);
 	}
 	
 	private void populateBaoxiuInfoView(BaoxiuCardObject baoxiuCardObject) {
 		//init layouts
 		mProductNameView.setText(baoxiuCardObject.mLeiXin);
 		mProductInfoVew.setText(baoxiuCardObject.mPinPai + " " + baoxiuCardObject.mXingHao);
-		mAccountInfoView.setText(MyAccountManager.getInstance().getAccountObject().mAccountName + " " + MyAccountManager.getInstance().getAccountObject().mAccountTel);
-		mContactPlaceView.setText(mHomeObject.mHomeProvince + mHomeObject.mHomeCity + mHomeObject.mHomeDis + mHomeObject.mHomePlaceDetail);
 	}
 	
 	public void setBaoxiuObjectAfterSlideMenu(InfoInterface slideManuObject) {
 	}
 	
 	public void populateHomeInfoView(HomeObject homeObject) {
-		//mProCityDisEditPopView.setHomeObject(homeObject.clone());
+		mContactPlaceView.setText(homeObject.mHomeProvince + homeObject.mHomeCity + homeObject.mHomeDis + homeObject.mHomePlaceDetail);
 	}
 	
     public void populateContactInfoView(AccountObject accountObject) {
+    	mAccountInfoView.setText(accountObject.mAccountName + " " + accountObject.mAccountTel);
 	}
 
 	public BaoxiuCardObject getBaoxiuCardObject() {
@@ -595,15 +595,14 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 					mAid = aid;
 				}
 			}
-			populateHomeInfoView((HomeObject)infoInterface);
 		} else if (infoInterface instanceof AccountObject) {
 			if (infoInterface != null) {
 				long uid = ((AccountObject)infoInterface).mAccountUid;
 				if (uid > 0) {
 					mUid = uid;
 				}
+				mAccountObject = (AccountObject)infoInterface;
 			}
-			populateContactInfoView((AccountObject) infoInterface);
 		}
 	}
 }
