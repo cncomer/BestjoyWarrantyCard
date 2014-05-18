@@ -705,7 +705,8 @@ public class PhotoManagerUtilsV2 {
 	
 	
 	public enum TaskType {
-		PREVIEW("PreviewVcfType"),
+		PREVIEW("PreviewVcfType"),       //联系人预览
+		MYPREVIEW("MyPreviewVcfType"),    //我的名片预览
 		FaPiao("FaPiao"),
 		HOME_DEVICE_AVATOR("HomeDeviceAvatorType");  //设备avator
 		private String mTypeName;

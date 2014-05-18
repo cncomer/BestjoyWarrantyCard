@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.ui.BrowserActivity;
 import com.bestjoy.app.warrantycard.ui.MyChooseDevicesActivity;
@@ -104,13 +104,13 @@ public class ModleSettings {
 		public void onItemClick(AdapterView<?> listView, View view, int pos, long arg3) {
 			Bundle bundle = new Bundle();
 			int id = getModelId(pos);
-			if (HaierAccountManager.getInstance().hasLoginned()) {
+			if (MyAccountManager.getInstance().hasLoginned()) {
 				//如果登陆了，我们先设置默认的家对象
-				HomeObject.setHomeObject(HaierAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
+				HomeObject.setHomeObject(MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
 			}
 			switch(id) {
 			case R.id.model_my_card:
-				if (HaierAccountManager.getInstance().hasBaoxiuCards()) {
+				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 					MyChooseDevicesActivity.startIntent(_context, createMyCardDefaultBundle(_context));
 				} else {
 //					NewCardActivity.startIntent(_context, createMyCardDefaultBundle(_context));
@@ -118,7 +118,7 @@ public class ModleSettings {
 				}
 				break;
 			case R.id.model_install:
-				if (HaierAccountManager.getInstance().hasBaoxiuCards()) {
+				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 					MyChooseDevicesActivity.startIntent(_context, createMyInstallDefaultBundle(_context));
 				} else {
 //					InstallActivity.startIntent(_context, createMyInstallDefaultBundle(_context));
@@ -128,7 +128,7 @@ public class ModleSettings {
 			case R.id.model_repair:
 				//bundle.putString(Intents.EXTRA_NAME, _context.getString(R.string.activity_title_choose_device_repair));
 				//break;
-				if (HaierAccountManager.getInstance().hasBaoxiuCards()) {
+				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 					MyChooseDevicesActivity.startIntent(_context, createMyRepairDefaultBundle(_context));
 				} else {
 					NewCardActivity.startIntent(_context, createMyRepairDefaultBundle(_context));

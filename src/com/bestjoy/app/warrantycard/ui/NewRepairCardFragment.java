@@ -36,7 +36,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
@@ -144,7 +144,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		//init layouts
 		mProductNameView.setText(baoxiuCardObject.mLeiXin);
 		mProductInfoVew.setText(baoxiuCardObject.mPinPai + " " + baoxiuCardObject.mXingHao);
-		mAccountInfoView.setText(HaierAccountManager.getInstance().getAccountObject().mAccountName + " " + HaierAccountManager.getInstance().getAccountObject().mAccountTel);
+		mAccountInfoView.setText(MyAccountManager.getInstance().getAccountObject().mAccountName + " " + MyAccountManager.getInstance().getAccountObject().mAccountTel);
 		mContactPlaceView.setText(mHomeObject.mHomeProvince + mHomeObject.mHomeCity + mHomeObject.mHomeDis + mHomeObject.mHomePlaceDetail);
 	}
 	
@@ -250,7 +250,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 
 	private void createRepairCard() {
-		if(HaierAccountManager.getInstance().hasLoginned()) {
+		if(MyAccountManager.getInstance().hasLoginned()) {
 			//如果没有注册，我们前往登陆界面
 			if(checkInput()) {
 				createRepairCardAsync();
@@ -312,7 +312,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			urls[12] = "&tip=";
 			paths[12] = tip;
 			urls[13] = "&key=";
-			paths[13] = BaoxiuCardObject.getYuyueSecurityKey(HaierAccountManager.getInstance().getAccountObject().mAccountTel, timeStr);
+			paths[13] = BaoxiuCardObject.getYuyueSecurityKey(MyAccountManager.getInstance().getAccountObject().mAccountTel, timeStr);
 			DebugUtils.logD(TAG, "urls = " + Arrays.toString(urls));
 			DebugUtils.logD(TAG, "paths = " + Arrays.toString(paths));
 			try {
@@ -370,7 +370,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 				//预约成功
 				getActivity().finish();
 				MyApplication.getInstance().showMessage(R.string.msg_yuyue_sucess);
-				if (HaierAccountManager.getInstance().hasBaoxiuCards()) {
+				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 					MyChooseDevicesActivity.startIntent(getActivity(), getArguments());
 				}
 				

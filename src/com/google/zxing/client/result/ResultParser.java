@@ -42,6 +42,20 @@ public abstract class ResultParser {
   private static final ResultParser[] PARSERS = {
 //      new MyDeviceResultParser(),
 	  new HaierParser(),
+	  new VCardResultParser(),
+      new AddressBookDoCoMoResultParser(),
+      new AddressBookAUResultParser(),
+      new BizcardResultParser(),
+      new GeoResultParser(),
+      new WifiResultParser(),
+      new BizcardResultParser(),
+      new EmailAddressResultParser(),
+      new EmailDoCoMoResultParser(),
+      new SMSMMSResultParser(),
+      new VEventResultParser(),
+      new SMSTOMMSTOResultParser(),
+      new URIResultParser(),
+      new URLTOResultParser(),
   };
 
   private static final Pattern DIGITS = Pattern.compile("\\d*");

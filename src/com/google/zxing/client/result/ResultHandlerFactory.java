@@ -34,6 +34,22 @@ public final class ResultHandlerFactory {
     ParsedResultType type = result.getType();
     if (type.equals(ParsedResultType.HAIER)) {
         return new HaierResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.ADDRESSBOOK)) {
+        return new AddressBookResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.WIFI)) {
+    	return new WifiResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.URI)) {
+    	return new URIResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.GEO)) {
+    	return new GeoResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.SMS)) {
+    	return new SMSResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.TEL)) {
+    	return new TelResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.CALENDAR)) {
+    	return new CalendarResultHandler(activity, result);
+    } else if (type.equals(ParsedResultType.EMAIL_ADDRESS)) {
+    	return new EmailAddressResultHandler(activity, result);
     } else if (type.equals(ParsedResultType.TEXT)) {
        return new TextResultHandler(activity, result);
     } 

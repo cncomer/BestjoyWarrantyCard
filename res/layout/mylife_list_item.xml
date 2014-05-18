@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dip" >
+
+        <ImageView
+            android:id="@+id/avator"
+            android:layout_width="80dip"
+            android:layout_height="70dip"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerInside" />
+
+        <ImageView android:id="@+id/tel"
+            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/button_tel"
+            android:padding="6dip"
+            android:clickable="true"
+            android:layout_centerVertical="true"/>
+        
+         <TextView android:id="@+id/jf"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mylife_jf"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_width="wrap_content"
+                android:layout_toLeftOf="@+id/tel"
+                android:layout_alignTop="@+id/avator"
+                android:layout_marginTop="6dip"
+                android:layout_marginLeft="8dip"/>
+         <TextView android:id="@+id/total"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mylife_jf"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_width="wrap_content"
+                android:layout_toLeftOf="@+id/tel"
+                android:layout_below="@+id/jf"
+                android:layout_marginTop="6dip"
+                android:layout_marginLeft="8dip"/>
+        <LinearLayout
+            android:layout_toRightOf="@+id/avator"
+            android:layout_toLeftOf="@+id/jf"
+            android:layout_marginLeft="4dip"
+            android:layout_marginTop="6dip"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignTop="@+id/avator"
+            android:orientation="vertical">
+            <TextView android:id="@+id/name"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blk"
+                android:textSize="16sp"
+                android:layout_width="fill_parent" />
+             <TextView android:id="@+id/address"
+                android:layout_height="wrap_content"
+                android:textColor="@color/blk"
+                android:textSize="16sp"
+                android:maxLines="1"
+                android:layout_marginTop="4dip"
+                android:layout_marginLeft="4dip"
+                android:scrollHorizontally="true"
+                android:ellipsize="end"
+                android:visibility="gone"
+                android:layout_width="fill_parent" />
+        </LinearLayout>
+        <com.bestjoy.app.warrantycard.view.MarqueeTextView 
+            android:id="@+id/guanggao"
+            android:layout_height="wrap_content"
+            android:textColor="@color/mylife_guanggao"
+            android:layout_width="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/avator"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="2dip"
+            android:layout_marginBottom="2dip"
+            android:ellipsize="marquee"
+            android:visibility="gone"
+            android:scrollHorizontally="true"
+            android:singleLine="true"/>
+    </RelativeLayout>

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/wt"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1.0" >
+
+        <ScrollView
+            android:id="@+id/scrollview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fillViewport="true" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:padding="4dip" >
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" >
+
+                    <ImageView
+                        android:id="@+id/avator"
+                        android:layout_width="80dip"
+                        android:layout_height="70dip"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        android:scaleType="centerInside" />
+
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="6dip"
+                        android:layout_marginLeft="6dip"
+                        android:layout_toRightOf="@+id/avator"
+                        android:textColor="@color/blk"
+                        android:textSize="16sp" />
+                </RelativeLayout>
+
+                <!-- 电话 -->
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginBottom="2dip"
+                    android:layout_marginTop="2dip"
+                    android:background="@color/gray_type" />
+
+                <LinearLayout
+                    android:id="@+id/button_tel"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/receive_contact_item"
+                    android:clickable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dip" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/button_tel" />
+
+                    <TextView
+                        android:id="@+id/tel"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dip"
+                        android:layout_weight="1.0"
+                        android:textColor="@color/blk"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- 位置 -->
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginBottom="2dip"
+                    android:layout_marginTop="2dip"
+                    android:background="@color/gray_type" />
+
+                <LinearLayout
+                    android:id="@+id/button_location"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/receive_contact_item"
+                    android:clickable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dip" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/button_location" />
+
+                    <TextView
+                        android:id="@+id/location"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dip"
+                        android:layout_weight="1.0"
+                        android:textColor="@color/blk"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- 主页 -->
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginBottom="2dip"
+                    android:layout_marginTop="2dip"
+                    android:background="@color/gray_type" />
+
+                <LinearLayout
+                    android:id="@+id/button_home"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/receive_contact_item"
+                    android:clickable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dip" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/button_home" />
+
+                    <TextView
+                        android:id="@+id/home"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dip"
+                        android:layout_weight="1.0"
+                        android:textColor="@color/blk"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- 最新优惠 -->
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginBottom="2dip"
+                    android:layout_marginTop="2dip"
+                    android:background="#3e999999" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="8dip" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/button_mylife_news" />
+
+                    <TextView
+                        android:id="@+id/news"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dip"
+                        android:layout_marginTop="8dip"
+                        android:layout_weight="1.0"
+                        android:textColor="@color/blk"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <!-- 客人点评 -->
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginBottom="2dip"
+                    android:layout_marginTop="2dip"
+                    android:background="#3e999999" />
+                <TextView
+                    android:paddingTop="8dip"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="8dip"
+                    android:paddingBottom="2dip"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_consumer_notes"
+                    android:textColor="@color/blk"/>
+                <TextView android:id="@+id/xf_comment"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="8dip"
+                    android:textColor="@color/blk"
+                    android:maxLines="2"
+                    android:clickable="true"
+                    android:ellipsize="end"
+                    android:background="@drawable/receive_contact_item"/>
+                
+                <!-- 消费备注 -->
+                 <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginBottom="2dip"
+                    android:layout_marginTop="2dip"
+                    android:background="#3e999999" />
+                <EditText android:id="@+id/xfnotes"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="4"
+                    android:minLines="3"
+                    android:gravity="top"
+                    android:background="@drawable/edit_text_holo_light"
+                    android:maxLength="1000"
+                    android:hint="@string/text_consume_notes"/>
+                
+                <!-- 消费记录 -->
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginBottom="2dip"
+                    android:layout_marginTop="2dip"
+                    android:background="#3e999999" />
+                <Button android:id="@+id/button_show"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/button_show_consume"
+                    android:textColor="@color/mylife_jf"/>
+            </LinearLayout>
+        </ScrollView>
+        
+        <LinearLayout
+            android:id="@+id/xfrecord_list_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:background="@color/wt"
+            android:visibility="gone">
+            <ListView 
+                android:id="@+id/xfrecord_list"
+	            android:layout_width="fill_parent"
+	            android:layout_height="0dip"
+	            android:layout_weight="1.0"
+	            android:divider="@color/mylife_jf_list_divider"
+	            android:dividerHeight="1dip"
+	            android:cacheColorHint="#00000000" />
+            <Button android:id="@+id/button_hide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_hide_consume"
+                android:textColor="@color/mylife_jf"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+        
+            
+        <LinearLayout
+            android:id="@+id/progress_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#e0313232"
+            android:visibility="gone"
+            android:gravity="center" >
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true" />
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>

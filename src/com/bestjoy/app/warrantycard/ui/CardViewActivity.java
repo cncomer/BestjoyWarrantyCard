@@ -22,7 +22,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
@@ -211,7 +211,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 						int deleted = BaoxiuCardObject.deleteBaoxiuCardInDatabaseForAccount(mContext.getContentResolver(), mBaoxiuCardObject.mUID, mBaoxiuCardObject.mAID, mBaoxiuCardObject.mBID);
 						if (deleted > 0) {
 							//本地删除成功后我们还要刷新对应HomeObject对象的保修卡数据
-							HaierAccountManager.getInstance().updateHomeObject(mBaoxiuCardObject.mAID);
+							MyAccountManager.getInstance().updateHomeObject(mBaoxiuCardObject.mAID);
 						}
 					}
 				}

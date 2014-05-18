@@ -18,7 +18,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.AccountParser;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.Intents;
@@ -71,7 +71,7 @@ public class LoginOrUpdateAccountDialog extends Activity{
 				_is = NetworkUtils.openContectionLocked(sb.toString(), mPwd, null);
 				mAccountObject = AccountParser.parseJson(_is, mStatusView);
 				if (mAccountObject != null && mAccountObject.isLogined()) {
-					boolean saveAccountOk = HaierAccountManager.getInstance().saveAccountObject(LoginOrUpdateAccountDialog.this.getContentResolver(), mAccountObject);
+					boolean saveAccountOk = MyAccountManager.getInstance().saveAccountObject(LoginOrUpdateAccountDialog.this.getContentResolver(), mAccountObject);
 					if (!saveAccountOk) {
 						//登录成功了，但本地数据保存失败，通常不会走到这里
 						_error = LoginOrUpdateAccountDialog.this.getString(R.string.msg_login_save_success);

@@ -51,6 +51,12 @@ public class BjnoteProvider extends ContentProvider{
 	private static final int XINGHAO = 0x0400;
 	private static final int XINGHAO_ID = 0x0401;
 	
+	private static final int MY_CARD = 0x0500;
+	private static final int MY_CARD_ID = 0x0501;
+	
+	private static final int MYLIFE = 0x0600;
+	private static final int MYLIFE_ID = 0x0601;
+	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	 static {
 	        // URI matching table
@@ -72,7 +78,11 @@ public class BjnoteProvider extends ContentProvider{
 	        matcher.addURI(BjnoteContent.AUTHORITY, "xinghao", XINGHAO);
 	        matcher.addURI(BjnoteContent.AUTHORITY, "xinghao/#", XINGHAO_ID);
 	        
+	        matcher.addURI(BjnoteContent.AUTHORITY, "mycard", MY_CARD);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "mycard/#", MY_CARD_ID);
 	        
+	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife", MYLIFE);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife/#", MYLIFE_ID);
 	        //TODO 增加
 	 }
 	
@@ -131,7 +141,14 @@ public class BjnoteProvider extends ContentProvider{
 		case XINGHAO:
 		case XINGHAO_ID:
 			notify = BjnoteContent.XingHao.CONTENT_URI;
+		case MYLIFE:
+		case MYLIFE_ID:
+			notify = BjnoteContent.MyLife.CONTENT_URI;
 			break;
+		case MY_CARD:
+    	case MY_CARD_ID:
+    		notify = BjnoteContent.MyCard.CONTENT_URI;
+    		break;
     	}
     	ContentResolver resolver = context.getContentResolver();
         resolver.notifyChange(notify, null);
@@ -158,6 +175,10 @@ public class BjnoteProvider extends ContentProvider{
 			case SCAN_HISTORY_ID:
 			case XINGHAO:
 			case XINGHAO_ID:
+			case MY_CARD:
+		    case MY_CARD_ID:
+		    case MYLIFE:
+		    case MYLIFE_ID:
         	count = db.delete(table, buildSelection(match, uri, selection), selectionArgs);
         }
         if (count >0) notifyChange(match);
@@ -236,6 +257,10 @@ public class BjnoteProvider extends ContentProvider{
 			case SCAN_HISTORY_ID:
 			case XINGHAO:
 			case XINGHAO_ID:
+			case MY_CARD:
+	        case MY_CARD_ID:
+	        case MYLIFE:
+			case MYLIFE_ID:
         	     result = db.query(table, projection, selection, selectionArgs, null, null, sortOrder);
          }
 		return result;
@@ -262,6 +287,10 @@ public class BjnoteProvider extends ContentProvider{
 			case SCAN_HISTORY_ID:
 			case XINGHAO:
 			case XINGHAO_ID:
+			case MY_CARD:
+	        case MY_CARD_ID:
+			case MYLIFE:
+			case MYLIFE_ID:
         	    count = db.update(table, values, buildSelection(match, uri, selection), selectionArgs);
         }
         if (count >0) notifyChange(match);
@@ -276,6 +305,8 @@ public class BjnoteProvider extends ContentProvider{
 			case DEVICE_ID:
 			case SCAN_HISTORY_ID:
 			case XINGHAO_ID:
+			case MY_CARD_ID:
+			case MYLIFE_ID:
 			try {
 				id = ContentUris.parseId(uri);
 			} catch(java.lang.NumberFormatException e) {

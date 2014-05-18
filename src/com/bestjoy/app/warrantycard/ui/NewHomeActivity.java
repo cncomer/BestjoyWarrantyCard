@@ -19,7 +19,7 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -130,7 +130,7 @@ public class NewHomeActivity extends BaseActionbarActivity {
 			.append("&City=").appendUrlEncodedString(mHomeObject.mHomeCity)
 			.append("&QuXian=").appendUrlEncodedString(mHomeObject.mHomeDis)
 			.append("&DetailAddr=").appendUrlEncodedString(mHomeObject.mHomePlaceDetail)
-			.append("&UID=").appendUrlEncodedString(String.valueOf(HaierAccountManager.getInstance().getAccountObject().mAccountUid))
+			.append("&UID=").appendUrlEncodedString(String.valueOf(MyAccountManager.getInstance().getAccountObject().mAccountUid))
 			.append("&Tag=").appendUrlEncodedString(mHomeObject.mHomeName);
 			
 			try {
@@ -142,7 +142,7 @@ public class NewHomeActivity extends BaseActionbarActivity {
 						//更新服务器上的数据成功，我们需要更新本地的
 						if (mHomeObject.mHomeAid == -1) {
 							//是新建
-							mHomeObject.mHomeUid = HaierAccountManager.getInstance().getAccountObject().mAccountUid;
+							mHomeObject.mHomeUid = MyAccountManager.getInstance().getAccountObject().mAccountUid;
 							String data = haierResultObject.mStrData;
 							DebugUtils.logD(TAG, "doCreateHome return data " + data);
 							if (!TextUtils.isEmpty(data)) {
@@ -159,7 +159,7 @@ public class NewHomeActivity extends BaseActionbarActivity {
 							MyApplication.getInstance().showMessageAsync(R.string.msg_local_save_op_failed);
 						}
 						//刷新本地家
-						HaierAccountManager.getInstance().initAccountHomes();
+						MyAccountManager.getInstance().initAccountHomes();
 					}
 				}
 			} catch (ClientProtocolException e) {
@@ -191,7 +191,7 @@ public class NewHomeActivity extends BaseActionbarActivity {
 			urls[4] = "&DetailAddr=";
 			paths[4] = mHomeObject.mHomePlaceDetail;
 			urls[5] = "&UID=";
-			paths[5] = String.valueOf(HaierAccountManager.getInstance().getAccountObject().mAccountUid);
+			paths[5] = String.valueOf(MyAccountManager.getInstance().getAccountObject().mAccountUid);
 			urls[6] = "&Tag=";
 			paths[6] = mHomeObject.mHomeName;
 			DebugUtils.logD(TAG, "urls = " + Arrays.toString(urls));
@@ -208,7 +208,7 @@ public class NewHomeActivity extends BaseActionbarActivity {
 							MyApplication.getInstance().showMessageAsync(R.string.msg_local_save_op_failed);
 						}
 						//刷新本地家
-						HaierAccountManager.getInstance().initAccountHomes();
+						MyAccountManager.getInstance().initAccountHomes();
 					}
 				}
 			} catch (ClientProtocolException e) {

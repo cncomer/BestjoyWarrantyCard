@@ -23,7 +23,7 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -191,7 +191,7 @@ public class RegisterConfirmActivity extends BaseActionbarActivity implements Vi
 			} else if (result) {
 				//注册后，我们要做一次登陆
 				MyApplication.getInstance().showMessage(mAccountObject.mStatusMessage);
-				HaierAccountManager.getInstance().saveLastUsrTel(mAccountObject.mAccountTel);
+				MyAccountManager.getInstance().saveLastUsrTel(mAccountObject.mAccountTel);
 				startActivityForResult(LoginOrUpdateAccountDialog.createLoginOrUpdate(mContext, true, mAccountObject.mAccountTel, mAccountObject.mAccountPwd), REQUEST_LOGIN);
 			}
 			dismissDialog(DIALOG_PROGRESS);

@@ -17,7 +17,7 @@ import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
 /**
- * 账户对象，在程序启动时候会通过{@link HaierAccountManager#setContext(Context context)}来获得当前默认账户。
+ * 账户对象，在程序启动时候会通过{@link MyAccountManager#setContext(Context context)}来获得当前默认账户。
  * 
  * 需要注意的是，在设计数据库的时候，有{@link HaierDBHelper#ACCOUNT_HOME_COUNT}字段，该字段会随着新增或是删除一个HomeObject数据
  * 自动增加和减少，所以我们保存的时候不要设置他。成员mAccountHomes 以及 mBaoxiuCards默认都是空的，如果需要，需要额外调用方法来获得，
@@ -34,6 +34,8 @@ public class AccountObject implements InfoInterface{
 		HaierDBHelper.ACCOUNT_TEL,
 		HaierDBHelper.ACCOUNT_PWD,
 		HaierDBHelper.ACCOUNT_HOME_COUNT,
+		HaierDBHelper.ACCOUNT_MYCARD_COUNT,     //6
+		HaierDBHelper.HOME_CARD_COUNT,
 	};
 	
 	private static final String[] PROJECTION_UID = new String[]{
@@ -48,6 +50,8 @@ public class AccountObject implements InfoInterface{
 	private static final int KEY_TEL = 3;
 	private static final int KEY_PWD = 4;
 	private static final int KEY_HOME_COUNT = 5;
+	private static final int KEY_MYCARD_COUNT = 6;
+	private static final int KEY_BAOXIUCARD_COUNT = 7;
 	
 	private static final String WHERE_DEFAULT = HaierDBHelper.ACCOUNT_DEFAULT + "=1";
 	private static final String WHERE_UID = HaierDBHelper.ACCOUNT_UID + "=?";
@@ -58,6 +62,10 @@ public class AccountObject implements InfoInterface{
 	public String mAccountTel;
 	public String mAccountPwd;
 	public int mAccountHomeCount;
+	/**保修卡个数*/
+	public int mAccountBaoxiuCardCount;
+	/**我的名片个数*/
+	public int mAccountMyCardCount;
 	
 	
 	
@@ -81,6 +89,8 @@ public class AccountObject implements InfoInterface{
 		newAccountObject.mAccountTel = mAccountTel;
 		newAccountObject.mAccountPwd = mAccountPwd;
 		newAccountObject.mAccountHomeCount = mAccountHomeCount;
+		newAccountObject.mAccountBaoxiuCardCount = mAccountBaoxiuCardCount;
+		newAccountObject.mAccountMyCardCount = mAccountMyCardCount;
 		return newAccountObject;
 	}
 	
@@ -109,6 +119,9 @@ public class AccountObject implements InfoInterface{
 				haierAccount.mAccountTel = c.getString(KEY_TEL);
 				haierAccount.mAccountPwd = c.getString(KEY_PWD);
 				haierAccount.mAccountHomeCount = c.getInt(KEY_HOME_COUNT);
+				
+				haierAccount.mAccountBaoxiuCardCount = c.getInt(KEY_BAOXIUCARD_COUNT);
+				haierAccount.mAccountMyCardCount = c.getInt(KEY_MYCARD_COUNT);
 			}
 		    c.close();
 		}
