@@ -23,12 +23,13 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
+import com.shwy.bestjoy.utils.Intents;
 
 public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
 	private LinearLayout mDotsLayout;
@@ -118,7 +119,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
      }
 	 
 	 public boolean onPrepareOptionsMenu(Menu menu) {
-		 menu.findItem(R.string.menu_exit).setVisible(HaierAccountManager.getInstance().hasLoginned());
+		 menu.findItem(R.string.menu_exit).setVisible(MyAccountManager.getInstance().hasLoginned());
 	     return super.onPrepareOptionsMenu(menu);
 	 }
 	 
@@ -153,8 +154,8 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			HaierAccountManager.getInstance().deleteDefaultAccount();
-			HaierAccountManager.getInstance().saveLastUsrTel("");
+			MyAccountManager.getInstance().deleteDefaultAccount();
+			MyAccountManager.getInstance().saveLastUsrTel("");
 			return null;
 		}
 
@@ -296,20 +297,20 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		switch (v.getId()) {
 		case R.id.button_my_card:
 			//判断有没有登陆，没有的话提示用户先去登陆
-			if (!HaierAccountManager.getInstance().hasLoginned()) {
+			if (!MyAccountManager.getInstance().hasLoginned()) {
 				LoginActivity.startIntent(this, null);
 				MyApplication.getInstance().showNeedLoginMessage();
 				return;
 			}
 			//判断是否有家，没有的话，就要去新建一个家
-			if (!HaierAccountManager.getInstance().hasHomes()) {
+			if (!MyAccountManager.getInstance().hasHomes()) {
 				HomeObject.setHomeObject(new HomeObject());
 				MyApplication.getInstance().showNeedHomeMessage();
 				NewHomeActivity.startActivity(this);
 				return;
 			}
 			//判断是否有保修卡
-			if (HaierAccountManager.getInstance().hasBaoxiuCards()) {
+			if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 				MyChooseDevicesActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
 			} else {
 				NewCardActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
@@ -319,7 +320,8 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			MyApplication.getInstance().showUnsupportMessage();
 			break;
 		case R.id.button_qr_scan:
-			MyApplication.getInstance().showUnsupportMessage();
+			Intent scanIntent = new Intent(this, CaptureActivity.class);
+			startActivity(scanIntent);
 			break;
 		}
 		

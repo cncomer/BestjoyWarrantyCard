@@ -84,4 +84,27 @@ public class BjnoteContent {
     public static class HaierRegion extends BjnoteContent{
     	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.DEVICE_CONTENT_URI, "haierregion");
     }
+    
+    /**
+     * 我的名片
+     * @author chenkai
+     *
+     */
+    public static class MyCard extends BjnoteContent{
+    	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "mycard");
+    }
+    
+    /**生活圈*/
+    public static class MyLife extends BjnoteContent {
+    	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "mylife");
+    	public static final Uri CONSUME_CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "mylife/consume");
+    	public static final boolean DEBUG = false;
+    	
+    	public static String buildAllMyLifeForTel(String tel) {
+    		if (DEBUG) {
+    			tel = "13816284988";
+    		} 
+    		return "http://www.mingdown.com/cell/get2B.ashx?Cell=" + tel;
+    	}
+    }
 }

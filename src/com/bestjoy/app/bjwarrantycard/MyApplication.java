@@ -7,11 +7,13 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
+import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DateUtils;
 import com.shwy.bestjoy.utils.DeviceStorageUtils;
@@ -26,6 +28,9 @@ public class MyApplication extends Application{
 	private Handler mHandler;
 	private static MyApplication mInstance;
 	public SharedPreferences mPreferManager;
+	
+	/**成功删除字符串*/
+	public static final String mDeleteOk="ok";
 	
 	@Override
 	public void onCreate() {
@@ -65,7 +70,7 @@ public class MyApplication extends Application{
 		
 		BitmapUtils.getInstance().setContext(this);
 		
-		HaierAccountManager.getInstance().setContext(this);
+		MyAccountManager.getInstance().setContext(this);
 		
 		mPreferManager = PreferenceManager.getDefaultSharedPreferences(this);
 		ServiceObject.setContext(this);
@@ -78,6 +83,29 @@ public class MyApplication extends Application{
 	
 	public File getCachedContactFile(String name) {
 		return new File(getFilesDir(), name+ ".vcf");
+	}
+	
+	/**得到账户名片的头像图片文件*/
+	public File getAccountCardAvatorFile(String name) {
+		return new File(getAccountDir(MyAccountManager.getInstance().getCurrentAccountMd()), name+ ".p");
+	}
+	public File getAccountCardAvatorFile(String accountUid, String name) {
+		return new File(getAccountDir(accountUid), name+ ".p");
+	}
+	/**返回缓存目录caches/下面的临时头像文件*/
+	public File getCachedPreviewAvatorFile(String name) {
+		return new File(getCacheDir(), name+ ".p");
+	}
+	/**返回缓存目录caches/下面的临时vcf文件*/
+	public File getCachedPreviewContactFile(String name) {
+		return new File(getCacheDir(), name+ ".vcf");
+	}
+	public File getAccountCardFile(String accountUid, String cardMm) {
+		if (TextUtils.isEmpty(accountUid) || TextUtils.isEmpty(cardMm)) {
+			DebugUtils.logE(TAG, "getAccountCardFile return null due to accountMd=" + accountUid + " cardMm" + cardMm);
+			return null;
+		}
+		return new File(getAccountDir(accountUid), cardMm+ ".vcf");
 	}
 	
 	public File getAppFilesDir(String dirName) {

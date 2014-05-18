@@ -6,7 +6,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.HomeManagerActivity;
 import com.bestjoy.app.warrantycard.ui.LoginActivity;
 import com.bestjoy.app.warrantycard.ui.RegisterActivity;
@@ -58,7 +58,7 @@ public class MenuHandlerUtils {
     public static boolean onPrepareOptionsMenu(Menu menu, Context context) {
     	//如果已经登陆了，那么我们显示设置菜单
     	MenuItem menuItem = menu.findItem(R.string.menu_setting);
-    	if (HaierAccountManager.getInstance().hasLoginned()) {
+    	if (MyAccountManager.getInstance().hasLoginned()) {
     		if (menuItem != null) {
     			menuItem.setVisible(true);
     		}

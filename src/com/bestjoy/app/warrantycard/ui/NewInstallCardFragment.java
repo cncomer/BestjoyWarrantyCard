@@ -33,7 +33,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.view.HaierProCityDisEditPopView;
@@ -220,7 +220,7 @@ public class NewInstallCardFragment extends ModleBaseFragment implements View.On
 	}
 	
 	private void createNewInatallCard() {
-		if(HaierAccountManager.getInstance().hasLoginned()) {
+		if(MyAccountManager.getInstance().hasLoginned()) {
 			//如果没有注册，我们前往登陆界面
 			if(checkInput()) {
 				createNewInatallCardAsync();
@@ -284,7 +284,7 @@ public class NewInstallCardFragment extends ModleBaseFragment implements View.On
 			urls[12] = "&tip=";
 			paths[12] = tip;
 			urls[13] = "&key=";
-			paths[13] = BaoxiuCardObject.getYuyueSecurityKey(HaierAccountManager.getInstance().getAccountObject().mAccountTel, timeStr);
+			paths[13] = BaoxiuCardObject.getYuyueSecurityKey(MyAccountManager.getInstance().getAccountObject().mAccountTel, timeStr);
 			DebugUtils.logD(TAG, "urls = " + Arrays.toString(urls));
 			DebugUtils.logD(TAG, "paths = " + Arrays.toString(paths));
 			try {
@@ -341,7 +341,7 @@ public class NewInstallCardFragment extends ModleBaseFragment implements View.On
 				//预约成功
 				getActivity().finish();
 				MyApplication.getInstance().showMessage(R.string.msg_yuyue_sucess);
-				if (HaierAccountManager.getInstance().hasBaoxiuCards()) {
+				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 					MyChooseDevicesActivity.startIntent(getActivity(), getArguments());
 				}
 			} else {

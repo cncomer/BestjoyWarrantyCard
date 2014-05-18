@@ -137,8 +137,7 @@
 	                    android:id="@+id/baoxiuday"
 	                    android:layout_width="80dip"
 	                    android:layout_height="wrap_content"
-	                    android:clickable="true"
-	                    android:src="@drawable/button_policy" />
+	                    android:clickable="true"/>
                      <TextView android:layout_width="wrap_content"
                          android:layout_height="wrap_content"
                          android:text="@string/unit_day"/>
@@ -186,8 +185,7 @@
                     android:paddingRight="8dip"
                     android:layout_marginBottom="8dip"
                     android:layout_marginTop="8dip"
-                    android:background="@drawable/default_blue_btn"
-                    android:src="@drawable/button_bill" />
+                    android:background="@drawable/default_blue_btn"/>
             </LinearLayout>
             
             <View android:background="@drawable/xuxian"

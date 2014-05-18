@@ -14,7 +14,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -131,15 +131,15 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 			//更新家信息
 			mContent.updateInfoInterface(HomeObject.getHomeObject());
 			//更新联系人信息，默认是用的账户信息
-			mContent.updateInfoInterface(HaierAccountManager.getInstance().getAccountObject());
+			mContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
 			mIsFirstOnResume = false;
 		}
 		//add by chenkai, 如果已经前往登录过了，我们需要重新将账户信息和默认家信息填充.
 		if (mHasRegistered) {
 			mHasRegistered = false;
-			mContent.updateInfoInterface(HaierAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
+			mContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
 			//更新联系人信息，默认是用的账户信息
-			mContent.updateInfoInterface(HaierAccountManager.getInstance().getAccountObject());
+			mContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
 		}
 		
 		boolean first = MyApplication.getInstance().mPreferManager.getBoolean(KEY_FIRST_SHOW, true);

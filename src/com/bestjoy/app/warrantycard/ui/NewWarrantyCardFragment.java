@@ -37,7 +37,7 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -339,7 +339,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	}
 	
 	private void saveNewWarrantyCardAndSync() {
-		if(HaierAccountManager.getInstance().hasLoginned()) {
+		if(MyAccountManager.getInstance().hasLoginned()) {
 			//如果没有注册，我们前往登陆界面
 			if(checkInput()) {
 				mSaveBtn.setEnabled(false);
@@ -477,7 +477,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 											//通常不会发生
 											serviceResultObject.mStatusMessage = getActivity().getString(R.string.msg_local_save_card_failed);
 										} else {
-											HaierAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
+											MyAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
 										}
 									} 
 									
@@ -638,7 +638,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 						DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask " + getActivity().getString(R.string.msg_local_save_card_failed));
 					} else {
 						//更新家以便设备列表能够看到
-						HaierAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
+						MyAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
 					}
 				}
 						

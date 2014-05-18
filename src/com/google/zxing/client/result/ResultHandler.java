@@ -258,22 +258,13 @@ public abstract class ResultHandler {
 		    launchIntent(new Intent(Intent.ACTION_VIEW, Uri.parse(geoURI)));
 	}
 	
-	/** ��ȡ��ϵ��BID��Ϣ�������µ�ͨѶ¼�У���ʾ��ϵ����Ϣ���� */
-//	final void getBidAndAddContact() {
-//
-//		// ����bid������Ƭ��ַ��ֱ��������ݲ����µ�ַ��
-//		((CaptureActivity) activity).download(result, this);
-//
-//	}
-	
 	final void gotoBrower(String url) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 		launchIntent(intent);
 	}
 
 	final void shareByEmail(String contents) {
-		sendEmailFromUri("mailto:", activity
-				.getString(R.string.msg_share_subject_line), contents);
+		sendEmailFromUri("mailto:", activity.getString(R.string.msg_share_subject_line), contents);
 	}
 
 	final void sendEmail(String address, String subject, String body) {

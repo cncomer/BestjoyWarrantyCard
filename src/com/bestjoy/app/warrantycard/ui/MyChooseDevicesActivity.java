@@ -20,7 +20,7 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
@@ -138,7 +138,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			HaierAccountManager.getInstance().initAccountHomes();
+			MyAccountManager.getInstance().initAccountHomes();
 			return null;
 		}
 
@@ -174,7 +174,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 		}
 		
 		private HomeObject getHome(int position) {
-			return HaierAccountManager.getInstance().getAccountObject().mAccountHomes.get(position);
+			return MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(position);
 		}
 
 
@@ -204,7 +204,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 
 		@Override
 		public int getCount() {
-			return HaierAccountManager.getInstance().getAccountObject().mAccountHomeCount;
+			return MyAccountManager.getInstance().getAccountObject().mAccountHomeCount;
 		}
 
 	}

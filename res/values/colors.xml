@@ -7,8 +7,8 @@
     <color name="light_blue">#ff58b0ed</color>
     <color name="blue">#185095</color>
     <color name="text_green">#0EFBFF</color>
-    <drawable name="button_black">#185095</drawable>
-    <drawable name="button_black_on">#105095</drawable>
+    <drawable name="button_black">#ff1c1c1c</drawable>
+    <drawable name="button_black_on">#ff717171</drawable>
     
     <drawable name="button_pink">#ffff7872</drawable>
     <drawable name="button_pink_on">#fff5acb5</drawable>
@@ -43,5 +43,11 @@
   <color name="fenlei_divider_line">#ff1b395b</color>
   <color name="fenlei_item">#ff3667ac</color>
   <!-- 选择设备结束 -->
+  
+  <!-- mylife -->
+  <color name="gray_type">#ff999999</color>
+  <color name="mylife_jf">#ffb87a03</color>
+  <color name="mylife_guanggao">#fffc8fc9</color>
+  <color name="mylife_jf_list_divider">#ffe1e1df</color>
   
 </resources>

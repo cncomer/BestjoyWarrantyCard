@@ -23,7 +23,6 @@ package com.google.zxing.client.result;
  * @author Sean Owen
  */
 public enum ParsedResultType {
-
   ADDRESSBOOK,
   EMAIL_ADDRESS,
   PRODUCT,
@@ -32,4 +31,8 @@ public enum ParsedResultType {
   GEO,
   TEL,
   HAIER,  //海尔条码
+  MYLIFE, //生活圈
+  WIFI,
+  SMS,
+  CALENDAR,
 }

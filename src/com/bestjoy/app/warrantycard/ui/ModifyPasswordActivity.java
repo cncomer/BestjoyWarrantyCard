@@ -20,7 +20,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
@@ -127,7 +127,7 @@ public class ModifyPasswordActivity extends BaseActionbarActivity {
 		}
 		@Override
 		protected ServiceResultObject doInBackground(Void... params) {
-			long uid = HaierAccountManager.getInstance().getAccountObject().mAccountUid;
+			long uid = MyAccountManager.getInstance().getAccountObject().mAccountUid;
 			ServiceResultObject ServiceResultObject = new ServiceResultObject();
 			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
 			sb.append("ChangePwd.ashx?")
@@ -141,7 +141,7 @@ public class ModifyPasswordActivity extends BaseActionbarActivity {
 			    	 ServiceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 			    	 if (ServiceResultObject.isOpSuccessfully()) {
 			    		 //如果更新成功，我们需要同步更新本地数据
-			    		 AccountObject accountObject = HaierAccountManager.getInstance().getAccountObject();
+			    		 AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
 			    		 accountObject.mAccountPwd = _password;
 			    		 ContentValues values = new ContentValues();
 			    		 values.put(HaierDBHelper.ACCOUNT_PWD, _password);

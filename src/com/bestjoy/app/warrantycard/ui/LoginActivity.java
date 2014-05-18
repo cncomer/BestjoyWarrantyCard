@@ -23,7 +23,7 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
-import com.bestjoy.app.warrantycard.account.HaierAccountManager;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
@@ -79,7 +79,7 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		
 		mTelInput = (EditText) findViewById(R.id.tel);
 		//显示上一次输入的用户号码
-		mTelInput.setText(HaierAccountManager.getInstance().getLastUsrTel());
+		mTelInput.setText(MyAccountManager.getInstance().getLastUsrTel());
 		
 		mPasswordInput = (EditText) findViewById(R.id.pwd);
 	}
@@ -110,7 +110,7 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 				String tel = mTelInput.getText().toString().trim();
 				String pwd = mPasswordInput.getText().toString().trim();
 				if (!TextUtils.isEmpty(tel) && !TextUtils.isEmpty(pwd)) {
-					HaierAccountManager.getInstance().saveLastUsrTel(tel);
+					MyAccountManager.getInstance().saveLastUsrTel(tel);
 					startActivityForResult(LoginOrUpdateAccountDialog.createLoginOrUpdate(this, true, tel, pwd), REQUEST_LOGIN);
 				} else {
 					MyApplication.getInstance().showMessage(R.string.msg_input_usrtel_password);
