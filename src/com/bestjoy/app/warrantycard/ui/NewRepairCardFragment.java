@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -38,7 +39,6 @@ import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
-import com.bestjoy.app.warrantycard.view.HaierProCityDisEditPopView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.DateUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
@@ -49,20 +49,22 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private static final String TAG = "NewRepairCardFragment";
 	//按钮
 	private Button mSaveBtn;
-	//商品信息
-	private EditText mTypeInput, mPinpaiInput, mModelInput, mBianhaoInput, mBaoxiuTelInput, mTagInput;
 	//联系人信息
-	private EditText mContactNameInput, mContactTelInput;
+	//private EditText mContactNameInput, mContactTelInput;
 	//private ProCityDisEditView mProCityDisEditView;
-	private HaierProCityDisEditPopView mProCityDisEditPopView;
+	//private HaierProCityDisEditPopView mProCityDisEditPopView;
+	private BaoxiuCardObject mBaoxiuCardObject;
+	private HomeObject mHomeObject;
 	
 	//预约信息
 	private TextView mYuyueDate, mYuyueTime;
+	private TextView mProductNameView, mProductInfoVew, mAccountInfoView, mContactPlaceView;
 	private Calendar mCalendar;
 	
 	private EditText mAskInput;
 	//private Handler mHandler;
 	private Button mSpeakButton;
+	private ImageView mMoreInfoView;
 	private SpeechRecognizerEngine mSpeechRecognizerEngine;
 	
 	private long mAid = -1;
@@ -70,7 +72,8 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private long mBid = -1;
 	
 	private ScrollView mScrollView;
-	
+	private CardViewFragment mContent;
+	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -82,42 +85,23 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		 View view = inflater.inflate(R.layout.activity_repair_20140418, container, false);
+		 View view = inflater.inflate(R.layout.activity_repair_20140518, container, false);
 		 
 		 mScrollView = (ScrollView) view.findViewById(R.id.scrollview);
 		 
-		 //条码识别
-		 view.findViewById(R.id.button_scan_qrcode).setOnClickListener(this);
+		 mMalfunctionBtn = (TextView) view.findViewById(R.id.button_malfunction);
+         mMaintenancePointBtn = (TextView) view.findViewById(R.id.button_maintenance_point);
+         mBuyMaintenanceComponentBtn = (TextView) view.findViewById(R.id.button_maintenance_componnet);
+         mMalfunctionBtn.setOnClickListener(this);
+         mMaintenancePointBtn.setOnClickListener(this);
+         mBuyMaintenanceComponentBtn.setOnClickListener(this);
 		 
-		 //商品信息
-		 mTypeInput = (EditText) view.findViewById(R.id.product_type_input);
-		 mPinpaiInput = (EditText) view.findViewById(R.id.product_brand_input);
-		 mModelInput = (EditText) view.findViewById(R.id.product_model_input);
-		 mBianhaoInput = (EditText) view.findViewById(R.id.product_sn_input);
-		 mBianhaoInput.setHint(R.string.hint_optional);
-		 mBaoxiuTelInput = (EditText) view.findViewById(R.id.product_tel_input);
-		 mTagInput = (EditText) view.findViewById(R.id.product_beizhu_tag);
+		 //mProCityDisEditPopView = new HaierProCityDisEditPopView(this.getActivity(), view);
 		 
-		 
-		 //联系人
-		 ((TextView) view.findViewById(R.id.people_info_title)).setTextColor(getResources().getColor(R.color.light_green));
-		 view.findViewById(R.id.people_info_divider).setBackgroundResource(R.color.light_green);
-		 mContactNameInput = (EditText) view.findViewById(R.id.contact_name_input);
-		 mContactTelInput = (EditText) view.findViewById(R.id.contact_tel_input);
-		 /*mProCityDisEditView = (ProCityDisEditView) view.findViewById(R.id.home);
-		 //不要显示HomeName输入框
-		 mProCityDisEditView.setHomeEditVisiable(View.GONE);*/
-		 mProCityDisEditPopView = new HaierProCityDisEditPopView(this.getActivity(), view);
-//		 mProCityDisEditPopView.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				mScrollView.scrollTo(0, -(int) v.getTop() + 20);
-//				
-//			}
-//
-//			 
-//		 });
+		 mProductNameView = (TextView) view.findViewById(R.id.product_name);
+		 mProductInfoVew = (TextView) view.findViewById(R.id.product_info);
+		 mAccountInfoView = (TextView) view.findViewById(R.id.account_info);
+		 mContactPlaceView = (TextView) view.findViewById(R.id.contact_place);
 		 
 		 //语音
 		 mAskInput = (EditText) view.findViewById(R.id.product_ask_online_input);
@@ -125,6 +109,9 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 mSpeakButton.setOnClickListener(this);
 		 mSpeechRecognizerEngine = SpeechRecognizerEngine.getInstance(getActivity());
 		 mSpeechRecognizerEngine.setResultText(mAskInput);
+		 
+		 mMoreInfoView = (ImageView) view.findViewById(R.id.image_more_info);
+		 mMoreInfoView.setOnClickListener(this);
 		 
 		 mSaveBtn = (Button) view.findViewById(R.id.button_save);
 		 mSaveBtn.setOnClickListener(this);
@@ -140,99 +127,41 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 mYuyueDate.setOnClickListener(this);
 		 mYuyueTime.setOnClickListener(this);
 		 
-		 view.findViewById(R.id.menu_choose).setOnClickListener(this);
 		return view;
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		populateBaoxiuInfoView(mBaoxiuCardObject);
 	}
 	
 	private void populateBaoxiuInfoView(BaoxiuCardObject baoxiuCardObject) {
 		//init layouts
-		if (baoxiuCardObject == null) {
-			mTypeInput.getText().clear();
-			mPinpaiInput.getText().clear();
-			mModelInput.getText().clear();
-			mBianhaoInput.getText().clear();
-			mBaoxiuTelInput.getText().clear();
-			mTagInput.getText().clear();
-		} else {
-			mTypeInput.setText(baoxiuCardObject.mLeiXin);
-			mPinpaiInput.setText(baoxiuCardObject.mPinPai);
-			mModelInput.setText(baoxiuCardObject.mXingHao);
-			mBianhaoInput.setText(baoxiuCardObject.mSHBianHao);
-			mBaoxiuTelInput.setText(baoxiuCardObject.mBXPhone);
-			mTagInput.setText(baoxiuCardObject.mCardName);
-		}
+		mProductNameView.setText(baoxiuCardObject.mLeiXin);
+		mProductInfoVew.setText(baoxiuCardObject.mPinPai + " " + baoxiuCardObject.mXingHao);
+		mAccountInfoView.setText(HaierAccountManager.getInstance().getAccountObject().mAccountName + " " + HaierAccountManager.getInstance().getAccountObject().mAccountTel);
+		mContactPlaceView.setText(mHomeObject.mHomeProvince + mHomeObject.mHomeCity + mHomeObject.mHomeDis + mHomeObject.mHomePlaceDetail);
 	}
 	
 	public void setBaoxiuObjectAfterSlideMenu(InfoInterface slideManuObject) {
-		if (slideManuObject instanceof BaoxiuCardObject) {
-			BaoxiuCardObject object = (BaoxiuCardObject) slideManuObject;
-			if (!TextUtils.isEmpty(object.mLeiXin)) {
-				mTypeInput.setText(object.mLeiXin);
-			}
-			if (!TextUtils.isEmpty(object.mPinPai)) {
-				mPinpaiInput.setText(object.mPinPai);
-			}
-			
-			if (!TextUtils.isEmpty(object.mXingHao)) {
-				mModelInput.setText(object.mXingHao);
-			}
-			
-			if (!TextUtils.isEmpty(object.mSHBianHao)) {
-				mBianhaoInput.setText(object.mSHBianHao);
-			}
-			
-			if (!TextUtils.isEmpty(object.mBXPhone)) {
-				mBaoxiuTelInput.setText(object.mBXPhone);
-			}
-		}
 	}
 	
 	public void populateHomeInfoView(HomeObject homeObject) {
-		mProCityDisEditPopView.setHomeObject(homeObject.clone());
+		//mProCityDisEditPopView.setHomeObject(homeObject.clone());
 	}
 	
     public void populateContactInfoView(AccountObject accountObject) {
-    	if(accountObject == null) {
-			mContactNameInput.getText().clear();
-			mContactTelInput.getText().clear();
-		} else {
-			mContactNameInput.setText(accountObject.mAccountName);
-			mContactTelInput.setText(accountObject.mAccountTel);
-			
-		}
 	}
 
-
-	
 	public BaoxiuCardObject getBaoxiuCardObject() {
 		BaoxiuCardObject baoxiuCardObject = new BaoxiuCardObject();
-		baoxiuCardObject.mLeiXin = mTypeInput.getText().toString().trim();
-		baoxiuCardObject.mPinPai = mPinpaiInput.getText().toString().trim();
-		baoxiuCardObject.mXingHao = mModelInput.getText().toString().trim();
-		baoxiuCardObject.mSHBianHao = mBianhaoInput.getText().toString().trim();
-		baoxiuCardObject.mBXPhone = mBaoxiuTelInput.getText().toString().trim();
-		baoxiuCardObject.mCardName = mTagInput.getText().toString().trim();
-		baoxiuCardObject.mAID = mAid;
-		baoxiuCardObject.mUID = mUid;
-		baoxiuCardObject.mBID = mBid;
 		
 		return baoxiuCardObject;
 	}
 	
-	public HomeObject getHomeObject() {
-		return mProCityDisEditPopView.getHomeObject();
-	}
-	
-
 	public AccountObject getContactInfoObject() {
 		AccountObject contactInfoObject = new AccountObject();
-		contactInfoObject.mAccountName = mContactNameInput.getText().toString().trim();
-		contactInfoObject.mAccountTel = mContactTelInput.getText().toString().trim();
 		return contactInfoObject;
 	}
 
@@ -251,6 +180,9 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		case R.id.button_speak:
 			mSpeechRecognizerEngine.showIatDialog(getActivity());
 			break;
+		case R.id.image_more_info:
+			goBack();
+			break;
 		case R.id.button_save:
 			createRepairCard();
 			break;
@@ -258,8 +190,59 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			//如果内容为空，我们显示侧边栏
 			((NewCardActivity) getActivity()).getSlidingMenu().showMenu(true);
 			break;
+		case R.id.button_malfunction:
+			break;
+		case R.id.button_maintenance_point:
+		case R.id.button_maintenance_componnet:
+			if (true) {
+				MyApplication.getInstance().showUnsupportMessage();
+				return;
+			}
+			//目前只有海尔支持预约安装和预约维修，如果不是，我们需要提示用户
+	    	if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
+	    		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
+    			HomeObject.setHomeObject(mHomeObject);
+//    			if (id == R.id.button_onekey_install) {
+//    				ModleSettings.doChoose(getActivity(), ModleSettings.createMyInstallDefaultBundle(getActivity()));
+//    			} else if (id == R.id.button_onekey_repair) {
+//    				ModleSettings.doChoose(getActivity(), ModleSettings.createMyRepairDefaultBundle(getActivity()));
+//    			}
+    			
+    			getActivity().finish();
+	    	} else {
+	    		new AlertDialog.Builder(getActivity())
+		    	.setMessage(R.string.must_haier_confirm_yuyue)
+		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
+							Intents.callPhone(getActivity(), mBaoxiuCardObject.mBXPhone);
+						} else {
+							MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
+						}
+						
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	    	}
+			break;
 		}
 		
+	}
+
+	private void goBack() {
+		mContent = new CardViewFragment();
+		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
+		HomeObject.setHomeObject(mHomeObject);
+		mContent.updateInfoInterface(mBaoxiuCardObject);
+		mContent.updateInfoInterface(mHomeObject);
+		getActivity().getSupportFragmentManager()
+		.beginTransaction()
+		.setCustomAnimations(R.anim.frag_fade_in, R.anim.frag_fade_out)
+		.replace(R.id.content_frame, mContent)
+		.commit();
 	}
 
 	private void createRepairCard() {
@@ -297,7 +280,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			String[] urls = new String[LENGTH];
 			String[] paths = new String[LENGTH];
 			getBaoxiuCardObject();
-			HomeObject homeObject = mProCityDisEditPopView.getHomeObject();
 			urls[0] = ServiceObject.SERVICE_URL + "NAddHaierYY.ashx?LeiXin=";//AddHaierYuyue.ashx
 			paths[0] = baoxiuCardObject.mLeiXin;
 			urls[1] = "&PinPai=";
@@ -309,13 +291,13 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			urls[4] = "&BxPhone=";
 			paths[4] = baoxiuCardObject.mBXPhone;
 			urls[5] = "&UserName=";
-			paths[5] = mContactNameInput.getText().toString().trim();
+			paths[5] = null;
 			urls[6] = "&Cell=";
-			paths[6] = mContactTelInput.getText().toString().trim();
+			paths[6] = null;
 			urls[7] = "&address=";
-			paths[7] = homeObject.mHomePlaceDetail;
+			paths[7] = mHomeObject.mHomePlaceDetail;
 			urls[8] = "&dstrictid=";
-			paths[8] = mProCityDisEditPopView.getDisID();
+			paths[8] = null;
 			urls[9] = "&yytime=";
 			paths[9] = BaoxiuCardObject.BUY_DATE_FORMAT_YUYUE_TIME.format(mCalendar.getTime());
 			urls[10] = "&Desc=";
@@ -404,7 +386,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 	
 	private boolean checkInput() {
-		if(TextUtils.isEmpty(mTypeInput.getText().toString().trim())){
+		/*if(TextUtils.isEmpty(mTypeInput.getText().toString().trim())){
 			showEmptyInputToast(R.string.product_type);
 			return false;
 		}
@@ -416,10 +398,10 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			showEmptyInputToast(R.string.product_model);
 			return false;
 		}
-		/*if(TextUtils.isEmpty(mBianhaoInput.getText().toString().trim())){
+		if(TextUtils.isEmpty(mBianhaoInput.getText().toString().trim())){
 			showEmptyInputToast(R.string.product_sn);
 			return false;
-		}*/
+		}
 		if(TextUtils.isEmpty(mBaoxiuTelInput.getText().toString().trim())){
 			showEmptyInputToast(R.string.product_tel);
 			return false;
@@ -433,7 +415,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		if(TextUtils.isEmpty(mContactTelInput.getText().toString().trim())){
 			showEmptyInputToast(R.string.usr_tel);
 			return false;
-		}
+		}*/
 		
 		if(TextUtils.isEmpty(mYuyueDate.getText().toString().trim())){
 			showEmptyInputToast(R.string.date);
@@ -452,7 +434,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			MyApplication.getInstance().showMessage(R.string.yuyue_time_too_early_tips);
 			return false;
 		}
-		String pinpai = mPinpaiInput.getText().toString().trim();
+		/*String pinpai = mPinpaiInput.getText().toString().trim();
 		final String bxPhone = mBaoxiuTelInput.getText().toString().trim();
 		//目前只有海尔支持预约安装和预约维修，如果不是，我们需要提示用户
     	if (!ServiceObject.isHaierPinpai(pinpai)) {
@@ -473,7 +455,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			.setNegativeButton(android.R.string.cancel, null)
 			.show();
 		    return false;
-    	} 
+    	}*/
 		return true;
 	}
 
@@ -573,7 +555,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
     public void setScanObjectAfterScan(InfoInterface barCodeObject) {
 		 BaoxiuCardObject object = (BaoxiuCardObject) barCodeObject;
 		//这里一般我们只设置品牌、型号、编号和名称
-		if (!TextUtils.isEmpty(object.mLeiXin)) {
+		/*if (!TextUtils.isEmpty(object.mLeiXin)) {
 			mTypeInput.setText(object.mLeiXin);
 		}
 		if (!TextUtils.isEmpty(object.mPinPai)) {
@@ -587,7 +569,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		}
 		if (!TextUtils.isEmpty(object.mBXPhone)) {
 			mBaoxiuTelInput.setText(object.mBXPhone);
-		}
+		}*/
 	}
 	
 	@Override
@@ -601,11 +583,12 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 				mBid = ((BaoxiuCardObject)infoInterface).mBID;
 				mAid = ((BaoxiuCardObject)infoInterface).mAID;
 				mUid = ((BaoxiuCardObject)infoInterface).mUID;
+				mBaoxiuCardObject = (BaoxiuCardObject)infoInterface;
 			}
-			populateBaoxiuInfoView((BaoxiuCardObject)infoInterface);
 		} else if (infoInterface instanceof HomeObject) {
 			if (infoInterface != null) {
-				long aid = ((HomeObject)infoInterface).mHomeAid;
+				mHomeObject = (HomeObject)infoInterface;
+				long aid = mHomeObject.mHomeAid;
 				if (aid > 0) {
 					mAid = aid;
 				}
