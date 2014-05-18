@@ -196,7 +196,7 @@
             
 			<com.actionbarsherlock.internal.widget.IcsLinearLayout
 			    android:layout_width="match_parent"
-			    android:layout_height="40dip"
+			    android:layout_height="60dip"
 			    android:showDividers="middle"
 			    android:divider="@drawable/linearlayout_divider"
 			    android:dividerPadding="10dip"

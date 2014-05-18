@@ -32,6 +32,7 @@ import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
+import com.bestjoy.app.warrantycard.utils.TextViewUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.Intents;
@@ -40,14 +41,11 @@ import com.shwy.bestjoy.utils.NotifyRegistrant;
 
 public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 	private static final String TOKEN = CardViewActivity.class.getName();
-	//按钮
-	private Button mOnekeyInstallBtn, mOnekeyRepairBtn;
 	//商品信息
-	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText;
-	private TextView mDatePickBtn, mPriceInput, mTujingInput, mYanbaoTimeInput, mYanbaoComponyInput, mYanbaoTelInput;
-	
-	private ImageView mAvatorView, mUsageView, mPolicyView, mQaView, mGuideView, mBillView;
-	
+	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText, mFapiaoDateInput;
+	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
+	private ImageView mAvatorView, mUsageView, mFlagYanbao;
+	private Button mBillView;
 	private BaoxiuCardObject mBaoxiuCardObject;
 	
 	private HomeObject mHomeObject;
@@ -77,14 +75,33 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		 mBaoxiuInput = (TextView) findViewById(R.id.baoxiu_input);
 		 mYanbaoText = (TextView) findViewById(R.id.yanbao); 
 		 mYanbaoInput = (TextView) findViewById(R.id.yanbao_input);
+		 
+		 TextViewUtils.setBoldText(mPinpaiInput);
+		 TextViewUtils.setBoldText(mModelInput);
+		 TextViewUtils.setBoldText(mBaoxiuInput);
+		 TextViewUtils.setBoldText(mYanbaoInput);
 		
 		 mAvatorView = (ImageView) findViewById(R.id.avator);
 		 mAvatorView.setOnClickListener(this);
 		 
+		 mFapiaoDateInput = (TextView) findViewById(R.id.fapiao_date_input);
+		 //已延保标示
+		 mFlagYanbao = (ImageView) findViewById(R.id.flag_yanbao); 
 		 
-		 mBillView = (ImageView) findViewById(R.id.button_bill);
+		 mBillView = (Button) findViewById(R.id.button_bill);
 		 mBillView.setOnClickListener(this);
 		 
+		 mUsageView = (ImageView) findViewById(R.id.button_usage);
+		 mUsageView.setOnClickListener(this);
+		 
+		 mMalfunctionBtn = (TextView) findViewById(R.id.button_malfunction);
+         mMaintenancePointBtn = (TextView) findViewById(R.id.button_maintenance_point);
+         mBuyMaintenanceComponentBtn = (TextView) findViewById(R.id.button_maintenance_componnet);
+         mMalfunctionBtn.setOnClickListener(this);
+         mMaintenancePointBtn.setOnClickListener(this);
+         mBuyMaintenanceComponentBtn.setOnClickListener(this);
+         
+         
 		 populateView();
 		
 	}
@@ -95,24 +112,46 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		 }
 		 if (!mBaoxiuCardObject.hasBillAvator()) {
 			 mBillView.setVisibility(View.INVISIBLE);
+			 mFapiaoDateInput.setVisibility(View.INVISIBLE);
 		 } else {
 			 mBillView.setVisibility(View.VISIBLE);
+			 mFapiaoDateInput.setVisibility(View.VISIBLE);
+			 try {
+				 mFapiaoDateInput.setText(BaoxiuCardObject.DATE_FORMAT_FAPIAO_TIME.format(BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate)));
+			 } catch (ParseException e) {
+				 mFapiaoDateInput.setText(mBaoxiuCardObject.mBuyDate);
+			 }
 		 }
 		 
-		 mNameInput.setText(BaoxiuCardObject.getTagName(mBaoxiuCardObject.mCardName, mBaoxiuCardObject.mLeiXin));
-		 mPinpaiInput.setText(mBaoxiuCardObject.mPinPai);
+		 mPinpaiInput.setText(BaoxiuCardObject.getTagName(mBaoxiuCardObject.mCardName, mBaoxiuCardObject.mPinPai, mBaoxiuCardObject.mLeiXin));
 		 mModelInput.setText(mBaoxiuCardObject.mXingHao);
-		 mBianhaoInput.setText(mBaoxiuCardObject.mSHBianHao);
-		 mBaoxiuTelInput.setText(mBaoxiuCardObject.mBXPhone);
-		 try {
-			mDatePickBtn.setText(BaoxiuCardObject.BUY_DATE_FORMAT.format(BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate)));
-		} catch (ParseException e) {
-		}
-		 mPriceInput.setText(mBaoxiuCardObject.mBuyPrice);
-		 mTujingInput.setText(mBaoxiuCardObject.mBuyTuJing);
-		 mYanbaoTimeInput.setText(mBaoxiuCardObject.mYanBaoTime);
-		 mYanbaoComponyInput.setText(mBaoxiuCardObject.mYanBaoDanWei);
-		 mYanbaoTelInput.setText(mBaoxiuCardObject.mYBPhone);
+		 
+		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mWY)) {
+			 //保修期，这里单位是年
+			 float year = Float.valueOf(mBaoxiuCardObject.mWY);
+			 if ((year - 0.5f) < 0.00001f) {
+				 mBaoxiuInput.setText(R.string.unit_half_year);
+			 } else {
+				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
+			 }
+		 }
+		
+		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mYanBaoTime)) {
+			 mYanbaoInput.setVisibility(View.VISIBLE);
+			 mYanbaoText.setVisibility(View.VISIBLE);
+			 mFlagYanbao.setVisibility(View.VISIBLE);
+			//延保期，单位是年
+			 float year = Float.valueOf(mBaoxiuCardObject.mYanBaoTime);
+			 if ((year - 0.5f) < 0.00001f) {
+				 mYanbaoInput.setText(R.string.unit_half_year);
+			 } else {
+				 mYanbaoInput.setText(mBaoxiuCardObject.mYanBaoTime + getString(R.string.unit_year));
+			 }
+		 } else {
+			 mYanbaoInput.setVisibility(View.INVISIBLE);
+			 mYanbaoText.setVisibility(View.INVISIBLE);
+			 mFlagYanbao.setVisibility(View.INVISIBLE);
+		 }
 		 
 		 mHomeObject = HomeObject.getHomeObject();
 	}
@@ -163,35 +202,27 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	public void onClick(View v) {
 		int id = v.getId();
 		switch(id) {
-		case R.id.button_speak:
-			mSpeechRecognizerEngine.showIatDialog(mContext);
-			break;
-		case R.id.button_qa:
-			if (checkHaierPinpai()) {
-				BrowserActivity.startActivity(mContext, "http://m.rrs.com/rrsm/qa/qa.html", mContext.getString(R.string.button_qa));
-			}
-			break;
-		case R.id.button_policy:
-			if (checkHaierPinpai()) {
-				BrowserActivity.startActivity(mContext, "http://m.rrs.com/rrsm/policy_fee/policy_fee.html", mContext.getString(R.string.button_policy));
-			}
-			break;
-		case R.id.button_guide:
-			break;
 		case R.id.button_bill:
 			BaoxiuCardObject.showBill(mContext, mBaoxiuCardObject);
 			break;
-		case R.id.button_onekey_install:
-		case R.id.button_onekey_repair:
+		case R.id.button_usage:
+			break;
+		case R.id.button_malfunction:
+		case R.id.button_maintenance_point:
+		case R.id.button_maintenance_componnet:
+			if (true) {
+				MyApplication.getInstance().showUnsupportMessage();
+				return;
+			}
 			//目前只有海尔支持预约安装和预约维修，如果不是，我们需要提示用户
 	    	if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
 	    		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
     			HomeObject.setHomeObject(mHomeObject);
-    			if (id == R.id.button_onekey_install) {
-    				ModleSettings.doChoose(mContext, ModleSettings.createMyInstallDefaultBundle(mContext));
-    			} else if (id == R.id.button_onekey_repair) {
-    				ModleSettings.doChoose(mContext, ModleSettings.createMyRepairDefaultBundle(mContext));
-    			}
+//    			if (id == R.id.button_onekey_install) {
+//    				ModleSettings.doChoose(mContext, ModleSettings.createMyInstallDefaultBundle(mContext));
+//    			} else if (id == R.id.button_onekey_repair) {
+//    				ModleSettings.doChoose(mContext, ModleSettings.createMyRepairDefaultBundle(mContext));
+//    			}
     			
     			finish();
 	    	} else {

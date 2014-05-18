@@ -362,4 +362,6 @@
          <string name="button_maintenance_point">最近的报修点</string>
          <string name="text_baoxiu_validate">还剩</string>
          <string name="unit_day">天</string>
+         <string name="unit_year">年</string>
+         <string name="unit_half_year">半年</string>
 </resources>

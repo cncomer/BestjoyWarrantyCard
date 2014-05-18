@@ -15,4 +15,14 @@ public class TextViewUtils {
          tp.setFakeBoldText(true);
          v.setText(text);
 	}
+	
+	/**
+	 * 设置粗体
+	 * @param v
+	 * @param text
+	 */
+	public static void setBoldText(TextView v) {
+		 TextPaint tp = v.getPaint();
+         tp.setFakeBoldText(true);
+	}
 }

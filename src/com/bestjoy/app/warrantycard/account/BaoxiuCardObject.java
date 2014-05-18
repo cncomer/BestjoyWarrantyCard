@@ -554,6 +554,25 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		sb.append(cardType);
 		return sb.toString();
 	}
+	
+	/**
+	 * 标签的内容应该是“备注标签+品牌+类型”如“客厅海尔空调”
+	 * @param cardName   备注标签
+	 * @param pinpai     品牌
+	 * @param cardType   类型
+	 * @return
+	 */
+	public static String getTagName(String cardName, String pinpai, String cardType) {
+		StringBuilder sb = new StringBuilder();
+		if (!TextUtils.isEmpty(cardName)) {
+			sb.append(cardName).append('-');
+		}
+		if (!TextUtils.isEmpty(pinpai)) {
+			sb.append(pinpai);
+		}
+		sb.append(cardType);
+		return sb.toString();
+	}
 	private static final int mAvatorWidth = 480, mAvatorHeight = 800;
 	public static final String PHOTOID_SEPERATOR = "_";
 	/**占位符号*/
@@ -717,6 +736,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	
 	//用于tip
 	public static  DateFormat DATE_FORMAT_YUYUE_TIME = new SimpleDateFormat("yyyyMMddHHmmss");
-	
+	/**用于详细界面显示发票日期*/
+	public static  DateFormat DATE_FORMAT_FAPIAO_TIME = new SimpleDateFormat("yyyy.MM.dd");
 
 }
