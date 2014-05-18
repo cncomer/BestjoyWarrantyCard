@@ -114,7 +114,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
   	     boolean result = super.onCreateOptionsMenu(menu);
   	     MenuItem subMenu1Item = menu.findItem(R.string.menu_more);
   	     subMenu1Item.getSubMenu().add(1000, R.string.menu_exit, 1005, R.string.menu_exit);
-  	     subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_light);
+//  	     subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_light);
          return result;
      }
 	 

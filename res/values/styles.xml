@@ -35,8 +35,6 @@
     <style name="Widget.Styled.ActionBar.MainActivity">
         <item name="background">@drawable/top1</item>
         <item name="android:background">@drawable/top1</item>
-        <item name="height">@dimen/title_logo_height_in_action_bar</item>
-         <item name="android:height">@dimen/title_logo_height_in_action_bar</item>
          <item name="displayOptions">homeAsUp</item>
          <item name="android:displayOptions">none</item>
     </style>
