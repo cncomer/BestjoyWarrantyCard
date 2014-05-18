@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -72,6 +73,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private long mBid = -1;
 	
 	private ScrollView mScrollView;
+	private RadioButton mRepairRadioButton;
 	private CardViewFragment mContent;
 	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
 	@Override
@@ -115,6 +117,8 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 
 		 mSaveBtn = (Button) view.findViewById(R.id.button_save);
 		 mSaveBtn.setOnClickListener(this);
+		 
+		 mRepairRadioButton = (RadioButton) view.findViewById(R.id.radio_repair);
 
 		 //预约时间
 		 ((TextView) view.findViewById(R.id.yuyue_info_title)).setTextColor(getResources().getColor(R.color.light_green));
@@ -273,37 +277,35 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		String mStatusMessage = null;
 		@Override
 		protected Boolean doInBackground(String... params) {
-			BaoxiuCardObject baoxiuCardObject = getBaoxiuCardObject();
 			mError = null;
 			InputStream is = null;
 			final int LENGTH = 14;
 			String[] urls = new String[LENGTH];
 			String[] paths = new String[LENGTH];
-			getBaoxiuCardObject();
-			urls[0] = ServiceObject.SERVICE_URL + "NAddHaierYY.ashx?LeiXin=";//AddHaierYuyue.ashx
-			paths[0] = baoxiuCardObject.mLeiXin;
+			urls[0] = ServiceObject.SERVICE_URL + "20140514/NAddHaierYY.ashx?LeiXin=";//AddHaierYuyue.ashx
+			paths[0] = mBaoxiuCardObject.mLeiXin;
 			urls[1] = "&PinPai=";
-			paths[1] = baoxiuCardObject.mPinPai;
+			paths[1] = mBaoxiuCardObject.mPinPai;
 			urls[2] = "&XingHao=";
-			paths[2] = baoxiuCardObject.mXingHao;
+			paths[2] = mBaoxiuCardObject.mXingHao;
 			urls[3] = "&SHBianhao=";
-			paths[3] = baoxiuCardObject.mSHBianHao;
+			paths[3] = mBaoxiuCardObject.mSHBianHao;
 			urls[4] = "&BxPhone=";
-			paths[4] = baoxiuCardObject.mBXPhone;
+			paths[4] = mBaoxiuCardObject.mBXPhone;
 			urls[5] = "&UserName=";
-			paths[5] = null;
+			paths[5] = HaierAccountManager.getInstance().getAccountObject().mAccountName;
 			urls[6] = "&Cell=";
-			paths[6] = null;
+			paths[6] = HaierAccountManager.getInstance().getAccountObject().mAccountTel;
 			urls[7] = "&address=";
 			paths[7] = mHomeObject.mHomePlaceDetail;
 			urls[8] = "&dstrictid=";
-			paths[8] = null;
+			paths[8] = HomeObject.getDisID(getActivity().getContentResolver(), mHomeObject.mHomeDis);
 			urls[9] = "&yytime=";
 			paths[9] = BaoxiuCardObject.BUY_DATE_FORMAT_YUYUE_TIME.format(mCalendar.getTime());
 			urls[10] = "&Desc=";
 			paths[10] = mAskInput.getText().toString().trim();
 			urls[11] = "&service_type=";
-			paths[11] = "T02";//T02为维修
+			paths[11] = mRepairRadioButton.isChecked()?"T02":"T01";//T01为安装 T02为维修
 			
 			String timeStr = BaoxiuCardObject.DATE_FORMAT_YUYUE_TIME.format(new Date());
 			String tip = BaoxiuCardObject.getYuyueSecurityTip(timeStr);
