@@ -2,128 +2,176 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:background="#ffffffff"
     android:layout_gravity="center"
+    android:background="#ffffffff"
     android:orientation="vertical" >
-    
+
     <!-- scan layout -->
-    <RelativeLayout 
+
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@color/blue"
-        android:padding="8dip"
-        android:orientation="horizontal">
-        <ImageView android:layout_width="36dip"
+        android:orientation="horizontal"
+        android:padding="8dip" >
+
+        <ImageView
+            android:id="@+id/scan_iamge"
+            android:layout_width="36dip"
             android:layout_height="36dip"
-            android:scaleType="fitCenter"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dip"
-            android:id="@+id/scan_iamge"
-            android:src="@drawable/title_scan_qr"/>
-        <LinearLayout android:layout_marginLeft="10dip"
-	            android:layout_toRightOf="@+id/scan_iamge"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_centerVertical="true"
-	            android:orientation="vertical">
-            <TextView android:textColor="@color/wt"
-	            android:layout_width="wrap_content"
-	            android:text="@string/title_scan_desc1"
-	            android:layout_marginBottom="1dip"
-	            android:layout_height="wrap_content"/>
-	        <TextView android:textColor="@color/wt"
-	            android:layout_width="wrap_content"
-	            android:text="@string/title_scan_desc2"
-	            android:layout_height="wrap_content"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/title_scan_qr" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dip"
+            android:layout_toRightOf="@+id/scan_iamge"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dip"
+                android:text="@string/title_scan_desc1"
+                android:textColor="@color/wt" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_scan_desc2"
+                android:textColor="@color/wt" />
         </LinearLayout>
-       <Button android:id="@+id/button_scan_qrcode"
-           android:layout_alignParentRight="true"
-           android:layout_width="wrap_content"
-           android:layout_marginRight="10dip"
-           android:textColor="@color/blk"
-           android:layout_centerVertical="true"
-           android:text="@string/title_scan_button"
-            android:paddingLeft="8dip"
-	        android:paddingRight="8dip"
-            android:textSize="14sp"
+
+        <Button
+            android:id="@+id/button_scan_qrcode"
+            android:layout_width="wrap_content"
             android:layout_height="34dip"
-           android:background="@drawable/default_green_btn"/>
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dip"
+            android:background="@drawable/default_green_btn"
+            android:paddingLeft="8dip"
+            android:paddingRight="8dip"
+            android:text="@string/title_scan_button"
+            android:textColor="@color/blk"
+            android:textSize="14sp" />
     </RelativeLayout>
-    
-    <View android:background="@color/light_gray"
+
+    <View
         android:layout_width="fill_parent"
         android:layout_height="1dip"
-        android:layout_marginTop="10dip"/>
-    
-    <ScrollView android:layout_width="fill_parent"
-        android:layout_height="0dip"
         android:layout_marginLeft="@dimen/title_my_product_left_margin"
         android:layout_marginRight="@dimen/title_my_product_left_margin"
-        android:scrollbars="none"
-        android:layout_weight="1.0">
-        <LinearLayout 
-            android:layout_height="fill_parent"
+        android:layout_marginTop="10dip"
+        android:background="@color/light_gray" />
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1.0"
+        android:scrollbars="none" >
+
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:orientation="vertical">
-	        
-            <include layout="@layout/product_create_info_star"/>
-            
-            <View android:background="@color/light_gray"
-		        android:layout_width="fill_parent"
-		        android:layout_height="1dip"
-		        android:layout_marginTop="10dip"/>
-            
-            <LinearLayout android:layout_height="fill_parent"
-            	android:layout_width="fill_parent"
-            	android:gravity="center_vertical"
-            	android:background="@color/light_gray"
-            	android:orientation="horizontal">
-                <TextView style="@style/ProductInfo"
-	        		android:text="@string/product_bill"/>
-	    		<ImageView android:id="@+id/button_scan_bill"
-			        android:layout_height="48dip"
-			        android:clickable="true"
-			        android:padding="8dip"
-			        android:scaleType="fitCenter"
-			        android:layout_width="48dip"
-			        android:src="@drawable/ic_camera"/>
-	    		<TextView android:textColor="#ff696365"
-	    		    android:text="@string/product_bill_desc"
-	    		    android:textSize="10sp"
-	    		    android:layout_width="wrap_content"
-	    		    android:layout_height="wrap_content"/>
-            </LinearLayout>
-            
-             <View android:background="@color/light_gray"
-		        android:layout_width="fill_parent"
-		        android:layout_height="1dip"
-		        android:layout_marginTop="10dip"/>
-             
-             <LinearLayout
-			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
-			    android:gravity="center_vertical"
-			    android:orientation="horizontal" >
-			    <TextView style="@style/ProductInfo"
-			        android:text="@string/product_buy_date"/>
-			    <TextView android:id="@+id/product_buy_date"
-			        android:clickable="true"
-			        style="@style/ProductInfoInput"/>
-			</LinearLayout>
-			
-             
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
             <LinearLayout
-			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
-			    android:gravity="center_vertical"
-			    android:orientation="horizontal" >
-			    <TextView style="@style/ProductInfo"
-			        android:text="@string/product_buy_cost"/>
-			    <EditText android:id="@+id/product_buy_cost"
-			        style="@style/ProductInfoInput"/>
-			</LinearLayout>
-			
-             <!-- <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/title_my_product_left_margin"
+                android:layout_marginRight="@dimen/title_my_product_left_margin"
+                android:orientation="vertical" >
+
+                <include layout="@layout/product_create_info_star" />
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginTop="10dip"
+                    android:background="@color/light_gray" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@color/light_gray"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/title_my_product_left_margin"
+                android:paddingRight="@dimen/title_my_product_left_margin"
+                android:orientation="horizontal" >
+
+                <TextView
+                    style="@style/ProductInfo"
+                    android:text="@string/product_bill" />
+
+                <ImageView
+                    android:id="@+id/button_scan_bill"
+                    android:layout_width="48dip"
+                    android:layout_height="48dip"
+                    android:clickable="true"
+                    android:padding="8dip"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_camera" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/product_bill_desc"
+                    android:textColor="#ff696365"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/title_my_product_left_margin"
+                android:layout_marginRight="@dimen/title_my_product_left_margin"
+                android:orientation="vertical" >
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginTop="10dip"
+                    android:background="@color/light_gray" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        style="@style/ProductInfo"
+                        android:text="@string/product_buy_date" />
+
+                    <TextView
+                        android:id="@+id/product_buy_date"
+                        style="@style/ProductInfoInput"
+                        android:clickable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        style="@style/ProductInfo"
+                        android:text="@string/product_buy_cost" />
+
+                    <EditText
+                        android:id="@+id/product_buy_cost"
+                        style="@style/ProductInfoInput" />
+                </LinearLayout>
+
+                <!--
+            <LinearLayout
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:gravity="center_vertical"
@@ -132,66 +180,83 @@
 			        android:text="@string/product_buy_entry"/>
 			    <EditText android:id="@+id/product_buy_entry"
 			        style="@style/ProductInfoInput"/>
-			</LinearLayout> -->
-			
-		    <include layout="@layout/pop_win_edit_layout" />
-	
-            <View android:background="@color/light_gray"
-		        android:layout_width="fill_parent"
-		        android:layout_height="1dip"
-		        android:layout_marginTop="10dip"/>
-            
-             <LinearLayout
-			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
-			    android:gravity="center_vertical"
-			    android:orientation="horizontal" >
-			    <TextView style="@style/ProductInfo"
-			        android:text="@string/product_buy_delay_time"/>
-			    <EditText android:id="@+id/product_buy_delay_time"
-			        android:inputType="numberDecimal"
-			        style="@style/ProductInfoInput"/>
 			</LinearLayout>
-			
-              <LinearLayout
-			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
-			    android:gravity="center_vertical"
-			    android:orientation="horizontal" >
-			    <TextView style="@style/ProductInfo"
-			        android:text="@string/product_buy_delay_componey"/>
-			    <EditText android:id="@+id/product_buy_delay_componey"
-			        style="@style/ProductInfoInput"/>
-			</LinearLayout>
-			
-              <LinearLayout
-			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
-			    android:gravity="center_vertical"
-			    android:orientation="horizontal" >
-			    <TextView style="@style/ProductInfo"
-			        android:text="@string/product_buy_delay_componey_tel"/>
-			    <EditText android:id="@+id/product_buy_delay_componey_tel"
-			        style="@style/ProductInfoInput"/>
-			</LinearLayout>
-			
-              <View android:background="@color/light_gray"
-		        android:layout_width="fill_parent"
-		        android:layout_height="1dip"
-		        android:layout_marginTop="10dip"/>
-            
-            <Button 
-                android:background="@drawable/default_blue_btn"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textColor="#ffffffff"
-                android:id="@+id/button_save"
-                android:text="@string/button_save"
-                android:layout_marginTop="10dip"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="60dip"/>
+                -->
+
+                <include layout="@layout/pop_win_edit_layout" />
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginTop="10dip"
+                    android:background="@color/light_gray" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        style="@style/ProductInfo"
+                        android:text="@string/product_buy_delay_time" />
+
+                    <EditText
+                        android:id="@+id/product_buy_delay_time"
+                        style="@style/ProductInfoInput"
+                        android:inputType="numberDecimal" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        style="@style/ProductInfo"
+                        android:text="@string/product_buy_delay_componey" />
+
+                    <EditText
+                        android:id="@+id/product_buy_delay_componey"
+                        style="@style/ProductInfoInput" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        style="@style/ProductInfo"
+                        android:text="@string/product_buy_delay_componey_tel" />
+
+                    <EditText
+                        android:id="@+id/product_buy_delay_componey_tel"
+                        style="@style/ProductInfoInput" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dip"
+                    android:layout_marginTop="10dip"
+                    android:background="@color/light_gray" />
+
+                <Button
+                    android:id="@+id/button_save"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="60dip"
+                    android:layout_marginTop="10dip"
+                    android:background="@drawable/default_blue_btn"
+                    android:gravity="center"
+                    android:padding="6dip"
+                    android:text="@string/button_save"
+                    android:textColor="#ffffffff" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
-    
+
 </LinearLayout>

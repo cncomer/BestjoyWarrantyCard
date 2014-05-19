@@ -210,16 +210,36 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		case R.id.button_usage:
 			break;
 		case R.id.button_malfunction:
-			NewRepairCardFragment repairContent = new NewRepairCardFragment();
-			getActivity().getSupportFragmentManager()
-			.beginTransaction()
-			.setCustomAnimations(R.anim.frag_fade_in, R.anim.frag_fade_out)
-			.replace(R.id.content_frame, repairContent)
-			.addToBackStack("NewRepairCardFragment")
-			.commit();
-			repairContent.updateInfoInterface(mBaoxiuCardObject);
-			repairContent.updateInfoInterface(mHomeObject);
-			repairContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
+			if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
+				NewRepairCardFragment repairContent = new NewRepairCardFragment();
+				getActivity().getSupportFragmentManager()
+				.beginTransaction()
+				.setCustomAnimations(R.anim.frag_fade_in, R.anim.frag_fade_out)
+				.replace(R.id.content_frame, repairContent)
+				.addToBackStack("NewRepairCardFragment")
+				.commit();
+				repairContent.updateInfoInterface(mBaoxiuCardObject);
+				repairContent.updateInfoInterface(mHomeObject);
+				repairContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
+    			
+	    	} else {
+	    		new AlertDialog.Builder(getActivity())
+		    	.setMessage(R.string.must_haier_confirm_yuyue)
+		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
+							Intents.callPhone(getActivity(), mBaoxiuCardObject.mBXPhone);
+						} else {
+							MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
+						}
+						
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	    	}
 			break;
 		case R.id.button_maintenance_point:
 		case R.id.button_maintenance_componnet:

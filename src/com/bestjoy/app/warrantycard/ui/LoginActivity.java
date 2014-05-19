@@ -22,6 +22,7 @@ import com.actionbarsherlock.view.Menu;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
@@ -96,7 +97,8 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 				break;
 			case R.id.button_find_password:
 				//如果电话号码为空，提示用户先输入号码，在找回密码
-				if (TextUtils.isEmpty(mTelInput.getText().toString())) {
+				String findTel = mTelInput.getText().toString().trim();
+				if (TextUtils.isEmpty(findTel)) {
 					MyApplication.getInstance().showMessage(R.string.msg_input_tel_when_find_password);
 				} else {
 					if (!ComConnectivityManager.getInstance().isConnected()) {
@@ -154,7 +156,7 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		mFidnPasswordTask = new FidnPasswordTask();
 		mFidnPasswordTask.execute();
 	}
-	private class FidnPasswordTask extends AsyncTask<Void, Void, Boolean> {
+	private class FidnPasswordTask extends AsyncTask<Void, Void, ServiceResultObject> {
 
 		/**
 		 * 用例：http://115.29.231.29/Haier/GetPwd.ashx?cell=18621951097
@@ -165,46 +167,37 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
             }
 
 		 */
-		private String _errMsg = null;
 		@Override
-		protected Boolean doInBackground(Void... params) {
+		protected ServiceResultObject doInBackground(Void... params) {
+			ServiceResultObject resultObject = new ServiceResultObject();
 			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
-			sb.append("login.ashx?cell=").append(mTelInput.getText().toString().trim())
-			.append("pwd=").append(mPasswordInput.getText().toString().trim());
+			sb.append("SendMessage.ashx?cell=").append(mTelInput.getText().toString().trim());
 			InputStream is = null;
 			try {
 				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
-			    if (is == null) {
-			    	return false;
+			    if (is != null) {
+			    	resultObject = ServiceResultObject.parse((NetworkUtils.getContentFromInput(is)));
 			    }
-				JSONObject resultObject = new JSONObject(NetworkUtils.getContentFromInput(is));
-				String code = resultObject.getString("StatusCode");
-				_errMsg = resultObject.getString("StatusMessage");
-				
-				return "1".equals(code);
 				
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				_errMsg = e.getMessage();
+				resultObject.mStatusMessage = e.getMessage();
 			} catch (IOException e) {
 				e.printStackTrace();
-				_errMsg = e.getMessage();
-			} catch (JSONException e) {
-				e.printStackTrace();
-				_errMsg = e.getMessage();
+				resultObject.mStatusMessage = e.getMessage();
 			} finally {
 				NetworkUtils.closeInputStream(is);
 			}
-			return false;
+			return resultObject;
 		}
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(ServiceResultObject result) {
 			super.onPostExecute(result);
 			dismissDialog(DIALOG_PROGRESS);
-			if (result) {
-				MyApplication.getInstance().showMessage(R.string.msg_find_password_success);
+			if (result.isOpSuccessfully()) {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			} else {
-				MyApplication.getInstance().showMessage(_errMsg);
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
 		}
 		@Override
@@ -212,8 +205,6 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 			super.onCancelled();
 			dismissDialog(DIALOG_PROGRESS);
 		}
-		
-		
 		
 	}
 	

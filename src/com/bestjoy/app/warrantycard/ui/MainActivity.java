@@ -313,6 +313,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 				MyChooseDevicesActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
 			} else {
+				HomeObject.setHomeObject(MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
 				NewCardActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
 			}
 			break;
