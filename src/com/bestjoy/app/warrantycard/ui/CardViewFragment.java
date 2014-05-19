@@ -201,6 +201,12 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	 
 
 	@Override
+	public void onResume() {
+		getActivity().setTitle(R.string.title_baoxiucard_info);
+		super.onResume();
+	}
+
+	@Override
 	public void onClick(View v) {
 		int id = v.getId();
 		switch(id) {
