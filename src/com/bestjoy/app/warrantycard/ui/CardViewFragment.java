@@ -45,7 +45,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	private static final String TOKEN = CardViewFragment.class.getName();
 	//商品信息
 	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText, mFapiaoDateInput;
-	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
+	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn, mBaoxiuDay;
 	private ImageView mAvatorView, mUsageView, mFlagYanbao;
 	private Button mBillView;
 	private BaoxiuCardObject mBaoxiuCardObject;
@@ -106,6 +106,8 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	         mMaintenancePointBtn.setOnClickListener(this);
 	         mBuyMaintenanceComponentBtn.setOnClickListener(this);
 	         
+	         mBaoxiuDay = (TextView) view.findViewById(R.id.baoxiuday);
+	         
 			 populateView();
 		return view;
 	}
@@ -139,6 +141,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
 			 }
 		 }
+		 mBaoxiuDay.setText("" + mBaoxiuCardObject.getBaoxiuValidity());
 		
 		 mYanbaoInput.setVisibility(View.INVISIBLE);
 		 mYanbaoText.setVisibility(View.INVISIBLE);
