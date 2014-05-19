@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -237,16 +238,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 
 	private void goBack() {
-		mContent = new CardViewFragment();
-		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
-		HomeObject.setHomeObject(mHomeObject);
-		mContent.updateInfoInterface(mBaoxiuCardObject);
-		mContent.updateInfoInterface(mHomeObject);
-		getActivity().getSupportFragmentManager()
-		.beginTransaction()
-		.setCustomAnimations(R.anim.frag_fade_in, R.anim.frag_fade_out)
-		.replace(R.id.content_frame, mContent)
-		.commit();
+		getActivity().getSupportFragmentManager().popBackStack();
 	}
 
 	private void createRepairCard() {
