@@ -257,6 +257,10 @@ public class RegisterConfirmActivity extends BaseActionbarActivity implements Vi
 			MyApplication.getInstance().showMessage(R.string.msg_input_pwd_not_match_tips);
 			return false;
 		}
+		if (mAccountObject.mAccountPwd.length() < 6) {
+			MyApplication.getInstance().showMessage(R.string.msg_usr_pwd_too_short_tips);
+			return false;
+		}
 		return true;
 	}
 	
