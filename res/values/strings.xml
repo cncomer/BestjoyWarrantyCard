@@ -12,7 +12,7 @@
     <string name="button_my_card">我的保修卡</string>
     <string name="button_repair">故障报修</string>
      <string name="button_webview_goback">回退</string>
-    <string name="button_login">"登陆"</string>
+    <string name="button_login">"登录"</string>
      <string name="button_close">关闭</string>
       <string name="button_save">保存</string>
       <string name="button_next">下一步</string>
@@ -96,7 +96,7 @@
     <string name="product_deadline_placeholder">999天</string>
     
     <string name="menu_more">更多</string>
-    <string name="menu_login">登陆</string>
+    <string name="menu_login">登录</string>
     <string name="menu_exit">退出</string>
     <string name="menu_register">注册</string>
     <string name="menu_setting">设置</string>
@@ -124,7 +124,8 @@
     <string name="input_city_tips">请先选择城市</string>
     <string name="choose_address">选择地址</string>
     <string name="msg_tip_title">提示信息</string>
-    <string name="msg_register_save_fail">注册成功，但无法创建账户，请尝试重新登陆</string>
+    <string name="input_home_place_detail_tips">为方便为您提供便捷的安装维修服务，请您填写详细地址。</string>
+    <string name="msg_register_save_fail">注册成功，但无法创建账户，请尝试重新登录</string>
     
     <string name="msg_progressdialog_wait">操作处理中，请稍后....</string>
     <string name="msg_input_usrtel_password">请输入你的手机号和密码</string>
@@ -168,7 +169,7 @@
     <string name="msg_input_yanzheng_code">请输入验证码</string>
     <string name="msg_input_yanzheng_code_check_net">获取验证码失败，请检查你的网络连接</string>
     <string name="msg_yanzheng_code_msg_send">短信已下发，请稍后</string>
-    <string name="msg_yanzheng_code_msg_has_registered">该手机号码已经注册，可以直接登陆或是找回密码.</string>
+    <string name="msg_yanzheng_code_msg_has_registered">该手机号码已经注册，可以直接登录或是找回密码.</string>
     <string name="msg_input_yanzheng_code_error">验证码输入有误，请重新输入</string>
     <string name="msg_input_usr_name">请输入姓名</string>
     <string name="msg_input_usr_pro">请输入省份</string>
@@ -469,7 +470,7 @@
         <string name="msg_download_and_exchange_wait">正在提交交换记录，请稍后....</string>
         <string name="msg_download_and_exchange_failed">提交交换记录失败，请重试或是联系名档网.</string>
         <string name="message_create_card_confim">请先在设置中创建我的名片</string>
-      <string name="message_need_set_default_account_number">你需要先在账户设置中设置登陆账户默认使用的电话号码</string>
+      <string name="message_need_set_default_account_number">你需要先在账户设置中设置登录账户默认使用的电话号码</string>
          <!-- 交换名片 结束-->
 
          <string name="repair_yuyue">维修预约</string>

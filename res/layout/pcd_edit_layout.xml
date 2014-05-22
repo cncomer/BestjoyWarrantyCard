@@ -54,5 +54,10 @@
                   android:layout_weight="1"
 	    	android:inputType="none"/>
 	</LinearLayout>
+	
+	<TextView
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="@string/input_home_place_detail_tips" />
 
 </LinearLayout>
