@@ -105,7 +105,7 @@
     <string name="menu_search">搜索</string>
     <string name="menu_done">完成</string>
     <string name="menu_choose">选择</string>
-    
+    <string name="menu_back">"返回"</string>
     <string name="menu_edit">编辑</string>
     <string name="menu_delete">删除</string>
 	<string name="menu_create">新建</string>
@@ -254,6 +254,7 @@
          <!-- 自动更新 end -->
          
          <string name="pinpai_haier">海尔</string>
+         <string name="pinpai_kasadi">卡萨帝</string>
          <string name="msg_pinpai_haier_suppot_only">暂未开放</string>
          <string name="msg_no_bxphone">对不起，该保修卡没有设置售后服务电话</string>
          <string name="must_haier_confirm_yuyue">目前只有海尔产品才接受电子预约服务，是否直接拨打厂家电话？</string>
@@ -473,6 +474,7 @@
       <string name="message_need_set_default_account_number">你需要先在账户设置中设置登录账户默认使用的电话号码</string>
          <!-- 交换名片 结束-->
 
+	<string name="msg_gernal_network_error">"请检查您的网络是否通畅"</string>
          <string name="repair_yuyue">维修预约</string>
          <string name="install_yuyue">安装预约</string>
          <string name="button_send">发送</string>

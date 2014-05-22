@@ -29,6 +29,7 @@ import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
+import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
@@ -112,6 +113,12 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 
 	@Override
 	public void onClick(View v) {
+		// add by chenkai, 开始前先检查网络 begin
+		if (!ComConnectivityManager.getInstance().isConnected()) {
+			ComConnectivityManager.getInstance().onCreateNoNetworkDialog(this);
+			return;
+		}
+		// add by chekai, 开始前先检查网络 end
 		switch (v.getId()) {
 			case R.id.button_next:
 				mAccountObject.mAccountName = mNameInput.getText().toString().trim();

@@ -301,4 +301,12 @@ public class MyApplication extends Application{
     	return root;
     }
     //add by chenkai, 20131208, updating check end
+    
+    /***
+     * 显示通常的网络连接错误
+     * @return
+     */
+    public String getGernalNetworkError() {
+    	return this.getString(R.string.msg_gernal_network_error);
+    }
 }

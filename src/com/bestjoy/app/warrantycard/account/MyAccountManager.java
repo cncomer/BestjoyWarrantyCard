@@ -92,11 +92,12 @@ public class MyAccountManager {
 	/**是否有保修卡*/
 	public boolean hasBaoxiuCards() {
 		if (mHaierAccount != null) {
-			for(HomeObject home : mHaierAccount.mAccountHomes) {
-				if (home.mHomeCardCount > 0) {
-					return true;
-				}
-			}
+//			for(HomeObject home : mHaierAccount.mAccountHomes) {
+//				if (home.mHomeCardCount > 0) {
+//					return true;
+//				}
+//			}
+			return mHaierAccount.mAccountBaoxiuCardCount > 0;
 		}
 		return false;
 	}
