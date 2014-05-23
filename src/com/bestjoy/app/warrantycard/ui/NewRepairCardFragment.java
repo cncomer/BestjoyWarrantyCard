@@ -291,7 +291,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			urls[7] = "&address=";
 			paths[7] = mHomeObject.mHomePlaceDetail;
 			urls[8] = "&dstrictid=";
-			paths[8] = HomeObject.getDisID(getActivity().getContentResolver(), mHomeObject.mHomeDis);
+			paths[8] = HomeObject.getDisID(getActivity().getContentResolver(), mHomeObject.mHomeProvince, mHomeObject.mHomeCity, mHomeObject.mHomeDis);
 			urls[9] = "&yytime=";
 			paths[9] = BaoxiuCardObject.BUY_DATE_FORMAT_YUYUE_TIME.format(mCalendar.getTime());
 			urls[10] = "&Desc=";
