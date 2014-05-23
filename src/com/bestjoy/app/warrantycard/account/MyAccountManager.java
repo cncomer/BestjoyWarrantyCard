@@ -132,7 +132,7 @@ public class MyAccountManager {
     	if (mHaierAccount != accountObject) {
     		boolean success = accountObject.saveInDatebase(cr, null);
     		if (success) {
-    			mHaierAccount = accountObject;
+    			updateAccount();
     			return true;
     		}
     	}
