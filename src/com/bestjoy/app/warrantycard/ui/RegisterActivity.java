@@ -184,10 +184,10 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 				serviceResultObject.mStatusMessage = e.getMessage();
 			} catch(UnknownHostException e) {
 				e.printStackTrace();
-				serviceResultObject.mStatusMessage = e.getMessage();
+				serviceResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
 			} catch (IOException e) {
 				e.printStackTrace();
-				serviceResultObject.mStatusMessage = e.getMessage();
+				serviceResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
 			} finally {
 				NetworkUtils.closeInputStream(is);
 			}

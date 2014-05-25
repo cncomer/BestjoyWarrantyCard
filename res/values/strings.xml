@@ -107,6 +107,7 @@
     <string name="menu_choose">选择</string>
     <string name="menu_back">"返回"</string>
     <string name="menu_edit">编辑</string>
+    <string name="menu_edit_for_delete">删除</string>
     <string name="menu_delete">删除</string>
 	<string name="menu_create">新建</string>
 	<string name="menu_save">保存</string>
