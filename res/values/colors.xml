@@ -50,4 +50,9 @@
   <color name="mylife_guanggao">#fffc8fc9</color>
   <color name="mylife_jf_list_divider">#ffe1e1df</color>
   
+  <!-- Circle progress view start -->
+  <color name="circle_number_bg">#ff1d5494</color>
+  <color name="circle_outer_bg">#ff3769a8</color>
+  <color name="circle_inner_bg">#a05486bb</color>
+  <!-- Circle progress view end -->
 </resources>

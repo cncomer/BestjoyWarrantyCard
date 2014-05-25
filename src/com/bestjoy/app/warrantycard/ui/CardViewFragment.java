@@ -34,6 +34,7 @@ import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.TextViewUtils;
+import com.bestjoy.app.warrantycard.view.CircleProgressView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.InfoInterface;
@@ -55,6 +56,8 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	private Handler mHandler;
 	
 	private Bundle mBundles;
+	
+	private CircleProgressView mCircleProgressView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -106,7 +109,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	         mMaintenancePointBtn.setOnClickListener(this);
 	         mBuyMaintenanceComponentBtn.setOnClickListener(this);
 	         
-	         mBaoxiuDay = (TextView) view.findViewById(R.id.baoxiuday);
+	         mCircleProgressView = (CircleProgressView) view.findViewById(R.id.baoxiuday);
 	         
 			 populateView();
 		return view;
@@ -141,7 +144,15 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
 			 }
 		 }
-		 mBaoxiuDay.setText("" + mBaoxiuCardObject.getBaoxiuValidity());
+		 mCircleProgressView.setNumber(mBaoxiuCardObject.getBaoxiuValidity());
+		 //计算开始角度和结束角度
+		 //外围粗圆环完整度=(今天-购买日期)/（保修年+延保年）X365
+	     //如果为负值，则圆环是满圆
+		 int startDegree = -90;
+		 int validity = mBaoxiuCardObject.getBaoxiuValidity();
+		 int validityTotal = (int) ((Float.valueOf(mBaoxiuCardObject.mWY) + Float.valueOf(mBaoxiuCardObject.mYanBaoTime)) * 365 + 0.5f);
+		 int endDegree = (int) (1.0 * validity / validityTotal * 360 + 0.5f);
+		 mCircleProgressView.setOutterDegree(startDegree, endDegree, true);
 		
 		 mYanbaoInput.setVisibility(View.INVISIBLE);
 		 mYanbaoText.setVisibility(View.INVISIBLE);
