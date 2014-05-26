@@ -19,18 +19,18 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
-import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
-import com.bestjoy.app.warrantycard.view.ProCityDisEditPopView;
+import com.bestjoy.app.warrantycard.view.HaierProCityDisEditPopView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 
 public class NewHomeActivity extends BaseActionbarActivity {
 	private static final String TAG = "NewHomeActivity";
-	private ProCityDisEditPopView mProCityDisEditPopView;
+	private HaierProCityDisEditPopView mProCityDisEditPopView;
 	private EditText mHomeEditText;
 	private HomeObject mHomeObject ;
 	@Override
@@ -49,7 +49,7 @@ public class NewHomeActivity extends BaseActionbarActivity {
 		if (mHomeObject.mHomeAid > 0) {
 			setTitle(R.string.activity_title_update_home);
 		}
-		mProCityDisEditPopView = new ProCityDisEditPopView(this);
+		mProCityDisEditPopView = new HaierProCityDisEditPopView(this);
 		mHomeEditText = (EditText) findViewById(R.id.my_home);
 		mProCityDisEditPopView.setHomeObject(mHomeObject);
 		mHomeEditText.setText(mHomeObject.getHomeTag(this));
