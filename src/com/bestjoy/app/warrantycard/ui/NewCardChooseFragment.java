@@ -375,6 +375,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 				viewHoldr._pinpaiCode = cursor.getString(3);
 				viewHoldr._mn = cursor.getString(1);
 				viewHoldr._ky = cursor.getString(2);
+				viewHoldr._wy = cursor.getString(4);
 				break;
 			}
 			viewHoldr._title.setText(cursor.getString(1));
@@ -388,7 +389,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		private TextView _title;
 		private long _id, _dId, _pId, _xinghaoId;
 		private int _position;
-		private String _xId, _pinpaiCode, _mn, _ky, mBXphone;
+		private String _xId, _pinpaiCode, _mn, _ky, mBXphone, _wy;
 		
 	}
 	
@@ -416,13 +417,19 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 					mDalei.setText(getGroupTitle(R.string.title_dalei, viewHolder._title.getText().toString()));
 					
 					mXiaoleiId = null;
+					mBaoxiuCardObject.mLeiXin = "";
 					mXiaolei.setText(R.string.title_xiaolei);
 					
 					mPinpaiId = -1;
 					mPinPaiCode = null;
+					mBaoxiuCardObject.mPinPai = "";
+					mBaoxiuCardObject.mBXPhone = "";
 					mPinpai.setText(R.string.title_pinpai);
 					
 					mXinghaoId = -1;
+					mBaoxiuCardObject.mXingHao = "";
+					mBaoxiuCardObject.mWY = "1";
+					mBaoxiuCardObject.mKY = "";
 					mXinghao.setText(R.string.title_xinghao);
 					
 					mXiaoleiListViews.setTag(null);
@@ -440,9 +447,14 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 					
 					mPinpaiId = -1;
 					mPinPaiCode = null;
+					mBaoxiuCardObject.mPinPai = "";
+					mBaoxiuCardObject.mBXPhone = "";
 					mPinpai.setText(R.string.title_pinpai);
 					
 					mXinghaoId = -1;
+					mBaoxiuCardObject.mXingHao = "";
+					mBaoxiuCardObject.mWY = "1";
+					mBaoxiuCardObject.mKY = "";
 					mXinghao.setText(R.string.title_xinghao);
 					
 					mPinpaiListViews.setTag(null);
@@ -461,6 +473,9 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 					mPinpai.setText(getGroupTitle(R.string.title_pinpai, mBaoxiuCardObject.mPinPai));
 					
 					mXinghaoId = -1;
+					mBaoxiuCardObject.mXingHao = "";
+					mBaoxiuCardObject.mWY = "1";
+					mBaoxiuCardObject.mKY = "";
 					mXinghao.setText(R.string.title_xinghao);
 					
 					mXinghaoListViews.setTag(null);
@@ -473,6 +488,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 					mXinghaoId = viewHolder._id;
 					mBaoxiuCardObject.mXingHao = viewHolder._mn;
 					mBaoxiuCardObject.mKY = viewHolder._ky;
+					mBaoxiuCardObject.mWY = viewHolder._wy;
 					mXinghao.setText(getGroupTitle(R.string.title_xinghao, mBaoxiuCardObject.mXingHao));
 				}
 				break;
