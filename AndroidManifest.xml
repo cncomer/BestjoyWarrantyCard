@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="2"
-    android:versionName="V1.1" >
+    android:versionCode="3"
+    android:versionName="V1.2" >
 
      <supports-screens
         android:anyDensity="true"
@@ -190,6 +190,19 @@
             android:configChanges="orientation"
             android:label="@string/wa_name"
             android:name="com.shwy.bestjoy.bjnote.wifi.WifiActivity" />
+         
+         <!-- add by chenkai, for Usage PDF阅读界面, 2014.05.31 begin-->
+          <activity android:name="org.vudroid.pdfdroid.PdfViewerActivity" 
+              android:configChanges="orientation|keyboardHidden"
+              android:label="@string/app_label_mingdown_pdf">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="application/pdf"/>
+            </intent-filter>
+        </activity>
+        <!-- add by chenkai, for Usage PDF阅读界面, 2014.05.31 end-->
          
         <provider android:name="com.bestjoy.app.warrantycard.database.BjnoteProvider"
             android:exported="true"

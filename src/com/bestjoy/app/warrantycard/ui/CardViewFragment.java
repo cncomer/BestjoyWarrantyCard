@@ -1,15 +1,22 @@
 package com.bestjoy.app.warrantycard.ui;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
+import org.vudroid.pdfdroid.PdfViewerActivity;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,10 +40,12 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
+import com.bestjoy.app.warrantycard.utils.FilesLengthUtils;
 import com.bestjoy.app.warrantycard.utils.TextViewUtils;
 import com.bestjoy.app.warrantycard.view.CircleProgressView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
@@ -44,6 +53,7 @@ import com.shwy.bestjoy.utils.NotifyRegistrant;
 
 public class CardViewFragment extends ModleBaseFragment implements View.OnClickListener{
 	private static final String TOKEN = CardViewFragment.class.getName();
+	private static final String TAG = "CardViewFragment";
 	//商品信息
 	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText, mFapiaoDateInput;
 	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn, mBaoxiuDay;
@@ -117,7 +127,12 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 
 	private void populateView() {
 		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mKY)) {
+			 mUsageView.setVisibility(View.VISIBLE);
 			 PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mAvatorView, mBaoxiuCardObject.mKY, null, PhotoManagerUtilsV2.TaskType.HOME_DEVICE_AVATOR);
+		 } else {
+			 //设置默认的ky图片
+			 mAvatorView.setImageResource(R.drawable.ky_default);
+			 mUsageView.setVisibility(View.GONE);
 		 }
 		 if (!mBaoxiuCardObject.hasBillAvator()) {
 			 mBillView.setVisibility(View.INVISIBLE);
@@ -144,12 +159,13 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
 			 }
 		 }
-		 mCircleProgressView.setNumber(mBaoxiuCardObject.getBaoxiuValidity());
+		 int day = mBaoxiuCardObject.getBaoxiuValidity();
+		 mCircleProgressView.setNumber(day > 0 ? day : 0);
 		 //计算开始角度和结束角度
 		 //外围粗圆环完整度=(今天-购买日期)/（保修年+延保年）X365
 	     //如果为负值，则圆环是满圆
 		 int startDegree = -90;
-		 int validity = mBaoxiuCardObject.getBaoxiuValidity();
+		 int validity = day;
 		 int validityTotal = (int) ((Float.valueOf(mBaoxiuCardObject.mWY) + Float.valueOf(mBaoxiuCardObject.mYanBaoTime)) * 365 + 0.5f);
 		 int endDegree = (int) (1.0 * validity / validityTotal * 360 + 0.5f);
 		 mCircleProgressView.setOutterDegree(startDegree, endDegree, true);
@@ -228,6 +244,26 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
 			break;
 		case R.id.button_usage:
+			//add by chenkai, for Usage, 2014.05.31 begin
+			if (TextUtils.isEmpty(mBaoxiuCardObject.mKY)) {
+				DebugUtils.logE(TAG, "ky is null, so ignore guild button");
+				return;
+			}
+			if (!MyApplication.getInstance().hasExternalStorage()) {
+				//没有SD,我们需要提示用户
+				MyApplication.getInstance().showNoSDCardMountedMessage();
+				return;
+			}
+			File pdfFile = MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY);
+			if (pdfFile.exists()) {
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY)));
+				intent.setClass(getActivity(), PdfViewerActivity.class);
+				startActivity(intent);
+			} else {
+				//开始下载
+				downloadProductUsagePdfAsync();
+			}
+			//add by chenkai, for Usage, 2014.05.31 end
 			break;
 		case R.id.button_malfunction:
 			if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
@@ -410,5 +446,101 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	@Override
 	public void setBaoxiuObjectAfterSlideMenu(InfoInterface slideManuObject) {
 	}
+	
+	//add by chenkai, for Usage, 2014.05.31, begin
+		private DownloadProductUsagePdfTask mDownloadProductUsagePdfTask;
+		private ProgressDialog mDownloadGoodsUsagePdfProgressDialog;
+		private void downloadProductUsagePdfAsync() {
+			showDialog(DIALOG_PROGRESS);
+			AsyncTaskUtils.cancelTask(mDownloadProductUsagePdfTask);
+			mDownloadProductUsagePdfTask = new DownloadProductUsagePdfTask();
+			mDownloadProductUsagePdfTask.execute();
+		}
+		private class DownloadProductUsagePdfTask extends AsyncTask<Void, Integer, Boolean> {
+
+			public long mPdfLength;
+			public String mPdfLengthStr;
+			String mErrorStr;
+			@Override
+			protected Boolean doInBackground(Void... arg0) {
+				mDownloadGoodsUsagePdfProgressDialog = getProgressDialog();
+				String url = ServiceObject.getProductUsageUrl(mBaoxiuCardObject.mKY);
+				InputStream is = null;
+				try {
+					HttpResponse response = NetworkUtils.openContectionLockedV2(url, MyApplication.getInstance().getSecurityKeyValuesObject());
+					int code = response.getStatusLine().getStatusCode();
+					DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return StatusCode is " + code);
+					if (code == HttpStatus.SC_OK) {
+						mPdfLength = response.getEntity().getContentLength();
+						DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return length of pdf file is " + mPdfLength);
+						mPdfLengthStr = FilesLengthUtils.computeLengthToString(mPdfLength);
+						is = response.getEntity().getContent();
+						
+						FileOutputStream fos = new FileOutputStream(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY));
+						byte[] buffer = new byte[4096];
+						int read = is.read(buffer);
+						long readAll  = read;
+						int percent = 0;
+						while(read != -1) {
+							percent = Math.round((100.0f * readAll/mPdfLength)) ;
+							publishProgress(percent);
+							fos.write(buffer, 0, read);
+							read = is.read(buffer);
+							readAll += read;
+						}
+						fos.flush();
+						fos.close();
+						return true;
+					} else if (code == HttpStatus.SC_NOT_FOUND) {
+						mErrorStr = getString(R.string.msg_no_product_usage);
+					}
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+					mErrorStr = MyApplication.getInstance().getGernalNetworkError();
+				} catch (IOException e) {
+					e.printStackTrace();
+					mErrorStr = MyApplication.getInstance().getGernalNetworkError();
+				} finally {
+					NetworkUtils.closeInputStream(is);
+				}
+				return false;
+			}
+
+			@Override
+			protected void onProgressUpdate(Integer... values) {
+				super.onProgressUpdate(values);
+				if (mDownloadGoodsUsagePdfProgressDialog != null) {
+					mDownloadGoodsUsagePdfProgressDialog.setMessage(getString(R.string.msg_product_usage_downloading_format, values[0], mPdfLengthStr));
+				}
+			}
+
+			@Override
+			protected void onCancelled() {
+				super.onCancelled();
+				dismissDialog(DIALOG_PROGRESS);
+				mDownloadGoodsUsagePdfProgressDialog = null;
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+				super.onPostExecute(result);
+				dismissDialog(DIALOG_PROGRESS);
+				mDownloadGoodsUsagePdfProgressDialog = null;
+				if (result) {
+					MyApplication.getInstance().showMessage(R.string.msg_product_usage_downloading_ok);
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY)));
+					intent.setClass(getActivity(), PdfViewerActivity.class);
+					startActivity(intent);
+				} else {
+					if (TextUtils.isEmpty(mErrorStr)) {
+						MyApplication.getInstance().showMessage(R.string.msg_product_usage_downloading_failed);
+					} else {
+						MyApplication.getInstance().showMessage(mErrorStr);
+						
+					}
+				}
+			}
+		}
+		//add by chenkai, for Usage, 2014.05.31, end
 
 }

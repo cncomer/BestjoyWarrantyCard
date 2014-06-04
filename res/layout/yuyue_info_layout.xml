@@ -4,40 +4,44 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:contentDescription="type"
         android:orientation="horizontal" >
-	    <TextView android:id="@+id/yuyue_info_title"
-	        style="@style/PeopleInfo"
-	        android:layout_marginTop="5dip"
-	        android:text="@string/yuyue_time" />
-	    
-	    <RadioGroup
-            android:id="@+id/radioGroup"
+
+        <RadioButton
+            android:id="@+id/radio_repair"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-			android:orientation="horizontal"
-            android:contentDescription="type" >
-            <RadioButton
-                android:id="@+id/radio_repair"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/repair_yuyue" >
-            </RadioButton>
-            <RadioButton
-                android:id="@+id/radio_install"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/install_yuyue" >
-            </RadioButton>
-        </RadioGroup>
-	    
-    </LinearLayout>
+            android:checked="true"
+            android:text="@string/repair_yuyue" >
+        </RadioButton>
 
-    <View android:id="@+id/yuyue_info_divider"
+        <RadioButton
+            android:id="@+id/radio_install"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/install_yuyue" >
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/radio_maintenance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/maintenance_yuyue" >
+        </RadioButton>
+    </RadioGroup>
+
+    <TextView
+            android:id="@+id/yuyue_info_title"
+            style="@style/PeopleInfo"
+            android:layout_marginTop="5dip"
+            android:text="@string/yuyue_time" />
+
+    <View
+        android:id="@+id/yuyue_info_divider"
         android:layout_width="fill_parent"
         android:layout_height="1dip"
         android:layout_marginTop="5dip"
@@ -53,9 +57,10 @@
             style="@style/ProductInfo"
             android:text="@string/date" />
 
-        <TextView android:id="@+id/date"
-	        android:clickable="true"
-	        style="@style/ProductInfoInput"/>
+        <TextView
+            android:id="@+id/date"
+            style="@style/ProductInfoInput"
+            android:clickable="true" />
     </LinearLayout>
 
     <LinearLayout
@@ -70,8 +75,8 @@
 
         <TextView
             android:id="@+id/time"
-            android:clickable="true"
-            style="@style/ProductInfoInput" />
+            style="@style/ProductInfoInput"
+            android:clickable="true" />
     </LinearLayout>
 
 </LinearLayout>

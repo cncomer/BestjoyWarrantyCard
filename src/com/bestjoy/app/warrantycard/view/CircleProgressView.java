@@ -31,6 +31,7 @@ public class CircleProgressView extends TextView{
 	public CircleProgressView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		mNumber = DEFAULT_MAX_NUMBER_STRING;
+		mDefaultIconTextWidth = (int) getPaint().measureText("  " + DEFAULT_MAX_NUMBER_STRING);
 		TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CircleProgressView);
 		mInnerCircleColor = typedArray.getColor(R.styleable.CircleProgressView_innerCircleColor, getResources().getColor(R.color.circle_inner_bg)); 
 	    mOutterCircleColor = typedArray.getColor(R.styleable.CircleProgressView_outerCircleColor, getResources().getColor(R.color.circle_outer_bg));
@@ -162,9 +163,7 @@ public class CircleProgressView extends TextView{
 			result = specSize;
 		} else {
 			// Measure the text
-			TextPaint textPaint = getPaint();
-			float iconRealTextWidth = textPaint.measureText("  " + mNumber);
-			mIconTextWidth = Math.max((int)(mDefaultIconTextWidth), (int)iconRealTextWidth) + this.getPaddingLeft() + this.getPaddingRight() + 2 * (mInnerCircleWidth + mOutterCircleWidth);
+			mIconTextWidth = mDefaultIconTextWidth + this.getPaddingLeft() + this.getPaddingRight() + 2 * (mInnerCircleWidth + mOutterCircleWidth);
 			result = mIconTextWidth;
 		}
 		return result;
@@ -180,9 +179,7 @@ public class CircleProgressView extends TextView{
 			result = specSize;
 		} else {
 			// Measure the text
-			TextPaint textPaint = getPaint();
-			float iconRealTextWidth = textPaint.measureText("  " + mNumber);
-			mIconTextWidth = Math.max((int)(mDefaultIconTextWidth), (int)iconRealTextWidth) + this.getPaddingTop() + this.getPaddingBottom() + 2 * (mInnerCircleWidth + mOutterCircleWidth);
+			mIconTextWidth = mDefaultIconTextWidth + this.getPaddingTop() + this.getPaddingBottom() + 2 * (mInnerCircleWidth + mOutterCircleWidth);
 			result = mIconTextWidth;
 		}
 		return result;

@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +26,8 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -77,6 +78,8 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private RadioButton mRepairRadioButton;
 	private CardViewFragment mContent;
 	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
+	/**预约类型T01为安装 T02为维修, T15为保养, 默认是维修，注意修改默认值需要同步修改布局文件的checked对应的RadioButton*/
+	private String mYuyueType = "T02";
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -120,6 +123,26 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 mSaveBtn.setOnClickListener(this);
 		 
 		 mRepairRadioButton = (RadioButton) view.findViewById(R.id.radio_repair);
+		 
+		 RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radioGroup);
+		 radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				switch(checkedId) {
+				case R.id.radio_repair:
+					mYuyueType = "T02";
+					break;
+				case R.id.radio_install:
+					mYuyueType = "T01";
+					break;
+				case R.id.radio_maintenance:
+					mYuyueType = "T15";
+					break;
+				}
+			}
+			 
+		 });
 
 		 //预约时间
 		 ((TextView) view.findViewById(R.id.yuyue_info_title)).setTextColor(getResources().getColor(R.color.light_green));
@@ -297,7 +320,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			urls[10] = "&Desc=";
 			paths[10] = mAskInput.getText().toString().trim();
 			urls[11] = "&service_type=";
-			paths[11] = mRepairRadioButton.isChecked()?"T02":"T01";//T01为安装 T02为维修
+			paths[11] = mYuyueType;
 			
 			String timeStr = BaoxiuCardObject.DATE_FORMAT_YUYUE_TIME.format(new Date());
 			String tip = BaoxiuCardObject.getYuyueSecurityTip(timeStr);
