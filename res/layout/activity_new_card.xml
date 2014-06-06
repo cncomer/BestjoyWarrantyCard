@@ -205,6 +205,16 @@
                         android:id="@+id/product_buy_delay_time"
                         style="@style/ProductInfoInput"
                         android:inputType="numberDecimal" />
+				    <Button android:id="@+id/menu_choose_yanbao"
+				        android:layout_width="wrap_content"
+				        android:text="@string/menu_choose"
+				        style="@style/DefaultShapeButton"
+				        android:paddingLeft="8dip"
+				        android:paddingRight="8dip"
+				        android:textSize="12sp"
+				        android:textColor="@color/blk"
+				        android:background="@drawable/default_green_btn"
+				        android:layout_height="30dip"/>
                 </LinearLayout>
 
                 <LinearLayout
