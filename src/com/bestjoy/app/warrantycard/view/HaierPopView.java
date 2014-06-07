@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.Editable;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -76,11 +77,13 @@ public class HaierPopView implements OnTouchListener, OnClickListener {
 			screenWidth = display.getWidth();
 			screenHeight = display.getHeight();
 		}
-		
+		DisplayMetrics matrics = new DisplayMetrics();
+		display.getMetrics(matrics);
 		int size = screenWidth > screenHeight ? screenWidth : screenHeight;
-		
-		gridView.setHorizontalSpacing(((int) (size * 0.015)));
-		gridView.setVerticalSpacing(((int) (size * 0.015)));
+		int padding = (int) (matrics.density * 10);
+		gridView.setPadding(padding, padding, padding, padding);
+		gridView.setHorizontalSpacing((int) (matrics.density * 5));
+		gridView.setVerticalSpacing((int) (matrics.density * 5));
 		gridView.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
 		gridView.setNumColumns(GridView.AUTO_FIT);
 		gridView.setColumnWidth(((int) (size * 0.15)));
@@ -139,7 +142,6 @@ public class HaierPopView implements OnTouchListener, OnClickListener {
 			if(position < resultList.size()) {
 				viewHolder._title.setText(resultList.get(position));
 			}
-			convertView.setLayoutParams(new GridView.LayoutParams((int) (parent.getWidth() / COLUMN_NUMBER), 32));
 			return convertView;
 		}
 
