@@ -202,6 +202,7 @@
      <string name="msg_can_not_access_network">抱歉，暂时无法访问服务器，请检查网络，稍后重试</string>
      <string name="msg_download_xinghao_wait">正在下载型号数据，请稍等...</string>
      <string name="msg_download_no_xinghao_wait">服务器还暂时没有该品牌的产品</string>
+     <string name="msg_no_local_data">本地数据中没有对应数据</string>
      <string name="title_dalei">大类</string>
      <string name="title_xiaolei">小类</string>
      <string name="title_pinpai">品牌</string>
