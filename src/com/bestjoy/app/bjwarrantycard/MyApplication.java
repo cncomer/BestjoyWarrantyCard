@@ -3,11 +3,14 @@ package com.bestjoy.app.bjwarrantycard;
 import java.io.File;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
@@ -31,6 +34,8 @@ public class MyApplication extends Application{
 	
 	/**成功删除字符串*/
 	public static final String mDeleteOk="ok";
+	
+	private InputMethodManager mImMgr;
 	
 	@Override
 	public void onCreate() {
@@ -74,6 +79,8 @@ public class MyApplication extends Application{
 		
 		mPreferManager = PreferenceManager.getDefaultSharedPreferences(this);
 		ServiceObject.setContext(this);
+		
+		mImMgr = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
 		
 	}
 	
@@ -344,4 +351,10 @@ public class MyApplication extends Application{
     	showMessage(R.string.msg_sd_unavailable);
     }
     //add by chenkai, for Usage, 2013-06-05 end
+    
+    public void hideInputMethod(IBinder token) {
+    	if (mImMgr != null) {
+    		mImMgr.hideSoftInputFromWindow(token, 0);
+    	}
+    }
 }

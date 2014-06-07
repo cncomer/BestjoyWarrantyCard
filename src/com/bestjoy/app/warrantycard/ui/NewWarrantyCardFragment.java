@@ -219,7 +219,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			mPriceInput.setText(object.mBuyPrice);
 			//mTujingInput.setText(object.mBuyTuJing);
 			mTujingPopView.setText(object.mBuyTuJing);
-			mYanbaoPopView.setText(object.mYanBaoTime + getActivity().getString(R.string.year));
+			mYanbaoPopView.setText(object.mYanBaoTime);
 			mYanbaoComponyInput.setText(object.mYanBaoDanWei);
 			mYanbaoTelInput.setText(object.mYBPhone);
 			mTagInput.setText(object.mCardName);

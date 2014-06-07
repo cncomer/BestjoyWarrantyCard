@@ -27,6 +27,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 
 public class HaierPopView implements OnTouchListener, OnClickListener {
@@ -98,6 +99,7 @@ public class HaierPopView implements OnTouchListener, OnClickListener {
 		}
 	}
 	private void initPopWindow(View view) {
+		MyApplication.getInstance().hideInputMethod(mEditText.getWindowToken());
 		if (mPopupWindow == null) {
 			mPopupWindow = new PopupWindow(popupView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, true);
 			mPopupWindow.setAnimationStyle(R.style.AnimationPreview);  
@@ -115,6 +117,7 @@ public class HaierPopView implements OnTouchListener, OnClickListener {
 		public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
 			if (position < resultList.size()) {
 				mEditText.setText(resultList.get(position));
+				mEditText.setSelection(mEditText.getText().toString().length());
 			}
 			mPopupWindow.dismiss();
 		}
