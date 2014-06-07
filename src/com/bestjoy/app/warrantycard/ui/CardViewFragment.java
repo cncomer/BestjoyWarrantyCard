@@ -136,15 +136,14 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		 }
 		 if (!mBaoxiuCardObject.hasBillAvator()) {
 			 mBillView.setVisibility(View.INVISIBLE);
-			 mFapiaoDateInput.setVisibility(View.INVISIBLE);
 		 } else {
 			 mBillView.setVisibility(View.VISIBLE);
-			 mFapiaoDateInput.setVisibility(View.VISIBLE);
-			 try {
-				 mFapiaoDateInput.setText(BaoxiuCardObject.DATE_FORMAT_FAPIAO_TIME.format(BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate)));
-			 } catch (ParseException e) {
-				 mFapiaoDateInput.setText(mBaoxiuCardObject.mBuyDate);
-			 }
+		 }
+		 
+		 try {
+			 mFapiaoDateInput.setText(BaoxiuCardObject.DATE_FORMAT_FAPIAO_TIME.format(BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate)));
+		 } catch (ParseException e) {
+			 mFapiaoDateInput.setText(mBaoxiuCardObject.mBuyDate);
 		 }
 		 
 		 mPinpaiInput.setText(BaoxiuCardObject.getTagName(mBaoxiuCardObject.mCardName, mBaoxiuCardObject.mPinPai, mBaoxiuCardObject.mLeiXin));
