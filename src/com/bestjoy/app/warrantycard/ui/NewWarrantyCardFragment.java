@@ -57,10 +57,10 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	private TextView mDatePickBtn;
 	private ImageView mBillImageView;
 	private EditText mTypeInput, mPinpaiInput, mModelInput, mBianhaoInput, mBaoxiuTelInput, mWyInput, mTagInput;
-	private EditText mPriceInput, mYanbaoTimeInput, mYanbaoComponyInput, mYanbaoTelInput;
+	private EditText mPriceInput, mYanbaoComponyInput, mYanbaoTelInput;
 	private Calendar mCalendar;
 	/**购买途径*/
-	private HaierPopView mHaierPopView;
+	private HaierPopView mTujingPopView, mYanbaoPopView;
 	//临时的拍摄照片路径
 	private File mBillTempFile, mAvatorTempFile;
 	/**请求商品预览图*/
@@ -121,8 +121,9 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		 
 		 mPriceInput = (EditText) view.findViewById(R.id.product_buy_cost);
 		 //mTujingInput = (EditText) view.findViewById(R.id.product_buy_entry);
-		 mHaierPopView = new HaierPopView(getActivity(), view);
-		 mYanbaoTimeInput = (EditText) view.findViewById(R.id.product_buy_delay_time);
+		 mTujingPopView = new HaierPopView(getActivity(), view, R.id.edit_product_buy_tujing, R.id.menu_choose_tujing);
+		 mYanbaoPopView = new HaierPopView(getActivity(), view, R.id.product_buy_delay_time, R.id.menu_choose_yanbao);
+		 //mYanbaoTimeInput = (EditText) view.findViewById(R.id.product_buy_delay_time);
 		 mYanbaoComponyInput = (EditText) view.findViewById(R.id.product_buy_delay_componey);
 		 mYanbaoTelInput = (EditText) view.findViewById(R.id.product_buy_delay_componey_tel);
 		 //增加标签
@@ -130,9 +131,11 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		 
 		 mSaveBtn = (Button) view.findViewById(R.id.button_save);
 		 mSaveBtn.setOnClickListener(this);
-			
+
+		mTujingPopView.setDataSource(getResources().getStringArray(R.array.buy_places));
+		mYanbaoPopView.setDataSource(getResources().getStringArray(R.array.yanbao_times));
+
 		view.findViewById(R.id.button_scan_qrcode).setOnClickListener(this);
-		
 		view.findViewById(R.id.menu_choose).setOnClickListener(this);
 		return view;
 	}
@@ -200,8 +203,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			mWyInput.getText().clear();
 			mPriceInput.getText().clear();
 			//mTujingInput.getText().clear();
-			mHaierPopView.getText().clear();
-			mYanbaoTimeInput.getText().clear();
+			mTujingPopView.getText().clear();
+			mYanbaoPopView.getText().clear();
 			mYanbaoComponyInput.getText().clear();
 			mYanbaoTelInput.getText().clear();
 			mTagInput.getText().clear();
@@ -215,8 +218,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			mWyInput.setText(object.mWY);
 			mPriceInput.setText(object.mBuyPrice);
 			//mTujingInput.setText(object.mBuyTuJing);
-			mHaierPopView.setText(object.mBuyTuJing);
-			mYanbaoTimeInput.setText(object.mYanBaoTime);
+			mTujingPopView.setText(object.mBuyTuJing);
+			mYanbaoPopView.setText(object.mYanBaoTime + getActivity().getString(R.string.year));
 			mYanbaoComponyInput.setText(object.mYanBaoDanWei);
 			mYanbaoTelInput.setText(object.mYBPhone);
 			mTagInput.setText(object.mCardName);
@@ -285,8 +288,10 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		mBaoxiuCardObject.mBuyDate = BaoxiuCardObject.BUY_DATE_TIME_FORMAT.format(mCalendar.getTime());
 		mBaoxiuCardObject.mBuyPrice = mPriceInput.getText().toString().trim();
 		//mBaoxiuCardObject.mBuyTuJing = mTujingInput.getText().toString().trim();
-		mBaoxiuCardObject.mBuyTuJing = mHaierPopView.getText().toString().trim();
-		mBaoxiuCardObject.mYanBaoTime = mYanbaoTimeInput.getText().toString().trim();
+		mBaoxiuCardObject.mBuyTuJing = mTujingPopView.getText().toString().trim();
+		String yanbaotime = mYanbaoPopView.getText().toString().trim();
+		if (yanbaotime != null && yanbaotime.contains(getActivity().getString(R.string.year))) yanbaotime = yanbaotime.substring(0, yanbaotime.length() - 1);
+		mBaoxiuCardObject.mYanBaoTime = yanbaotime;
 		mBaoxiuCardObject.mYanBaoDanWei = mYanbaoComponyInput.getText().toString().trim();
 		mBaoxiuCardObject.mYBPhone = mYanbaoTelInput.getText().toString().trim();
 		

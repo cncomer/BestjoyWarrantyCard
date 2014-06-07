@@ -496,4 +496,9 @@
          <string name="maintenance_yuyue">保养预约</string>
         <!-- add by chenkai, 增加一键保养, 2014.05.31 end -->
 
+         <string name="year">年</string>
+         <string name="one_year">1年</string>
+         <string name="two_year">2年</string>
+         <string name="three_year">3年</string>
+
 </resources>
