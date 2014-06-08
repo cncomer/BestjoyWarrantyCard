@@ -1,7 +1,11 @@
 package com.bestjoy.app.warrantycard.ui;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -513,24 +517,56 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 	public List<InfoInterface> getServiceDataList(int id) {
 		switch(id) {
 		case R.id.xinghao:
-			//下载型号列表
+			DebugUtils.logD(TAG, "getServiceDataList " + XinghaoObject.getUpdateUrl(mPinPaiCode));
 			InputStream is = null;
+			OutputStream out = null;
 			try {
-				if (!ComConnectivityManager.getInstance().isConnected()) {
-					//没有网络连接，提示用户
-					MyApplication.getInstance().showMessageAsync(R.string.msg_can_not_access_network);
-				}
-				is = NetworkUtils.openContectionLocked(XinghaoObject.getUpdateUrl(mPinPaiCode), MyApplication.getInstance().getSecurityKeyValuesObject());
-				if (is == null) {
-					DebugUtils.logD(TAG, "can't open connection " + XinghaoObject.getUpdateUrl(mPinPaiCode));
-				} else {
-					MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_wait);
+				//查看本地是否有缓存
+				File file = MyApplication.getInstance().getCachedXinghaoFile(mPinPaiCode);
+				if (file.exists() && file.length() > 0) {
+					DebugUtils.logD(TAG, "getCachedXinghaoFile exised " + file.getAbsolutePath());
+					is = new FileInputStream(file);
+					DebugUtils.logD(TAG, "parse cachedXinghaoFile " + file.getAbsolutePath());
 					return XinghaoObject.parse(is, mPinPaiCode);
+				} else {
+					//不存在，我们下载型号列表
+					if (!ComConnectivityManager.getInstance().isConnected()) {
+						//没有网络连接，提示用户
+						MyApplication.getInstance().showMessageAsync(R.string.msg_can_not_access_network);
+					} else {
+						DebugUtils.logD(TAG, "getCachedXinghaoFile not exised " + file.getAbsolutePath());
+						is = NetworkUtils.openContectionLocked(XinghaoObject.getUpdateUrl(mPinPaiCode), MyApplication.getInstance().getSecurityKeyValuesObject());
+						if (is == null) {
+							DebugUtils.logD(TAG, "can't open connection " + XinghaoObject.getUpdateUrl(mPinPaiCode));
+							MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_error);
+						} else {
+							MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_wait);
+							out = new FileOutputStream(file);
+							byte[] buffer = new byte[4096];
+							int read = 0;
+							DebugUtils.logD(TAG, "write cachedXinghaoFile " + file.getAbsolutePath());
+							while((read = is.read(buffer)) > 0) {
+								out.write(buffer, 0, read);
+							}
+							out.flush();
+							NetworkUtils.closeOutStream(out);
+							NetworkUtils.closeInputStream(is);
+							is = new FileInputStream(file);
+							DebugUtils.logD(TAG, "parse cachedXinghaoFile " + file.getAbsolutePath());
+							return XinghaoObject.parse(is, mPinPaiCode);
+						}
+					}
+					
 				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
+				MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_error);
 			} catch (IOException e) {
 				e.printStackTrace();
+				MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_error);
+			} finally {
+				NetworkUtils.closeInputStream(is);
+				NetworkUtils.closeOutStream(out);
 			}
 			break;
 		}

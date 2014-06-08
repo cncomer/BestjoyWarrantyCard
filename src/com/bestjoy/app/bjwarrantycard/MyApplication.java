@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -81,6 +82,8 @@ public class MyApplication extends Application{
 		ServiceObject.setContext(this);
 		
 		mImMgr = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+		
+		PhotoManagerUtilsV2.getInstance().setContext(this);
 		
 	}
 	
@@ -356,5 +359,21 @@ public class MyApplication extends Application{
     	if (mImMgr != null) {
     		mImMgr.hideSoftInputFromWindow(token, 0);
     	}
+    }
+    
+    /**
+     * 返回缓存的品牌型号文件，如果有外置SD卡，该文件会存在外置存储卡xxx/account/xxxx/xinghao目录下，否则在手机内部存储中xxx/files/
+     * @param pingpaiCode
+     * @return
+     */
+    public File getCachedXinghaoFile(String pingpaiCode) {
+    	String accountUid = String.valueOf(MyAccountManager.getInstance().getAccountObject().mAccountUid);
+    	File xinghaoFile =  null;
+    	if (hasExternalStorage()) {
+    		xinghaoFile =  new File(getExternalStorageModuleRootForAccount(accountUid, "xinghao") , pingpaiCode + ".json");
+    	} else {
+    		xinghaoFile =  new File(getAppFilesDir("xinghao") , pingpaiCode + ".json");;
+    	}
+		return xinghaoFile;
     }
 }

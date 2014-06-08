@@ -1,17 +1,33 @@
 package com.bestjoy.app.warrantycard.ui;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-
+import android.widget.TextView;
+import android.text.TextUtils;
+import android.view.View;
 import com.actionbarsherlock.view.Menu;
+import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.shwy.bestjoy.utils.Intents;
 
-public class CardViewActivity extends BaseActionbarActivity {
+public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 
 	private CardViewFragment mContent;
 	public Bundle mBundle;
 	
+	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
+	private BaoxiuCardObject mBaoxiuCardObject;
+	private HomeObject mHomeObject;
+	
+	//
+	private View mBottomContentLayout, mBottomContentTop, mContentLayout;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -22,14 +38,39 @@ public class CardViewActivity extends BaseActionbarActivity {
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		mContent = new CardViewFragment();
-		mContent.setArguments(mBundle);
 		// set the Above View
 		setContentView(R.layout.card_content_frame);
+		mMalfunctionBtn = (TextView) findViewById(R.id.button_malfunction);
+        mMaintenancePointBtn = (TextView) findViewById(R.id.button_maintenance_point);
+        mBuyMaintenanceComponentBtn = (TextView) findViewById(R.id.button_maintenance_componnet);
+        mMalfunctionBtn.setOnClickListener(this);
+        mMaintenancePointBtn.setOnClickListener(this);
+        mBuyMaintenanceComponentBtn.setOnClickListener(this);
+		
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
+		mHomeObject = HomeObject.getHomeObject();
+		//设置給CardViewFragment使用
+		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
+		HomeObject.setHomeObject(mHomeObject);
+		mContent = new CardViewFragment();
+		mContent.setArguments(mBundle);
+
+		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
 		getSupportFragmentManager()
 		.beginTransaction()
 		.replace(R.id.content_frame, mContent)
+		.replace(R.id.content_frame_bottom, newRepairCardFragment)
 		.commit();
+		newRepairCardFragment.updateInfoInterface(mBaoxiuCardObject);
+		newRepairCardFragment.updateInfoInterface(mHomeObject);
+		newRepairCardFragment.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
+		 
+		
+		mContentLayout = findViewById(R.id.content_frame);
+		
+		mBottomContentLayout = findViewById(R.id.content_frame_bottom);
+		mBottomContentTop = findViewById(R.id.contet_bottom_frame_top);
+		mBottomContentTop.setOnClickListener(this);
 	}
 	
 	  @Override
@@ -43,6 +84,28 @@ public class CardViewActivity extends BaseActionbarActivity {
 	    return mBundle != null;
 	}
 	
+	private void showBottomContent(boolean anim) {
+		mContentLayout.setVisibility(View.GONE);
+		mBottomContentLayout.setVisibility(View.VISIBLE);
+		mBottomContentTop.setVisibility(View.VISIBLE);
+	}
+	
+	private void showContent(boolean anim) {
+		mContentLayout.setVisibility(View.VISIBLE);
+		mBottomContentLayout.setVisibility(View.GONE);
+		mBottomContentTop.setVisibility(View.GONE);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (mBottomContentLayout.getVisibility() == View.GONE) {
+			super.onBackPressed();
+		} else {
+			showContent(true);
+		}
+	}
+	
+	
 	/**
 	 * 回到主界面
 	 * @param context
@@ -54,5 +117,44 @@ public class CardViewActivity extends BaseActionbarActivity {
 		}
 		context.startActivity(intent);
 	}
+
+	@Override
+    public void onClick(View v) {
+	    switch(v.getId()){
+	    case R.id.contet_bottom_frame_top:
+	    	showContent(true);
+	    	break;
+	    case R.id.button_malfunction:
+			if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
+				showBottomContent(true);
+	    	} else {
+	    		new AlertDialog.Builder(this)
+		    	.setMessage(R.string.must_haier_confirm_yuyue)
+		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
+							Intents.callPhone(mContext, mBaoxiuCardObject.mBXPhone);
+						} else {
+							MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
+						}
+						
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	    	}
+			break;
+		case R.id.button_maintenance_point:
+		case R.id.button_maintenance_componnet:
+			if (true) {
+				MyApplication.getInstance().showUnsupportMessage();
+				return;
+			}
+			break;
+	    }
+	    
+    }
 
 }

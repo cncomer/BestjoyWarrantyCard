@@ -29,7 +29,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Base64;
+import com.shwy.bestjoy.utils.Base64;
 
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.MyApplication;

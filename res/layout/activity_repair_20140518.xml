@@ -5,68 +5,6 @@
     android:layout_gravity="center"
     android:background="#ffffffff"
     android:orientation="vertical" >
-    
-    <FrameLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="30dip"
-	    android:layout_gravity="center"
-	    android:background="@drawable/blue_background">
-	    <ImageView
-	        android:id="@+id/image_more_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="centerInside"
-            android:layout_gravity="center"
-            android:background="@drawable/top_more_info" />
-
-    </FrameLayout>
-    
-	<com.actionbarsherlock.internal.widget.IcsLinearLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="60dip"
-	    android:showDividers="middle"
-	    android:divider="@drawable/linearlayout_divider"
-	    android:dividerPadding="10dip"
-	    android:background="#ff1f253d"
-        android:layout_marginTop="10dip"
-        android:paddingLeft="@dimen/detail_card_view_padding"
-        android:paddingRight="@dimen/detail_card_view_padding"
-        android:weightSum="3"
-        android:gravity="center_vertical"
-	    android:orientation="horizontal" >
-                  
-        <TextView
-            android:id="@+id/button_malfunction"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:text="@string/button_malfunction"
-            android:textColor="#ffffffff"
-            android:gravity="center"
-            android:textSize="14sp" />
-        <TextView
-            android:id="@+id/button_maintenance_point"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:text="@string/button_maintenance_point"
-            android:textColor="#ffffffff"
-            android:gravity="center"
-            android:textSize="14sp" />
-        
-         <TextView
-            android:id="@+id/button_maintenance_componnet"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:text="@string/button_maintenance_componnet"
-            android:textColor="#ffffffff"
-            android:gravity="center"
-            android:textSize="14sp" />
-	</com.actionbarsherlock.internal.widget.IcsLinearLayout>
 
     <View android:background="@color/light_gray"
         android:layout_width="fill_parent"

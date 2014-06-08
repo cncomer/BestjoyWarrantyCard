@@ -56,7 +56,6 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	private static final String TAG = "CardViewFragment";
 	//商品信息
 	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText, mFapiaoDateInput;
-	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn, mBaoxiuDay;
 	private ImageView mAvatorView, mUsageView, mFlagYanbao;
 	private Button mBillView;
 	private BaoxiuCardObject mBaoxiuCardObject;
@@ -112,13 +111,6 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			 mUsageView = (ImageView) view.findViewById(R.id.button_usage);
 			 mUsageView.setOnClickListener(this);
 			 
-			 mMalfunctionBtn = (TextView) view.findViewById(R.id.button_malfunction);
-	         mMaintenancePointBtn = (TextView) view.findViewById(R.id.button_maintenance_point);
-	         mBuyMaintenanceComponentBtn = (TextView) view.findViewById(R.id.button_maintenance_componnet);
-	         mMalfunctionBtn.setOnClickListener(this);
-	         mMaintenancePointBtn.setOnClickListener(this);
-	         mBuyMaintenanceComponentBtn.setOnClickListener(this);
-	         
 	         mCircleProgressView = (CircleProgressView) view.findViewById(R.id.baoxiuday);
 	         
 			 populateView();
@@ -264,92 +256,10 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			}
 			//add by chenkai, for Usage, 2014.05.31 end
 			break;
-		case R.id.button_malfunction:
-			if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
-				NewRepairCardFragment repairContent = new NewRepairCardFragment();
-				getActivity().getSupportFragmentManager()
-				.beginTransaction()
-				.setCustomAnimations(R.anim.frag_fade_in, R.anim.frag_fade_out)
-				.replace(R.id.content_frame, repairContent)
-				.addToBackStack("NewRepairCardFragment")
-				.commit();
-				repairContent.updateInfoInterface(mBaoxiuCardObject);
-				repairContent.updateInfoInterface(mHomeObject);
-				repairContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
-    			
-	    	} else {
-	    		new AlertDialog.Builder(getActivity())
-		    	.setMessage(R.string.must_haier_confirm_yuyue)
-		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
-							Intents.callPhone(getActivity(), mBaoxiuCardObject.mBXPhone);
-						} else {
-							MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
-						}
-						
-					}
-				})
-				.setNegativeButton(android.R.string.cancel, null)
-				.show();
-	    	}
-			break;
-		case R.id.button_maintenance_point:
-		case R.id.button_maintenance_componnet:
-			if (true) {
-				MyApplication.getInstance().showUnsupportMessage();
-				return;
-			}
-			//目前只有海尔支持预约安装和预约维修，如果不是，我们需要提示用户
-	    	if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
-	    		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
-    			HomeObject.setHomeObject(mHomeObject);
-//    			if (id == R.id.button_onekey_install) {
-//    				ModleSettings.doChoose(getActivity(), ModleSettings.createMyInstallDefaultBundle(getActivity()));
-//    			} else if (id == R.id.button_onekey_repair) {
-//    				ModleSettings.doChoose(getActivity(), ModleSettings.createMyRepairDefaultBundle(getActivity()));
-//    			}
-    			
-    			getActivity().finish();
-	    	} else {
-	    		new AlertDialog.Builder(getActivity())
-		    	.setMessage(R.string.must_haier_confirm_yuyue)
-		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
-							Intents.callPhone(getActivity(), mBaoxiuCardObject.mBXPhone);
-						} else {
-							MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
-						}
-						
-					}
-				})
-				.setNegativeButton(android.R.string.cancel, null)
-				.show();
-	    	}
-			break;
 		}
 		
 	}
 	
-	private boolean checkHaierPinpai() {
-		boolean result = ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai);
-		if (!result) {
-			//不是海尔的品牌，我们给个提示
-			MyApplication.getInstance().showMessage(R.string.msg_pinpai_haier_suppot_only);
-		}
-		return result;
-	}
-
-	private void showEmptyInputToast(int resId) {
-			String msg = getResources().getString(resId);
-			MyApplication.getInstance().showMessage(getResources().getString(R.string.input_type_please_input) + msg);
-		}
-	 
 	 @Override
 	 public void onDestroy() {
 		 super.onDestroy();

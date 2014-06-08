@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -67,7 +66,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private EditText mAskInput;
 	//private Handler mHandler;
 	private Button mSpeakButton;
-	private ImageView mMoreInfoView;
 	private SpeechRecognizerEngine mSpeechRecognizerEngine;
 	
 	private long mAid = -1;
@@ -95,15 +93,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 
 		 mScrollView = (ScrollView) view.findViewById(R.id.scrollview);
 		 
-		 mMalfunctionBtn = (TextView) view.findViewById(R.id.button_malfunction);
-         mMaintenancePointBtn = (TextView) view.findViewById(R.id.button_maintenance_point);
-         mBuyMaintenanceComponentBtn = (TextView) view.findViewById(R.id.button_maintenance_componnet);
-         mMalfunctionBtn.setOnClickListener(this);
-         mMaintenancePointBtn.setOnClickListener(this);
-         mBuyMaintenanceComponentBtn.setOnClickListener(this);
-		 
-		 //mProCityDisEditPopView = new HaierProCityDisEditPopView(this.getActivity(), view);
-		 
 		 mProductNameView = (TextView) view.findViewById(R.id.product_name);
 		 mProductInfoVew = (TextView) view.findViewById(R.id.product_info);
 		 mAccountInfoView = (TextView) view.findViewById(R.id.account_info);
@@ -115,9 +104,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 mSpeakButton.setOnClickListener(this);
 		 mSpeechRecognizerEngine = SpeechRecognizerEngine.getInstance(getActivity());
 		 mSpeechRecognizerEngine.setResultText(mAskInput);
-		 
-		 mMoreInfoView = (ImageView) view.findViewById(R.id.image_more_info);
-		 mMoreInfoView.setOnClickListener(this);
 		 
 		 mSaveBtn = (Button) view.findViewById(R.id.button_save);
 		 mSaveBtn.setOnClickListener(this);
@@ -208,9 +194,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		case R.id.button_speak:
 			mSpeechRecognizerEngine.showIatDialog(getActivity());
 			break;
-		case R.id.image_more_info:
-			goBack();
-			break;
 		case R.id.button_save:
 			createRepairCard();
 			break;
@@ -258,10 +241,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			break;
 		}
 		
-	}
-
-	private void goBack() {
-		getActivity().getSupportFragmentManager().popBackStack();
 	}
 
 	private void createRepairCard() {
