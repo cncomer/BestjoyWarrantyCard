@@ -367,10 +367,9 @@ public class MyApplication extends Application{
      * @return
      */
     public File getCachedXinghaoFile(String pingpaiCode) {
-    	String accountUid = String.valueOf(MyAccountManager.getInstance().getAccountObject().mAccountUid);
     	File xinghaoFile =  null;
     	if (hasExternalStorage()) {
-    		xinghaoFile =  new File(getExternalStorageModuleRootForAccount(accountUid, "xinghao") , pingpaiCode + ".json");
+    		xinghaoFile =  new File(getExternalStorageRoot("xinghao") , pingpaiCode + ".json");
     	} else {
     		xinghaoFile =  new File(getAppFilesDir("xinghao") , pingpaiCode + ".json");;
     	}

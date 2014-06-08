@@ -161,7 +161,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		releaseAdapter((CursorAdapter)mDaleiListViews.getAdapter());
 		releaseAdapter((CursorAdapter)mXiaoleiListViews.getAdapter());
 		releaseAdapter((CursorAdapter)mPinpaiListViews.getAdapter());
-		mXinghaoDataList.clear();
+		if (mXinghaoDataList != null) mXinghaoDataList.clear();
 	}
 
 	@Override
