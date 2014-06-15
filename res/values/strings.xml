@@ -275,6 +275,7 @@
          
          <string name="button_policy">保修政策</string>
          
+         <string name="select_date_tips">只能选择次日之后的日期</string>
          <string name="select_clock_tips">只能选择整点时钟</string>
          <string name="select_time_out_of_service_tips">只能选择8:00-19:00之间的时间</string>
 
@@ -508,4 +509,7 @@
          
          <string name="hint_search_for_xinghao">请输入要检索的型号</string>
 
+         <string name="sure_install_tips">确定预约安装吗?</string>
+         <string name="sure_repair_tips">确定预约维修吗?</string>
+         <string name="sure_maintennace_tips">确定预约保养吗?</string>
 </resources>

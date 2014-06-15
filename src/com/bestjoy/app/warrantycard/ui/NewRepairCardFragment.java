@@ -247,7 +247,16 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		if(MyAccountManager.getInstance().hasLoginned()) {
 			//如果没有注册，我们前往登陆界面
 			if(checkInput()) {
-				createRepairCardAsync();
+				new AlertDialog.Builder(getActivity())
+		    	.setMessage(mYuyueType == "T01" ? R.string.sure_install_tips : mYuyueType == "T02" ? R.string.sure_repair_tips : R.string.sure_maintennace_tips)
+		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						createRepairCardAsync();
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
 			}
 		} else {
 			//如果没有注册，我们前往登陆/注册界面，这里传递ModelBundle对象过去，以便做合适的跳转
@@ -467,9 +476,9 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 
 
+	MyDatePickerDialog mMyDatePickerDialog;
 	private void showDatePickerDialog() {
-        new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
-			
+		mMyDatePickerDialog = new MyDatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
 			@Override
 			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 				mCalendar.set(year, monthOfYear, dayOfMonth);
@@ -479,8 +488,8 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 				mYuyueDate.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mCalendar.getTime()));
 			}
 				
-		}, mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH))
-		.show();
+		}, mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH)+1);
+		mMyDatePickerDialog.show();
 	}
 
 	Toast mToast;
@@ -503,6 +512,33 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 
 	}
 
+	class MyDatePickerDialog extends DatePickerDialog {
+
+		public MyDatePickerDialog(Context context, OnDateSetListener callBack, int year, int monthOfYear,
+				int dayOfMonth) {
+			super(context, callBack, year, monthOfYear, dayOfMonth);
+		}
+
+		@Override
+		public void onDateChanged(DatePicker view, int year, int month, int day) {
+			Calendar cal=Calendar.getInstance();   
+			int y = cal.get(Calendar.YEAR);   
+			int m = cal.get(Calendar.MONTH);   
+			int d = cal.get(Calendar.DATE);
+			if(year < y || mCalendar.get(Calendar.YEAR) >= y && month < m || mCalendar.get(Calendar.YEAR) >= y && month >= m && day <= d) {
+				if(mToast != null) {
+					mToast.setText(R.string.select_date_tips);
+				} else {					
+					mToast = Toast.makeText(this.getContext(), R.string.select_date_tips, Toast.LENGTH_LONG);
+				}
+				mToast.show();
+				mMyDatePickerDialog.getButton(BUTTON_POSITIVE).setEnabled(false);
+				return;
+			} else {
+				mMyDatePickerDialog.getButton(BUTTON_POSITIVE).setEnabled(true);
+			}
+		}
+	}
 	class MyTimePickerDialog extends TimePickerDialog {
 		public MyTimePickerDialog(Context context,
 				OnTimeSetListener callBack, int hourOfDay, int minute,

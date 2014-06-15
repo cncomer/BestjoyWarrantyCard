@@ -64,7 +64,6 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		newRepairCardFragment.updateInfoInterface(mBaoxiuCardObject);
 		newRepairCardFragment.updateInfoInterface(mHomeObject);
 		newRepairCardFragment.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
-		 
 		
 		mContentLayout = findViewById(R.id.content_frame);
 		
@@ -126,7 +125,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	    	break;
 	    case R.id.button_malfunction:
 			if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
-				showBottomContent(true);
+				showNewRepairCardFragment();
 	    	} else {
 	    		new AlertDialog.Builder(this)
 		    	.setMessage(R.string.must_haier_confirm_yuyue)
@@ -147,6 +146,8 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	    	}
 			break;
 		case R.id.button_maintenance_point:
+			showMaintenancePointFragment();
+			break;
 		case R.id.button_maintenance_componnet:
 			if (true) {
 				MyApplication.getInstance().showUnsupportMessage();
@@ -156,5 +157,33 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	    }
 	    
     }
+
+	private void showNewRepairCardFragment() {
+		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
+		getSupportFragmentManager()
+		.beginTransaction()
+		.replace(R.id.content_frame, mContent)
+		.replace(R.id.content_frame_bottom, newRepairCardFragment)
+		.commit();
+		newRepairCardFragment.updateInfoInterface(mBaoxiuCardObject);
+		newRepairCardFragment.updateInfoInterface(mHomeObject);
+		newRepairCardFragment.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
+
+		showBottomContent(true);
+	}
+	
+	private void showMaintenancePointFragment() {
+		NearestMaintenancePointFragment mNearestMaintenancePointFragment = new NearestMaintenancePointFragment();
+		getSupportFragmentManager()
+		.beginTransaction()
+		.replace(R.id.content_frame, mContent)
+		.replace(R.id.content_frame_bottom, mNearestMaintenancePointFragment)
+		.commit();
+		mNearestMaintenancePointFragment.updateInfoInterface(mBaoxiuCardObject);
+		mNearestMaintenancePointFragment.updateInfoInterface(mHomeObject);
+		mNearestMaintenancePointFragment.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
+
+		showBottomContent(true);
+	}
 
 }
