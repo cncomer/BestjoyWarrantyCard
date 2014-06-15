@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.google.zxing.BarcodeFormat;
 import com.shwy.bestjoy.utils.InfoInterfaceImpl;
 
 /**
@@ -41,15 +42,28 @@ public final class HaierParsedResult extends ParsedResult {
 	private static final String TAG = "HaierParsedResult";
   private final String text;
   private final String param;
+  private BarcodeFormat mBarcodeFormat;
 
   public HaierParsedResult(String text, String param) {
     super(ParsedResultType.HAIER);
     this.text = text;
     this.param = param;
+    mBarcodeFormat = BarcodeFormat.QR_CODE;
   }
+  
+  public HaierParsedResult(String text, String param, BarcodeFormat barcodeFormat) {
+	    super(ParsedResultType.HAIER);
+	    this.text = text;
+	    this.param = param;
+	    mBarcodeFormat = barcodeFormat;
+	  }
 
   public String getParam() {
     return param;
+  }
+  
+  public BarcodeFormat getBarcodeFormat() {
+	  return mBarcodeFormat;
   }
 
   @Override

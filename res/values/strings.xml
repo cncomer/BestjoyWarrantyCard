@@ -506,6 +506,8 @@
          <string name="three_year">3</string>
          
          <string name="error_oom_for_fapiao">发票照片分辨率太大了，内存不够，请重新尝试拍摄发票或则将相机的分辨率调低一些.</string>
+         
+         <string name="hint_search_for_xinghao">请输入要检索的型号</string>
 
          <string name="sure_install_tips">确定预约安装吗?</string>
          <string name="sure_repair_tips">确定预约维修吗?</string>
