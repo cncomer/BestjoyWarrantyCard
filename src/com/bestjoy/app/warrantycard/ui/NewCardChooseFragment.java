@@ -691,7 +691,8 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 				}
 				if (infoInterface instanceof XinghaoObject) {
 					XinghaoObject object = (XinghaoObject)infoInterface;
-					if (object.mMN.contains(filter)) {
+					//忽略大小写
+					if (object.mMN.toLowerCase().contains(filter.toLowerCase())) {
 						result.add(infoInterface);
 					}
 				}
