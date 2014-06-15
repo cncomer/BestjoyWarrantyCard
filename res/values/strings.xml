@@ -275,7 +275,7 @@
          
          <string name="button_policy">保修政策</string>
          
-         <string name="select_date_tips">只能选择次日之后的日期</string>
+         <string name="select_date_tips">预约时间必须大于今天</string>
          <string name="select_clock_tips">只能选择整点时钟</string>
          <string name="select_time_out_of_service_tips">只能选择8:00-19:00之间的时间</string>
 
