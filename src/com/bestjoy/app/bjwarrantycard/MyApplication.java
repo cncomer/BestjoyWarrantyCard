@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -41,6 +43,7 @@ public class MyApplication extends Application{
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Log.d(TAG, "onCreate()");
 		mHandler = new Handler();
 		mInstance = this;
 		// init all preference default values.
@@ -84,6 +87,9 @@ public class MyApplication extends Application{
 		mImMgr = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
 		
 		PhotoManagerUtilsV2.getInstance().setContext(this);
+		//用于屏幕适配
+		DisplayMetrics display = this.getResources().getDisplayMetrics();
+		Log.d(TAG, display.toString());
 		
 	}
 	
