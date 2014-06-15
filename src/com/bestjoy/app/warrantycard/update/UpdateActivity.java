@@ -69,11 +69,8 @@ public class UpdateActivity extends BaseActionbarActivity{
 			return;
 		}
 		setContentView(R.layout.update_activity);
-		setTitle(getString(R.string.format_latest_version, mServiceAppInfo.mVersionName));
 		initView();
-		
 		mCurrentType = TYPE.IDLE;
-		
 		PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
 		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
 	} 
@@ -94,15 +91,26 @@ public class UpdateActivity extends BaseActionbarActivity{
 		
 	}
 	
+	@Override
+	public void onNewIntent(Intent newIntent) {
+		DebugUtils.logLife(TAG, "onNewIntent " + newIntent);
+		if (newIntent != null) {
+			setIntent(newIntent);
+			mServiceAppInfo = newIntent.getParcelableExtra(EXTRA_APPINFO);
+			DebugUtils.logLife(TAG, "onNewIntent mServiceAppInfo " + mServiceAppInfo.toString(this));
+			initView();
+		}
+	}
+	
 	private void initView() {
 		if (mReleaseNote == null) {
 			mReleaseNote = (TextView) findViewById(R.id.releasenote);
-			
 			mProgressLayout = findViewById(R.id.progress_layout);
 			mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 			mProgressStatus = (TextView) findViewById(R.id.status_view);
 		}
 		mReleaseNote.setText(mServiceAppInfo.buildReleasenote(mContext));
+		setTitle(getString(R.string.format_latest_version, mServiceAppInfo.mVersionName));
 	}
 	
 	/**

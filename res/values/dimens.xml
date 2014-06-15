@@ -6,8 +6,8 @@
     
     <dimen name="default_color_button_height">40dip</dimen>
     
-    <dimen name="ads_height">279dip</dimen>
-    <dimen name="ads_width">480dip</dimen>
+    <dimen name="ads_height">279px</dimen>
+    <dimen name="ads_width">480px</dimen>
     
      <dimen name="title_logo_height">67dip</dimen>
     <dimen name="title_scan_height">50dip</dimen>

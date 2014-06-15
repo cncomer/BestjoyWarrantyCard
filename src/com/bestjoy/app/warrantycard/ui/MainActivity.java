@@ -1,5 +1,7 @@
 package com.bestjoy.app.warrantycard.ui;
 
+import java.io.File;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,7 +31,7 @@ import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
-import com.shwy.bestjoy.utils.Intents;
+import com.shwy.bestjoy.utils.FilesUtils;
 
 public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
 	private LinearLayout mDotsLayout;
@@ -113,13 +115,15 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
      public boolean onCreateOptionsMenu(Menu menu) {
   	     boolean result = super.onCreateOptionsMenu(menu);
   	     MenuItem subMenu1Item = menu.findItem(R.string.menu_more);
-  	     subMenu1Item.getSubMenu().add(1000, R.string.menu_exit, 1005, R.string.menu_exit);
+  	   subMenu1Item.getSubMenu().add(1000, R.string.menu_refresh, 1005, R.string.menu_refresh);
+  	     subMenu1Item.getSubMenu().add(1000, R.string.menu_exit, 1006, R.string.menu_exit);
 //  	     subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_light);
          return result;
      }
 	 
 	 public boolean onPrepareOptionsMenu(Menu menu) {
 		 menu.findItem(R.string.menu_exit).setVisible(MyAccountManager.getInstance().hasLoginned());
+		 menu.findItem(R.string.menu_refresh).setVisible(MyAccountManager.getInstance().hasLoginned());
 	     return super.onPrepareOptionsMenu(menu);
 	 }
 	 
@@ -139,6 +143,19 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
 			 return true;
+		 case R.string.menu_refresh:
+			 if (MyAccountManager.getInstance().hasLoginned()) {
+				 //做一次登陆操作
+				 //目前只删除本地的所有缓存文件
+				 File dir = MyApplication.getInstance().getCachedXinghaoInternalRoot();
+				 FilesUtils.deleteFile("Updating ", dir);
+				 
+				 dir = MyApplication.getInstance().getCachedXinghaoExternalRoot();
+				 if (dir != null) {
+					 FilesUtils.deleteFile("Updating ", dir);
+				 }
+			 }
+			 break;
 		 }
 		 return super.onOptionsItemSelected(menuItem);
 	 }
@@ -210,7 +227,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		}
 		int adsW = getResources().getDimensionPixelSize(R.dimen.ads_width);
 		int adsH = getResources().getDimensionPixelSize(R.dimen.ads_height);
-		mAdsBitmaps = BitmapUtils.getSuitedBitmaps(this, mAddsDrawableId, adsW, adsH);
+		mAdsBitmaps = BitmapUtils.getSuitedBitmaps(this, mAddsDrawableId, 800, 1024);
 	}
 	
 	private void initViewPagers(int count) {

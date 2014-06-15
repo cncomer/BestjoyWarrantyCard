@@ -204,6 +204,9 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 
 		@Override
 		public int getCount() {
+			if (MyAccountManager.getInstance().getAccountObject() == null) {
+				return 0;
+			}
 			return MyAccountManager.getInstance().getAccountObject().mAccountHomeCount;
 		}
 

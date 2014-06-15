@@ -98,6 +98,7 @@
     <string name="menu_more">更多</string>
     <string name="menu_login">登录</string>
     <string name="menu_exit">退出</string>
+    <string name="menu_refresh">刷新</string>
     <string name="menu_register">注册</string>
     <string name="menu_setting">设置</string>
     <string name="menu_help">帮助</string>
@@ -502,5 +503,7 @@
          <string name="one_year">1</string>
          <string name="two_year">2</string>
          <string name="three_year">3</string>
+         
+         <string name="error_oom_for_fapiao">发票照片分辨率太大了，内存不够，请重新尝试拍摄发票或则将相机的分辨率调低一些.</string>
 
 </resources>

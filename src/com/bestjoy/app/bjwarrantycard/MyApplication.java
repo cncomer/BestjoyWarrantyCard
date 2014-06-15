@@ -369,10 +369,25 @@ public class MyApplication extends Application{
     public File getCachedXinghaoFile(String pingpaiCode) {
     	File xinghaoFile =  null;
     	if (hasExternalStorage()) {
-    		xinghaoFile =  new File(getExternalStorageRoot("xinghao") , pingpaiCode + ".json");
+    		xinghaoFile =  new File(getCachedXinghaoExternalRoot(), pingpaiCode + ".json");
     	} else {
-    		xinghaoFile =  new File(getAppFilesDir("xinghao") , pingpaiCode + ".json");;
+    		xinghaoFile =  new File(getCachedXinghaoInternalRoot() , pingpaiCode + ".json");;
     	}
 		return xinghaoFile;
+    }
+    
+    /**
+     * 得到sdcard上的型号目录/mnt/sdcard/xxxx/xinghao
+     * @return
+     */
+    public File getCachedXinghaoExternalRoot() {
+    	return getExternalStorageRoot("xinghao");
+    }
+    /**
+     * 得到sdcard上的型号目录/xxx/files/xinghao
+     * @return
+     */
+    public File getCachedXinghaoInternalRoot() {
+    	return getAppFilesDir("xinghao");
     }
 }

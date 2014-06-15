@@ -139,6 +139,13 @@ public class ServiceAppInfo implements Parcelable{
 	public static long getLatestCheckTime() {
 		return MyApplication.getInstance().mPreferManager.getLong(ServiceAppInfo.KEY_SERVICE_APP_INFO_CHECK_TIME, 0);
 	}
+	
+	public String toString(Context context) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Find new version[mVersionCode=").append(mVersionCode).append(", mVersionName=").append(mVersionName)
+		.append(", content=").append(buildReleasenote(context)).append("]");
+		return sb.toString();
+	}
 
 
 	@Override

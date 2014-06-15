@@ -1,4 +1,4 @@
 <resources>
-   <dimen name="ads_height">279dp</dimen>
-    <dimen name="ads_height">480dp</dimen>
+   <!-- dimen name="ads_height">279dp</dimen-->
+    <!-- dimen name="ads_height">480dp</dimen-->
 </resources>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="4"
-    android:versionName="V1.3" >
+    android:versionCode="6"
+    android:versionName="V1.5" >
 
      <supports-screens
         android:anyDensity="true"
@@ -170,6 +170,7 @@
         <activity
             android:configChanges="orientation"
             android:excludeFromRecents="true"
+            android:launchMode="singleTop"
             android:name="com.bestjoy.app.warrantycard.update.UpdateActivity" />
         <activity
             android:configChanges="orientation"

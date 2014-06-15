@@ -30,11 +30,14 @@ public class BitmapUtils {
 			options.inJustDecodeBounds = true;
 			BitmapFactory.decodeResource(res, id, options);
 			int sampleSize = 1;
-			if (options.outHeight > options.outWidth) {
-				sampleSize = options.outHeight / h;
-			} else {
-				sampleSize = options.outWidth / w;
+			if (options.outHeight > h || options.outWidth > w) {
+				if (options.outHeight > options.outWidth) {
+					sampleSize = options.outHeight / h;
+				} else {
+					sampleSize = options.outWidth / w;
+				}
 			}
+			
 			options.inJustDecodeBounds = false;
 			options.inSampleSize = sampleSize;
 			bitmaps[index] = BitmapFactory.decodeResource(res, id, options);

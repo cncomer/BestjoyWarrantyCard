@@ -40,6 +40,11 @@ public class MyAccountManager {
 		}
 	}
 	
+	public void initAccountObjectForce() {
+		mHaierAccount = AccountObject.getHaierAccountFromDatabase(mContext);
+		initAccountHomes();
+	}
+	
 	public void initAccountHomes() {
 		if (mHaierAccount != null) {
 			mHaierAccount.mAccountHomes = HomeObject.getAllHomeObjects(mContext.getContentResolver(), mHaierAccount.mAccountUid);
@@ -92,11 +97,6 @@ public class MyAccountManager {
 	/**是否有保修卡*/
 	public boolean hasBaoxiuCards() {
 		if (mHaierAccount != null) {
-//			for(HomeObject home : mHaierAccount.mAccountHomes) {
-//				if (home.mHomeCardCount > 0) {
-//					return true;
-//				}
-//			}
 			return mHaierAccount.mAccountBaoxiuCardCount > 0;
 		}
 		return false;
@@ -104,9 +104,12 @@ public class MyAccountManager {
 	/**新建保修卡后都需要调用该方法来更新家*/
 	public void updateHomeObject(long aid) {
 		if (mHaierAccount != null) {
+			mHaierAccount.mAccountBaoxiuCardCount = 0;
 			for(HomeObject home : mHaierAccount.mAccountHomes) {
 				if (home.mHomeAid  == aid) {
 					home.initBaoxiuCards(mContext.getContentResolver());
+					//重新初始化保修卡数据
+					mHaierAccount.mAccountBaoxiuCardCount += home.mHomeCardCount;
 				}
 			}
 		}
