@@ -488,8 +488,9 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 				mYuyueDate.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mCalendar.getTime()));
 			}
 				
-		}, mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH)+1);
+		}, mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
 		mMyDatePickerDialog.show();
+		mMyDatePickerDialog.getButton(TimePickerDialog.BUTTON_POSITIVE).setEnabled(false);
 	}
 
 	Toast mToast;
@@ -513,17 +514,22 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 
 	class MyDatePickerDialog extends DatePickerDialog {
-
 		public MyDatePickerDialog(Context context, OnDateSetListener callBack, int year, int monthOfYear,
 				int dayOfMonth) {
 			super(context, callBack, year, monthOfYear, dayOfMonth);
+			if(mToast != null) {
+				mToast.setText(R.string.select_date_out_of_service_tips);
+			} else {
+				mToast = Toast.makeText(this.getContext(), R.string.select_date_out_of_service_tips, Toast.LENGTH_LONG);
+			}
+			mToast.show();
 		}
 
 		@Override
 		public void onDateChanged(DatePicker view, int year, int month, int day) {
-			Calendar cal=Calendar.getInstance();   
-			int y = cal.get(Calendar.YEAR);   
-			int m = cal.get(Calendar.MONTH);   
+			Calendar cal=Calendar.getInstance();
+			int y = cal.get(Calendar.YEAR);
+			int m = cal.get(Calendar.MONTH);
 			int d = cal.get(Calendar.DATE);
 			if(year < y || mCalendar.get(Calendar.YEAR) >= y && month < m || mCalendar.get(Calendar.YEAR) >= y && month >= m && day <= d) {
 				if(mToast != null) {
