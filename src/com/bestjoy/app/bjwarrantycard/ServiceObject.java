@@ -101,16 +101,14 @@ public class ServiceObject {
 			}
 			try {
 				JSONObject jsonObject = new JSONObject(content);
-				resultObject.mAddresses = jsonObject.getJSONArray("results");
 				resultObject.mStatusCode = Integer.parseInt(jsonObject.getString("StatusCode"));
 				resultObject.mStatusMessage = jsonObject.getString("StatusMessage");
-				DebugUtils.logD("HaierResultObject", "mAddresses = " + resultObject.mAddresses);
 				DebugUtils.logD("HaierResultObject", "StatusCode = " + resultObject.mStatusCode);
 				DebugUtils.logD("HaierResultObject", "StatusMessage = " +resultObject.mStatusMessage);
 				try {
-					resultObject.mJsonData = jsonObject.getJSONObject("results");
+					resultObject.mJsonData = jsonObject.getJSONObject("Data");
 				} catch (JSONException e) {
-					resultObject.mStrData = jsonObject.getString("results");
+					resultObject.mStrData = jsonObject.getString("Data");
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
