@@ -162,7 +162,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
 		getSupportFragmentManager()
 		.beginTransaction()
-		.replace(R.id.content_frame, mContent)
+//		.replace(R.id.content_frame, mContent)
 		.replace(R.id.content_frame_bottom, newRepairCardFragment)
 		.commit();
 		newRepairCardFragment.updateInfoInterface(mBaoxiuCardObject);
@@ -176,7 +176,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		NearestMaintenancePointFragment mNearestMaintenancePointFragment = new NearestMaintenancePointFragment();
 		getSupportFragmentManager()
 		.beginTransaction()
-		.replace(R.id.content_frame, mContent)
+//		.replace(R.id.content_frame, mContent)
 		.replace(R.id.content_frame_bottom, mNearestMaintenancePointFragment)
 		.commit();
 		mNearestMaintenancePointFragment.updateInfoInterface(mBaoxiuCardObject);
