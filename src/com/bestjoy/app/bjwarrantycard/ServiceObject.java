@@ -1,5 +1,6 @@
 package com.bestjoy.app.bjwarrantycard;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -91,6 +92,7 @@ public class ServiceObject {
 		public String mStatusMessage;
 		public JSONObject mJsonData;
 		public String mStrData;
+		public JSONArray mAddresses;
 		
 		public static ServiceResultObject parse(String content) {
 			ServiceResultObject resultObject = new ServiceResultObject();
@@ -99,14 +101,16 @@ public class ServiceObject {
 			}
 			try {
 				JSONObject jsonObject = new JSONObject(content);
+				resultObject.mAddresses = jsonObject.getJSONArray("results");
 				resultObject.mStatusCode = Integer.parseInt(jsonObject.getString("StatusCode"));
 				resultObject.mStatusMessage = jsonObject.getString("StatusMessage");
+				DebugUtils.logD("HaierResultObject", "mAddresses = " + resultObject.mAddresses);
 				DebugUtils.logD("HaierResultObject", "StatusCode = " + resultObject.mStatusCode);
 				DebugUtils.logD("HaierResultObject", "StatusMessage = " +resultObject.mStatusMessage);
 				try {
-					resultObject.mJsonData = jsonObject.getJSONObject("Data");
+					resultObject.mJsonData = jsonObject.getJSONObject("results");
 				} catch (JSONException e) {
-					resultObject.mStrData = jsonObject.getString("Data");
+					resultObject.mStrData = jsonObject.getString("results");
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -114,7 +118,31 @@ public class ServiceObject {
 			}
 			return resultObject;
 		}
-		
+
+		public static ServiceResultObject parseAddress(String content) {
+			ServiceResultObject resultObject = new ServiceResultObject();
+			if (TextUtils.isEmpty(content)) {
+				return resultObject;
+			}
+			try {
+				JSONObject jsonObject = new JSONObject(content);
+				resultObject.mAddresses = jsonObject.getJSONArray("results");
+				resultObject.mStatusCode = Integer.parseInt(jsonObject.getString("status"));
+				resultObject.mStatusMessage = jsonObject.getString("message");
+				DebugUtils.logD("HaierResultObject", "mAddresses = " + resultObject.mAddresses);
+				DebugUtils.logD("HaierResultObject", "StatusCode = " + resultObject.mStatusCode);
+				DebugUtils.logD("HaierResultObject", "StatusMessage = " +resultObject.mStatusMessage);
+				try {
+					resultObject.mJsonData = jsonObject.getJSONObject("results");
+				} catch (JSONException e) {
+					resultObject.mStrData = jsonObject.getString("results");
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+				resultObject.mStatusMessage = e.getMessage();
+			}
+			return resultObject;
+		}
 		public boolean isOpSuccessfully() {
 			return mStatusCode == 1;
 		}
