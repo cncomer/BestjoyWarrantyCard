@@ -2,6 +2,8 @@ package com.bestjoy.app.warrantycard.ui;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -26,6 +28,8 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.bestjoy.app.warrantycard.utils.MaintenancePointBean;
+import com.bestjoy.app.warrantycard.utils.PatternMaintenanceUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
 import com.shwy.bestjoy.utils.NetworkUtils;
@@ -39,12 +43,13 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 	private BaoxiuCardObject mBaoxiuCardObject;
 	
 	private HomeObject mHomeObject;
-	public JSONArray mAddresses;
+	private List <MaintenancePointBean> mMaintenancePoint;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		getActivity().setTitle(R.string.button_maintenance_point);
+		mMaintenancePoint = new ArrayList<MaintenancePointBean>();
 		queryNearestPointSync();
 	}
 	
@@ -114,7 +119,7 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 		}
 		@Override
 		public int getCount() {
-			return mAddresses != null ? mAddresses.length() : 0;
+			return mMaintenancePoint != null ? mMaintenancePoint.size() : 0;
 		}
 
 		@Override
@@ -135,37 +140,19 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 				holder = new ViewHolder();
 				holder._name = (TextView) convertView.findViewById(R.id.mal_point_name);
 				holder._detail = (TextView) convertView.findViewById(R.id.mal_point_detail);
+				holder._distance = (TextView) convertView.findViewById(R.id.mal_point_distance);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			holder._name.setText(getAddress(position));
-			holder._detail.setText(getAddressDetail(position));
+			holder._name.setText(mMaintenancePoint.get(position).getMaintenancePointName());
+			holder._detail.setText(mMaintenancePoint.get(position).getMaintenancePointDetail());
+			holder._distance.setText(mMaintenancePoint.get(position).getMaintenancePointDistance());
 			return convertView;
-		}
-		
-		private CharSequence getAddress(int position) {
-			String name = null;
-			try {
-				name = mAddresses!=null?mAddresses.getJSONObject(position).getString("name"):"";
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			return name;
-		}
-		
-		private CharSequence getAddressDetail(int position) {
-			String detail = null;
-			try {
-				detail = mAddresses!=null?mAddresses.getJSONObject(position).getString("address"):"";
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			return detail;
 		}
 
 		private class ViewHolder {
-			private TextView _name, _detail;
+			private TextView _name, _detail, _distance;
 		}
 
 		@Override
@@ -204,14 +191,17 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			try {
 				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				serviceResultObject = ServiceResultObject.parseAddress(NetworkUtils.getContentFromInput(is));
-				mAddresses = serviceResultObject.mAddresses;
-				DebugUtils.logD(TAG, "mAddresses = " + mAddresses);
+				mMaintenancePoint = PatternMaintenanceUtils.getMaintenancePoint(serviceResultObject.mAddresses);
+				DebugUtils.logD(TAG, "mMaintenancePoint = " + mMaintenancePoint);
 				DebugUtils.logD(TAG, "StatusCode = " + serviceResultObject.mStatusCode);
 				DebugUtils.logD(TAG, "StatusMessage = " + serviceResultObject.mStatusMessage);
 				if (serviceResultObject.isOpSuccessfully()) {
 					String data = serviceResultObject.mStrData;
 					DebugUtils.logD(TAG, "Data = " + data);
 				}
+			} catch (JSONException e) {
+				DebugUtils.logD("huasong", "huasong  JSONException = " + e);
+				e.printStackTrace();
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 				serviceResultObject.mStatusMessage = e.getMessage();
