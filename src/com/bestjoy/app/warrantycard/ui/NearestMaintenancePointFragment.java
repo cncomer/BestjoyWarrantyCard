@@ -6,17 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -32,6 +34,7 @@ import com.bestjoy.app.warrantycard.utils.MaintenancePointBean;
 import com.bestjoy.app.warrantycard.utils.PatternMaintenanceUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
+import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
 
@@ -141,6 +144,7 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 				holder._name = (TextView) convertView.findViewById(R.id.mal_point_name);
 				holder._detail = (TextView) convertView.findViewById(R.id.mal_point_detail);
 				holder._distance = (TextView) convertView.findViewById(R.id.mal_point_distance);
+				holder._phone = (ImageView) convertView.findViewById(R.id.mal_point_tel);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
@@ -148,17 +152,29 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			holder._name.setText(mMaintenancePoint.get(position).getMaintenancePointName());
 			holder._detail.setText(mMaintenancePoint.get(position).getMaintenancePointDetail());
 			holder._distance.setText(mMaintenancePoint.get(position).getMaintenancePointDistance());
+			final int pos = position;
+			holder._phone.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View arg0) {
+					String tel = mMaintenancePoint.get(pos).getMaintenancePointTel();
+					if(!TextUtils.isEmpty(tel)) {
+						Intents.callPhone(getActivity(), tel);						
+					} else {
+						MyApplication.getInstance().showMessage(R.string.no_tel_tips);
+					}
+				}
+			});
 			return convertView;
 		}
 
 		private class ViewHolder {
 			private TextView _name, _detail, _distance;
+			private ImageView _phone;
 		}
 
 		@Override
 		public void onItemClick(AdapterView<?> listView, View view, int pos, long arg3) {
 		}
-		
 	}
 	
 	
@@ -200,7 +216,7 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 					DebugUtils.logD(TAG, "Data = " + data);
 				}
 			} catch (JSONException e) {
-				DebugUtils.logD("huasong", "huasong  JSONException = " + e);
+				DebugUtils.logD(TAG, "JSONException = " + e);
 				e.printStackTrace();
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();

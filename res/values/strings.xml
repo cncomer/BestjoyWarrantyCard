@@ -512,4 +512,5 @@
          <string name="sure_install_tips">确定预约安装吗?</string>
          <string name="sure_repair_tips">确定预约维修吗?</string>
          <string name="sure_maintennace_tips">确定预约保养吗?</string>
+         <string name="no_tel_tips">暂无号码，电话未拨出</string>
 </resources>

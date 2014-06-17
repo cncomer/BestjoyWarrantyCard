@@ -1,5 +1,7 @@
 package com.bestjoy.app.warrantycard.utils;
 
+import android.text.TextUtils;
+
 public class MaintenancePointBean {
 	/**维修点名称*/
 	private String maintenancePointName;
@@ -14,6 +16,7 @@ public class MaintenancePointBean {
 	public static final String MAINTENANCE_POINT_ADDRESS = "address";
 	public static final String MAINTENANCE_POINT_TELEPHONE = "telephone";
 	public static final String MAINTENANCE_POINT_DISTANCE = "distance";
+	public static final String MAINTENANCE_POINT_DETAIL_INFO = "detail_info";
 	
 
 	public String getMaintenancePointName() {
@@ -41,6 +44,10 @@ public class MaintenancePointBean {
 		return maintenancePointDistance;
 	}
 	public void setMaintenancePointDistance(String maintenancePointDistance) {
-		this.maintenancePointDistance = maintenancePointDistance;
+		Float f = 0f;
+		if(!TextUtils.isEmpty(maintenancePointDistance)) {
+			f = Float.valueOf(maintenancePointDistance) / 1000;
+		}
+		this.maintenancePointDistance = String.format("%.1f", f) + "km";
 	}
 }
