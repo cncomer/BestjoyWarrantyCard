@@ -20,6 +20,7 @@ import android.app.Activity;
 
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.ui.BrowserActivity;
+import com.shwy.bestjoy.utils.Intents;
 
 /**
  * Offers appropriate actions for URLS.
@@ -59,7 +60,8 @@ public final class URIResultHandler extends ResultHandler {
     	super.gobackAndScan();
         break;
       case 1:
-    	BrowserActivity.startActivity(activity, uri, null);
+//    	BrowserActivity.startActivity(activity, uri, null);
+    	Intents.openURL(activity, uri);
         break;
       case 2:
         shareByEmail(uri);
