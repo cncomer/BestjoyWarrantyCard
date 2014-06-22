@@ -513,4 +513,6 @@
          <string name="sure_repair_tips">确定预约维修吗?</string>
          <string name="sure_maintennace_tips">确定预约保养吗?</string>
          <string name="no_tel_tips">暂无号码，电话未拨出</string>
+         <string name="repair_point_detail">维修点信息</string>
+         <string name="repair_point_detail_no_uri_tips">您所查找的店铺网址不存在</string>
 </resources>

@@ -174,6 +174,12 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 
 		@Override
 		public void onItemClick(AdapterView<?> listView, View view, int pos, long arg3) {
+			String url = mMaintenancePoint.get(pos).getMaintenancePointUrl();
+			if(!TextUtils.isEmpty(url)) {				
+				BrowserActivity.startActivity(_context, url, _context.getString(R.string.repair_point_detail));
+			} else {
+				MyApplication.getInstance().showMessage(R.string.repair_point_detail_no_uri_tips);
+			}
 		}
 	}
 	

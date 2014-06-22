@@ -12,11 +12,14 @@ public class MaintenancePointBean {
 	/**维修点距离*/
 	private String maintenancePointDistance;
 	
+	private String maintenancePointUrl;
+	
 	public static final String MAINTENANCE_POINT_NAME = "name";
 	public static final String MAINTENANCE_POINT_ADDRESS = "address";
 	public static final String MAINTENANCE_POINT_TELEPHONE = "telephone";
 	public static final String MAINTENANCE_POINT_DISTANCE = "distance";
 	public static final String MAINTENANCE_POINT_DETAIL_INFO = "detail_info";
+	public static final String MAINTENANCE_POINT_DETAIL_URL = "detail_url";
 	
 
 	public String getMaintenancePointName() {
@@ -49,5 +52,12 @@ public class MaintenancePointBean {
 			f = Float.valueOf(maintenancePointDistance) / 1000;
 		}
 		this.maintenancePointDistance = String.format("%.1f", f) + "km";
+	}
+
+	public String getMaintenancePointUrl() {
+		return maintenancePointUrl;
+	}
+	public void setMaintenancePointUrl(String maintenancePointUrl) {
+		this.maintenancePointUrl = maintenancePointUrl;
 	}
 }

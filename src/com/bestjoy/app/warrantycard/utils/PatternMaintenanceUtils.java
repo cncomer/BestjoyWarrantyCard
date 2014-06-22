@@ -14,10 +14,12 @@ public class PatternMaintenanceUtils {
 		for(int i = 0; i < addresses.length(); i++) {
 			MaintenancePointBean maintenancePointBean = new MaintenancePointBean();
 			JSONObject obj = addresses.getJSONObject(i);
+			JSONObject detailObj = obj.getJSONObject(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_INFO);
 			maintenancePointBean.setMaintenancePointName(obj.has(MaintenancePointBean.MAINTENANCE_POINT_NAME)?obj.getString(MaintenancePointBean.MAINTENANCE_POINT_NAME):"");
 			maintenancePointBean.setMaintenancePointDetail(obj.has(MaintenancePointBean.MAINTENANCE_POINT_ADDRESS)?obj.getString(MaintenancePointBean.MAINTENANCE_POINT_ADDRESS):"");
 			maintenancePointBean.setMaintenancePointTel(obj.has(MaintenancePointBean.MAINTENANCE_POINT_TELEPHONE)?obj.getString(MaintenancePointBean.MAINTENANCE_POINT_TELEPHONE):"");
-			maintenancePointBean.setMaintenancePointDistance(obj.getJSONObject(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_INFO).has(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE)?obj.getJSONObject(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_INFO).getString(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE):"");
+			maintenancePointBean.setMaintenancePointDistance(detailObj.has(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE)?detailObj.getString(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE):"");
+			maintenancePointBean.setMaintenancePointUrl(detailObj.has(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_URL)?detailObj.getString(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_URL):"");
 			result.add(maintenancePointBean);
 		}
 		return result;
