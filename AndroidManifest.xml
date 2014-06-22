@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="8"
-    android:versionName="V1.7" >
+    android:versionCode="10"
+    android:versionName="V1.72" >
 
      <supports-screens
         android:anyDensity="true"
@@ -47,6 +47,9 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <!-- 信息相关 end -->
+    <!-- 保存联系人相关 begin-->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- 保存联系人相关 end-->
     
     <application android:name="com.bestjoy.app.bjwarrantycard.MyApplication"
         android:allowBackup="true"

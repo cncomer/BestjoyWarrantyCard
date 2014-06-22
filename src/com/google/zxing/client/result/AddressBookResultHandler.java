@@ -90,7 +90,7 @@ public final class AddressBookResultHandler extends ResultHandler {
     fields[0] = true; // 返回扫描
     //Add contact is always available
     fields[1] = true;
-    fields[2] = hasPhoneNumber;
+    fields[2] = false;  //下载并交换
     fields[3] = hasBidMessage;
 
     buttonCount = 0;

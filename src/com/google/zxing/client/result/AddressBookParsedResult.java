@@ -49,6 +49,8 @@ public class AddressBookParsedResult extends ParsedResult {
   private String[] mMobilePhoneNumbers;
   /**是否是商家名片*/
   private boolean mIsMerchant = false;
+  /**是否支持商家名片处理*/
+  private static final boolean SUPPORT_MERCHAT = false;
   
   /**
    * 
@@ -117,7 +119,7 @@ public class AddressBookParsedResult extends ParsedResult {
 		  }
 	  }
 	  mIsMerchant = false;
-	  if (!TextUtils.isEmpty(bid) 
+	  if (SUPPORT_MERCHAT && !TextUtils.isEmpty(bid) 
 			  && Contents.MingDang.isMingDangNo(bid) 
 			  && bid.endsWith(Contents.MingDang.FLAG_MERCHANT)) {
 		  mIsMerchant = true;
@@ -132,6 +134,9 @@ public class AddressBookParsedResult extends ParsedResult {
   }
   
   public boolean isMerchant() {
+	  if (!SUPPORT_MERCHAT) {
+		  return false;
+	  }
 	  return mIsMerchant;
   }
   
