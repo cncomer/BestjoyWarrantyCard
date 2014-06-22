@@ -20,6 +20,8 @@ import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.bestjoy.app.warrantycard.utils.VcfAsyncDownloadUtils;
+import com.shwy.bestjoy.contacts.AddrBookUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DateUtils;
 import com.shwy.bestjoy.utils.DeviceStorageUtils;
@@ -63,9 +65,9 @@ public class MyApplication extends Application{
 //		startService(PhotoManagerService.getServiceIntent(this));
 		
 		DateUtils.getInstance().setContext(this);
-//		VcfAsyncDownloadUtils.getInstance().setContext(this);
+		VcfAsyncDownloadUtils.getInstance().setContext(this);
 //		BeepAndVibrate.getInstance().setContext(this);
-//		AddrBookUtils.getInstance().setContext(this);
+		AddrBookUtils.getInstance().setContext(this);
 //		GoodsManager.getInstance().setContext(this);
 //		
 //		//add by chenkai, 2013-07-21
@@ -396,4 +398,12 @@ public class MyApplication extends Application{
     public File getCachedXinghaoInternalRoot() {
     	return getAppFilesDir("xinghao");
     }
+    
+    public File getAppFiles(String fileName) {
+    	File root = getFilesDir();
+    	if (!root.exists()) {
+    		root.mkdirs();
+    	}
+		return new File(root, fileName);
+	}
 }
