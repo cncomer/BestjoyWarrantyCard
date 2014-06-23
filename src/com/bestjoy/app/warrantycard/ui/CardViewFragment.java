@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,14 +68,37 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	private Bundle mBundles;
 	
 	private CircleProgressView mCircleProgressView;
-
+	
+	private ImageView mFapiaoDownloadView;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		mHandler = new Handler();
+		mHandler = new Handler() {
+
+			@Override
+            public void handleMessage(Message msg) {
+	            switch(msg.what) {
+	            case NotifyRegistrant.EVENT_NOTIFY_MESSAGE_RECEIVED:
+	            	Bundle bundle = (Bundle) msg.obj;
+	            	if (bundle.get(Intents.EXTRA_PHOTOID).equals(mBaoxiuCardObject.getFapiaoPhotoId())) {
+	            		//下载完成
+	            		DebugUtils.logD(TAG, "FapiaoTask finished for " + mBaoxiuCardObject.getFapiaoPhotoId());
+	            		File fapiao = MyApplication.getInstance().getProductFaPiaoFile(mBaoxiuCardObject.getFapiaoPhotoId());
+	        			if (fapiao.exists()) {
+	        				DebugUtils.logD(TAG, "FapiaoTask downloaded " + fapiao.getAbsolutePath());
+	        				BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
+	        			}
+	            	}
+	            	dismissDialog(DIALOG_PROGRESS);
+	            	return;
+	            }
+	            super.handleMessage(msg);
+            }
+			
+		};
 		BaoxiuCardObject.showBill(getActivity(), null);
-		NotifyRegistrant.getInstance().register(mHandler);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
 		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
 		mHomeObject = HomeObject.getHomeObject();
@@ -225,6 +249,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	public void onResume() {
 		getActivity().setTitle(R.string.title_baoxiucard_info);
 		super.onResume();
+		NotifyRegistrant.getInstance().register(mHandler);
 	}
 
 	@Override
@@ -232,7 +257,18 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		int id = v.getId();
 		switch(id) {
 		case R.id.button_bill:
-			BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
+			File fapiao = MyApplication.getInstance().getProductFaPiaoFile(mBaoxiuCardObject.getFapiaoPhotoId());
+			if (fapiao.exists()) {
+				BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
+			} else {
+				//需要下载
+				showDialog(DIALOG_PROGRESS);
+				if (mFapiaoDownloadView == null) {
+					mFapiaoDownloadView = new ImageView(getActivity());
+				}
+				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mFapiaoDownloadView, mBaoxiuCardObject.getFapiaoPhotoId(), null, PhotoManagerUtilsV2.TaskType.FaPiao);
+			}
+			
 			break;
 		case R.id.button_usage:
 			//add by chenkai, for Usage, 2014.05.31 begin
@@ -264,7 +300,6 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	 public void onDestroy() {
 		 super.onDestroy();
 		 PhotoManagerUtilsV2.getInstance().releaseToken(TOKEN);
-		 NotifyRegistrant.getInstance().unRegister(mHandler);
 	 }
 	
 	private DeleteCardAsyncTask mDeleteCardAsyncTask;
@@ -273,6 +308,12 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		showDialog(DIALOG_PROGRESS);
 		mDeleteCardAsyncTask = new DeleteCardAsyncTask();
 		mDeleteCardAsyncTask.execute();
+	}
+	
+	@Override
+	public void onPause() {
+		super.onStop();
+		NotifyRegistrant.getInstance().unRegister(mHandler);
 	}
 	
 	private class DeleteCardAsyncTask extends AsyncTask<Void, Void, ServiceResultObject> {

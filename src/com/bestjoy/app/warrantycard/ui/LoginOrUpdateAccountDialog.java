@@ -65,7 +65,7 @@ public class LoginOrUpdateAccountDialog extends Activity{
 			mAccountObject = null;
 			_is = null;
 			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
-			sb.append("login.ashx?cell=").append(mTel)
+			sb.append("20140611/login.ashx?cell=").append(mTel)
 			.append("&pwd=");
 			try {
 				_is = NetworkUtils.openContectionLocked(sb.toString(), mPwd, null);

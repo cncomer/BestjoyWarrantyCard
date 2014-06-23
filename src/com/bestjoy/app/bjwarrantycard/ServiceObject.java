@@ -8,6 +8,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.shwy.bestjoy.utils.SecurityUtils;
 
 
 public class ServiceObject {
@@ -15,7 +16,7 @@ public class ServiceObject {
 	
 	public static final String PRODUCT_AVATOR_URL= "http://115.29.231.29/proimg/";
 	/**发票路径的前缀*/
-	public static final String FAPIAO_PREFIX = "http://115.29.231.29/Fapiao/";
+	public static final String FAPIAO_URL = "http://www.dzbxk.com/fapiao/";
 	
 	public static final String CARD_DELETE_URL = SERVICE_URL + "DeleteBaoXiuByBIDUID.ashx?";
 	
@@ -51,27 +52,32 @@ public class ServiceObject {
 		  sb.append(ky3).append("/").append(ky).append(".jpg");
 		  return sb.toString();
 	}
-	
+	//modify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 begin
 	public static String getCreateBaoxiucardUri() {
-		StringBuilder sb = new StringBuilder("http://www.dzbxk.com/");
-		sb.append("UploadBaoXiu.asmx/").append("AddBaoXiuData");
+		StringBuilder sb = new StringBuilder(SERVICE_URL);
+		sb.append("20140611/AddBaoXiu.ashx");
 		return sb.toString();
 	}
 	
 	public static String getUpdateBaoxiucardUri() {
-		StringBuilder sb = new StringBuilder("http://www.dzbxk.com/");
-		sb.append("UploadBaoXiu.asmx/").append("UpdateBaoXiuData");
+		StringBuilder sb = new StringBuilder(SERVICE_URL);
+		sb.append("20140611/updateBaoXiu.ashx");
 		return sb.toString();
 	}
 	
 	/**
-	 * http://115.29.231.29/Fapiao/20140421/01324df60b0734de0f973c7907af55fc.jpg
-	 * @param ky
+	 * 发票路径为http://www.dzbxk.com/fapiao/图片名.jpg, 图片名=md5(AID+UID)
+	 * @param aid
+	 * @param bid
 	 * @return
 	 */
-	public static String getProdcutFaPiaoUrl(String fapiao) {
-		return fapiao;
+	public static String getBaoxiucardFapiao(String photoId) {
+		StringBuilder sb = new StringBuilder(FAPIAO_URL);
+		sb.append(photoId).append(".jpg");
+		return sb.toString();
 	}
+	//modify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 end
+	
 	/**
 	 * 删除保修数据： serverIP/Haier/DeleteBaoXiuByBIDUID.ashx
 	 * @param BID:保修ID
