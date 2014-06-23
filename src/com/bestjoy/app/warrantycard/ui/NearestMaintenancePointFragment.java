@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
@@ -204,7 +205,7 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			String cell = MyAccountManager.getInstance().getAccountObject().mAccountTel;
 			String pwd = MyAccountManager.getInstance().getAccountObject().mAccountPwd;
 			
-			StringBuilder sb = new StringBuilder("http://www.dzbxk.com/bestjoy/");
+			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
 			sb.append("GetNearby.ashx?")
 			.append("AID=").append(mBaoxiuCardObject.mAID)
 			.append("&BID=").append(mBaoxiuCardObject.mBID)
