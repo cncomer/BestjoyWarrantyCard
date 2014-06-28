@@ -158,6 +158,38 @@ private static final String TAG = "HaierDBHelper";
   public static final String MYLIFE_GUANGGAO = "guanggao";
   //生活圈结束
   
+  //维修点开始
+  /**维修点主表*/
+  public static final String TABLE_NAME_MAINTENCE_POINT = "maintence_point";
+  /**维修点名称*/
+  public static final String MAINTENCE_POINT_NAME = "name";
+  /**维修点坐标id*/
+  public static final String MAINTENCE_POINT_LOCATION_ID = "location_id";
+  /**维修点地址*/
+  public static final String MAINTENCE_POINT_ADDRESS = "address";
+  /**维修点street_id*/
+  public static final String MAINTENCE_POINT_STREET_ID = "street_id";
+  /**维修点电话*/
+  public static final String MAINTENCE_POINT_TEL = "telephone";
+  /**uid*/
+  public static final String MAINTENCE_POINT_UID = "uid";
+  /**aid*/
+  public static final String MAINTENCE_POINT_AID = "aid";
+  /**bid*/
+  public static final String MAINTENCE_POINT_BID = "bid";
+  /**维修点详细信息id*/
+  public static final String MAINTENCE_POINT_DETAIL_INFO_ID = "detail_info_id";
+  public static final String MAINTENCE_POINT_LOCATION_LAT = "lat";
+  public static final String MAINTENCE_POINT_LOCATION_LNG = "lng";
+  public static final String MAINTENCE_POINT_DISTANCE = "distance";
+  public static final String MAINTENCE_POINT_TYPE = "type";//life
+  public static final String MAINTENCE_POINT_TAG = "tag";//八佰伴
+  public static final String MAINTENCE_POINT_DETAIL_URL = "detail_url";
+  public static final String MAINTENCE_POINT_OVERALL_RATING = "overall_rating";
+  public static final String MAINTENCE_POINT_IMAG_NUM = "image_num";
+  public static final String MAINTENCE_POINT_COMMENT_NUM = "comment_num";
+  //维修点结束
+  
   public HaierDBHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
   }
@@ -216,6 +248,9 @@ private static final String TAG = "HaierDBHelper";
   		createCardTable(sqLiteDatabase);
   	    //在我的名片表上增加插入删除触发器，以便同步更新账户表的card_count字段
   		createTriggerForMyCardTable(sqLiteDatabase);
+  		
+  		//创建维修点本地缓存数据
+  		createMaintenancePointTable(sqLiteDatabase);
   	    //增加生活圈
   		createMyLifeTable(sqLiteDatabase);
   		
@@ -391,6 +426,31 @@ private static final String TAG = "HaierDBHelper";
 	            MYLIFE_TOTAL_JF + " TEXT, " +  
 	            MYLIFE_FREE_JF + " TEXT, " + 
 	            CONTACT_DATE + " TEXT" +
+	            ");");
+  }
+  
+  private void createMaintenancePointTable(SQLiteDatabase sqLiteDatabase) {
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_NAME_MAINTENCE_POINT + " (" +
+	            "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+	            MAINTENCE_POINT_AID + " TEXT, " +
+	            MAINTENCE_POINT_BID + " TEXT, " +
+	            MAINTENCE_POINT_NAME + " TEXT, " +
+	            MAINTENCE_POINT_LOCATION_ID + " TEXT, " +
+	            MAINTENCE_POINT_ADDRESS + " TEXT, " +
+	            MAINTENCE_POINT_STREET_ID + " TEXT, " +
+	            MAINTENCE_POINT_TEL + " TEXT, " +
+	            MAINTENCE_POINT_UID + " TEXT, " +
+	            MAINTENCE_POINT_DETAIL_INFO_ID + " TEXT, " +
+	            MAINTENCE_POINT_LOCATION_LAT + " TEXT, " +
+	            MAINTENCE_POINT_LOCATION_LNG + " TEXT, " +
+	            MAINTENCE_POINT_DISTANCE + " TEXT, " +
+	            MAINTENCE_POINT_TYPE + " TEXT, " +
+	            MAINTENCE_POINT_TAG + " TEXT, " +
+	            MAINTENCE_POINT_DETAIL_URL + " TEXT, " +
+	            MAINTENCE_POINT_OVERALL_RATING + " TEXT, " +
+	            MAINTENCE_POINT_IMAG_NUM + " TEXT, " +
+	            MAINTENCE_POINT_COMMENT_NUM + " TEXT" +
 	            ");");
   }
   

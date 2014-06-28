@@ -33,6 +33,9 @@ import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.MaintenancePointBean;
 import com.bestjoy.app.warrantycard.utils.PatternMaintenanceUtils;
+import com.costum.android.widget.PullAndLoadListView;
+import com.costum.android.widget.PullAndLoadListView.OnLoadMoreListener;
+import com.costum.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
 import com.shwy.bestjoy.utils.Intents;
@@ -42,18 +45,26 @@ import com.shwy.bestjoy.utils.SecurityUtils;
 public class NearestMaintenancePointFragment extends ModleBaseFragment implements View.OnClickListener{
 	private static final String TAG = "NearestMaintenancePointFragment";
 	
-	private ListView mMalPointListView;
+	private PullAndLoadListView mMalPointListView;
 	private MalPointAdapter mMalPointAdapter;
 	private BaoxiuCardObject mBaoxiuCardObject;
 	
 	private HomeObject mHomeObject;
 	private List <MaintenancePointBean> mMaintenancePoint;
+	private static final int STATE_IDLE = 0;
+	private static final int STATE_FREASHING = STATE_IDLE + 1;
+	private static final int STATE_FREASH_COMPLETE = STATE_FREASHING + 1;
+	private static final int STATE_FREASH_CANCEL = STATE_FREASH_COMPLETE + 1;
+	private int mLoadState = STATE_IDLE;
+	private int mLoadPageIndex = 0;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		getActivity().setTitle(R.string.button_maintenance_point);
 		mMaintenancePoint = new ArrayList<MaintenancePointBean>();
+		mMalPointAdapter = new MalPointAdapter(getActivity());
 		queryNearestPointSync();
 	}
 	
@@ -62,11 +73,25 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.nearest_maintenance_point_fragment, container, false);
 
-		mMalPointListView = (ListView) view.findViewById(R.id.listview);
-		mMalPointAdapter = new MalPointAdapter(getActivity());
+		mMalPointListView = (PullAndLoadListView) view.findViewById(R.id.listview);
 		mMalPointListView.setAdapter(mMalPointAdapter);
 		mMalPointListView.setOnItemClickListener(mMalPointAdapter);
 		mMalPointListView.setAdapter(mMalPointAdapter);
+		mMalPointListView.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Do work to refresh the list here.
+                GetDataTask();
+            }
+        });
+		mMalPointListView.setOnLoadMoreListener(new OnLoadMoreListener() {
+			
+			public void onLoadMore() {
+				// Do the work to load more items at the end of list
+				// here
+				LoadMoreDataTask();
+			}
+		});
 		
 		return view;
 	}
@@ -150,9 +175,13 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
+			Float f = 0f;
+			if(!TextUtils.isEmpty((mMaintenancePoint.get(position).getMaintenancePointDistance()))) {
+				f = Float.valueOf(mMaintenancePoint.get(position).getMaintenancePointDistance()) / 1000;
+			}
 			holder._name.setText(mMaintenancePoint.get(position).getMaintenancePointName());
 			holder._detail.setText(mMaintenancePoint.get(position).getMaintenancePointDetail());
-			holder._distance.setText(mMaintenancePoint.get(position).getMaintenancePointDistance());
+			holder._distance.setText(String.format("%.1f", f) + _context.getResources().getString(R.string.maintence_point_distance_unit));
 			final int pos = position;
 			holder._phone.setOnClickListener(new OnClickListener() {
 				@Override
@@ -175,7 +204,8 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 
 		@Override
 		public void onItemClick(AdapterView<?> listView, View view, int pos, long arg3) {
-			String url = mMaintenancePoint.get(pos).getMaintenancePointUrl();
+			if(mLoadState == STATE_FREASHING) return;
+			String url = mMaintenancePoint.get(pos-1).getMaintenancePointUrl();
 			if(!TextUtils.isEmpty(url)) {				
 				BrowserActivity.startActivity(_context, url, _context.getString(R.string.repair_point_detail));
 			} else {
@@ -183,15 +213,169 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			}
 		}
 	}
+
+	//refresh data begin
+	private RefreshNearestPointAsyncTask mRefreshNearestPointAsyncTask;
+	private void GetDataTask(String... param) {
+		mLoadState = STATE_FREASHING;
+		AsyncTaskUtils.cancelTask(mRefreshNearestPointAsyncTask);
+		mRefreshNearestPointAsyncTask = new RefreshNearestPointAsyncTask();
+		mRefreshNearestPointAsyncTask.execute(param);
+	}
+
+	private class RefreshNearestPointAsyncTask extends AsyncTask<String, Void, ServiceResultObject> {
+		@Override
+		protected ServiceResultObject doInBackground(String... params) {
+			//更新保修卡信息
+			DebugUtils.logD(TAG, "CreateNewWarrantyCardAsyncTask for AID " + mBaoxiuCardObject.mAID);
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			InputStream is = null;
+
+			String cell = MyAccountManager.getInstance().getAccountObject().mAccountTel;
+			String pwd = MyAccountManager.getInstance().getAccountObject().mAccountPwd;
+			
+			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
+			sb.append("GetNearby.ashx?")
+			.append("AID=").append(mBaoxiuCardObject.mAID)
+			.append("&BID=").append(mBaoxiuCardObject.mBID)
+			.append("&token=").append(SecurityUtils.MD5.md5(cell+pwd))
+			.append("&page_num=").append(0);//0page
+			DebugUtils.logD(TAG, "param " + sb.toString());
+			try {
+				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				serviceResultObject = ServiceResultObject.parseAddress(NetworkUtils.getContentFromInput(is));
+				mMaintenancePoint = PatternMaintenanceUtils.getMaintenancePointClean(serviceResultObject.mAddresses, getActivity().getContentResolver(), mBaoxiuCardObject.mAID, mBaoxiuCardObject.mBID);
+				DebugUtils.logD(TAG, "mMaintenancePoint = " + mMaintenancePoint);
+				DebugUtils.logD(TAG, "StatusCode = " + serviceResultObject.mStatusCode);
+				DebugUtils.logD(TAG, "StatusMessage = " + serviceResultObject.mStatusMessage);
+				if (serviceResultObject.isOpSuccessfully()) {
+					String data = serviceResultObject.mStrData;
+					DebugUtils.logD(TAG, "Data = " + data);
+				}
+			} catch (JSONException e) {
+				DebugUtils.logD(TAG, "JSONException = " + e);
+				e.printStackTrace();
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+
+			mMalPointAdapter.notifyDataSetChanged();
+			if(result.mAddresses == null || result.mAddresses.length() == 0) {
+				MyApplication.getInstance().showMessage(R.string.maintence_point_query_fail);
+			} else {
+				mLoadPageIndex = 1;
+			}
+			mMalPointListView.onRefreshComplete();
+			mLoadState = STATE_FREASH_COMPLETE;
+			DebugUtils.logD(TAG, "huasong onPostExecute onLoadMoreComplete");
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			mMalPointListView.onRefreshComplete();
+			mLoadState = STATE_FREASH_CANCEL;
+		}
+	}
+	//refresh data end
 	
-	
+	//load more data begin
+	private LoadMoreNearestPointAsyncTask mLoadMoreNearestPointAsyncTask;
+	private void LoadMoreDataTask(String... param) {
+		mLoadState = STATE_FREASHING;
+		AsyncTaskUtils.cancelTask(mLoadMoreNearestPointAsyncTask);
+		mLoadMoreNearestPointAsyncTask = new LoadMoreNearestPointAsyncTask();
+		mLoadMoreNearestPointAsyncTask.execute(param);
+	}
+
+	private class LoadMoreNearestPointAsyncTask extends AsyncTask<String, Void, ServiceResultObject> {
+		@Override
+		protected ServiceResultObject doInBackground(String... params) {
+			if(mLoadPageIndex == 0) return null;
+			//更新保修卡信息
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			InputStream is = null;
+
+			String cell = MyAccountManager.getInstance().getAccountObject().mAccountTel;
+			String pwd = MyAccountManager.getInstance().getAccountObject().mAccountPwd;
+			
+			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
+			sb.append("GetNearby.ashx?")
+			.append("AID=").append(mBaoxiuCardObject.mAID)
+			.append("&BID=").append(mBaoxiuCardObject.mBID)
+			.append("&token=").append(SecurityUtils.MD5.md5(cell+pwd))
+			.append("&page_num=").append(++mLoadPageIndex);//0 page
+			DebugUtils.logD(TAG, "param " + sb.toString());
+			try {
+				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				serviceResultObject = ServiceResultObject.parseAddress(NetworkUtils.getContentFromInput(is));
+				mMaintenancePoint.addAll(PatternMaintenanceUtils.getMaintenancePoint(serviceResultObject.mAddresses, getActivity().getContentResolver(), mBaoxiuCardObject.mAID, mBaoxiuCardObject.mBID));
+				DebugUtils.logD(TAG, "mMaintenancePoint = " + mMaintenancePoint);
+				DebugUtils.logD(TAG, "StatusCode = " + serviceResultObject.mStatusCode);
+				DebugUtils.logD(TAG, "StatusMessage = " + serviceResultObject.mStatusMessage);
+				if (serviceResultObject.isOpSuccessfully()) {
+					String data = serviceResultObject.mStrData;
+					DebugUtils.logD(TAG, "Data = " + data);
+				}
+			} catch (JSONException e) {
+				DebugUtils.logD(TAG, "JSONException = " + e);
+				e.printStackTrace();
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			mMalPointAdapter.notifyDataSetChanged();
+
+			mMalPointListView.onLoadMoreComplete();
+			mLoadState = STATE_FREASH_COMPLETE;
+			DebugUtils.logD(TAG, "huasong onPostExecute onLoadMoreComplete");
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			mMalPointListView.onLoadMoreComplete();
+			mLoadState = STATE_FREASH_CANCEL;
+		}
+	}
+	//load more data end
 
 	private QueryNearestPointAsyncTask mQueryNearestPointAsyncTask;
 	private void queryNearestPointSync(String... param) {
-		AsyncTaskUtils.cancelTask(mQueryNearestPointAsyncTask);
-		showDialog(DIALOG_PROGRESS);
-		mQueryNearestPointAsyncTask = new QueryNearestPointAsyncTask();
-		mQueryNearestPointAsyncTask.execute(param);
+		if(PatternMaintenanceUtils.isExsited(getActivity().getContentResolver(), String.valueOf(mBaoxiuCardObject.mAID), String.valueOf(mBaoxiuCardObject.mBID)) > 0){
+			mMaintenancePoint = PatternMaintenanceUtils.getMaintenancePointLocal(getActivity().getContentResolver(), mBaoxiuCardObject.mAID, mBaoxiuCardObject.mBID);
+			mMalPointAdapter.notifyDataSetChanged();
+			mLoadPageIndex = mMaintenancePoint.size() / 10;
+		} else {
+			mLoadState = STATE_FREASHING;
+			AsyncTaskUtils.cancelTask(mQueryNearestPointAsyncTask);
+			showDialog(DIALOG_PROGRESS);
+			mQueryNearestPointAsyncTask = new QueryNearestPointAsyncTask();
+			mQueryNearestPointAsyncTask.execute(param);
+		}
 	}
 
 	private class QueryNearestPointAsyncTask extends AsyncTask<String, Void, ServiceResultObject> {
@@ -209,12 +393,13 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			sb.append("GetNearby.ashx?")
 			.append("AID=").append(mBaoxiuCardObject.mAID)
 			.append("&BID=").append(mBaoxiuCardObject.mBID)
-			.append("&token=").append(SecurityUtils.MD5.md5(cell+pwd));
+			.append("&token=").append(SecurityUtils.MD5.md5(cell+pwd))
+			.append("&page_num=").append(0);//0page
 			DebugUtils.logD(TAG, "param " + sb.toString());
 			try {
 				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				serviceResultObject = ServiceResultObject.parseAddress(NetworkUtils.getContentFromInput(is));
-				mMaintenancePoint = PatternMaintenanceUtils.getMaintenancePoint(serviceResultObject.mAddresses);
+				mMaintenancePoint = PatternMaintenanceUtils.getMaintenancePoint(serviceResultObject.mAddresses, getActivity().getContentResolver(), mBaoxiuCardObject.mAID, mBaoxiuCardObject.mBID);
 				DebugUtils.logD(TAG, "mMaintenancePoint = " + mMaintenancePoint);
 				DebugUtils.logD(TAG, "StatusCode = " + serviceResultObject.mStatusCode);
 				DebugUtils.logD(TAG, "StatusMessage = " + serviceResultObject.mStatusMessage);
@@ -242,12 +427,19 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			super.onPostExecute(result);
 			dissmissDialog(DIALOG_PROGRESS);
 			mMalPointAdapter.notifyDataSetChanged();
+			if(result.mAddresses == null || result.mAddresses.length() == 0) {
+				MyApplication.getInstance().showMessage(R.string.maintence_point_query_fail);
+			} else {
+				mLoadPageIndex = 1;
+			}
+			mLoadState = STATE_FREASH_COMPLETE;
 		}
 
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
 			dissmissDialog(DIALOG_PROGRESS);
+			mLoadState = STATE_FREASH_CANCEL;
 		}
 	}
 }

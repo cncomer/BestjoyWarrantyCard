@@ -515,4 +515,6 @@
          <string name="no_tel_tips">暂无号码，电话未拨出</string>
          <string name="repair_point_detail">维修点信息</string>
          <string name="repair_point_detail_no_uri_tips">您所查找的店铺网址不存在</string>
+         <string name="maintence_point_distance_unit">km</string>
+         <string name="maintence_point_query_fail">未查到附近相关的维修点</string>
 </resources>

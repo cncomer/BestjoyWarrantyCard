@@ -30,6 +30,7 @@ public class BjnoteProvider extends ContentProvider{
 			HaierDBHelper.TABLE_NAME_CARDS,
 			HaierDBHelper.TABLE_SCAN_NAME,
 			HaierDBHelper.TABLE_NAME_DEVICE_XINGHAO,
+			HaierDBHelper.TABLE_NAME_MAINTENCE_POINT,
 //			ContactsDBHelper.TABLE_NAME_MYLIFE_CONSUME,
 	};
 	private static final int BASE = 8;
@@ -51,11 +52,14 @@ public class BjnoteProvider extends ContentProvider{
 	private static final int XINGHAO = 0x0400;
 	private static final int XINGHAO_ID = 0x0401;
 	
-	private static final int MY_CARD = 0x0500;
-	private static final int MY_CARD_ID = 0x0501;
+	private static final int MAINTENCE_POINT = 0x0500;
+	private static final int MAINTENCE_POINT_ID = 0x0501;
 	
-	private static final int MYLIFE = 0x0600;
-	private static final int MYLIFE_ID = 0x0601;
+	private static final int MY_CARD = 0x0600;
+	private static final int MY_CARD_ID = 0x0601;
+	
+	private static final int MYLIFE = 0x0700;
+	private static final int MYLIFE_ID = 0x0701;
 	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	 static {
@@ -80,6 +84,9 @@ public class BjnoteProvider extends ContentProvider{
 	        
 	        matcher.addURI(BjnoteContent.AUTHORITY, "mycard", MY_CARD);
 	        matcher.addURI(BjnoteContent.AUTHORITY, "mycard/#", MY_CARD_ID);
+	        
+	        matcher.addURI(BjnoteContent.AUTHORITY, "maintencepoint", MAINTENCE_POINT);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "maintencepoint/#", MAINTENCE_POINT_ID);
 	        
 	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife", MYLIFE);
 	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife/#", MYLIFE_ID);
@@ -149,6 +156,10 @@ public class BjnoteProvider extends ContentProvider{
     	case MY_CARD_ID:
     		notify = BjnoteContent.MyCard.CONTENT_URI;
     		break;
+		case MAINTENCE_POINT:
+    	case MAINTENCE_POINT_ID:
+    		notify = BjnoteContent.MaintencePoint.CONTENT_URI;
+    		break;
     	}
     	ContentResolver resolver = context.getContentResolver();
         resolver.notifyChange(notify, null);
@@ -179,6 +190,8 @@ public class BjnoteProvider extends ContentProvider{
 		    case MY_CARD_ID:
 		    case MYLIFE:
 		    case MYLIFE_ID:
+			case MAINTENCE_POINT:
+	    	case MAINTENCE_POINT_ID:
         	count = db.delete(table, buildSelection(match, uri, selection), selectionArgs);
         }
         if (count >0) notifyChange(match);
@@ -243,24 +256,27 @@ public class BjnoteProvider extends ContentProvider{
          Context context = getContext();
          // See the comment at delete(), above
          SQLiteDatabase db = getDatabase(context);
-         String table = mTables[match>>BASE];
+         int i =match>>BASE;
+         String table = mTables[i];
          DebugUtils.logProvider(TAG, "query table " + table);
          Cursor result = null;
          switch(match) {
-	         case ACCOUNT:
-	     	 case ACCOUNT_ID:
-	 		 case HOME:
-	 		 case HOME_ID:
-	 		 case DEVICE:
-	 		 case DEVICE_ID:
-	 		case SCAN_HISTORY:
+			case ACCOUNT:
+			case ACCOUNT_ID:
+			case HOME:
+			case HOME_ID:
+			case DEVICE:
+			case DEVICE_ID:
+			case SCAN_HISTORY:
 			case SCAN_HISTORY_ID:
 			case XINGHAO:
 			case XINGHAO_ID:
 			case MY_CARD:
-	        case MY_CARD_ID:
-	        case MYLIFE:
+			case MY_CARD_ID:
+			case MYLIFE:
 			case MYLIFE_ID:
+			case MAINTENCE_POINT:
+			case MAINTENCE_POINT_ID:
         	     result = db.query(table, projection, selection, selectionArgs, null, null, sortOrder);
          }
 		return result;
@@ -291,6 +307,8 @@ public class BjnoteProvider extends ContentProvider{
 	        case MY_CARD_ID:
 			case MYLIFE:
 			case MYLIFE_ID:
+			case MAINTENCE_POINT:
+			case MAINTENCE_POINT_ID:
         	    count = db.update(table, values, buildSelection(match, uri, selection), selectionArgs);
         }
         if (count >0) notifyChange(match);

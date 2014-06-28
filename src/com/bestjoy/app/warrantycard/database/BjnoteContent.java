@@ -116,4 +116,8 @@ public class BjnoteContent {
     		return "http://www.mingdown.com/cell/get2B.ashx?Cell=" + tel;
     	}
     }
+    
+    public static class MaintencePoint extends BjnoteContent{
+    	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "maintencepoint");
+    }
 }
