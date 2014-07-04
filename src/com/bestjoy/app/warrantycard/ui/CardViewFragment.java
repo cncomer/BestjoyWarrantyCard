@@ -9,7 +9,7 @@ import java.text.ParseException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
-import org.vudroid.pdfdroid.PdfViewerActivity;
+import org.vudroid.pdfdroid.PdfViewerActivity2;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -283,8 +283,11 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			}
 			File pdfFile = MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY);
 			if (pdfFile.exists()) {
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY)));
-				intent.setClass(getActivity(), PdfViewerActivity.class);
+				//Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY)));
+				//intent.setClass(getActivity(), PdfViewerActivity.class);
+
+				Intent intent = new Intent(getActivity(), PdfViewerActivity2.class);
+				intent.putExtra(PdfViewerActivity2.EXTRA_PDFFILENAME, MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY).getAbsolutePath());
 				startActivity(intent);
 			} else {
 				//开始下载
@@ -479,7 +482,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 				if (result) {
 					MyApplication.getInstance().showMessage(R.string.msg_product_usage_downloading_ok);
 					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY)));
-					intent.setClass(getActivity(), PdfViewerActivity.class);
+					intent.setClass(getActivity(), PdfViewerActivity2.class);
 					startActivity(intent);
 				} else {
 					if (TextUtils.isEmpty(mErrorStr)) {
