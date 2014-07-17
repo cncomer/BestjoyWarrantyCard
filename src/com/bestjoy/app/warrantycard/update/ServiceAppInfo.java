@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
@@ -92,15 +93,17 @@ public class ServiceAppInfo implements Parcelable{
 			is = NetworkUtils.openContectionLocked(getServiceUrl(), MyApplication.getInstance().getSecurityKeyValuesObject());
 			if (is != null) {
 				String content = NetworkUtils.getContentFromInput(is);
-				JSONObject json = new JSONObject(content);
-				mVersionCode = json.getInt(KEY_VERSION_CODE);
-				mReleaseDate = json.getString(KEY_DATE);
-				mImportance = json.getInt(KEY_IMPORTANCE);
-				mSizeStr = json.getString(KEY_SIZE);
-				mApkUrl = json.getString(KEY_APK);
-				mReleaseNote = json.getString(KEY_NOTE);
-				mVersionName = json.optString(KEY_VERSION_NAME, String.valueOf(mVersionCode));
-				return true;
+				if (!TextUtils.isEmpty(content)) {
+					JSONObject json = new JSONObject(content);
+					mVersionCode = json.getInt(KEY_VERSION_CODE);
+					mReleaseDate = json.getString(KEY_DATE);
+					mImportance = json.getInt(KEY_IMPORTANCE);
+					mSizeStr = json.getString(KEY_SIZE);
+					mApkUrl = json.getString(KEY_APK);
+					mReleaseNote = json.getString(KEY_NOTE);
+					mVersionName = json.optString(KEY_VERSION_NAME, String.valueOf(mVersionCode));
+					return true;
+				}
 			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();

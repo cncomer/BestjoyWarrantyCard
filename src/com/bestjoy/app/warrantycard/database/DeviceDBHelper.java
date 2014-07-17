@@ -63,7 +63,7 @@ public class DeviceDBHelper {
 	  }
 	  
 	  public static int getDeviceDatabaseVersion() {
-		  return MyApplication.getInstance().mPreferManager.getInt(KEY_VERSION, VERSION);
+		  return MyApplication.getInstance().mPreferManager.getInt(KEY_VERSION, 0);
 	  }
 	  /***
 	   * 更新当前设备版本号
