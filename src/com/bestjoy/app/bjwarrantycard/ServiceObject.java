@@ -165,12 +165,25 @@ public class ServiceObject {
 			  return sb.toString();
 		  }
 		  /***
-		   * www.51cck.com/KY前9位数字/KY.pdf
+		   * http://www.51cck.com/haier/264574251GD0N5T00W.pdf
 		   * @return
 		   */
-		  public static String getProductUsageUrl(String ky) {
-			  String ky9 = ky.substring(0,9);
-			  return getProductUsageUrl(ky9, ky);
+		  public static String getProductUsageUrl(String file) {
+			  StringBuilder sb = new StringBuilder(GOODS_INTRODUCTION_BASE);
+			  sb.append("haier/").append(file);
+			  return sb.toString();
 		  }
 		 //add by chenkai, for Usage, 2014.05.31 end
+		  
+		  /**
+		   * 查询是否有使用说明书,http://115.29.231.29/haier/getPDfByKy.ashx?KY=2050100P1&token=df6037a3709a77279dde4334c4038178
+		   * @param ky 产品的9位KY
+		   * @param token Md5(KY)
+		   * @return
+		   */
+		  public static String getProductPdfUrlForQuery(String ky) {
+			  StringBuilder sb = new StringBuilder(SERVICE_URL);
+			  sb.append("getPDfByKy.ashx?KY=").append(ky).append("&token=").append(SecurityUtils.MD5.md5(ky));
+			  return sb.toString();
+		  }
 }
