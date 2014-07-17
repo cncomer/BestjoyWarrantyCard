@@ -83,6 +83,8 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 	
 	private static final String XIAOLEI_SELECTION = DeviceDBHelper.DEVICE_XIALEI_DID + "=?";
 	private static final String PINPAI_SELECTION = DeviceDBHelper.DEVICE_PINPAI_XID + "=?";
+	
+	private static final String PINPAI_ORDER_BY_SORTID = "sortid asc";
 
 	private View mProgressBarLayout;
 	
@@ -215,7 +217,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 			case R.id.xiaolei:
 				return getActivity().getContentResolver().query(BjnoteContent.XiaoLei.CONTENT_URI, XIAOLEI_PROJECTION, XIAOLEI_SELECTION, new String[]{String.valueOf(mDaleiId)}, null);
 			case R.id.pinpai:
-				return getActivity().getContentResolver().query(BjnoteContent.PinPai.CONTENT_URI, PINPAI_PROJECTION, PINPAI_SELECTION, new String[]{mXiaoleiId}, null);
+				return getActivity().getContentResolver().query(BjnoteContent.PinPai.CONTENT_URI, PINPAI_PROJECTION, PINPAI_SELECTION, new String[]{mXiaoleiId}, PINPAI_ORDER_BY_SORTID);
 			case R.id.xinghao:
 				//delete by chenkai, 目前不缓存型号到本地 begin
 				//return getLocalOrDownload(R.id.xinghao);
