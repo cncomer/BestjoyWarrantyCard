@@ -256,6 +256,8 @@
          <string name="status_downloading">正在下载(%d%%)....</string>
           <string name="dialog_msg_download_unfinish_on_exit">下载未完成，是否取消并退出?</string>
           <string name="dialog_msg_download_unfinish">下载未完成，是否取消?</string>
+          <string name="format_current_sw_version">"版本 %s"</string>
+          <string name="format_current_db_version">"型号库版本 %s"</string>
          <!-- 自动更新 end -->
          
          <string name="pinpai_haier">海尔</string>
