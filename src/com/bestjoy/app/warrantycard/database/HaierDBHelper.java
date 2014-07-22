@@ -510,10 +510,10 @@ private static final String TAG = "HaierDBHelper";
 		  oldVersion = 3;
 	  }
 
-	  if (oldversion == 3) {
+	  if (oldVersion == 3) {
 		  //版本4增加维修点缓存记录表
 		  createMaintenancePointTable(sqLiteDatabase);
-		  oldversion=4;
+		  oldVersion=4;
 	  }
   }
 }
