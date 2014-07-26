@@ -280,15 +280,15 @@
          <!-- V1.3.0添加的service，负责下载通知的资源 -->
          <service android:name="com.umeng.message.UmengDownloadResourceService" />
          
-            <!-- wangkun "53d10bdc56240bbd060b0728" -->
+            <!-- wangkun "53d3c49a56240bb02a022bd7" -->
 		<meta-data
             android:name="UMENG_APPKEY"
-            android:value="53d3c13156240b5f410e2f4b" >
+            android:value="53d3c49a56240bb02a022bd7" >
         </meta-data>
-            <!-- wangkun "3ce4df1ea16bbdc4be4030fa709ff839" -->
+            <!-- wangkun "8a984caad589c9e707a2790b4cb3221f" -->
         <meta-data
             android:name="UMENG_MESSAGE_SECRET"
-            android:value="c4af047eed6264593b2d9297fab1a069" >
+            android:value="8a984caad589c9e707a2790b4cb3221f" >
         </meta-data>
 		<!-- 消息推送代码结束 -->
 		<meta-data android:value="Haier" android:name="UMENG_CHANNEL"/>
