@@ -32,6 +32,7 @@ import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.FilesUtils;
+import com.umeng.message.PushAgent;
 
 public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
 	private LinearLayout mDotsLayout;
@@ -96,6 +97,10 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		findViewById(R.id.button_my_card).setOnClickListener(this);
 		findViewById(R.id.button_telecontrol).setOnClickListener(this);
 		findViewById(R.id.button_qr_scan).setOnClickListener(this);
+		
+		//启动推送功能
+		PushAgent mPushAgent = PushAgent.getInstance(mContext);
+		mPushAgent.enable();
 	}
 	
 	@Override
