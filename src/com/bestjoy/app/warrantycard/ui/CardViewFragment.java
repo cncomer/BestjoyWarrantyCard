@@ -41,6 +41,7 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
+import com.bestjoy.app.warrantycard.utils.DialogUtils;
 import com.bestjoy.app.warrantycard.utils.FilesLengthUtils;
 import com.bestjoy.app.warrantycard.utils.TextViewUtils;
 import com.bestjoy.app.warrantycard.view.CircleProgressView;
@@ -175,7 +176,8 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			 }
 		 }
 		 int day = mBaoxiuCardObject.getBaoxiuValidity();
-		 mCircleProgressView.setNumber(day > 0 ? day : 0);
+		 day = day > 0 ? day : 0;
+		 mCircleProgressView.setNumber(day);
 		 //计算开始角度和结束角度
 		 //外围粗圆环完整度=(今天-购买日期)/（保修年+延保年）X365
 	     //如果为负值，则圆环是满圆
@@ -406,54 +408,67 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			mDownloadProductUsagePdfTask = new DownloadProductUsagePdfTask();
 			mDownloadProductUsagePdfTask.execute();
 		}
-		private class DownloadProductUsagePdfTask extends AsyncTask<Void, Integer, Boolean> {
+		private class DownloadProductUsagePdfTask extends AsyncTask<Void, Integer, ServiceResultObject> {
 
 			public long mPdfLength;
 			public String mPdfLengthStr;
-			String mErrorStr;
 			@Override
-			protected Boolean doInBackground(Void... arg0) {
+			protected ServiceResultObject doInBackground(Void... arg0) {
 				mDownloadGoodsUsagePdfProgressDialog = getProgressDialog();
-				String url = ServiceObject.getProductUsageUrl(mBaoxiuCardObject.mKY);
+				ServiceResultObject haierResultObject =  new ServiceResultObject();
 				InputStream is = null;
+				FileOutputStream fos = null;
 				try {
-					HttpResponse response = NetworkUtils.openContectionLockedV2(url, MyApplication.getInstance().getSecurityKeyValuesObject());
-					int code = response.getStatusLine().getStatusCode();
-					DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return StatusCode is " + code);
-					if (code == HttpStatus.SC_OK) {
-						mPdfLength = response.getEntity().getContentLength();
-						DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return length of pdf file is " + mPdfLength);
-						mPdfLengthStr = FilesLengthUtils.computeLengthToString(mPdfLength);
-						is = response.getEntity().getContent();
-						
-						FileOutputStream fos = new FileOutputStream(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY));
-						byte[] buffer = new byte[4096];
-						int read = is.read(buffer);
-						long readAll  = read;
-						int percent = 0;
-						while(read != -1) {
-							percent = Math.round((100.0f * readAll/mPdfLength)) ;
-							publishProgress(percent);
-							fos.write(buffer, 0, read);
-							read = is.read(buffer);
-							readAll += read;
+					is = NetworkUtils.openContectionLocked(ServiceObject.getProductPdfUrlForQuery(mBaoxiuCardObject.mKY), MyApplication.getInstance().getSecurityKeyValuesObject());
+					if (is != null) {
+						haierResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+						if (haierResultObject.isOpSuccessfully()) {
+							if (TextUtils.isEmpty(haierResultObject.mStrData)) {
+								//没有说明书
+								haierResultObject.mStatusCode = 0;
+								haierResultObject.mStatusMessage = getString(R.string.msg_no_product_usage);
+								return haierResultObject;
+							}
+							//成功，表示有使用说明书
+							NetworkUtils.closeInputStream(is);
+							HttpResponse response = NetworkUtils.openContectionLockedV2(ServiceObject.getProductUsageUrl(haierResultObject.mStrData), MyApplication.getInstance().getSecurityKeyValuesObject());
+							int code = response.getStatusLine().getStatusCode();
+							DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return StatusCode is " + code);
+							if (code == HttpStatus.SC_OK) {
+								mPdfLength = response.getEntity().getContentLength();
+								DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return length of pdf file is " + mPdfLength);
+								mPdfLengthStr = FilesLengthUtils.computeLengthToString(mPdfLength);
+								is = response.getEntity().getContent();
+								
+								fos = new FileOutputStream(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY));
+								byte[] buffer = new byte[4096];
+								int read = is.read(buffer);
+								long readAll  = read;
+								int percent = 0;
+								while(read != -1) {
+									percent = Math.round((100.0f * readAll/mPdfLength)) ;
+									publishProgress(percent);
+									fos.write(buffer, 0, read);
+									read = is.read(buffer);
+									readAll += read;
+								}
+								fos.flush();
+							} else if (code == HttpStatus.SC_NOT_FOUND) {
+								haierResultObject.mStatusMessage = getString(R.string.msg_no_product_usage);
+							}
 						}
-						fos.flush();
-						fos.close();
-						return true;
-					} else if (code == HttpStatus.SC_NOT_FOUND) {
-						mErrorStr = getString(R.string.msg_no_product_usage);
 					}
 				} catch (ClientProtocolException e) {
 					e.printStackTrace();
-					mErrorStr = MyApplication.getInstance().getGernalNetworkError();
+					haierResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
 				} catch (IOException e) {
 					e.printStackTrace();
-					mErrorStr = MyApplication.getInstance().getGernalNetworkError();
+					haierResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
 				} finally {
 					NetworkUtils.closeInputStream(is);
+					NetworkUtils.closeOutStream(fos);
 				}
-				return false;
+				return haierResultObject;
 			}
 
 			@Override
@@ -472,22 +487,17 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			}
 
 			@Override
-			protected void onPostExecute(Boolean result) {
+			protected void onPostExecute(ServiceResultObject result) {
 				super.onPostExecute(result);
 				dismissDialog(DIALOG_PROGRESS);
 				mDownloadGoodsUsagePdfProgressDialog = null;
-				if (result) {
+				if (result.isOpSuccessfully()) {
 					MyApplication.getInstance().showMessage(R.string.msg_product_usage_downloading_ok);
 					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromFile(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY)));
 					intent.setClass(getActivity(), PdfViewerActivity.class);
 					startActivity(intent);
 				} else {
-					if (TextUtils.isEmpty(mErrorStr)) {
-						MyApplication.getInstance().showMessage(R.string.msg_product_usage_downloading_failed);
-					} else {
-						MyApplication.getInstance().showMessage(mErrorStr);
-						
-					}
+					DialogUtils.createSimpleConfirmAlertDialog(getActivity(), result.mStatusMessage, null);
 				}
 			}
 		}

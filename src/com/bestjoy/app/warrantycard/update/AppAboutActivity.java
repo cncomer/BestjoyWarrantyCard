@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
 import com.bestjoy.app.warrantycard.ui.BaseActionbarActivity;
 import com.bestjoy.app.warrantycard.ui.PreferencesActivity;
 import com.shwy.bestjoy.utils.DebugUtils;
@@ -25,7 +26,7 @@ public class AppAboutActivity extends BaseActionbarActivity implements View.OnCl
 	
 	private ServiceAppInfo mServiceAppInfo;
 	
-	private TextView mVersionName, mUpdateStatus;
+	private TextView mVersionName, mUpdateStatus, mDbVersionName;
 	private LinearLayout mButtonUpdate;
 	
 	private Button mBtnHelp, mBtnHome, mBtIntroduce;
@@ -51,6 +52,7 @@ public class AppAboutActivity extends BaseActionbarActivity implements View.OnCl
 	public void initView() {
 		if (mButtonUpdate == null) {
 			mVersionName = (TextView) findViewById(R.id.app_version_name);
+			mDbVersionName = (TextView) findViewById(R.id.app_db_version_name);
 			mUpdateStatus = (TextView) findViewById(R.id.desc_update);
 			
 			mButtonUpdate = (LinearLayout) findViewById(R.id.button_update);
@@ -68,7 +70,8 @@ public class AppAboutActivity extends BaseActionbarActivity implements View.OnCl
 			mBtnHome.setVisibility(View.GONE);
 			mBtnHelp.setVisibility(View.GONE);
 		}
-		mVersionName.setText(mCurrentVersionCodeName);
+		mVersionName.setText(getString(R.string.format_current_sw_version, mCurrentVersionCodeName));
+		mDbVersionName.setText(getString(R.string.format_current_db_version, DeviceDBHelper.getDeviceDatabaseVersion()));
 		if (mServiceAppInfo != null && mServiceAppInfo.mVersionCode > mCurrentVersion) {
 			//发现新版本
 			mButtonUpdate.setEnabled(true);
