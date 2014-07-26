@@ -476,7 +476,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (newVersion <= 2) {
+	  if (oldVersion <= 3) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
@@ -484,6 +484,7 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_DEVICE_XINGHAO);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MYLIFE);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MY_CARD);
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MAINTENCE_POINT);
 		    
 		    
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "insert_account");
@@ -499,21 +500,8 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "insert_contact_mycard");
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "delete_contact_mycard");
 		    
-		    
 		    onCreate(sqLiteDatabase);
 		    return;
-		} 
-	  
-	  if (oldVersion == 2) {
-		  //版本2我们增加了品牌数据表的wy字段
-		  addTextColumn(sqLiteDatabase, TABLE_NAME_DEVICE_XINGHAO, DEVICE_XINGHAO_WY);
-		  oldVersion = 3;
-	  }
-
-	  if (oldVersion == 3) {
-		  //版本4增加维修点缓存记录表
-		  createMaintenancePointTable(sqLiteDatabase);
-		  oldVersion=4;
-	  }
+		}
   }
 }
