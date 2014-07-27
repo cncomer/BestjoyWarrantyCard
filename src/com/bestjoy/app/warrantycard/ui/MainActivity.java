@@ -98,9 +98,6 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		findViewById(R.id.button_telecontrol).setOnClickListener(this);
 		findViewById(R.id.button_qr_scan).setOnClickListener(this);
 		
-		//启动推送功能
-		PushAgent mPushAgent = PushAgent.getInstance(mContext);
-		mPushAgent.enable();
 	}
 	
 	@Override

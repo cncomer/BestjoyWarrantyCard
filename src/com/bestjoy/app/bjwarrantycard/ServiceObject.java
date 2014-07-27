@@ -9,9 +9,11 @@ import android.text.TextUtils;
 
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
+import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 
 
 public class ServiceObject {
+	private static final String TAG = "ServiceObject";
 	public static final String SERVICE_URL = "http://www.dzbxk.com/bestjoy/";
 	
 	public static final String PRODUCT_AVATOR_URL= "http://115.29.231.29/proimg/";
@@ -91,7 +93,72 @@ public class ServiceObject {
 		return sb.toString();
 	}
 	
+	//add by chenkai, 20140701, 将登录和更新调用的地址抽离出来，以便修改 begin
+	/**
+	 * 返回登陆调用URL
+	 * @return
+	 */
+	public static String getLoginOrUpdateUrl(String para, String jsonString) {
+		UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
+		sb.append("20140718/register.ashx?")
+		.append(para).append("=").appendUrlEncodedString(jsonString);
+		return sb.toString();
+	}
+	/**
+	 * http://www.dzbxk.com/bestjoy/20140718/GetToken.ashx?data=wangkun&key=8f76e86c54da27e0abb1a3605fb5d440
+	 * @param data 加密前的数据
+	 * @param key key是 md5(data) 
+	 * @return
+	 */
+	public static String getSecurityToken(String data, String key) {
+		UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
+		sb.append("20140718/GetToken.ashx?")
+		.append("data=").appendUrlEncodedString(data).append("&key=").appendUrlEncodedString(key);
+		return sb.toString();
+	}
+	/**
+	 * 根据当天的随机数 md5加密，取前8位字符。例如 780001 md5 后为83dc137dd3bd141fb22b431ccc8fc25e 前八位为 83dc137d
+	 * @param password  当天的随机数
+	 * @return
+	 */
+	public static String getSecurityToken(String password) {
+		DebugUtils.logD(TAG, "getSecurityToken " + password);
+		
+		String md5Token = SecurityUtils.MD5.md5(password);
+		DebugUtils.logD(TAG, "md5Token " + md5Token);
+		
+		md5Token = md5Token.substring(0, 8);
+		DebugUtils.logD(TAG, "md5Token.substring(0, 8) " + md5Token);
+		return md5Token;
+	}
+	//add by chenkai, 20140701, 将登录和更新调用的地址抽离出来，以便修改 end
 	
+	//add by chenkai, 20140726, 将发送短信抽离出来，以便修改 begin
+	/**
+	 * 返回登陆调用URL
+	 * @param para
+	 * @param desString DES加密后的字串
+	 * @return
+	 */
+	public static String getFindPasswordUrl(String para, String DESString) {
+		UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
+		sb.append("20140726/SendMessage.ashx?")
+		.append(para).append("=").appendUrlEncodedString(DESString);
+		return sb.toString();
+	}
+	//add by chenkai, 20140726, 将发送短信抽离出来，以便修改 begin
+	
+	//add by chenkai, 20140726, 将添加新家抽离出来，以便修改 begin
+	/**
+	 * 添加新家
+	 * @return
+	 */
+		public static String getCreateHomeUrl() {
+			UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
+			sb.append("20140718/Addaddr.ashx?");
+			return sb.toString();
+		}
+		//add by chenkai, 20140726, 将添加新家抽离出来，以便修改 begin
 	
 	public static class ServiceResultObject {
 		public int mStatusCode = 0;

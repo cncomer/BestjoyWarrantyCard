@@ -32,6 +32,7 @@ import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
+import com.shwy.bestjoy.utils.SecurityUtils;
 import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 
 public class RegisterActivity extends BaseActionbarActivity implements View.OnClickListener{
@@ -185,9 +186,26 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			.append("&pwd=")
 			.appendUrlEncodedString(mAccountObject.mAccountPwd);
 			try {
-				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				//modify by chenkai, 增强注册安全 begin
+				is = NetworkUtils.openContectionLocked(ServiceObject.getSecurityToken(mAccountObject.mAccountName, SecurityUtils.MD5.md5(mAccountObject.mAccountName)), MyApplication.getInstance().getSecurityKeyValuesObject());
 				if (is != null) {
-					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+					ServiceResultObject getTokenObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+					NetworkUtils.closeInputStream(is);
+					
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("cell", mAccountObject.mAccountTel)
+					.put("UserName", mAccountObject.mAccountName)
+					.put("pwd", mAccountObject.mAccountPwd);
+					
+					DebugUtils.logD(TAG, "RegisterAsyncTask doInBackground() jsonObject " + jsonObject.toString());
+					
+					String desJsonObject = SecurityUtils.DES.enCrypto(jsonObject.toString().getBytes(), ServiceObject.getSecurityToken(getTokenObject.mStrData));
+					DebugUtils.logD(TAG, "RegisterAsyncTask doInBackground() desJsonObject " + desJsonObject);
+					
+					is = NetworkUtils.openContectionLocked(ServiceObject.getLoginOrUpdateUrl("para", desJsonObject), MyApplication.getInstance().getSecurityKeyValuesObject());
+					if (is != null) {
+						serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+					}
 				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -198,7 +216,10 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			} catch (IOException e) {
 				e.printStackTrace();
 				serviceResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
-			} finally {
+			} catch (JSONException e) {
+	            e.printStackTrace();
+	            serviceResultObject.mStatusMessage = e.getMessage();
+            } finally {
 				NetworkUtils.closeInputStream(is);
 			}
 			return serviceResultObject;

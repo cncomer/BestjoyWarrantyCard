@@ -23,6 +23,7 @@ import com.bestjoy.app.warrantycard.utils.MenuHandlerUtils;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.ImageHelper;
+import com.umeng.message.PushAgent;
 /**
  * 需要SlidingMenu能力，需要实现继承该类
  * @author chenkai
@@ -50,6 +51,8 @@ public abstract class BaseSlidingFragmentActivity extends SlidingFragmentActivit
 			return;
 		}
 		mContext = this;
+		//统计应用启动数据
+		PushAgent.getInstance(mContext).onAppStart();
 	}
 	
     protected abstract boolean checkIntent(Intent intent);

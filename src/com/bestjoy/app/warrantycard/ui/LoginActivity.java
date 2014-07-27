@@ -31,6 +31,7 @@ import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
+import com.shwy.bestjoy.utils.SecurityUtils;
 
 public class LoginActivity extends BaseActionbarActivity implements View.OnClickListener{
 	private static final String TAG = "NewCardActivity";
@@ -162,15 +163,6 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 	}
 	private class FidnPasswordTask extends AsyncTask<Void, Void, ServiceResultObject> {
 
-		/**
-		 * 用例：http://115.29.231.29/Haier/GetPwd.ashx?cell=18621951097
-		 * {
-              "StatusCode": "1",                     0是错误码，可能是未注册，或是手机号码格式错误
-              "StatusMessage": "成功返回密码", 
-              "Data": ""
-            }
-
-		 */
 		@Override
 		protected ServiceResultObject doInBackground(Void... params) {
 			ServiceResultObject resultObject = new ServiceResultObject();
@@ -178,10 +170,25 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 			sb.append("SendMessage.ashx?cell=").append(mTelInput.getText().toString().trim());
 			InputStream is = null;
 			try {
-				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
-			    if (is != null) {
-			    	resultObject = ServiceResultObject.parse((NetworkUtils.getContentFromInput(is)));
-			    }
+				String tel = mTelInput.getText().toString().trim();
+				is = NetworkUtils.openContectionLocked(ServiceObject.getSecurityToken(tel, SecurityUtils.MD5.md5(tel)), MyApplication.getInstance().getSecurityKeyValuesObject());
+				if (is != null) {
+					ServiceResultObject getTokenObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+					NetworkUtils.closeInputStream(is);
+					
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("cell", tel);
+					
+					DebugUtils.logD(TAG, "FidnPasswordTask doInBackground() jsonObject " + jsonObject.toString());
+					
+					String desJsonObject = SecurityUtils.DES.enCrypto(jsonObject.toString().getBytes(), ServiceObject.getSecurityToken(getTokenObject.mStrData));
+					DebugUtils.logD(TAG, "RegisterAsyncTask doInBackground() desJsonObject " + desJsonObject);
+					
+					is = NetworkUtils.openContectionLocked(ServiceObject.getFindPasswordUrl("para", desJsonObject), MyApplication.getInstance().getSecurityKeyValuesObject());
+				    if (is != null) {
+				    	resultObject = ServiceResultObject.parse((NetworkUtils.getContentFromInput(is)));
+				    }
+				}
 				
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -189,7 +196,10 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 			} catch (IOException e) {
 				e.printStackTrace();
 				resultObject.mStatusMessage = e.getMessage();
-			} finally {
+			} catch (JSONException e) {
+	            e.printStackTrace();
+	            resultObject.mStatusMessage = e.getMessage();
+            } finally {
 				NetworkUtils.closeInputStream(is);
 			}
 			return resultObject;
@@ -198,11 +208,7 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		protected void onPostExecute(ServiceResultObject result) {
 			super.onPostExecute(result);
 			dismissDialog(DIALOG_PROGRESS);
-			if (result.isOpSuccessfully()) {
-				MyApplication.getInstance().showMessage(result.mStatusMessage);
-			} else {
-				MyApplication.getInstance().showMessage(result.mStatusMessage);
-			}
+			MyApplication.getInstance().showMessage(result.mStatusMessage);
 		}
 		@Override
 		protected void onCancelled() {

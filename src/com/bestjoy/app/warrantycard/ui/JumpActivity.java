@@ -20,6 +20,7 @@ import com.bestjoy.app.warrantycard.utils.InstallFileUtils;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.Intents;
+import com.umeng.message.PushAgent;
 
 /**
  * 应用入口，对手机系统版本进行判断，从而选择适合的组件，出于向前兼容1.5版本的考虑
@@ -43,6 +44,10 @@ public class JumpActivity extends Activity {
 		setContentView(R.layout.splash);
 		mServiceAppInfo = new ServiceAppInfo();
 		showHelpOnFirstLaunch();
+		
+		//启动推送功能
+		PushAgent mPushAgent = PushAgent.getInstance(mContext);
+		mPushAgent.enable();
 		
 	}
 

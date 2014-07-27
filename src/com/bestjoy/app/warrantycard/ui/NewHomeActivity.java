@@ -26,6 +26,7 @@ import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.view.HaierProCityDisEditPopView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.NetworkUtils;
+import com.shwy.bestjoy.utils.SecurityUtils;
 import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 
 public class NewHomeActivity extends BaseActionbarActivity {
@@ -124,14 +125,14 @@ public class NewHomeActivity extends BaseActionbarActivity {
 		private ServiceResultObject doCreateHome(HomeObject homeObject) {
 			InputStream is = null;
 			ServiceResultObject haierResultObject = new ServiceResultObject();
-			UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
-			sb.append("Addaddr.ashx?")
-			.append("ShenFen=").appendUrlEncodedString(mHomeObject.mHomeProvince)
+			UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.getCreateHomeUrl());
+			sb.append("ShenFen=").appendUrlEncodedString(mHomeObject.mHomeProvince)
 			.append("&City=").appendUrlEncodedString(mHomeObject.mHomeCity)
 			.append("&QuXian=").appendUrlEncodedString(mHomeObject.mHomeDis)
 			.append("&DetailAddr=").appendUrlEncodedString(mHomeObject.mHomePlaceDetail)
 			.append("&UID=").appendUrlEncodedString(String.valueOf(MyAccountManager.getInstance().getAccountObject().mAccountUid))
-			.append("&Tag=").appendUrlEncodedString(mHomeObject.mHomeName);
+			.append("&Tag=").appendUrlEncodedString(mHomeObject.mHomeName)
+			.append("&token=").appendUrlEncodedString(SecurityUtils.MD5.md5(MyAccountManager.getInstance().getAccountObject().mAccountTel + MyAccountManager.getInstance().getAccountObject().mAccountPwd));   //用户md5（cell+pwd）
 			
 			try {
 				is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
