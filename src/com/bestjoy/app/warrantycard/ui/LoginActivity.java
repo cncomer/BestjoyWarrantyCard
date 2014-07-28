@@ -27,6 +27,7 @@ import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.bestjoy.app.warrantycard.utils.DialogUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.Intents;
@@ -166,8 +167,6 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		@Override
 		protected ServiceResultObject doInBackground(Void... params) {
 			ServiceResultObject resultObject = new ServiceResultObject();
-			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
-			sb.append("SendMessage.ashx?cell=").append(mTelInput.getText().toString().trim());
 			InputStream is = null;
 			try {
 				String tel = mTelInput.getText().toString().trim();
@@ -208,7 +207,12 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		protected void onPostExecute(ServiceResultObject result) {
 			super.onPostExecute(result);
 			dismissDialog(DIALOG_PROGRESS);
-			MyApplication.getInstance().showMessage(result.mStatusMessage);
+			if (!result.isOpSuccessfully()) {
+				//由于注册和找回密码是用的是同一个后台，所以，在找回密码的时候，这里可能存在用户并未注册，点击找回密码实际上是发送的注册验证码，0是已注册，1是获取验证码成功
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			} else {
+				DialogUtils.createSimpleConfirmAlertDialog(mContext, mContext.getString(R.string.tel_not_register), null);
+			}
 		}
 		@Override
 		protected void onCancelled() {
