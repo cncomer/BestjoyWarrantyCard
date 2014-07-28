@@ -124,7 +124,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	    	showContent(true);
 	    	break;
 	    case R.id.button_malfunction:
-			if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
+			if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai) || ServiceObject.isKasadiPinpai(mBaoxiuCardObject.mPinPai)) {
 				showNewRepairCardFragment();
 	    	} else {
 	    		new AlertDialog.Builder(this)
