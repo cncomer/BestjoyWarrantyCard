@@ -503,12 +503,13 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	
 	private boolean checkInstallDate() {
 		Calendar cal = Calendar.getInstance();
-		return mCalendar.get(Calendar.YEAR) >= cal.get(Calendar.YEAR)
-				&& mCalendar.get(Calendar.MONTH) >= cal.get(Calendar.MONTH)
-				&& mCalendar.get(Calendar.DAY_OF_MONTH) > cal.get(Calendar.DAY_OF_MONTH)
-				|| mCalendar.get(Calendar.YEAR) > cal.get(Calendar.YEAR)
-				|| mCalendar.get(Calendar.MONTH) > cal.get(Calendar.MONTH)
-				&& mCalendar.get(Calendar.YEAR) >= cal.get(Calendar.YEAR);
+		int sameYear = mCalendar.get(Calendar.YEAR) - cal.get(Calendar.YEAR);
+		int sameMonth = mCalendar.get(Calendar.MONTH) - cal.get(Calendar.MONTH);
+		int sameDay = mCalendar.get(Calendar.DAY_OF_MONTH) - cal.get(Calendar.DAY_OF_MONTH);
+		
+		return sameYear > 0
+				|| (sameYear == 0 && sameMonth > 0)
+				|| (sameYear == 0 && sameMonth == 0 && sameDay > 0);
 	}
 	
 	private boolean checkInstallHour() {
@@ -521,12 +522,13 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 	
 	private boolean checkInstallDate(int year, int month, int day) {
-		return year >= mCalendar.get(Calendar.YEAR)
-				&& month >= mCalendar.get(Calendar.MONTH)
-				&& day > mCalendar.get(Calendar.DAY_OF_MONTH)
-				|| year > mCalendar.get(Calendar.YEAR)
-				|| month > mCalendar.get(Calendar.MONTH)
-				&& year >= mCalendar.get(Calendar.YEAR);
+		Calendar cal = Calendar.getInstance();
+		int sameYear = year - cal.get(Calendar.YEAR);
+		int sameMonth = month - cal.get(Calendar.MONTH);
+		int sameDay = day - cal.get(Calendar.DAY_OF_MONTH);
+		return sameYear > 0
+				|| (sameYear == 0 && sameMonth > 0)
+				|| (sameYear == 0 && sameMonth == 0 && sameDay > 0);
 	}
 
 	class MyDatePickerDialog extends DatePickerDialog {

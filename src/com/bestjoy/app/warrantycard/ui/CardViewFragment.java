@@ -91,8 +91,8 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	        				DebugUtils.logD(TAG, "FapiaoTask downloaded " + fapiao.getAbsolutePath());
 	        				BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
 	        			}
+	        			dismissDialog(DIALOG_PROGRESS);
 	            	}
-	            	dismissDialog(DIALOG_PROGRESS);
 	            	return;
 	            }
 	            super.handleMessage(msg);
