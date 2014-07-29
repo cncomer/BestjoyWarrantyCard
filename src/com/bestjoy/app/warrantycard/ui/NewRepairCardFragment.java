@@ -521,13 +521,12 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 	
 	private boolean checkInstallDate(int year, int month, int day) {
-		Calendar cal = Calendar.getInstance();
-		return year >= cal.get(Calendar.YEAR)
-				&& month >= cal.get(Calendar.MONTH)
-				&& day > cal.get(Calendar.DAY_OF_MONTH)
-				|| year > cal.get(Calendar.YEAR)
-				|| month > cal.get(Calendar.MONTH)
-				&& year >= cal.get(Calendar.YEAR);
+		return year >= mCalendar.get(Calendar.YEAR)
+				&& month >= mCalendar.get(Calendar.MONTH)
+				&& day > mCalendar.get(Calendar.DAY_OF_MONTH)
+				|| year > mCalendar.get(Calendar.YEAR)
+				|| month > mCalendar.get(Calendar.MONTH)
+				&& year >= mCalendar.get(Calendar.YEAR);
 	}
 
 	class MyDatePickerDialog extends DatePickerDialog {
