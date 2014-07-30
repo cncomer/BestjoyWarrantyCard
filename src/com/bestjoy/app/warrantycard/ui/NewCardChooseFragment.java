@@ -31,7 +31,6 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.haierwarrantycard.ui.NewCardActivity;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.XinghaoObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
