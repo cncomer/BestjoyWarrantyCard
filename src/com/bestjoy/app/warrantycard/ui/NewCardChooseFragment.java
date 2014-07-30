@@ -589,6 +589,9 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 				MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_error);
+			} catch (OutOfMemoryError oom) {
+				oom.printStackTrace();
+				MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_oom_error);
 			} catch (IOException e) {
 				e.printStackTrace();
 				MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_error);
