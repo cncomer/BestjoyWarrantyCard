@@ -150,6 +150,10 @@ public class BaseFragment extends SherlockFragment{
 	}
        
    	public Dialog onCreateDialog(int id) {
+   		if (getActivity() == null) {
+   		 	DebugUtils.logE(TAG, "onCreateDialog() id = " + id + ", getActivity()=" + getActivity());
+   			return null;
+   		 }
    		switch(id) {
    		case DIALOG_PICTURE_CHOOSE_CONFIRM:
    			return new AlertDialog.Builder(getActivity())
