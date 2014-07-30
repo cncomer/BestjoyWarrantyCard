@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -30,6 +31,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.haierwarrantycard.ui.NewCardActivity;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.XinghaoObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
@@ -234,11 +236,14 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 			//add by chenkai, 增加型号模糊查询, 2014.06.15 begin
 			switch(_listView.getId()) {
 			case R.id.xinghao:
-				((NewCardActivity)getActivity()).invalidateOptionsMenu();
+				Activity activity = getActivity();
+				if (activity != null && activity instanceof NewCardActivity) {
+					((NewCardActivity)getActivity()).invalidateOptionsMenu();
+				}
 				break;
 			}
 			//add by chenkai, 增加型号模糊查询, 2014.06.15 end
-			mProgressBarLayout.setVisibility(View.GONE);
+			if (mProgressBarLayout != null) mProgressBarLayout.setVisibility(View.GONE);
 		}
 
 		@Override
