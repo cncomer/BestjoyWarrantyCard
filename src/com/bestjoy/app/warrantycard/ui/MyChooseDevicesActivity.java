@@ -84,6 +84,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 			@Override
 			public void onChange(boolean selfChange) {
 				super.onChange(selfChange);
+				DebugUtils.logD(TAG, "mContentObserver.onChange()");
 				loadHomesAsync();
 			}
 		};
@@ -207,7 +208,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 			if (MyAccountManager.getInstance().getAccountObject() == null) {
 				return 0;
 			}
-			return MyAccountManager.getInstance().getAccountObject().mAccountHomeCount;
+			return MyAccountManager.getInstance().getAccountObject().mAccountHomes.size();
 		}
 
 	}
