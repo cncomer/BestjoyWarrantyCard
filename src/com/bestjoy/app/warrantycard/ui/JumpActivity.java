@@ -20,6 +20,7 @@ import com.bestjoy.app.warrantycard.utils.InstallFileUtils;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.Intents;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 /**
@@ -41,6 +42,8 @@ public class JumpActivity extends Activity {
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 		mContext = this;
+		MobclickAgent.updateOnlineConfig(mContext);
+		MobclickAgent.openActivityDurationTrack(false);
 		setContentView(R.layout.splash);
 		mServiceAppInfo = new ServiceAppInfo();
 		showHelpOnFirstLaunch();

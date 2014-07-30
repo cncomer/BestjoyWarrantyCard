@@ -23,6 +23,7 @@ import com.bestjoy.app.warrantycard.utils.MenuHandlerUtils;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.ImageHelper;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 /**
  * 需要SlidingMenu能力，需要实现继承该类
@@ -54,7 +55,19 @@ public abstract class BaseSlidingFragmentActivity extends SlidingFragmentActivit
 		//统计应用启动数据
 		PushAgent.getInstance(mContext).onAppStart();
 	}
+	//add by chenkai, 20140726 增加youmeng统计时长 begin
+	@Override
+	public void onResume() {
+		super.onResume();
+		MobclickAgent.onResume(this);
+	}
 	
+	@Override
+	public void onPause() {
+		super.onPause();
+		MobclickAgent.onPause(this);
+	}
+	//add by chenkai, 20140726 增加youmeng统计时长 end
     protected abstract boolean checkIntent(Intent intent);
 	
 	public static final int DIALOG_PICTURE_CHOOSE_CONFIRM = 10002;

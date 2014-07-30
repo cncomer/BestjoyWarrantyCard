@@ -23,6 +23,7 @@ import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.MenuHandlerUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.ImageHelper;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
@@ -51,6 +52,19 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
 		PushAgent.getInstance(mContext).onAppStart();
 	}
 	
+	//add by chenkai, 20140726 增加youmeng统计时长 begin
+	@Override
+	public void onResume() {
+		super.onResume();
+		MobclickAgent.onResume(this);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		MobclickAgent.onPause(this);
+	}
+	//add by chenkai, 20140726 增加youmeng统计时长 end
     protected abstract boolean checkIntent(Intent intent);
 	
 	public static final int DIALOG_PICTURE_CHOOSE_CONFIRM = 10002;
