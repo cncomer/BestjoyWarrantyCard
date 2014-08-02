@@ -172,6 +172,9 @@ public class HaierProCityDisEditPopView implements OnTouchListener {
 
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
+		if (mCursor != null) {
+			mCursor.close();
+		}
 		if (view.getId() == mProEditView.getId()) {
 			switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
@@ -372,5 +375,14 @@ public class HaierProCityDisEditPopView implements OnTouchListener {
 		mHomeObject.mHomePlaceDetail = mPlaceDetail.getText().toString().trim();
 		
 		return mHomeObject;
+	}
+	
+	public void clear() {
+		if (mCursor != null) {
+			mCursor.close();
+		}
+		if (mAddressAdapter != null) {
+			mAddressAdapter = null;
+		}
 	}
 }

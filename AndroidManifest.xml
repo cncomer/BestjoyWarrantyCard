@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="14"
-    android:versionName="V1.76" >
+    android:versionCode="15"
+    android:versionName="V1.77" >
 
      <supports-screens
         android:anyDensity="true"
@@ -284,15 +284,15 @@
             <!-- wangkun "53d3c49a56240bb02a022bd7" -->
 		<meta-data
             android:name="UMENG_APPKEY"
-            android:value="53d3c49a56240bb02a022bd7" >
+            android:value="53daf785fd98c55a950072cf" >
         </meta-data>
             <!-- wangkun "8a984caad589c9e707a2790b4cb3221f" -->
         <meta-data
             android:name="UMENG_MESSAGE_SECRET"
-            android:value="8a984caad589c9e707a2790b4cb3221f" >
+            android:value="88d5b92e7b83c69623a92b30e6643848" >
         </meta-data>
 		<!-- 消息推送代码结束 -->
-		<meta-data android:value="Haier" android:name="UMENG_CHANNEL"/>
+		<meta-data android:value="Bestjoy" android:name="UMENG_CHANNEL"/>
     </application>
 
 </manifest>

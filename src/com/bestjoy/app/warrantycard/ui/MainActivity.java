@@ -1,8 +1,16 @@
 package com.bestjoy.app.warrantycard.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,16 +33,25 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
+import com.bestjoy.app.warrantycard.account.AccountObject;
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
+import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.bestjoy.app.warrantycard.utils.DialogUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
+import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.FilesUtils;
+import com.shwy.bestjoy.utils.NetworkUtils;
 import com.umeng.message.PushAgent;
 
 public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
+	private static final String TAG = "MainActivity";
 	private LinearLayout mDotsLayout;
 	private ViewPager mAdsViewPager;
 	private boolean mAdsViewPagerIsScrolling = false;
@@ -149,6 +166,11 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			 if (MyAccountManager.getInstance().hasLoginned()) {
 				 //做一次登陆操作
 				 //目前只删除本地的所有缓存文件
+//				try{
+//			        Runtime.getRuntime().exec("adb shell pm clear " + MyApplication.PKG_NAME);
+//		        } catch(IOException ex) {
+//		            ex.printStackTrace();
+//		        }
 				 File dir = MyApplication.getInstance().getCachedXinghaoInternalRoot();
 				 FilesUtils.deleteFile("Updating ", dir);
 				 
@@ -315,11 +337,37 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.button_my_card:
-			//判断有没有登陆，没有的话提示用户先去登陆
+			//判断有没有登陆，没有的话提示登录
 			if (!MyAccountManager.getInstance().hasLoginned()) {
-				LoginActivity.startIntent(this, null);
-				MyApplication.getInstance().showNeedLoginMessage();
-				return;
+				 LoginActivity.startIntent(this, null);
+				 MyApplication.getInstance().showNeedLoginMessage();
+				 return;
+			} else {
+				//如果已经登录，判断是否是演示账户，是的话显示演示家
+				if (MyAccountManager.getInstance().getAccountObject().isDemoAccountObject()) {
+					//LoginActivity.startIntent(this, null);
+					//MyApplication.getInstance().showNeedLoginMessage();
+					boolean needLoadDemo = MyApplication.getInstance().mPreferManager.getBoolean("need_load_demo_home", true);
+					if (needLoadDemo) {
+						//如果是第一次，我们需要拉取演示家数据
+						if (!ComConnectivityManager.getInstance().isConnected()) {
+							//没有联网，这里提示用户
+							ComConnectivityManager.getInstance().onCreateNoNetworkDialog(mContext).show();
+						} else {
+							new AlertDialog.Builder(mContext)
+							.setMessage(R.string.msg_need_to_get_demo_data)
+							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									loadDemoCardDataAsync();
+								}
+							})
+							.show();
+						}
+						return;
+					}
+				}
 			}
 			//判断是否有家，没有的话，就要去新建一个家
 			if (!MyAccountManager.getInstance().hasHomes()) {
@@ -344,6 +392,106 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			startActivity(scanIntent);
 			break;
 		}
+		
+	}
+	private LoadtDemoCardDataTask mLoadtDemoCardDataTask;
+	public void loadDemoCardDataAsync() {
+		showDialog(DIALOG_PROGRESS);
+		AsyncTaskUtils.cancelTask(mLoadtDemoCardDataTask);
+		mLoadtDemoCardDataTask = new LoadtDemoCardDataTask();
+		mLoadtDemoCardDataTask.execute();
+	}
+	private class LoadtDemoCardDataTask extends AsyncTask<Void, Void, ServiceResultObject> {
+
+		@Override
+        protected ServiceResultObject doInBackground(Void... params) {
+			ContentResolver cr = mContext.getContentResolver();
+			if (!MyAccountManager.getInstance().hasHomes()) {
+				//如果没有家，我们创建演示家
+				HomeObject homeObject = HomeObject.getDemoHomeObject(AccountObject.DEMO_ACCOUNT_UID, HomeObject.DEMO_HOME_AID);
+				DebugUtils.logD(TAG, "LoadtDemoCardDataTask.doInBackground() start to insert HomeObject demo " + homeObject.toString());
+				if (homeObject.saveInDatebase(cr, null)) {
+					DebugUtils.logD(TAG, "initAccountHomes");
+					MyAccountManager.getInstance().initAccountHomes();
+				}
+			}
+			ServiceResultObject serviceObject = new ServiceResultObject();
+	        //http://www.dzbxk.com/bestjoy/GetBaoXiuDataByUID.ashx?UID=351356&AID=353766
+			StringBuilder sb = new StringBuilder("http://www.dzbxk.com/bestjoy/GetBaoXiuDataByUID.ashx?");
+			sb.append("UID=").append(AccountObject.DEMO_ACCOUNT_UID)
+			.append("&AID=").append(HomeObject.DEMO_HOME_AID);
+			InputStream is = null;
+			try {
+	            is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+	            if (is != null) {
+	            	serviceObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+	            	if (serviceObject.isOpSuccessfully()) {
+	            		if (serviceObject.mStrData != null) {
+	            			JSONArray baoxiuCards = new JSONArray(serviceObject.mStrData);
+	            			//JSONArray baoxiuCards = serviceObject.mJsonData.getJSONArray(BaoxiuCardObject.JSONOBJECT_NAME);
+		            		int len = baoxiuCards.length();
+		            		BaoxiuCardObject baoxiuCardObject = null;
+		            		for(int index=0; index < len; index++) {
+		            			baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(baoxiuCards.getJSONObject(index), null);
+		            			baoxiuCardObject.mAID = HomeObject.DEMO_HOME_AID;
+		            			baoxiuCardObject.mUID = AccountObject.DEMO_ACCOUNT_UID;
+		            			baoxiuCardObject.saveInDatebase(cr, null);
+		            		}
+		            		MyAccountManager.getInstance().updateHomeObject(HomeObject.DEMO_HOME_AID);
+	            		} else {
+	            			serviceObject.mStatusMessage = mContext.getString(R.string.msg_get_no_demo_data);
+	            		}
+	            		
+	            	}
+	            }
+            } catch (ClientProtocolException e) {
+	            e.printStackTrace();
+	            serviceObject.mStatusMessage = e.getMessage();
+            } catch (IOException e) {
+	            e.printStackTrace();
+	            serviceObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
+            } catch (JSONException e) {
+	            e.printStackTrace();
+	            serviceObject.mStatusMessage = e.getMessage();
+            } finally {
+            	NetworkUtils.closeInputStream(is);
+            }
+	        return serviceObject;
+        }
+
+		@Override
+        protected void onPostExecute(ServiceResultObject result) {
+	        super.onPostExecute(result);
+	        dismissDialog(DIALOG_PROGRESS);
+	        if (result.isOpSuccessfully()) {
+	        	//标识下次不用拉取演示数据了
+	        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
+	        	//判断是否有家，没有的话，就要去新建一个家
+				if (!MyAccountManager.getInstance().hasHomes()) {
+					HomeObject.setHomeObject(new HomeObject());
+					MyApplication.getInstance().showNeedHomeMessage();
+					NewHomeActivity.startActivity(mContext);
+					return;
+				}
+				//判断是否有保修卡
+				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
+					MyChooseDevicesActivity.startIntent(mContext, ModleSettings.createMyCardDefaultBundle(mContext));
+				} else {
+					HomeObject.setHomeObject(MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
+					NewCardActivity.startIntent(mContext, ModleSettings.createMyCardDefaultBundle(mContext));
+				}
+	        } else {
+	        	MyApplication.getInstance().showMessage(result.mStatusMessage);
+	        }
+        }
+
+		@Override
+        protected void onCancelled() {
+	        super.onCancelled();
+	        dismissDialog(DIALOG_PROGRESS);
+        }
+		
+		
 		
 	}
 

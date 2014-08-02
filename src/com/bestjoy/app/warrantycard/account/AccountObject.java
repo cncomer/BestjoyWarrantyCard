@@ -12,6 +12,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.bestjoy.app.bjwarrantycard.MyApplication;
+import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.DebugUtils;
@@ -99,8 +101,19 @@ public class AccountObject implements InfoInterface{
 	}
 	
 	public static AccountObject getHaierAccountFromDatabase(Context context) {
+		return getHaierAccountFromDatabase(context, -1);
+	}
+	
+	public static AccountObject getHaierAccountFromDatabase(Context context, long uid) {
 		AccountObject haierAccount = null;
-		Cursor c = context.getContentResolver().query(BjnoteContent.Accounts.CONTENT_URI, PROJECTION, WHERE_DEFAULT, null, null);
+		Cursor c = null;
+		if (uid == -1) {
+			//默认账户
+			c = context.getContentResolver().query(BjnoteContent.Accounts.CONTENT_URI, PROJECTION, WHERE_DEFAULT, null, null);
+		} else {
+			//根据指定的uid查询账户
+			c = context.getContentResolver().query(BjnoteContent.Accounts.CONTENT_URI, PROJECTION, WHERE_UID, new String[]{String.valueOf(uid)}, null);
+		}
 		if (c != null) {
 			if (c.moveToNext()) {
 				haierAccount = new AccountObject();
@@ -206,6 +219,30 @@ public class AccountObject implements InfoInterface{
 			c.close();
 		}
 		return id;
+	}
+	public static long DEMO_ACCOUNT_UID = 351356;
+	public boolean isDemoAccountObject() {
+		return mAccountUid == DEMO_ACCOUNT_UID;
+	}
+	
+	public static ContentValues getDemoAccountObjectContentValues() {
+		ContentValues values = new ContentValues();
+		values.put(HaierDBHelper.ACCOUNT_UID, DEMO_ACCOUNT_UID);
+		values.put(HaierDBHelper.ACCOUNT_NAME, MyApplication.getInstance().getResources().getString(R.string.demo_account));
+		values.put(HaierDBHelper.ACCOUNT_TEL, "11111111111");
+		values.put(HaierDBHelper.ACCOUNT_PWD, "123456");
+		values.put(HaierDBHelper.ACCOUNT_DEFAULT, 0);
+		values.put(HaierDBHelper.DATE, new Date().getTime());
+		return values;
+    }
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Account[uid=").append(mAccountUid)
+		.append(", accountName=").append(mAccountName)
+		.append(", accountTel=").append(mAccountTel)
+		.append("]");
+		return sb.toString();
 	}
 	
 }

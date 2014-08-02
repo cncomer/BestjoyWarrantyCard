@@ -387,4 +387,65 @@ public class HomeObject implements InfoInterface{
 		return homeObject;
 	}
 	
+	public static long DEMO_HOME_AID = 353766;
+	public static final String WHERE_HOME_AID = HaierDBHelper.HOME_AID + "=?";
+	public boolean isDemoHomeObject() {
+		return mHomeAid == DEMO_HOME_AID;
+	}
+	
+	public static ContentValues getDemoHomeObjectContentValues(long uid) {
+		ContentValues values = new ContentValues();
+		values.put(HaierDBHelper.ACCOUNT_UID, uid);
+		values.put(HaierDBHelper.HOME_AID, DEMO_HOME_AID);
+		values.put(HaierDBHelper.HOME_NAME, MyApplication.getInstance().getResources().getString(R.string.demo_home));
+		values.put(DeviceDBHelper.DEVICE_PRO_NAME, MyApplication.getInstance().getResources().getString(R.string.demo_home_province));
+		values.put(DeviceDBHelper.DEVICE_CITY_NAME, MyApplication.getInstance().getResources().getString(R.string.demo_home_city));
+		values.put(DeviceDBHelper.DEVICE_DIS_NAME, MyApplication.getInstance().getResources().getString(R.string.demo_home_district));
+		values.put(HaierDBHelper.HOME_DETAIL, MyApplication.getInstance().getResources().getString(R.string.demo_home_detail));
+		values.put(HaierDBHelper.HOME_DEFAULT, 0);
+		values.put(HaierDBHelper.DATE, new Date().getTime());
+		return values;
+    }
+	
+	public static HomeObject getDemoHomeObject(long uid, long aid) {
+		HomeObject homeObject = new HomeObject();
+		homeObject.mHomeUid = uid;
+		homeObject.mHomeAid = aid;
+		homeObject.mHomeName = MyApplication.getInstance().getResources().getString(R.string.demo_home);
+		homeObject.mHomeProvince = MyApplication.getInstance().getResources().getString(R.string.demo_home_province);
+		homeObject.mHomeCity = MyApplication.getInstance().getResources().getString(R.string.demo_home_city);
+		homeObject.mHomeDis = MyApplication.getInstance().getResources().getString(R.string.demo_home_district);
+		homeObject.mHomePlaceDetail = MyApplication.getInstance().getResources().getString(R.string.demo_home_detail);
+		homeObject.mIsDefault = false;
+		return homeObject;
+	}
+	/**
+	 * 删除指定aid的假数据
+	 * @param cr
+	 * @param aid
+	 * @return
+	 */
+	public static boolean deleteDemoHomeObject(ContentResolver cr, long uid, long aid) {
+		boolean deleted = cr.delete(BjnoteContent.Homes.CONTENT_URI, WHERE_UID_AND_AID, new String[]{String.valueOf(uid), String.valueOf(aid)}) > 0;
+		DebugUtils.logD(TAG, "deleteDemoHomeObject() delete Homes for uid=" + uid + ", aid="+ aid);
+		if (deleted) {
+			DebugUtils.logD(TAG, "deleteDemoHomeObject() delete BaoxiuCards for uid=" + uid + ", aid="+ aid);
+			cr.delete(BjnoteContent.BaoxiuCard.CONTENT_URI, BaoxiuCardObject.WHERE_UID_AND_AID, new String[]{String.valueOf(uid), String.valueOf(aid)});
+		}
+		return deleted;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("HomeObject[")
+		.append("uid=").append(mHomeUid)
+		.append(", aid=").append(mHomeAid)
+		.append(", homeName=").append(mHomeName)
+		.append(", placeDetail=").append(mHomePlaceDetail)
+		.append(", isDefault=").append(mIsDefault)
+		.append("]");
+		return sb.toString();
+	}
+	
 }

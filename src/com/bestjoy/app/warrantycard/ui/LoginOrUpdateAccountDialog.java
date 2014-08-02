@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -16,9 +20,14 @@ import android.widget.TextView;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.AccountParser;
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
+import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.Intents;
@@ -70,11 +79,61 @@ public class LoginOrUpdateAccountDialog extends Activity{
 			try {
 				_is = NetworkUtils.openContectionLocked(sb.toString(), mPwd, null);
 				mAccountObject = AccountParser.parseJson(_is, mStatusView);
+				NetworkUtils.closeInputStream(_is);
+				ContentResolver cr = LoginOrUpdateAccountDialog.this.getContentResolver();
 				if (mAccountObject != null && mAccountObject.isLogined()) {
-					boolean saveAccountOk = MyAccountManager.getInstance().saveAccountObject(LoginOrUpdateAccountDialog.this.getContentResolver(), mAccountObject);
+					boolean saveAccountOk = MyAccountManager.getInstance().saveAccountObject(cr, mAccountObject);
 					if (!saveAccountOk) {
 						//登录成功了，但本地数据保存失败，通常不会走到这里
 						_error = LoginOrUpdateAccountDialog.this.getString(R.string.msg_login_save_success);
+					} else {
+						//保存本地成功
+						//Step1 删除演示账户
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete AccountObject demo");
+						MyAccountManager.deleteAccountForUid(cr, AccountObject.DEMO_ACCOUNT_UID);
+						//标识下次不用拉取演示数据了
+			        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
+			        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
+						AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
+						if (accountObject.mAccountHomes.size() == 0) {
+							//Setp2 家数据为空，我们需要创建演示家
+							HomeObject homeObject = HomeObject.getDemoHomeObject(accountObject.mAccountUid, HomeObject.DEMO_HOME_AID);
+							DebugUtils.logD(TAG, "LoginAsyncTask start to insert HomeObject demo " + homeObject.toString());
+							if (homeObject.saveInDatebase(cr, null)) {
+								DebugUtils.logD(TAG, "LoginAsyncTask start to insert BaoxiuCardObject demo");
+								//Setp3, 创建保修卡演示数据
+								ServiceResultObject serviceObject = new ServiceResultObject();
+								sb = new StringBuilder("http://www.dzbxk.com/bestjoy/GetBaoXiuDataByUID.ashx?");
+								sb.append("UID=").append(AccountObject.DEMO_ACCOUNT_UID)
+								.append("&AID=").append(HomeObject.DEMO_HOME_AID);
+					            _is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+					            if (_is != null) {
+					            	serviceObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(_is));
+					            	if (serviceObject.isOpSuccessfully()) {
+					            		if (serviceObject.mStrData != null) {
+					            			JSONArray baoxiuCards = new JSONArray(serviceObject.mStrData);
+					            			//JSONArray baoxiuCards = serviceObject.mJsonData.getJSONArray(BaoxiuCardObject.JSONOBJECT_NAME);
+						            		int len = baoxiuCards.length();
+						            		BaoxiuCardObject baoxiuCardObject = null;
+						            		for(int index=0; index < len; index++) {
+						            			baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(baoxiuCards.getJSONObject(index), null);
+						            			baoxiuCardObject.mAID = HomeObject.DEMO_HOME_AID;
+						            			baoxiuCardObject.mUID = accountObject.mAccountUid;
+						            			baoxiuCardObject.saveInDatebase(cr, null);
+						            		}
+					            		} else {
+					            			MyApplication.getInstance().showMessageAsync(R.string.msg_get_no_demo_data);
+					            		}
+					            		
+					            	}
+					            }
+								DebugUtils.logD(TAG, "initAccountHomes");
+								MyAccountManager.getInstance().initAccountHomes();
+								DebugUtils.logD(TAG, "updateHomeObject aid=" + HomeObject.DEMO_HOME_AID);
+								MyAccountManager.getInstance().updateHomeObject(HomeObject.DEMO_HOME_AID);
+							}
+							
+						}
 					}
 				} 
 			} catch (ClientProtocolException e) {

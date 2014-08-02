@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.bestjoy.app.warrantycard.account.AccountObject;
+import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.shwy.bestjoy.utils.DebugUtils;
 
 /**
@@ -12,7 +14,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 4;
+  private static final int DB_VERSION = 5;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -253,6 +255,8 @@ private static final String TAG = "HaierDBHelper";
   		createMaintenancePointTable(sqLiteDatabase);
   	    //增加生活圈
   		createMyLifeTable(sqLiteDatabase);
+  		//创建演示账户
+  		createDemoAccountAndHomeData(sqLiteDatabase);
   		
   }
   
@@ -454,6 +458,14 @@ private static final String TAG = "HaierDBHelper";
 	            ");");
   }
   
+  private void createDemoAccountAndHomeData(SQLiteDatabase sqLiteDatabase) {
+	  long id = sqLiteDatabase.insert(TABLE_NAME_ACCOUNTS, null, AccountObject.getDemoAccountObjectContentValues());
+	  DebugUtils.logE(TAG, "createDemoAccountData() newId=" + id);
+	  
+	  id = sqLiteDatabase.insert(TABLE_NAME_HOMES, null, HomeObject.getDemoHomeObjectContentValues(AccountObject.DEMO_ACCOUNT_UID));
+	  DebugUtils.logE(TAG, "createDemoHomeData() newId=" + id);
+  }
+  
   private void createTriggerForMyCardTable(SQLiteDatabase sqLiteDatabase) {
 	  String sql = "CREATE TRIGGER insert_contact_mycard" + " AFTER INSERT " + " ON " + TABLE_NAME_MY_CARD + 
 			  " BEGIN UPDATE " + TABLE_NAME_ACCOUNTS + " SET mycard_count = mycard_count+1 WHERE uid = new.uid; END;";
@@ -503,5 +515,10 @@ private static final String TAG = "HaierDBHelper";
 		    onCreate(sqLiteDatabase);
 		    return;
 		}
+	  
+	  if (oldVersion == 4) {
+		  createDemoAccountAndHomeData(sqLiteDatabase);
+		  oldVersion = 5;
+	  }
   }
 }

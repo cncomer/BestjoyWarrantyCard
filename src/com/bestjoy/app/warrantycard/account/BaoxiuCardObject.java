@@ -234,7 +234,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		//delete by chenkai, 现在FPaddr不再返回数据了，而是使用hasimg来表示是否存在发票图片 begin
 		//cardObject.mFPaddr = jsonObject.getString("FPaddr");
 		//decodeFapiao(cardObject);
-		boolean hasimg = jsonObject.getBoolean("hasimg");
+		boolean hasimg = jsonObject.optBoolean("hasimg", false);
 		cardObject.mFPaddr = hasimg ? "1" : "0";
 		//delete by chenkai, 现在FPaddr不再返回数据了，而是使用hasimg来表示是否存在发票图片 end
 		return cardObject;

@@ -21,6 +21,7 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.view.HaierProCityDisEditPopView;
@@ -158,9 +159,13 @@ public class NewHomeActivity extends BaseActionbarActivity {
 						boolean saved = mHomeObject.saveInDatebase(getContentResolver(), null);
 						if (!saved) {
 							MyApplication.getInstance().showMessageAsync(R.string.msg_local_save_op_failed);
+						} else {
+							//新建家后，我们删除演示家
+							HomeObject.deleteDemoHomeObject(getContentResolver(),  MyAccountManager.getInstance().getAccountObject().mAccountUid, HomeObject.DEMO_HOME_AID);
 						}
 						//刷新本地家
 						MyAccountManager.getInstance().initAccountHomes();
+						MyAccountManager.getInstance().updateHomeObject(mHomeObject.mHomeUid);
 					}
 				}
 			} catch (ClientProtocolException e) {
@@ -230,6 +235,7 @@ public class NewHomeActivity extends BaseActionbarActivity {
 			dismissDialog(DIALOG_PROGRESS);
 			MyApplication.getInstance().showMessageAsync(result.mStatusMessage);
 			if(result.isOpSuccessfully()) {
+				mProCityDisEditPopView.clear();
 				NewHomeActivity.this.finish();
 			}
 		}

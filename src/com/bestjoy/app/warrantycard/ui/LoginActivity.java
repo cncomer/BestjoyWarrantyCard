@@ -111,6 +111,11 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 				}
 				break;
 			case R.id.button_login:
+				if (!ComConnectivityManager.getInstance().isConnected()) {
+					//没有联网，这里提示用户
+					ComConnectivityManager.getInstance().onCreateNoNetworkDialog(mContext).show();
+					return;
+				}
 				//modify by chenkai, 2014.06.04，去掉号码之间的空白符号 begin
 				//String tel = mTelInput.getText().toString().trim();
 				String tel = mTelInput.getText().toString().trim().replaceAll("[- +]", "");

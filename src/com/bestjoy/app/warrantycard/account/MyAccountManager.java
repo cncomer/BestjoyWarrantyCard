@@ -34,18 +34,17 @@ public class MyAccountManager {
 	}
 	
 	public void initAccountObject() {
+		//如果没有默认账户，我们使用Demo账户
 		if (mHaierAccount == null) {
 			mHaierAccount = AccountObject.getHaierAccountFromDatabase(mContext);
-			initAccountHomes();
 		}
-	}
-	
-	public void initAccountObjectForce() {
-		mHaierAccount = AccountObject.getHaierAccountFromDatabase(mContext);
+		if (mHaierAccount == null) {
+			mHaierAccount = AccountObject.getHaierAccountFromDatabase(mContext, AccountObject.DEMO_ACCOUNT_UID);
+		}
 		initAccountHomes();
 	}
 	
-	public void initAccountHomes() {
+	public synchronized void initAccountHomes() {
 		if (mHaierAccount != null) {
 			mHaierAccount.mAccountHomes = HomeObject.getAllHomeObjects(mContext.getContentResolver(), mHaierAccount.mAccountUid);
 			//XXX 如果保修卡数据太多，这里太耗时了，我们不做加载,在我的家的时候再做加载
@@ -67,12 +66,29 @@ public class MyAccountManager {
 			DebugUtils.logD(TAG, "deleted " + deleted + " Homes");
 			//删除账户数据
 			deleted = AccountObject.deleteAccount(mContext.getContentResolver(), mHaierAccount.mAccountUid);
+			DebugUtils.logD(TAG, "deleted " + deleted + " Account =" + mHaierAccount.toString());
 			mHaierAccount = null;
-			DebugUtils.logD(TAG, "deleted " + deleted + " Account");
 			DebugUtils.logD(TAG, "end deleteDefaultAccount()");
 		} else {
 			DebugUtils.logD(TAG, "deleteDefaultAccount() nothing to do");
 		}
+	}
+	/**
+	 * 删除指定uid的账户
+	 * @param uid
+	 */
+	public static void deleteAccountForUid(ContentResolver cr, long uid) {
+		DebugUtils.logD(TAG, "start deleteAccountForUid() for uid " + uid);
+		//删除全部保修卡数据
+		int deleted = BaoxiuCardObject.deleteAllBaoxiuCardsInDatabaseForAccount(cr, uid);
+		DebugUtils.logD(TAG, "deleted " + deleted + " BaoxiuCards");
+		//删除全部家数据
+		deleted = HomeObject.deleteAllHomesInDatabaseForAccount(cr, uid);
+		DebugUtils.logD(TAG, "deleted " + deleted + " Homes");
+		//删除账户数据
+		deleted = AccountObject.deleteAccount(cr, uid);
+		
+		DebugUtils.logD(TAG, "end deleteAccountForUid()");
 	}
 	
 	public AccountObject getAccountObject() {
@@ -90,7 +106,7 @@ public class MyAccountManager {
 	public String getCurrentAccountUid() {
 		return mHaierAccount != null ? String.valueOf(mHaierAccount.mAccountUid) : null; 
 	}
-	
+	/**默认情况即使用户没有登录，系统会初始化一个演示账户，一旦用户登陆了，就会将演示账户删掉*/
 	public boolean hasLoginned() {
 		return mHaierAccount != null && mHaierAccount.mAccountId > 0;
 	}
@@ -101,16 +117,16 @@ public class MyAccountManager {
 		}
 		return false;
 	}
-	/**新建保修卡后都需要调用该方法来更新家*/
+	/**新建保修卡后都需要调用该方法来更新家,该操作会重新计算mHaierAccount.mAccountBaoxiuCardCount*/
 	public void updateHomeObject(long aid) {
 		if (mHaierAccount != null) {
 			mHaierAccount.mAccountBaoxiuCardCount = 0;
 			for(HomeObject home : mHaierAccount.mAccountHomes) {
 				if (home.mHomeAid  == aid) {
 					home.initBaoxiuCards(mContext.getContentResolver());
-					//重新初始化保修卡数据
-					mHaierAccount.mAccountBaoxiuCardCount += home.mHomeCardCount;
 				}
+				//重新初始化保修卡数据
+				mHaierAccount.mAccountBaoxiuCardCount += home.mHomeCardCount;
 			}
 		}
 	}
@@ -172,5 +188,12 @@ public class MyAccountManager {
 		}
 		return mContentResolver.query(BjnoteContent.MyCard.CONTENT_URI, null, CARD_ACCOUNT_UID_AND_CONTACT_BID_SELECTION, new String[]{uid, mm}, HaierDBHelper.CONTACT_ID + " desc");
 	}
+    /**
+     * 初始化演示账户
+     * @return
+     */
+    public static AccountObject initDemoAccountObject(Context context) {
+    	return AccountObject.getHaierAccountFromDatabase(context, AccountObject.DEMO_ACCOUNT_UID);
+    }
     
 }

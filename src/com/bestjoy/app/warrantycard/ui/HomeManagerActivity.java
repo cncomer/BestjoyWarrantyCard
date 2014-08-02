@@ -177,6 +177,7 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 			deleteHomeIDList.clear();
 			//刷新本地家
 			MyAccountManager.getInstance().initAccountHomes();
+			MyAccountManager.getInstance().updateHomeObject(-1);
 			return false;
 		}
 
@@ -216,9 +217,13 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 
 		@Override
 		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
-			mHomeManagerAdapter.notifyDataSetChanged();
 			dismissDialog(DIALOG_PROGRESS);
+			super.onPostExecute(result);
+			if (mHomeManagerAdapter.getCount() == 0) {
+				MainActivity.startActivityForTop(mContext);
+			} else {
+				mHomeManagerAdapter.notifyDataSetChanged();
+			}
 		}
 
 		@Override
