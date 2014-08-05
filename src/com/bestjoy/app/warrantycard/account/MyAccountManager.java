@@ -87,7 +87,7 @@ public class MyAccountManager {
 		DebugUtils.logD(TAG, "deleted " + deleted + " Homes");
 		//删除账户数据
 		deleted = AccountObject.deleteAccount(cr, uid);
-		
+		DebugUtils.logD(TAG, "deleted " + deleted + " Accounts");
 		DebugUtils.logD(TAG, "end deleteAccountForUid()");
 	}
 	
