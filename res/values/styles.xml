@@ -131,7 +131,7 @@
         <item name="android:background">@drawable/default_pink_btn</item>
     </style>
     
-      <style name="TextAppearance.Switch" parent="@*android:style/TextAppearance.Holo.Widget.Switch">
+      <style name="TextAppearance.Switch" parent="*android:style/TextAppearance.Holo.Widget.Switch">
         <item name="android:textAllCaps">true</item>
     </style>
 

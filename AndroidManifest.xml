@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="15"
-    android:versionName="V1.77" >
+    android:versionCode="16"
+    android:versionName="V1.78" >
 
      <supports-screens
         android:anyDensity="true"
