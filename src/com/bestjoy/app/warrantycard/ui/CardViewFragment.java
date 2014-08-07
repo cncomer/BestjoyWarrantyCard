@@ -218,6 +218,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		 switch(menuItem.getItemId()) {
 		 case R.string.menu_edit:
 			 BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
+			 HomeObject.setHomeObject(mHomeObject);
 			 NewCardActivity.startIntent(getActivity(), mBundles);
 			 getActivity().finish();
 			 break;

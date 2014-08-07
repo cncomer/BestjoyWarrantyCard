@@ -106,6 +106,9 @@ public class MyAccountManager {
 	public String getCurrentAccountUid() {
 		return mHaierAccount != null ? String.valueOf(mHaierAccount.mAccountUid) : null; 
 	}
+	public long getCurrentAccountId() {
+		return mHaierAccount != null ? mHaierAccount.mAccountUid : -1; 
+	}
 	/**默认情况即使用户没有登录，系统会初始化一个演示账户，一旦用户登陆了，就会将演示账户删掉*/
 	public boolean hasLoginned() {
 		return mHaierAccount != null && mHaierAccount.mAccountId > 0;
