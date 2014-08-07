@@ -63,11 +63,11 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 			DebugUtils.logW(TAG, "onCreate() savedInstanceState != null, we try to get aid=" + aid + ", bid=" + bid);
 			ContentResolver cr = getContentResolver();
 			long uid = MyAccountManager.getInstance().getCurrentAccountId();
-			if (aid != -1) {
+			if (bid != -1) {
 				mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(cr, uid, aid, bid);
 				DebugUtils.logD(TAG, "getBaoxiuCardObject uid=" + uid + ", aid=" + aid + ", bid=" + bid + ", this=" + mBaoxiuCardObject);
 			}
-			if (bid != -1) {
+			if (aid != -1) {
 				mHomeObject = HomeObject.getHomeObject(cr, uid, aid);
 				DebugUtils.logD(TAG, "getHomeObject uid=" + uid + ", aid=" + aid + ", this=" + mHomeObject);
 			}
