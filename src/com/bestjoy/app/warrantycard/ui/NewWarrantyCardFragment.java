@@ -97,7 +97,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	@Override
 	public void onResume() {
 		super.onResume();
-		DebugUtils.logD(TAG, "onResume() mNeedLoadFapiao=" + mNeedLoadFapiao);
+		DebugUtils.logD(TAG, "onResume() mNeedLoadFapiao=" + mNeedLoadFapiao + ", mBillTempFile=" + mBillTempFile);
 		if (mNeedLoadFapiao) {
 			mNeedLoadFapiao = false;
 			loadFapiaoFromCameraAsync();
@@ -173,6 +173,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		super.onDestroy();
 		mBillImageView.setImageBitmap(null);
 		mBaoxiuCardObject.clear();
+		removeDialog(DIALOG_PROGRESS);
 	}
 	
 	@Override

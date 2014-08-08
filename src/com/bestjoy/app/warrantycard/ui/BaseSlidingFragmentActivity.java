@@ -33,8 +33,17 @@ import com.umeng.message.PushAgent;
 public abstract class BaseSlidingFragmentActivity extends SlidingFragmentActivity {
 	private static final String TAG = "BaseSlidingFragmentActivity";
 
-	private static final int CurrentPictureGalleryRequest = 11000;
-	private static final int CurrentPictureCameraRequest = 11001;
+	private static final int CurrentPictureGalleryRequest = BaseActionbarActivity.CurrentPictureGalleryRequest;
+	private static final int CurrentPictureCameraRequest = BaseActionbarActivity.CurrentPictureCameraRequest;
+	
+	public static final int DIALOG_PICTURE_CHOOSE_CONFIRM = BaseActionbarActivity.DIALOG_PICTURE_CHOOSE_CONFIRM;
+	//add by chenkai, 20131208, for updating check
+	/**SD不可用*/
+	protected static final int DIALOG_MEDIA_UNMOUNTED = BaseActionbarActivity.DIALOG_MEDIA_UNMOUNTED;
+	
+	public static final int DIALOG_DATA_NOT_CONNECTED = BaseActionbarActivity.DIALOG_DATA_NOT_CONNECTED;//数据连接不可用
+	public static final int DIALOG_MOBILE_TYPE_CONFIRM = BaseActionbarActivity.DIALOG_MOBILE_TYPE_CONFIRM;//
+	public static final int DIALOG_PROGRESS = BaseActionbarActivity.DIALOG_PROGRESS;
 	private int mCurrentPictureRequest;
 	private Context mContext;
 	
@@ -70,16 +79,6 @@ public abstract class BaseSlidingFragmentActivity extends SlidingFragmentActivit
 	//add by chenkai, 20140726 增加youmeng统计时长 end
     protected abstract boolean checkIntent(Intent intent);
 	
-	public static final int DIALOG_PICTURE_CHOOSE_CONFIRM = 10002;
-	//add by chenkai, 20131208, for updating check
-	/**SD不可用*/
-	protected static final int DIALOG_MEDIA_UNMOUNTED = 10003;
-	
-	public static final int DIALOG_DATA_NOT_CONNECTED = 10006;//数据连接不可用
-	public static final int DIALOG_MOBILE_TYPE_CONFIRM = 10007;//
-	
-	
-	public static final int DIALOG_PROGRESS = 10008;
 	private ProgressDialog mProgressDialog;
 	/**
 	 * @param uri 选择的图库的图片的Uri
