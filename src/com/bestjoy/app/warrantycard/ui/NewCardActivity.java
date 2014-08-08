@@ -318,7 +318,7 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 		DebugUtils.logW(TAG, "onSaveInstanceState(), we try to save Fragment to FragmentManager, mContent=" + mContent + ", mMenu=" + mMenu);
 		getSupportFragmentManager().putFragment(outState, "mContent", mContent);
 		getSupportFragmentManager().putFragment(outState, "mMenu", mMenu);
-		long aid = mHomeObject != null ? mHomeObject.mHomeId : -1;
+		long aid = mHomeObject != null ? mHomeObject.mHomeAid : -1;
 		long bid = mBaoxiuCardObject != null ? mBaoxiuCardObject.mBID : -1;
 		DebugUtils.logW(TAG, "onSaveInstanceState(), we try to save aid=" + aid + ", bid=" + bid);
 		outState.putLong("aid", aid);
