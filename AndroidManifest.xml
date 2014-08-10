@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="16"
-    android:versionName="V1.78" >
+    android:versionCode="17"
+    android:versionName="V1.9" >
 
      <supports-screens
         android:anyDensity="true"
@@ -206,6 +206,14 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/wa_name"
             android:name="com.shwy.bestjoy.bjnote.wifi.WifiActivity" />
+         <!-- add by chenkai, 20140810, Youmeng广播历史 begin -->
+         <activity
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:label="@string/menu_ymessage"
+            android:name="com.bestjoy.app.warrantycard.ui.YMessageListActivity" />
+         <!-- add by chenkai, 20140810, Youmeng广播历史 end -->
          
          <!-- add by chenkai, for Usage PDF阅读界面, 2014.05.31 begin-->
           <activity android:name="org.vudroid.pdfdroid.PdfViewerActivity" 

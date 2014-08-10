@@ -31,6 +31,14 @@
         android:layout_marginTop="4dip"
         android:layout_gravity="center_horizontal"
         android:textSize="16sp"/>
+      <TextView android:id="@+id/app_device_token"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/light_black"
+        android:layout_marginTop="4dip"
+        android:layout_gravity="center_horizontal"
+        android:textSize="16sp"
+        android:text="@string/msg_current_device_token_null"/>
     <LinearLayout android:id="@+id/button_update"
         android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"

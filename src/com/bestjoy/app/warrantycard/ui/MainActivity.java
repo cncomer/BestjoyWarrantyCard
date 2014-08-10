@@ -20,9 +20,11 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,11 +46,13 @@ import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.DialogUtils;
+import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.umeng.message.PushAgent;
+import com.umeng.message.UmengRegistrar;
 
 public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
 	private static final String TAG = "MainActivity";
@@ -115,6 +119,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		findViewById(R.id.button_telecontrol).setOnClickListener(this);
 		findViewById(R.id.button_qr_scan).setOnClickListener(this);
 		
+		YouMengMessageHelper.getInstance().startCheckDeviceTokenAsync();
 	}
 	
 	@Override
@@ -493,6 +498,13 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		
 		
 		
+	}
+	
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		YouMengMessageHelper.getInstance().cancelCheckDeviceTokenTask();
 	}
 
 }

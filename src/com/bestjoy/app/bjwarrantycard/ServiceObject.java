@@ -253,4 +253,17 @@ public class ServiceObject {
 			  sb.append("getPDfByKy.ashx?KY=").append(ky).append("&token=").append(SecurityUtils.MD5.md5(ky));
 			  return sb.toString();
 		  }
+		  
+		  
+		  /**
+		   * http://www.dzbxk.com/bestjoy/Apple/RegisterDevice.ashx?UID=1&pushtoken=test&devicetype=android
+		   */
+		  public static String getUpdateDeviceTokenUrl(String uid, String deviceToken, String deviceType) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Apple/RegisterDevice.ashx?UID=").appendUrlEncodedString(uid)
+			  .append("&pushtoken=").appendUrlEncodedString(deviceToken)
+			  .append("&devicetype=").appendUrlEncodedString(deviceType);
+			  return sb.toString();
+			  
+		  }
 }

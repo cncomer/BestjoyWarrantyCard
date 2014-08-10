@@ -259,6 +259,9 @@
           <string name="dialog_msg_download_unfinish">下载未完成，是否取消?</string>
           <string name="format_current_sw_version">"版本 %s"</string>
           <string name="format_current_db_version">"型号库版本 %s"</string>
+          <string name="msg_current_device_token">"设备Token(单击复制)"</string>
+         <string name="format_current_device_token_copy">"设备Token(%s)已经复制到剪贴板，请在文本框中粘贴"</string>
+         <string name="msg_current_device_token_null">"设备Token(未注册)"</string>
          <!-- 自动更新 end -->
          
          <string name="pinpai_haier">海尔</string>
@@ -534,4 +537,6 @@
           <string name="demo_account">演示账户</string>
            <string name="msg_get_no_demo_data">服务器没有返回演示家数据，请重试或是直接登录</string>
            <string name="msg_need_to_get_demo_data">你当前未登录，是否查看演示，该操作会先从服务器获取最新的演示数据</string>
+           
+           <string name="menu_ymessage">广播</string>
 </resources>

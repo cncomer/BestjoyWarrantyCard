@@ -326,7 +326,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				onCapturePhoto();
 			} else {
 				//如果有，我们显示操作选项，查看或是拍摄发票
-				showDialog(DIALOG_BILL_OP_CONFIRM);
+				onCreateDialog(DIALOG_BILL_OP_CONFIRM).show();
 			}
 			break;
 		case R.id.button_scan_qrcode:

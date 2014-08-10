@@ -25,6 +25,7 @@ import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.VcfAsyncDownloadUtils;
+import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.contacts.AddrBookUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DateUtils;
@@ -100,6 +101,7 @@ public class MyApplication extends Application{
 		Log.d(TAG, display.toString());
 		Log.d(TAG, getDeviceInfo(this));
 		
+		YouMengMessageHelper.getInstance().setContext(this);
 	}
 	
 	public synchronized static MyApplication getInstance() {
@@ -441,4 +443,13 @@ public class MyApplication extends Application{
 	    }
 	    return null;
 	}
+    
+    public String getDeviceTotke() {
+    	return mPreferManager.getString("device_token", "");
+    }
+    public boolean saveDeviceToken(String deviceToken) {
+    	boolean ok =  mPreferManager.edit().putString("device_token", deviceToken).commit();
+    	DebugUtils.logD(TAG, "saveDeviceToken " + deviceToken + ", saved " + ok);
+    	return ok;
+    }
 }

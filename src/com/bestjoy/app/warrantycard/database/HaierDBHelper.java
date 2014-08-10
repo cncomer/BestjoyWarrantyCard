@@ -14,7 +14,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 5;
+  private static final int DB_VERSION = 6;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -192,6 +192,16 @@ private static final String TAG = "HaierDBHelper";
   public static final String MAINTENCE_POINT_COMMENT_NUM = "comment_num";
   //维修点结束
   
+//友盟的推送消息历史
+  public static final String TABLE_YOUMENG_PUSHMESSAGE_HISTORY = "youmeng_push_message_history";
+  public static final String YOUMENG_TEXT = "text";
+  public static final String YOUMENG_TITLE = "title";
+  public static final String YOUMENG_MESSAGE_ID = "msg_id";
+  public static final String YOUMENG_MESSAGE_ACTIVITY = "activity";
+  public static final String YOUMENG_MESSAGE_URL = "url";
+  public static final String YOUMENG_MESSAGE_CUSTOM = "custom";
+  public static final String YOUMENG_MESSAGE_RAW = "raw_json";
+  
   public HaierDBHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
   }
@@ -257,6 +267,8 @@ private static final String TAG = "HaierDBHelper";
   		createMyLifeTable(sqLiteDatabase);
   		//创建演示账户
   		createDemoAccountAndHomeData(sqLiteDatabase);
+  		
+  		createYoumengMessageTable(sqLiteDatabase);
   		
   }
   
@@ -475,6 +487,23 @@ private static final String TAG = "HaierDBHelper";
 			  " BEGIN UPDATE " + TABLE_NAME_ACCOUNTS + " SET mycard_count = mycard_count-1 WHERE uid = old.uid; END;";
 	  sqLiteDatabase.execSQL(sql);
   }
+  /**
+   * {"msg_id":"us65502140752348982811","body":{"play_vibrate":"true","text":"111112222","title":"1111","ticker":"1111","play_lights":"true","play_sound":"true","after_open":"go_app","activity":"","url":"","custom":""},"random_min":0,"alias":"","display_type":"notification"}
+   * @param sqLiteDatabase
+   */
+  private void createYoumengMessageTable(SQLiteDatabase sqLiteDatabase) {
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_YOUMENG_PUSHMESSAGE_HISTORY + " (" +
+	            ID + " INTEGER PRIMARY KEY, " +
+	            YOUMENG_MESSAGE_ID + " TEXT, " +
+	            YOUMENG_TITLE + " TEXT, " +
+	            YOUMENG_TEXT + " TEXT, " +
+	            YOUMENG_MESSAGE_ACTIVITY + " TEXT, " +
+	            YOUMENG_MESSAGE_URL + " TEXT, " +
+	            YOUMENG_MESSAGE_CUSTOM + " TEXT, " +
+	            YOUMENG_MESSAGE_RAW + " TEXT, " +
+	            DATE + " TEXT);");
+  }
   
   private void addTextColumn(SQLiteDatabase sqLiteDatabase, String table, String column) {
 	    String alterForTitleSql = "ALTER TABLE " + table +" ADD " + column + " TEXT";
@@ -519,6 +548,10 @@ private static final String TAG = "HaierDBHelper";
 	  if (oldVersion == 4) {
 		  createDemoAccountAndHomeData(sqLiteDatabase);
 		  oldVersion = 5;
+	  }
+	  if (oldVersion == 5) {
+		  createYoumengMessageTable(sqLiteDatabase);
+		  oldVersion = 6;
 	  }
   }
 }

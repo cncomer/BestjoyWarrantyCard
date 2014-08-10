@@ -28,6 +28,7 @@ import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
+import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.Intents;
@@ -166,6 +167,8 @@ public class LoginOrUpdateAccountDialog extends Activity{
 				//如果登陆成功
 				if (mAccountObject.isLogined()) {
 					setResult(Activity.RESULT_OK);
+					//登录成功，我们需要检查是否能够上传设备Token到服务器绑定uid和token
+					UpdateService.startCheckDeviceTokenToService(LoginOrUpdateAccountDialog.this);
 				} else {
 					MyApplication.getInstance().showMessage(mAccountObject.mStatusMessage);
 					setResult(Activity.RESULT_CANCELED);
