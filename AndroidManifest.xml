@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -100,6 +101,7 @@
             android:name="com.bestjoy.app.warrantycard.ui.MyChooseDevicesActivity"
             android:configChanges="orientation|keyboardHidden"
              android:screenOrientation="portrait"
+             android:parentActivityName="com.bestjoy.app.warrantycard.ui.MainActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:label="@string/activity_title_choose_device_general">
@@ -212,6 +214,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:label="@string/menu_ymessage"
+            android:parentActivityName="com.bestjoy.app.warrantycard.ui.MainActivity"
             android:name="com.bestjoy.app.warrantycard.ui.YMessageListActivity" />
          <!-- add by chenkai, 20140810, Youmeng广播历史 end -->
          

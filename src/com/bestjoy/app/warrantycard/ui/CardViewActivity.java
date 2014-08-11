@@ -14,11 +14,12 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
-import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
 
 public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 
+	private static final String TAG = "CardViewActivity";
 	private CardViewFragment mContent;
 	public Bundle mBundle;
 	
@@ -28,12 +29,16 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	
 	//
 	private View mBottomContentLayout, mBottomContentTop, mContentLayout;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (isFinishing()) {
 			return;
+		}
+		if (savedInstanceState != null) {
+			mBundle = savedInstanceState.getBundle(TAG);
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundle);
 		}
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -47,23 +52,19 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
         mMaintenancePointBtn.setOnClickListener(this);
         mBuyMaintenanceComponentBtn.setOnClickListener(this);
 		
-		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
-		mHomeObject = HomeObject.getHomeObject();
-		//设置給CardViewFragment使用
-		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
-		HomeObject.setHomeObject(mHomeObject);
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
+		mHomeObject = HomeObject.getHomeObject(mBundle);
+		
 		mContent = new CardViewFragment();
 		mContent.setArguments(mBundle);
 
 		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
+		newRepairCardFragment.setArguments(mBundle);
 		getSupportFragmentManager()
 		.beginTransaction()
 		.replace(R.id.content_frame, mContent)
 		.replace(R.id.content_frame_bottom, newRepairCardFragment)
 		.commit();
-		newRepairCardFragment.updateInfoInterface(mBaoxiuCardObject);
-		newRepairCardFragment.updateInfoInterface(mHomeObject);
-		newRepairCardFragment.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
 		
 		mContentLayout = findViewById(R.id.content_frame);
 		
@@ -160,30 +161,34 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 
 	private void showNewRepairCardFragment() {
 		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
+		newRepairCardFragment.setArguments(mBundle);
 		getSupportFragmentManager()
 		.beginTransaction()
 //		.replace(R.id.content_frame, mContent)
 		.replace(R.id.content_frame_bottom, newRepairCardFragment)
 		.commit();
-		newRepairCardFragment.updateInfoInterface(mBaoxiuCardObject);
-		newRepairCardFragment.updateInfoInterface(mHomeObject);
-		newRepairCardFragment.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
+		
 
 		showBottomContent(true);
 	}
 	
 	private void showMaintenancePointFragment() {
 		NearestMaintenancePointFragment mNearestMaintenancePointFragment = new NearestMaintenancePointFragment();
+		mNearestMaintenancePointFragment.setArguments(mBundle);
 		getSupportFragmentManager()
 		.beginTransaction()
 //		.replace(R.id.content_frame, mContent)
 		.replace(R.id.content_frame_bottom, mNearestMaintenancePointFragment)
 		.commit();
-		mNearestMaintenancePointFragment.updateInfoInterface(mBaoxiuCardObject);
-		mNearestMaintenancePointFragment.updateInfoInterface(mHomeObject);
-		mNearestMaintenancePointFragment.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
 
 		showBottomContent(true);
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBundle(TAG, mBundle);
+		DebugUtils.logW(TAG, "onSaveInstanceState(), we try to save mBundles=" + mBundle);
 	}
 
 }

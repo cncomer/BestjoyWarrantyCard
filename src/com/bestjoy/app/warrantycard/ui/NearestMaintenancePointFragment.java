@@ -49,7 +49,6 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 	private MalPointAdapter mMalPointAdapter;
 	private BaoxiuCardObject mBaoxiuCardObject;
 	
-	private HomeObject mHomeObject;
 	private List <MaintenancePointBean> mMaintenancePoint;
 	private static final int STATE_IDLE = 0;
 	private static final int STATE_FREASHING = STATE_IDLE + 1;
@@ -57,11 +56,20 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 	private static final int STATE_FREASH_CANCEL = STATE_FREASH_COMPLETE + 1;
 	private int mLoadState = STATE_IDLE;
 	private int mLoadPageIndex = 0;
+	private Bundle mBundle;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+		if (savedInstanceState == null) {
+			mBundle = getArguments();
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState == null, getArguments() mBundle=" + mBundle);
+		} else {
+			mBundle = savedInstanceState.getBundle(TAG);
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundle);
+		}
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
 		getActivity().setTitle(R.string.button_maintenance_point);
 		mMaintenancePoint = new ArrayList<MaintenancePointBean>();
 		mMalPointAdapter = new MalPointAdapter(getActivity());
@@ -119,19 +127,6 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 
 	@Override
 	public void updateInfoInterface(InfoInterface infoInterface) {
-		if (infoInterface instanceof BaoxiuCardObject) {
-			if (infoInterface != null) {
-				mBaoxiuCardObject = (BaoxiuCardObject)infoInterface;
-			}
-		} else if (infoInterface instanceof HomeObject) {
-			if (infoInterface != null) {
-				mHomeObject = (HomeObject)infoInterface;
-			}
-		} else if (infoInterface instanceof AccountObject) {
-			if (infoInterface != null) {
-				long uid = ((AccountObject)infoInterface).mAccountUid;
-			}
-		}		
 	}
 
 	@Override
@@ -442,4 +437,10 @@ public class NearestMaintenancePointFragment extends ModleBaseFragment implement
 			mLoadState = STATE_FREASH_CANCEL;
 		}
 	}
+
+	@Override
+    public void updateArguments(Bundle args) {
+	    // TODO Auto-generated method stub
+	    
+    }
 }

@@ -382,11 +382,17 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				return;
 			}
 			//判断是否有保修卡
+			
 			if (MyAccountManager.getInstance().hasBaoxiuCards()) {
-				MyChooseDevicesActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
+				Bundle bundle = ModleSettings.createMyCardDefaultBundle(this);
+				bundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
+				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+				MyChooseDevicesActivity.startIntent(this, bundle);
 			} else {
-				HomeObject.setHomeObject(MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
-				NewCardActivity.startIntent(this, ModleSettings.createMyCardDefaultBundle(this));
+				Bundle bundle = ModleSettings.createMyCardDefaultBundle(this);
+				bundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
+				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+				NewCardActivity.startIntent(this, bundle);
 			}
 			break;
 		case R.id.button_telecontrol:

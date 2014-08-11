@@ -35,15 +35,12 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 	private Bundle mBundles;
 	/**表示是否是第一次进入*/
 	private boolean mIsFirstOnResume = true;
-	private boolean mRecreated = false;
 	private static final String  KEY_FIRST_SHOW = "NewCardActivity.first";
 	
 	/**
 	 * 仅仅用作新建的时候并没有登录，这会导致我们需要前往登录/注册界面，一旦登录成功后会返回该界面这个过程使用，其余情况请忽略改变量.
 	 */
 	private boolean mHasRegistered = false;	
-	private BaoxiuCardObject mBaoxiuCardObject;
-	private HomeObject mHomeObject;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,29 +49,12 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 			return ;
 		}
 		
-		mRecreated = false;
 		if (savedInstanceState != null) {
-			mContent = (ModleBaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
-			mMenu = (NewCardChooseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mMenu");
+			mContent = (ModleBaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mContent-wuyi");
+			mMenu = (NewCardChooseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mMenu-wuyi");
 			DebugUtils.logW(TAG, "onCreate() savedInstanceState != null, we try to get Fragment from FragmentManager, mContent=" + mContent + ", mMenu=" + mMenu);
-			
-			long aid = savedInstanceState.getLong("aid", -1);
-			long bid = savedInstanceState.getLong("bid", -1);
-			DebugUtils.logW(TAG, "onCreate() savedInstanceState != null, we try to get aid=" + aid + ", bid=" + bid);
-			ContentResolver cr = getContentResolver();
-			long uid = MyAccountManager.getInstance().getCurrentAccountId();
-			if (bid != -1) {
-				mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(cr, uid, aid, bid);
-				DebugUtils.logD(TAG, "getBaoxiuCardObject uid=" + uid + ", aid=" + aid + ", bid=" + bid + ", this=" + mBaoxiuCardObject);
-			}
-			if (aid != -1) {
-				mHomeObject = HomeObject.getHomeObject(cr, uid, aid);
-				DebugUtils.logD(TAG, "getHomeObject uid=" + uid + ", aid=" + aid + ", this=" + mHomeObject);
-			}
-			mRecreated = true;
-		} else {
-			mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
-			mHomeObject = HomeObject.getHomeObject();
+			mBundles = savedInstanceState.getBundle(TAG);
+			DebugUtils.logW(TAG, "onCreate() savedInstanceState != null, we try to restore mBundles=" + mBundles);
 		}
 		int type = mBundles.getInt(Intents.EXTRA_TYPE);
 		if (mContent == null) {
@@ -82,17 +62,9 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 			case R.id.model_my_card:
 				mContent = new NewWarrantyCardFragment();
 				break;
-			case R.id.model_install:
-				mContent = new NewInstallCardFragment();
-				break;
 			case R.id.model_repair:
 				mContent = new NewRepairCardFragment();
 				break;
-				// add by chenkai, 增加预约保养Fragment, 2014.05.31 begin
-			case R.id.model_maintenance:
-				mContent = new NewMaintenanceCardFragment();
-				break;
-				// add by chenkai, 增加预约保养Fragment, 2014.05.31 end
 			}
 			mContent.setArguments(mBundles);
 			// set the Above View
@@ -188,22 +160,13 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (mIsFirstOnResume || mRecreated) {
-			//更新产品信息
-			mContent.updateInfoInterface(mBaoxiuCardObject);
-			//更新家信息
-			mContent.updateInfoInterface(mHomeObject);
-			//更新联系人信息，默认是用的账户信息
-			mContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
-			mIsFirstOnResume = false;
-		}
-		//add by chenkai, 如果已经前往登录过了，我们需要重新将账户信息和默认家信息填充.
 		if (mHasRegistered) {
 			mHasRegistered = false;
-			mHomeObject = MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0);
-			mContent.updateInfoInterface(mHomeObject);
+			mBundles.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
 			//更新联系人信息，默认是用的账户信息
-			mContent.updateInfoInterface(MyAccountManager.getInstance().getAccountObject());
+			mBundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+			DebugUtils.logD(TAG, "onResume updateArguments()" + mBundles);
+			mContent.updateArguments(mBundles);
 		}
 		
 		boolean first = MyApplication.getInstance().mPreferManager.getBoolean(KEY_FIRST_SHOW, true);
@@ -308,6 +271,8 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 		mBundles = intent.getExtras();
 		if (mBundles == null) {
 			DebugUtils.logD(TAG, "checkIntent failed, due to mBundles is null");
+		} else {
+			DebugUtils.logD(TAG, "checkIntent true, find mBundles=" + mBundles);
 		}
 		return mBundles != null;
 	}
@@ -316,13 +281,10 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		DebugUtils.logW(TAG, "onSaveInstanceState(), we try to save Fragment to FragmentManager, mContent=" + mContent + ", mMenu=" + mMenu);
-		getSupportFragmentManager().putFragment(outState, "mContent", mContent);
-		getSupportFragmentManager().putFragment(outState, "mMenu", mMenu);
-		long aid = mHomeObject != null ? mHomeObject.mHomeAid : -1;
-		long bid = mBaoxiuCardObject != null ? mBaoxiuCardObject.mBID : -1;
-		DebugUtils.logW(TAG, "onSaveInstanceState(), we try to save aid=" + aid + ", bid=" + bid);
-		outState.putLong("aid", aid);
-		outState.putLong("bid", bid);
+		getSupportFragmentManager().putFragment(outState, "mContent-wuyi", mContent);
+		getSupportFragmentManager().putFragment(outState, "mMenu-wuyi", mMenu);
+		outState.putBundle(TAG, mBundles);
+		DebugUtils.logW(TAG, "onSaveInstanceState(), we try to save mBundles=" + mBundles);
 	}
 	
 }

@@ -101,9 +101,15 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		};
 		BaoxiuCardObject.showBill(getActivity(), null);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
-		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject();
-		mHomeObject = HomeObject.getHomeObject();
-		mBundles = getArguments();
+		if (savedInstanceState != null) {
+			mBundles = savedInstanceState.getBundle(TAG);
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundles);
+		} else {
+			mBundles = getArguments();
+		}
+		
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundles);
+		mHomeObject = HomeObject.getHomeObject(mBundles);
 	}
 	
 	@Override
@@ -503,5 +509,17 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			}
 		}
 		//add by chenkai, for Usage, 2014.05.31, end
+
+		@Override
+        public void updateArguments(Bundle args) {
+	        
+        }
+		
+		@Override
+		public void onSaveInstanceState(Bundle outState) {
+			super.onSaveInstanceState(outState);
+			outState.putBundle(TAG, mBundles);
+			DebugUtils.logD(TAG, "onSaveInstanceState(), we try to save mBundles=" + mBundles);
+		}
 
 }

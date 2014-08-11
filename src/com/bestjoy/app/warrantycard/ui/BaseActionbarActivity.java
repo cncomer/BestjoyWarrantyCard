@@ -40,7 +40,6 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
 		//abs__home
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
-		
 		DebugUtils.logD(TAG, "onCreate()");
 		if (!checkIntent(getIntent())) {
 			finish();

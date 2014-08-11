@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,28 +80,50 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	
 	private BaoxiuCardObject mBaoxiuCardObject;
 	private Handler mHandler;
-	private boolean mNeedLoadFapiao = false;
+	private Bundle mBundle;
 
+	private boolean mNeedLoadFapiao = false;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
 		setHasOptionsMenu(true);
 		mCalendar = Calendar.getInstance();
-		mBaoxiuCardObject = new BaoxiuCardObject();
-		//清理一遍可能存在的临时发票资源
-		mBaoxiuCardObject.clear();
-		mHandler = new Handler();
+		if (savedInstanceState == null) {
+			mBundle = getArguments();
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState == null, getArguments() mBundle=" + mBundle);
+		} else {
+			mBundle = savedInstanceState.getBundle(TAG);
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundle);
+		}
+		mHandler = new Handler() {
+
+			@Override
+			public void handleMessage(Message msg) {
+				super.handleMessage(msg);
+				DebugUtils.logD(TAG, "handleMessage() loadFapiaoFromCameraAsync");
+				loadFapiaoFromCameraAsync();
+			}
+			
+		};
 		initTempFile();
+		
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
 	}
-	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		DebugUtils.logD(TAG, "onSaveInstanceState() save mBundle=" + mBundle);
+		outState.putBundle(TAG, mBundle);
+	}
 	@Override
 	public void onResume() {
 		super.onResume();
 		DebugUtils.logD(TAG, "onResume() mNeedLoadFapiao=" + mNeedLoadFapiao + ", mBillTempFile=" + mBillTempFile);
 		if (mNeedLoadFapiao) {
-			mNeedLoadFapiao = false;
-			loadFapiaoFromCameraAsync();
+			DebugUtils.logD(TAG, "onResume() removeMessages REQUEST_BILL, sendEmptyMessage REQUEST_BILL");
+			mHandler.removeMessages(REQUEST_BILL);
+			mHandler.sendEmptyMessageDelayed(REQUEST_BILL, 500);
 		}
 		
 	}
@@ -109,7 +132,6 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		File tempRootDir = Environment.getExternalStorageDirectory();
 		mBillTempFile = new File(tempRootDir, ".billTemp");
 		mAvatorTempFile = new File(tempRootDir, ".avatorTemp");
-		
 		
 	}
 	
@@ -152,6 +174,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 
 		view.findViewById(R.id.button_scan_qrcode).setOnClickListener(this);
 		view.findViewById(R.id.menu_choose).setOnClickListener(this);
+		populateBaoxiuInfoView();
 		return view;
 	}
 
@@ -166,14 +189,15 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		super.onDestroyView();
 		PhotoManagerUtilsV2.getInstance().releaseToken(TOKEN);
 		BaoxiuCardObject.showBill(getActivity(), null);
+		DebugUtils.logD(TAG, "onDestroyView() mNeedLoadFapiao=" + mNeedLoadFapiao + ", mBillTempFile=" + mBillTempFile);
+		AsyncTaskUtils.cancelTask(mLoadFapiaoTask);
 	}
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		DebugUtils.logD(TAG, "onDestroy() mNeedLoadFapiao=" + mNeedLoadFapiao + ", mBillTempFile=" + mBillTempFile);
 		mBillImageView.setImageBitmap(null);
-		mBaoxiuCardObject.clear();
-		removeDialog(DIALOG_PROGRESS);
 	}
 	
 	@Override
@@ -208,9 +232,9 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		return mBaoxiuCardObject.mBID > 0;
 	}
 	
-	private void populateBaoxiuInfoView(BaoxiuCardObject object) {
+	private void populateBaoxiuInfoView() {
 		//init layouts
-		if (object == null) {
+		if (!isEditable()) {
 			mTypeInput.getText().clear();
 			mPinpaiInput.getText().clear();
 			mModelInput.getText().clear();
@@ -225,43 +249,37 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			mYanbaoTelInput.getText().clear();
 			mTagInput.getText().clear();
 		} else {
-			mTypeInput.setText(object.mLeiXin);
-			mPinpaiInput.setText(object.mPinPai);
-			mModelInput.setText(object.mXingHao);
-			mBianhaoInput.setText(object.mSHBianHao);
+			mTypeInput.setText(mBaoxiuCardObject.mLeiXin);
+			mPinpaiInput.setText(mBaoxiuCardObject.mPinPai);
+			mModelInput.setText(mBaoxiuCardObject.mXingHao);
+			mBianhaoInput.setText(mBaoxiuCardObject.mSHBianHao);
 			
-			mBaoxiuTelInput.setText(object.mBXPhone);
-			mWyInput.setText(object.mWY);
-			mPriceInput.setText(object.mBuyPrice);
+			mBaoxiuTelInput.setText(mBaoxiuCardObject.mBXPhone);
+			mWyInput.setText(mBaoxiuCardObject.mWY);
+			mPriceInput.setText(mBaoxiuCardObject.mBuyPrice);
 			//mTujingInput.setText(object.mBuyTuJing);
-			mTujingPopView.setText(object.mBuyTuJing);
-			mYanbaoPopView.setText(object.mYanBaoTime);
-			mYanbaoComponyInput.setText(object.mYanBaoDanWei);
-			mYanbaoTelInput.setText(object.mYBPhone);
-			mTagInput.setText(object.mCardName);
-			//传递进来的，我们还需要读取发票数据
-			mBaoxiuCardObject = object.clone();
-			//清理一遍可能存在的临时发票资源
-			mBaoxiuCardObject.clear();
+			mTujingPopView.setText(mBaoxiuCardObject.mBuyTuJing);
+			mYanbaoPopView.setText(mBaoxiuCardObject.mYanBaoTime);
+			mYanbaoComponyInput.setText(mBaoxiuCardObject.mYanBaoDanWei);
+			mYanbaoTelInput.setText(mBaoxiuCardObject.mYBPhone);
+			mTagInput.setText(mBaoxiuCardObject.mCardName);
 			
 			try {
-				Date date = BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(object.mBuyDate);
+				Date date = BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate);
 				mCalendar.setTime(date);
 				mDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(date));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 			
-			if (isEditable()) {
-				//如果有发票，我们显示出来
-				if (mBaoxiuCardObject.hasBillAvator()) {
-					PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mBillImageView, mBaoxiuCardObject.getFapiaoPhotoId(), null, PhotoManagerUtilsV2.TaskType.FaPiao);
-				}
-				
-				//设置标题为编辑保修卡
-				getActivity().setTitle(R.string.button_edit_card);
-				mSaveBtn.setText(R.string.button_update);
+			//如果有发票，我们显示出来
+			if (mBaoxiuCardObject.hasBillAvator()) {
+				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mBillImageView, mBaoxiuCardObject.getFapiaoPhotoId(), null, PhotoManagerUtilsV2.TaskType.FaPiao);
 			}
+			
+			//设置标题为编辑保修卡
+			getActivity().setTitle(R.string.button_edit_card);
+			mSaveBtn.setText(R.string.button_update);
 		}
 		
 	}
@@ -779,23 +797,12 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	
 	@Override
 	public void updateInfoInterface(InfoInterface infoInterface) {
-		if (infoInterface instanceof BaoxiuCardObject) {
-			populateBaoxiuInfoView((BaoxiuCardObject)infoInterface);
-		} else if (infoInterface instanceof HomeObject) {
-			if (infoInterface != null) {
-				long aid = ((HomeObject)infoInterface).mHomeAid;
-				if (aid > 0) {
-					mBaoxiuCardObject.mAID = aid;
-				}
-			}
-		} else if (infoInterface instanceof AccountObject) {
-			if (infoInterface != null) {
-				long uid = ((AccountObject)infoInterface).mAccountUid;
-				if (uid > 0) {
-					mBaoxiuCardObject.mUID = uid;
-				}
-			}
-		}
+	}
+	@Override
+	public void updateArguments(Bundle bundle) {
+		mBundle = bundle;
+		mBaoxiuCardObject.mAID = mBundle.getLong("aid", -1);
+		mBaoxiuCardObject.mUID = mBundle.getLong("uid", -1);
 	}
 	
 	private LoadFapiaoTask mLoadFapiaoTask;
@@ -817,6 +824,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
+			DebugUtils.logW(TAG, "LoadFapiaoTask doInBackground()");
 			int tryTime = 0;
 			while (tryTime < 2) {
 				try {
@@ -834,6 +842,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		@Override
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
+			DebugUtils.logW(TAG, "LoadFapiaoTask onPostExecute()");
 			dismissDialog(DIALOG_PROGRESS);
 			if (result) {
 				mBillImageView.setImageBitmap(mBaoxiuCardObject.mBillTempBitmap);
@@ -846,13 +855,16 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				.setPositiveButton(R.string.button_ok, null)
 				.show();
 			}
+			mNeedLoadFapiao = false;
 			
 		}
 
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
+			DebugUtils.logW(TAG, "LoadFapiaoTask onCancelled()");
 			dismissDialog(DIALOG_PROGRESS);
+			mNeedLoadFapiao = false;
 		}
 		
 	}

@@ -58,7 +58,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	//private ProCityDisEditView mProCityDisEditView;
 	//private HaierProCityDisEditPopView mProCityDisEditPopView;
 	private BaoxiuCardObject mBaoxiuCardObject;
-	private HomeObject mHomeObject;
 	private AccountObject mAccountObject;
 	//预约信息
 	private TextView mYuyueDate, mYuyueTime;
@@ -70,9 +69,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private Button mSpeakButton;
 	private SpeechRecognizerEngine mSpeechRecognizerEngine;
 	
-	private long mAid = -1;
-	private long mUid = -1;
-	private long mBid = -1;
 	
 	private ScrollView mScrollView;
 	private RadioButton mRepairRadioButton;
@@ -80,12 +76,21 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
 	/**预约类型T01为安装 T02为维修, T15为保养, 默认是维修，注意修改默认值需要同步修改布局文件的checked对应的RadioButton*/
 	private String mYuyueType = "T02";
+	private Bundle mBundle;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		getActivity().setTitle(R.string.activity_title_repair);
 		mCalendar = Calendar.getInstance();
+		if (savedInstanceState == null) {
+			mBundle = getArguments();
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState == null, getArguments() mBundle=" + mBundle);
+		} else {
+			mBundle = savedInstanceState.getBundle(TAG);
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundle);
+		}
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
 	}
 	
 	@Override
@@ -142,9 +147,9 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 //mYuyueTime.setText(DateUtils.TOPIC_TIME_FORMAT.format(mCalendar.getTime()));
 		 mYuyueDate.setOnClickListener(this);
 		 mYuyueTime.setOnClickListener(this);
-		 populateBaoxiuInfoView(mBaoxiuCardObject);
-		 populateHomeInfoView(mHomeObject);
-		 populateContactInfoView(mAccountObject);
+		 populateBaoxiuInfoView();
+		 populateHomeInfoView(HomeObject.getHomeObject(mBundle));
+	     populateContactInfoView(MyAccountManager.getInstance().getAccountObject().clone());
 		return view;
 	}
 
@@ -153,10 +158,10 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		super.onViewCreated(view, savedInstanceState);
 	}
 	
-	private void populateBaoxiuInfoView(BaoxiuCardObject baoxiuCardObject) {
+	private void populateBaoxiuInfoView() {
 		//init layouts
-		mProductNameView.setText(baoxiuCardObject.mLeiXin);
-		mProductInfoVew.setText(baoxiuCardObject.mPinPai + " " + baoxiuCardObject.mXingHao);
+		mProductNameView.setText(mBaoxiuCardObject.mLeiXin);
+		mProductInfoVew.setText(mBaoxiuCardObject.mPinPai + " " + mBaoxiuCardObject.mXingHao);
 	}
 	
 	public void setBaoxiuObjectAfterSlideMenu(InfoInterface slideManuObject) {
@@ -170,16 +175,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
     	mAccountInfoView.setText(accountObject.mAccountName + " " + accountObject.mAccountTel);
 	}
 
-	public BaoxiuCardObject getBaoxiuCardObject() {
-		BaoxiuCardObject baoxiuCardObject = new BaoxiuCardObject();
-		
-		return baoxiuCardObject;
-	}
-	
-	public AccountObject getContactInfoObject() {
-		AccountObject contactInfoObject = new AccountObject();
-		return contactInfoObject;
-	}
 
 	@Override
 	public void onClick(View v) {
@@ -203,46 +198,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			//如果内容为空，我们显示侧边栏
 			((NewCardActivity) getActivity()).getSlidingMenu().showMenu(true);
 			break;
-		case R.id.button_malfunction:
-			break;
-		case R.id.button_maintenance_point:
-		case R.id.button_maintenance_componnet:
-			if (true) {
-				MyApplication.getInstance().showUnsupportMessage();
-				return;
-			}
-			//目前只有海尔支持预约安装和预约维修，如果不是，我们需要提示用户
-	    	if (ServiceObject.isHaierPinpai(mBaoxiuCardObject.mPinPai)) {
-	    		BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
-    			HomeObject.setHomeObject(mHomeObject);
-//    			if (id == R.id.button_onekey_install) {
-//    				ModleSettings.doChoose(getActivity(), ModleSettings.createMyInstallDefaultBundle(getActivity()));
-//    			} else if (id == R.id.button_onekey_repair) {
-//    				ModleSettings.doChoose(getActivity(), ModleSettings.createMyRepairDefaultBundle(getActivity()));
-//    			}
-    			
-    			getActivity().finish();
-	    	} else {
-	    		new AlertDialog.Builder(getActivity())
-		    	.setMessage(R.string.must_haier_confirm_yuyue)
-		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
-							Intents.callPhone(getActivity(), mBaoxiuCardObject.mBXPhone);
-						} else {
-							MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
-						}
-						
-					}
-				})
-				.setNegativeButton(android.R.string.cancel, null)
-				.show();
-	    	}
-			break;
 		}
-		
 	}
 
 	private void createRepairCard() {
@@ -284,6 +240,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		protected Boolean doInBackground(String... params) {
 			mError = null;
 			InputStream is = null;
+			HomeObject homeObject = HomeObject.getHomeObject(mBundle);
 			final int LENGTH = 14;
 			String[] urls = new String[LENGTH];
 			String[] paths = new String[LENGTH];
@@ -302,9 +259,9 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			urls[6] = "&Cell=";
 			paths[6] = MyAccountManager.getInstance().getAccountObject().mAccountTel;
 			urls[7] = "&address=";
-			paths[7] = mHomeObject.mHomePlaceDetail;
+			paths[7] = homeObject.mHomePlaceDetail;
 			urls[8] = "&dstrictid=";
-			paths[8] = HomeObject.getDisID(getActivity().getContentResolver(), mHomeObject.mHomeProvince, mHomeObject.mHomeCity, mHomeObject.mHomeDis);
+			paths[8] = HomeObject.getDisID(getActivity().getContentResolver(), homeObject.mHomeProvince, homeObject.mHomeCity, homeObject.mHomeDis);
 			urls[9] = "&yytime=";
 			paths[9] = BaoxiuCardObject.BUY_DATE_FORMAT_YUYUE_TIME.format(mCalendar.getTime());
 			urls[10] = "&Desc=";
@@ -651,29 +608,10 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 	@Override
 	public void updateInfoInterface(InfoInterface infoInterface) {
-		if (infoInterface instanceof BaoxiuCardObject) {
-			if (infoInterface != null) {
-				mBid = ((BaoxiuCardObject)infoInterface).mBID;
-				mAid = ((BaoxiuCardObject)infoInterface).mAID;
-				mUid = ((BaoxiuCardObject)infoInterface).mUID;
-				mBaoxiuCardObject = (BaoxiuCardObject)infoInterface;
-			}
-		} else if (infoInterface instanceof HomeObject) {
-			if (infoInterface != null) {
-				mHomeObject = (HomeObject)infoInterface;
-				long aid = mHomeObject.mHomeAid;
-				if (aid > 0) {
-					mAid = aid;
-				}
-			}
-		} else if (infoInterface instanceof AccountObject) {
-			if (infoInterface != null) {
-				long uid = ((AccountObject)infoInterface).mAccountUid;
-				if (uid > 0) {
-					mUid = uid;
-				}
-				mAccountObject = (AccountObject)infoInterface;
-			}
-		}
 	}
+
+	@Override
+    public void updateArguments(Bundle args) {
+	    
+    }
 }
