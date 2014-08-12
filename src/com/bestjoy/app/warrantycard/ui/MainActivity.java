@@ -486,10 +486,15 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				}
 				//判断是否有保修卡
 				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
-					MyChooseDevicesActivity.startIntent(mContext, ModleSettings.createMyCardDefaultBundle(mContext));
+					Bundle newBundle = ModleSettings.createMyCardDefaultBundle(mContext);
+					newBundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
+					newBundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					MyChooseDevicesActivity.startIntent(mContext, newBundle);
 				} else {
-					HomeObject.setHomeObject(MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0));
-					NewCardActivity.startIntent(mContext, ModleSettings.createMyCardDefaultBundle(mContext));
+					Bundle newBundle = ModleSettings.createMyCardDefaultBundle(mContext);
+					newBundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
+					newBundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					NewCardActivity.startIntent(mContext, newBundle);
 				}
 	        } else {
 	        	MyApplication.getInstance().showMessage(result.mStatusMessage);
