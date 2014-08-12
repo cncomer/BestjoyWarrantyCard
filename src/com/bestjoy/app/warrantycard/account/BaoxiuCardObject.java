@@ -512,7 +512,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 			}
 			
 			try {
-				int validity = (int) ((Float.valueOf(mWY) + Float.valueOf(mYanBaoTime)) * 365 + 0.5f);
+				int validity = (int) ((Float.valueOf(mWY) + Float.valueOf(mYanBaoTime)) * 365);
 				//转换购买日期
 				Date buyDate = BUY_DATE_TIME_FORMAT.parse(mBuyDate);
 				//当前日期
@@ -545,7 +545,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 				//可能会是空的字串，我们就当做0天
 				mComponentValidity = 0;
 			} else {
-				int validity = (int) (Float.valueOf(mZhuBx) * 365 + 0.5f);
+				int validity = (int) (Float.valueOf(mZhuBx) * 365);
 				try {
 					//转换购买日期
 					Date buyDate = BUY_DATE_TIME_FORMAT.parse(mBuyDate);
