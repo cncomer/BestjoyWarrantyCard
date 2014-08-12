@@ -30,6 +30,7 @@ import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
@@ -167,6 +168,8 @@ public class LoginOrUpdateAccountDialog extends Activity{
 				//如果登陆成功
 				if (mAccountObject.isLogined()) {
 					setResult(Activity.RESULT_OK);
+					//每次登陆，我们都需要注册设备Token
+					YouMengMessageHelper.getInstance().saveDeviceTokenStatus(false);
 					//登录成功，我们需要检查是否能够上传设备Token到服务器绑定uid和token
 					UpdateService.startCheckDeviceTokenToService(LoginOrUpdateAccountDialog.this);
 				} else {
