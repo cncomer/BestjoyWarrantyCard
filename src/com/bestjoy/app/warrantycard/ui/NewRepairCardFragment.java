@@ -149,7 +149,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 mYuyueTime.setOnClickListener(this);
 		 populateBaoxiuInfoView();
 		 populateHomeInfoView(HomeObject.getHomeObject(mBundle));
-	     populateContactInfoView(MyAccountManager.getInstance().getAccountObject().clone());
+	     populateContactInfoView(MyAccountManager.getInstance().getAccountObject());
 		return view;
 	}
 
