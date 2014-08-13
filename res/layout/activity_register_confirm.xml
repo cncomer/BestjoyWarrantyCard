@@ -49,7 +49,8 @@
 			        android:text="@string/usr_pwd"/>
 			    <EditText android:id="@+id/password_input"
 			        android:hint="@string/hint_input_password"
-			        android:inputType="textPassword"
+			        android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^*()_&amp;"
+                    android:inputType="textPassword"
 			        style="@style/ProductInfoInput"/>
 			</LinearLayout>
 	
@@ -62,7 +63,8 @@
 			        android:text="@string/usr_repwd"/>
 			    <EditText android:id="@+id/confirm_password_input"
 			        android:hint="@string/hint_input_confirm_password"
-			        android:inputType="textPassword"
+			        android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^*()_&amp;"
+                    android:inputType="textPassword"
 			        style="@style/ProductInfoInput"/>
 			</LinearLayout>
 			

@@ -115,13 +115,7 @@ public final class HaierParsedResult extends ParsedResult {
 		 	       	    	if (!"1".equals(msgCode)) error = nextTextElement(parser);
 		       		    } else if ("Brand".equals(tag)) {
 		 	       	    	baoxiuCardObject.mPinPai = nextTextElement(parser);
-		 	       	    	if (ServiceObject.isHaierPinpai(baoxiuCardObject.mPinPai)) {
-		 	       	    		//如果是海尔品牌，我们自动填入售后服务电话
-		 	       	    	    baoxiuCardObject.mBXPhone = ServiceObject.BX_PHONE_HAIER;
-		 	       	    	} else if (ServiceObject.isKasadiPinpai(baoxiuCardObject.mPinPai)) {
-		 	       	    		//如果是卡萨帝品牌，我们自动填入售后服务电话
-		 	       	    	    baoxiuCardObject.mBXPhone = ServiceObject.BX_PHONE_KASADI;
-		 	       	    	}
+		 	       	        baoxiuCardObject.mBXPhone = ServiceObject.getBXPhoneHaierPinpaiGenaral(baoxiuCardObject.mPinPai, "");
 		       		    } else if ("Class".equals(tag)) {
 		       		    	String classContent = nextTextElement(parser);
 		       		    	if (!TextUtils.isEmpty(classContent)) {

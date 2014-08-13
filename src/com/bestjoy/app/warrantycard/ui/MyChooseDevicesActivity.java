@@ -258,7 +258,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 	    } else {
 	    	//目前只有海尔支持预约安装和预约维修，如果不是，我们需要提示用户
 	    	//卡萨帝品牌和海尔品牌一样处理,是海尔的品牌
-	    	if (ServiceObject.isHaierPinpai(card.mPinPai) || ServiceObject.isKasadiPinpai(card.mPinPai)) {
+	    	if (ServiceObject.isHaierPinpaiGenaral(card.mPinPai)) {
 			    ModleSettings.doChoose(mContext, newBundle);
 	    	} else {
 	    		new AlertDialog.Builder(mContext)
