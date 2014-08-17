@@ -257,12 +257,12 @@
 
                 <Button
                     android:id="@+id/button_save"
-                    android:layout_width="fill_parent"
+                    style="@style/DefaultShapeButton.Blue"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="60dip"
                     android:layout_marginTop="10dip"
-                    android:background="@drawable/default_blue_btn"
                     android:gravity="center"
                     android:padding="6dip"
                     android:text="@string/button_save"

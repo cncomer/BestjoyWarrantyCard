@@ -38,12 +38,13 @@
             android:text="@string/product_debug_placeholder"/>
     </LinearLayout>
     
-     <ImageView android:id="@+id/flag_guobao"
+     <TextView android:id="@+id/flag_guobao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/flag_guobao"
+        android:background="@drawable/flag_guobao"
         android:visibility="gone"
-        android:scaleType="fitCenter"/>
+        android:text="@string/title_over_deadline"
+        android:textColor="#ffffffff"/>
     
     <TextView android:id="@+id/flag_baoxiu"
         android:layout_width="wrap_content"

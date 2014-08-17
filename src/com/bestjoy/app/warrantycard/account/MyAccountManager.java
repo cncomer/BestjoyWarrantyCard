@@ -94,6 +94,14 @@ public class MyAccountManager {
 	public AccountObject getAccountObject() {
 		return mHaierAccount;
 	}
+	public long getHomeAIdAtPosition(int position) {
+		long homeAid = -1;
+		if (mHaierAccount != null && mHaierAccount.mAccountHomes.size() > 0) {
+			homeAid = mHaierAccount.mAccountHomes.get(position).mHomeAid;
+		}
+		DebugUtils.logD(TAG, "getHomeAIdAtPosition() position=" + position + ", mHaierAccount=" + mHaierAccount + ", mAccountHomes=" + mHaierAccount.mAccountHomes.size() + ", homeAid=" + homeAid);
+		return homeAid;
+	}
 	
 	public String getDefaultPhoneNumber() {
 		return mHaierAccount != null ? mHaierAccount.mAccountTel : null;

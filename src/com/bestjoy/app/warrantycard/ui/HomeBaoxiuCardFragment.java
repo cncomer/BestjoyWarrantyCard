@@ -34,7 +34,7 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 	private CardsAdapter mCardsAdapter;
 	private OnBaoxiuCardItemClickListener mOnItemClickListener;
 	
-	private ContentObserver mContentObserver;
+//	private ContentObserver mContentObserver;
 	
 	private long mAid = -1, mUid = -1;
 	
@@ -66,13 +66,13 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 			loadCardsAsync();
 		}
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
-		mContentObserver = new ContentObserver(new Handler()) {
-			@Override
-			public void onChange(boolean selfChange) {
-				super.onChange(selfChange);
-				loadCardsAsync();
-			}
-		};
+//		mContentObserver = new ContentObserver(new Handler()) {
+//			@Override
+//			public void onChange(boolean selfChange) {
+//				super.onChange(selfChange);
+//				loadCardsAsync();
+//			}
+//		};
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 		mCardsAdapter = new CardsAdapter(getActivity(), null, true);
 		mListView.setAdapter(mCardsAdapter);
 		mListView.setOnItemClickListener(this);
-		getActivity().getContentResolver().registerContentObserver(BjnoteContent.BaoxiuCard.CONTENT_URI, true, mContentObserver);
+//		getActivity().getContentResolver().registerContentObserver(BjnoteContent.BaoxiuCard.CONTENT_URI, true, mContentObserver);
 		return view;
 	}
 	
@@ -110,7 +110,7 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 		super.onDestroyView();
 		AsyncTaskUtils.cancelTask(mLoadCardsTask);
 		mCardsAdapter.changeCursor(null);
-		getActivity().getContentResolver().unregisterContentObserver(mContentObserver);
+//		getActivity().getContentResolver().unregisterContentObserver(mContentObserver);
 	}
 
 	private LoadCardsTask mLoadCardsTask;
@@ -144,6 +144,14 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 		public CardsAdapter(Context context, Cursor c, boolean autoRequery) {
 			super(context, c, autoRequery);
 		}
+		
+		@Override
+        protected void onContentChanged() {
+			DebugUtils.logD(TOKEN, "chenkai onContentChanged()");
+	        super.onContentChanged();
+        }
+
+
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -160,7 +168,7 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 				holder._pinpai = (TextView) view.findViewById(R.id.pinpai);
 				holder._xinghao = (TextView) view.findViewById(R.id.xinghao);
 				holder._flag_baoxiu = (TextView) view.findViewById(R.id.flag_baoxiu);
-				holder._flag_guobao = (ImageView) view.findViewById(R.id.flag_guobao);
+				holder._flag_guobao = (TextView) view.findViewById(R.id.flag_guobao);
 				holder._avator = (ImageView) view.findViewById(R.id.avator);
 				view.setTag(holder);
 			}
@@ -196,9 +204,9 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 	
 	private static final class ViewHolder {
 		//分别是保修卡名字，品牌， 型号， 部件保修剩余时间， 整机保修剩余时间
-		private TextView _tag, _pinpai, _xinghao;
+		private TextView _tag, _pinpai, _xinghao, _flag_guobao;
 		//分别是部件保修和整机保修布局(整个)
-		private ImageView _avator, _flag_guobao;
+		private ImageView _avator;
 		private TextView _flag_baoxiu;
 		private BaoxiuCardObject _card;
 		

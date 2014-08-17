@@ -45,6 +45,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 	private MyPagerAdapter mMyPagerAdapter;
 	
 	private ContentObserver mContentObserver;
+	private boolean mSaveAndNeedUpdateCard = false;
 
 	@Override
 	protected boolean checkIntent(Intent intent) {
@@ -95,6 +96,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		DebugUtils.logD(TAG, "onDestroy()");
 		getContentResolver().unregisterContentObserver(mContentObserver);
 	}
 	

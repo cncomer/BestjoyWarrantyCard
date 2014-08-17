@@ -295,6 +295,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			 mModelInput.setText(object.mXingHao);
 			 mBaoxiuTelInput.setText(object.mBXPhone);
 			 mWyInput.setText(object.mWY);
+			 mBaoxiuCardObject.mKY = object.mKY;
 //			if (!TextUtils.isEmpty(object.mLeiXin)) {
 //				mTypeInput.setText(object.mLeiXin);
 //			}
@@ -371,6 +372,9 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 //				MyApplication.getInstance().showMessage(R.string.msg_cant_show_bill);
 //			}
 			 if (ComConnectivityManager.getInstance().isConnected()) {
+				 if (!checkInput()) {
+					 return;
+				 }
 				 if (isEditable()) {
 						updateWarrantyCardAsync();
 					} else {
@@ -518,7 +522,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				getActivity().finish();
 				mBaoxiuCardObject.clear();
-				MyChooseDevicesActivity.startIntent(getActivity(), getArguments());
+				mBundle.putBoolean("op", true);
+				MyChooseDevicesActivity.startIntent(getActivity(), mBundle);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
@@ -573,7 +578,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		protected ServiceResultObject doInBackground(Void... params) {
 			//更新保修卡信息
 			BaoxiuCardObject baoxiuCardObject = getmBaoxiuCardObject();
-			DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask BID " + baoxiuCardObject.mBID);
+			DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask BID " + baoxiuCardObject.mBID+", ky=" + baoxiuCardObject.mKY);
 			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			InputStream is = null;
 			//delete by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 begin
@@ -621,18 +626,22 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				
 				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 				if (serviceResultObject.isOpSuccessfully()) {
-					//将临时图片存成发票
-					boolean savedBill = baoxiuCardObject.saveBillAvatorTempFileLocked();
-					if (savedBill) {
-						baoxiuCardObject.mFPaddr = "1";
-					}
-					boolean updated = baoxiuCardObject.saveInDatebase(getActivity().getContentResolver(), null);
-					if (!updated) {
-						//通常不会发生
-						DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask " + getActivity().getString(R.string.msg_local_save_card_failed));
-					} else {
-						//更新家以便设备列表能够看到
-						MyAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
+					if (serviceResultObject.mJsonData != null) {
+						baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(serviceResultObject.mJsonData, accountObject);
+						//如果后台返回了保修卡数据,我们解析它保存在本地
+						DebugUtils.logE(TAG, "updated BID=" + baoxiuCardObject.mBID);
+						if (baoxiuCardObject.mBID > 0) {
+							//正常情况
+							boolean updated = baoxiuCardObject.saveInDatebase(getActivity().getContentResolver(), null);
+							if (!updated) {
+								//通常不会发生
+								DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask " + getActivity().getString(R.string.msg_local_save_card_failed));
+								serviceResultObject.mStatusMessage = getActivity().getString(R.string.msg_local_save_card_failed);
+							} else {
+								MyAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
+							}
+							return serviceResultObject;
+						}
 					}
 				}
 						

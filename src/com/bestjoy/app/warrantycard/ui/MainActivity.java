@@ -10,7 +10,6 @@ import org.json.JSONException;
 
 import android.app.AlertDialog;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,11 +19,9 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,21 +35,17 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
-import com.bestjoy.app.warrantycard.database.BjnoteContent;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
-import com.bestjoy.app.warrantycard.utils.DialogUtils;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.NetworkUtils;
-import com.umeng.message.PushAgent;
-import com.umeng.message.UmengRegistrar;
 
 public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
 	private static final String TAG = "MainActivity";
@@ -368,6 +361,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 									loadDemoCardDataAsync();
 								}
 							})
+							.setNegativeButton(android.R.string.cancel, null)
 							.show();
 						}
 						return;
@@ -385,12 +379,12 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			
 			if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 				Bundle bundle = ModleSettings.createMyCardDefaultBundle(this);
-				bundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
+				bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
 				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 				MyChooseDevicesActivity.startIntent(this, bundle);
 			} else {
 				Bundle bundle = ModleSettings.createMyCardDefaultBundle(this);
-				bundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
+				bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
 				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 				NewCardActivity.startIntent(this, bundle);
 			}
