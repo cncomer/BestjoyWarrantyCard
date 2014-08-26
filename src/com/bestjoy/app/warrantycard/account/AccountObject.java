@@ -229,8 +229,8 @@ public class AccountObject implements InfoInterface{
 		ContentValues values = new ContentValues();
 		values.put(HaierDBHelper.ACCOUNT_UID, DEMO_ACCOUNT_UID);
 		values.put(HaierDBHelper.ACCOUNT_NAME, MyApplication.getInstance().getResources().getString(R.string.demo_account));
-		values.put(HaierDBHelper.ACCOUNT_TEL, "11111111111");
-		values.put(HaierDBHelper.ACCOUNT_PWD, "123456");
+		values.put(HaierDBHelper.ACCOUNT_TEL, "13816881688");
+		values.put(HaierDBHelper.ACCOUNT_PWD, "888999");
 		values.put(HaierDBHelper.ACCOUNT_DEFAULT, 0);
 		values.put(HaierDBHelper.DATE, new Date().getTime());
 		return values;
