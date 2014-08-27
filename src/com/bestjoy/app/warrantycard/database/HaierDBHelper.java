@@ -14,7 +14,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 6;
+  private static final int DB_VERSION = 7;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -86,6 +86,9 @@ private static final String TAG = "HaierDBHelper";
   public static final String CARD_YBPhone = "YBPhone";
   /**KY编码*/
   public static final String CARD_KY = "ky";
+  
+  /**用来构建保修卡设备预览图*/
+  public static final String CARD_PKY = "pky";
   /**延保单位电话*/
   public static final String CARD_YANBAO_TIME_COPMANY_TEL = "YanBaoDanWeiCommanyTel";
   /**整机保修，目前不定义*/
@@ -372,6 +375,7 @@ private static final String TAG = "HaierDBHelper";
 	            CARD_WY + " TEXT, " +
 	            CARD_YBPhone + " TEXT, " +
 	            CARD_KY + " TEXT, " +
+	            CARD_PKY + " TEXT, " +
 	            CARD_YANBAO_TIME + " TEXT, " +
 	            CARD_YANBAO_TIME_COMPANY + " TEXT, " +
 	            CARD_YANBAO_TIME_COPMANY_TEL + " TEXT, " +
@@ -517,7 +521,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 3) {
+	  if (oldVersion <= 6) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
@@ -526,6 +530,7 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MYLIFE);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MY_CARD);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MAINTENCE_POINT);
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_YOUMENG_PUSHMESSAGE_HISTORY);
 		    
 		    
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "insert_account");

@@ -16,7 +16,7 @@ public class ServiceObject {
 	private static final String TAG = "ServiceObject";
 	public static final String SERVICE_URL = "http://www.dzbxk.com/bestjoy/";
 	
-	public static final String PRODUCT_AVATOR_URL= "http://115.29.231.29/proimg/";
+	public static final String PRODUCT_AVATOR_URL= "http://www.dzbxk.com/pimg/";
 	/**发票路径的前缀*/
 	public static final String FAPIAO_URL = "http://www.dzbxk.com/fapiao/";
 	
@@ -87,21 +87,20 @@ public class ServiceObject {
 	   * @return
 	   */
 	public static String getProdcutAvatorUrl(String ky) {
-		String ky3 = ky.substring(0,3);
 		  StringBuilder sb = new StringBuilder(PRODUCT_AVATOR_URL);
-		  sb.append(ky3).append("/").append(ky).append(".jpg");
+		  sb.append(ky).append(".jpg");
 		  return sb.toString();
 	}
 	//modify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 begin
 	public static String getCreateBaoxiucardUri() {
 		StringBuilder sb = new StringBuilder(SERVICE_URL);
-		sb.append("20140611/AddBaoXiu.ashx");
+		sb.append("20140625/AddBaoXiu.ashx");
 		return sb.toString();
 	}
 	
 	public static String getUpdateBaoxiucardUri() {
 		StringBuilder sb = new StringBuilder(SERVICE_URL);
-		sb.append("20140611/updateBaoXiu.ashx");
+		sb.append("20140625/updateBaoXiu.ashx");
 		return sb.toString();
 	}
 	

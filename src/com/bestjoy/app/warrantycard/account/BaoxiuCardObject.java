@@ -60,6 +60,7 @@ import com.shwy.bestjoy.utils.SecurityUtils;
             "WY": 1.0,          整机保修时长，单位是年
             "YBPhone":"400-20098005",  延保电话
             "KY":"101000003"     KY编码，用于显示产品图片
+            "pky":"101000003"     KY编码，用于显示产品图片
             "hasimg":"false"  true表示有发票
          }
     ]
@@ -89,6 +90,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	/**延保电话*/
 	public String mYBPhone;
 	public String mKY;
+	/**用来构建保修卡设备预览图，如mPKY.jpg*/
+	public String mPKY;
 	/**本地id*/
 	public long mId = -1;
 	public long mUID = -1, mAID = -1, mBID = -1;
@@ -116,6 +119,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		HaierDBHelper.CARD_WY,
 		HaierDBHelper.CARD_YBPhone,          //18
 		HaierDBHelper.CARD_KY,               //19
+		HaierDBHelper.CARD_PKY,           //20
 	};
 	
 	public static final int KEY_CARD_ID = 0;
@@ -139,6 +143,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	public static final int KEY_CARD_YBPHONE = 18;
 	public static final int KEY_CARD_KY = 19;
 	
+	public static final int KEY_CARD_PKY = 20;
+	
 	public static final String WHERE_UID = HaierDBHelper.CARD_UID + "=?";
 	public static final String WHERE_AID = HaierDBHelper.CARD_AID + "=?";
 	public static final String WHERE_BID = HaierDBHelper.CARD_BID + "=?";
@@ -147,6 +153,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	
 	/**这个值用作不同Activity之间的传递，如选择设备的时候*/
 	private static BaoxiuCardObject mBaoxiuCardObject = null;
+	/**如果服务器返回的保修卡数据中pky字段是000,则表示该保修卡没有设备预览图，直接显示本地的ky_default.jpg*/
+	public static final String DEFAULT_BAOXIUCARD_IMAGE_KEY = "000";
 	
 	public static BaoxiuCardObject parseBaoxiuCards(JSONObject jsonObject, AccountObject accountObject) throws JSONException {
 		BaoxiuCardObject cardObject = new BaoxiuCardObject();
@@ -238,6 +246,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		boolean hasimg = jsonObject.optBoolean("hasimg", false);
 		cardObject.mFPaddr = hasimg ? "1" : "0";
 		//delete by chenkai, 现在FPaddr不再返回数据了，而是使用hasimg来表示是否存在发票图片 end
+		
+		cardObject.mPKY = jsonObject.optString("pky", "000");
 		return cardObject;
 	}
 	
@@ -314,6 +324,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		newBaoxiuCardObject.mYanBaoDanWei = mYanBaoDanWei;
 		newBaoxiuCardObject.mYBPhone = mYBPhone;
 		newBaoxiuCardObject.mKY = mKY;
+		newBaoxiuCardObject.mPKY = mPKY;
 		return newBaoxiuCardObject;
 	}
 	
@@ -427,7 +438,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
     	
     	baoxiuCardObject.mYBPhone = c.getString(KEY_CARD_YBPHONE);
     	baoxiuCardObject.mKY = c.getString(KEY_CARD_KY);
-    	
+    	baoxiuCardObject.mPKY = c.getString(KEY_CARD_PKY);
 		return baoxiuCardObject;
 	}
 
@@ -458,6 +469,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		values.put(HaierDBHelper.CARD_WY, mWY);
 		values.put(HaierDBHelper.CARD_YBPhone, mYBPhone);
 		values.put(HaierDBHelper.CARD_KY, mKY);
+		
+		values.put(HaierDBHelper.CARD_PKY, mPKY);
 		
 		values.put(HaierDBHelper.DATE, new Date().getTime());
 		

@@ -41,6 +41,7 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
+import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2.TaskType;
 import com.bestjoy.app.warrantycard.utils.DialogUtils;
 import com.bestjoy.app.warrantycard.utils.FilesLengthUtils;
 import com.bestjoy.app.warrantycard.utils.TextViewUtils;
@@ -149,14 +150,15 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	}
 
 	private void populateView() {
-		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mKY)) {
-			 mUsageView.setVisibility(View.VISIBLE);
-			 PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mAvatorView, mBaoxiuCardObject.mKY, null, PhotoManagerUtilsV2.TaskType.HOME_DEVICE_AVATOR);
-		 } else {
-			 //设置默认的ky图片
-			 mAvatorView.setImageResource(R.drawable.ky_default);
+		
+		if (!TextUtils.isEmpty(mBaoxiuCardObject.mPKY) && !mBaoxiuCardObject.mPKY.equals(BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY)) {
+			mUsageView.setVisibility(View.VISIBLE);
+			 PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mAvatorView, mBaoxiuCardObject.mPKY, null, PhotoManagerUtilsV2.TaskType.HOME_DEVICE_AVATOR);
+		} else {
+			//设置默认的ky图片
+			mAvatorView.setImageResource(R.drawable.ky_default);
 			 mUsageView.setVisibility(View.GONE);
-		 }
+		}
 		 if (!mBaoxiuCardObject.hasBillAvator()) {
 			 mBillView.setVisibility(View.INVISIBLE);
 		 } else {

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
@@ -500,7 +501,10 @@ public class PhotoManagerUtilsV2 {
 	public static PhotoManagerUtilsV2 getInstance() {
 		return INSTANCE;
 	}
-	
+	/***
+	 * 如果存在映射，说明对于某一个PhotoId已经有下载任务在进行了，我们等待他完成就可以了
+	 */
+	private static HashSet<String> mDownloadingMap = new HashSet<String>();
 	abstract class  AvatorAsyncTask extends AsyncTask<Void, Void, Bitmap> {
 		protected String aToken;
 		protected String mPhotoId;
@@ -515,6 +519,34 @@ public class PhotoManagerUtilsV2 {
 			addTask(aToken, this);
 		}
 		
+		
+		
+		@Override
+		protected Bitmap doInBackground(Void... arg0) {
+			try {
+				synchronized(mDownloadingMap) {
+					while (!isCancelled() && mDownloadingMap.contains(mPhotoId)) {
+						DebugUtils.logD(TAG, "other task is running with the same photoID=" + mPhotoId + ", so just wait.......");
+						mDownloadingMap.wait();
+					}
+					DebugUtils.logD(TAG, "current task add into DownloadingMap for photoID=" + mPhotoId);
+					mDownloadingMap.add(mPhotoId);
+				}
+			} catch (InterruptedException e) {
+				DebugUtils.logD(TAG, "current task is Interrupted for photoID=" + mPhotoId);
+				e.printStackTrace();
+				cancel(true);
+				return null;
+			}
+			if (isCancelled()) {
+				DebugUtils.logD(TAG, "current task is canceled with the photoID=" + mPhotoId);
+				return null;
+			}
+			return null;
+		}
+
+
+
 		public void setTokenAndNo(String token, String photoId) {
 			aToken = token;
 			mPhotoId = photoId;
@@ -537,25 +569,37 @@ public class PhotoManagerUtilsV2 {
 		protected void onCancelled() {
 			super.onCancelled();
 			removeTask(aToken, this);
+			synchronized(mDownloadingMap) {
+				if (mDownloadingMap.contains(mPhotoId)) {
+					boolean removed = mDownloadingMap.remove(mPhotoId);
+					DebugUtils.logD(TAG, "Task finish by canceled [in onCancelled()] for photoID=" + mPhotoId + ", remove PhotoId from mDownloadingMap, removed=" + removed);
+				}
+				mDownloadingMap.notifyAll();
+			}
 		}
 
 		@Override
 		protected void onPostExecute(Bitmap bitmap) {
 			super.onPostExecute(bitmap);
-			if (isCancelled()) {
-                bitmap = null;
+			
+			if (isCancelled() || bitmap == null) {
+				synchronized(mDownloadingMap) {
+					if (mDownloadingMap.contains(mPhotoId)) {
+						boolean removed = mDownloadingMap.remove(mPhotoId);
+						DebugUtils.logD(TAG, "Task finish by canceled [in onPostExecute()] for photoID=" + mPhotoId + ", remove PhotoId from mDownloadingMap, removed=" + removed);
+					}
+					mDownloadingMap.notifyAll();
+				}
+                return;
             }
  
-			if (bitmap == null) {
-				return;
-			}
             if (imageViewReference != null) {
                 ImageView imageView = imageViewReference.get();
                 AvatorAsyncTask avatarAsyncTask = getAvatorAsyncTask(imageView);
                 if (this == avatarAsyncTask && imageView != null) {
                 	DebugUtils.logPhotoUtils(TAG, "setImageBitmap for photoId " + mPhotoId);
                     imageView.setImageBitmap(bitmap);
-                    //֪ͨ��������ͼƬ�Ѿ����������
+                    //下载完通知photoid下载
                     Bundle data = new Bundle();
                     data.putString(Intents.EXTRA_PHOTOID, mPhotoId);
                     data.putString(Intents.EXTRA_TYPE, mTaskType.toString());
@@ -564,6 +608,13 @@ public class PhotoManagerUtilsV2 {
             }
             addBitmapToCache(mPhotoId, mTaskType, bitmap);
 			removeTask(aToken, this);
+			synchronized(mDownloadingMap) {
+				if (mDownloadingMap.contains(mPhotoId)) {
+					boolean removed = mDownloadingMap.remove(mPhotoId);
+					DebugUtils.logD(TAG, "Task finished for photoID=" + mPhotoId + ", remove PhotoId from mDownloadingMap, removed=" + removed);
+				}
+				mDownloadingMap.notifyAll();
+			}
 			
 		}
 		
@@ -610,13 +661,15 @@ public class PhotoManagerUtilsV2 {
 
 		@Override
 		protected Bitmap doInBackground(Void... params) {
+			super.doInBackground(params);
 			InputStream is = null;
 			Bitmap bitmap = null;
 			File cachedBitmapFile = getFileToSave();
 			if (cachedBitmapFile == null) {
-				Log.e(TAG, "error, LoadPhotoAsyncTask call getFileToSave() which returns null for " + mTaskType.toString());
+				Log.e(TAG, "error, LoadPhotoAsyncTask call getFileToSave() which returns null for PhotoId=" + mPhotoId + ", TaskType=" + mTaskType.toString());
 				return null;
 			}
+			DebugUtils.logD(TAG, "current task enter downloading progress for photoID=" + mPhotoId);
 			DebugUtils.logPhotoUtils(TAG, "step 2 try to get avator from cached file " + cachedBitmapFile.getAbsolutePath());
 			bitmap  = decodeFromCachedBitmapFile(cachedBitmapFile, mTaskType);
 		    if (bitmap == null && lPhoto != null) {
@@ -683,6 +736,7 @@ public class PhotoManagerUtilsV2 {
 
 		@Override
 		protected Bitmap doInBackground(Void... params) {
+			super.doInBackground(params);
 			Bitmap bitmap = null;
 			File cachedBitmapFile = getFileToSave();
 			if (cachedBitmapFile == null) {
