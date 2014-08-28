@@ -15,8 +15,8 @@ import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 public class ServiceObject {
 	private static final String TAG = "ServiceObject";
 	public static final String SERVICE_URL = "http://www.dzbxk.com/bestjoy/";
-	
-	public static final String PRODUCT_AVATOR_URL= "http://www.dzbxk.com/pimg/";
+	public static final String PRODUCT_GENERAL_AVATOR_URL= "http://www.dzbxk.com/pimg/";
+	public static final String PRODUCT_AVATOR_URL= "http://www.dzbxk.com/proimg/";
 	/**发票路径的前缀*/
 	public static final String FAPIAO_URL = "http://www.dzbxk.com/fapiao/";
 	
@@ -82,14 +82,31 @@ public class ServiceObject {
 		return defaultValue;
 	}
 
+	
 	/***
-	   * 产品图片网址  http://115.29.231.29/proimg/507/5070A000A.jpg  说明5070A000A：为Key，507：key 为前三位
+	   * 产品图片网址  http://115.29.231.29/pimg/5070A000A.jpg
+	   * @return
+	   */
+	public static String getProdcutGeneralAvatorUrl(String ky) {
+		  StringBuilder sb = new StringBuilder(PRODUCT_GENERAL_AVATOR_URL);
+		  sb.append(ky).append(".jpg");
+		  return sb.toString();
+	}
+	/***
+	   * 产品图片网址  http://115.29.231.29/proimg/507/5070A000A.jpg  说明5070A000A：为Key，507：key 为前三位。
+	   * 如果ky只有三位，那么我们认为是要显示ky3对应的默认图片
 	   * @return
 	   */
 	public static String getProdcutAvatorUrl(String ky) {
-		  StringBuilder sb = new StringBuilder(PRODUCT_AVATOR_URL);
-		  sb.append(ky).append(".jpg");
-		  return sb.toString();
+		if (ky.length() > 3) {
+			String ky3 = ky.substring(0, 3);
+			  StringBuilder sb = new StringBuilder(PRODUCT_AVATOR_URL);
+			  sb.append(ky3).append("/").append(ky).append(".jpg");
+			  return sb.toString(); 
+		} else {
+			return getProdcutGeneralAvatorUrl(ky);
+		}
+		
 	}
 	//modify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 begin
 	public static String getCreateBaoxiucardUri() {
@@ -135,9 +152,9 @@ public class ServiceObject {
 	 * 返回登陆调用URL
 	 * @return
 	 */
-	public static String getLoginOrUpdateUrl(String para, String jsonString) {
+	public static String getRegisterUrl(String para, String jsonString) {
 		UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
-		sb.append("20140718/register.ashx?")
+		sb.append("20140826/register.ashx?")
 		.append(para).append("=").appendUrlEncodedString(jsonString);
 		return sb.toString();
 	}

@@ -247,7 +247,10 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		cardObject.mFPaddr = hasimg ? "1" : "0";
 		//delete by chenkai, 现在FPaddr不再返回数据了，而是使用hasimg来表示是否存在发票图片 end
 		
-		cardObject.mPKY = jsonObject.optString("pky", "000");
+		cardObject.mPKY = jsonObject.optString("pky", BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY);
+		if ("null".equalsIgnoreCase(cardObject.mPKY)) {
+			cardObject.mPKY = BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY;
+		}
 		return cardObject;
 	}
 	
