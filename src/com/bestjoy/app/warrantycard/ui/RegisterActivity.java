@@ -3,14 +3,15 @@ package com.bestjoy.app.warrantycard.ui;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,10 +31,10 @@ import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.DevicesUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
-import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 
 public class RegisterActivity extends BaseActionbarActivity implements View.OnClickListener{
 	private static final String TAG = "RegisterActivity";
@@ -59,6 +60,7 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 		if (isFinishing()) {
 			return ;
 		}
+		setTitle(R.string.title_new_user_register);
 		mAccountObject = new AccountObject();
 		setContentView(R.layout.activity_register_confirm);
 		initViews();
@@ -177,14 +179,6 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 		protected ServiceResultObject doInBackground(Void... params) {
 			InputStream is = null;
 			ServiceResultObject serviceResultObject = new ServiceResultObject();
-			UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
-			sb.append("Register.ashx?")
-			.append("cell=")
-			.append(mAccountObject.mAccountTel)
-			.append("&UserName=")
-			.appendUrlEncodedString(mAccountObject.mAccountName)
-			.append("&pwd=")
-			.appendUrlEncodedString(mAccountObject.mAccountPwd);
 			try {
 				//modify by chenkai, 增强注册安全 begin
 				is = NetworkUtils.openContectionLocked(ServiceObject.getSecurityToken(mAccountObject.mAccountName, SecurityUtils.MD5.md5(mAccountObject.mAccountName)), MyApplication.getInstance().getSecurityKeyValuesObject());
@@ -195,14 +189,17 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 					JSONObject jsonObject = new JSONObject();
 					jsonObject.put("cell", mAccountObject.mAccountTel)
 					.put("UserName", mAccountObject.mAccountName)
-					.put("pwd", mAccountObject.mAccountPwd);
+					.put("pwd", mAccountObject.mAccountPwd)
+					.put("iemi", DevicesUtils.getInstance().getImei())
+					.put("imsi", DevicesUtils.getInstance().getIMSI());
 					
 					DebugUtils.logD(TAG, "RegisterAsyncTask doInBackground() jsonObject " + jsonObject.toString());
+
 					
 					String desJsonObject = SecurityUtils.DES.enCrypto(jsonObject.toString().getBytes(), ServiceObject.getSecurityToken(getTokenObject.mStrData));
 					DebugUtils.logD(TAG, "RegisterAsyncTask doInBackground() desJsonObject " + desJsonObject);
 					
-					is = NetworkUtils.openContectionLocked(ServiceObject.getLoginOrUpdateUrl("para", desJsonObject), MyApplication.getInstance().getSecurityKeyValuesObject());
+					is = NetworkUtils.openContectionLocked(ServiceObject.getRegisterUrl("para", desJsonObject), MyApplication.getInstance().getSecurityKeyValuesObject());
 					if (is != null) {
 						serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 					}
@@ -230,11 +227,29 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			super.onPostExecute(result);
 			dismissDialog(DIALOG_PROGRESS);
 			mNextButton.setEnabled(true);
-			MyApplication.getInstance().showMessage(result.mStatusMessage);
 			if (result.isOpSuccessfully()) {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				//注册后，我们要做一次登陆
 				MyAccountManager.getInstance().saveLastUsrTel(mAccountObject.mAccountTel);
 				startActivityForResult(LoginOrUpdateAccountDialog.createLoginOrUpdate(mContext, true, mAccountObject.mAccountTel, mAccountObject.mAccountPwd), REQUEST_LOGIN);
+			} else if (result.mStatusCode == 2) {
+				//2当前手机的电话号码已经注册了，我们需要弹框用户提示找回密码
+				new AlertDialog.Builder(mContext)
+				.setMessage(result.mStatusMessage)
+				.setPositiveButton(R.string.button_find_password, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						Bundle bundle = new Bundle();
+						bundle.putString(Intents.EXTRA_TEL, mAccountObject.mAccountTel);
+						LoginActivity.startIntent(mContext, bundle);
+						finish();
+					}
+				})
+				.setNegativeButton(R.string.button_cancel, null)
+				.show();
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
 		}
 

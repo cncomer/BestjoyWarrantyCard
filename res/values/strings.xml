@@ -93,6 +93,7 @@
     <string name="title_over_deadline">过保</string>
     <string name="title_login">用户登录</string>
     <string name="title_new_user_register">新用户注册</string>
+    <string name="title_user_info_security_confirm">安全确认</string>
     <string name="product_deadline_placeholder">999天</string>
     
     <string name="menu_more">更多</string>
@@ -540,4 +541,5 @@
            <string name="msg_need_to_get_demo_data">你当前未登录，是否查看演示，该操作会先从服务器获取最新的演示数据</string>
            
            <string name="menu_ymessage">广播</string>
+           <string name="password_accept_chars">"0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
 </resources>

@@ -457,7 +457,6 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				.put("BuyTuJing", baoxiuCardObject.mBuyTuJing)
 				.put("BXPhone", baoxiuCardObject.mBXPhone)
 				.put("SHBianHao", baoxiuCardObject.mSHBianHao)
-				.put("imgstr", baoxiuCardObject.getBase64StringFromBillAvator())
 				.put("token", SecurityUtils.MD5.md5(accountObject.mAccountTel + accountObject.mAccountPwd)) //md5(cell+pwd)
 				.put("Tag", baoxiuCardObject.mCardName)
 				.put("UID", baoxiuCardObject.mUID)
@@ -467,7 +466,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				.put("YanBaoTime", baoxiuCardObject.mYanBaoTime)
 				.put("YBPhone", baoxiuCardObject.mYBPhone)
 				.put("LeiXin", baoxiuCardObject.mLeiXin)
-				.put("PinPai", baoxiuCardObject.mPinPai);
+				.put("PinPai", baoxiuCardObject.mPinPai)
+				.put("imgstr", baoxiuCardObject.getBase64StringFromBillAvator());
 				
 				DebugUtils.logD(TAG, "bjson=" + jsonObject.toString());
 				is = NetworkUtils.openPostContectionLocked(ServiceObject.getCreateBaoxiucardUri(), "bjson", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
@@ -609,7 +609,6 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				.put("BuyTuJing", baoxiuCardObject.mBuyTuJing)
 				.put("BXPhone", baoxiuCardObject.mBXPhone)
 				.put("SHBianHao", baoxiuCardObject.mSHBianHao)
-				.put("imgstr", baoxiuCardObject.getBase64StringFromBillAvator())
 				.put("token", SecurityUtils.MD5.md5(accountObject.mAccountTel + accountObject.mAccountPwd)) //md5(cell+pwd)
 				.put("Tag", baoxiuCardObject.mCardName)
 				.put("UID", baoxiuCardObject.mUID)
@@ -620,7 +619,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				.put("YBPhone", baoxiuCardObject.mYBPhone)
 				.put("LeiXin", baoxiuCardObject.mLeiXin)
 				.put("PinPai", baoxiuCardObject.mPinPai)
-				.put("BID", baoxiuCardObject.mBID);
+				.put("BID", baoxiuCardObject.mBID)
+				.put("imgstr", baoxiuCardObject.getBase64StringFromBillAvator());
 				DebugUtils.logD(TAG, "bjson=" + jsonObject.toString(4));
 				is = NetworkUtils.openPostContectionLocked(ServiceObject.getUpdateBaoxiucardUri(), "bjson", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				

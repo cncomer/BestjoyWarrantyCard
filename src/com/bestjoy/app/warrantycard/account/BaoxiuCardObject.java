@@ -75,7 +75,9 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	public String mSHBianHao;
 	public String mBXPhone;
 	/**这个变量的值为0,1，表示是否有发票*/
-	public String mFPaddr = "0";
+	public String mFPaddr = "";
+	/**发票的名字*/
+	public String mFPName = "";
 	public String mBuyDate;
 	public String mBuyPrice;
 	public String mBuyTuJing;
@@ -120,6 +122,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		HaierDBHelper.CARD_YBPhone,          //18
 		HaierDBHelper.CARD_KY,               //19
 		HaierDBHelper.CARD_PKY,           //20
+		HaierDBHelper.CARD_FPname,           //21 add by chenkai, FaPiao's name 20140701 begin
 	};
 	
 	public static final int KEY_CARD_ID = 0;
@@ -144,6 +147,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	public static final int KEY_CARD_KY = 19;
 	
 	public static final int KEY_CARD_PKY = 20;
+	public static final int KEY_CARD_FPname = 21; //add by chenkai, FaPiao's name.
 	
 	public static final String WHERE_UID = HaierDBHelper.CARD_UID + "=?";
 	public static final String WHERE_AID = HaierDBHelper.CARD_AID + "=?";
@@ -246,7 +250,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		boolean hasimg = jsonObject.optBoolean("hasimg", false);
 		cardObject.mFPaddr = hasimg ? "1" : "0";
 		//delete by chenkai, 现在FPaddr不再返回数据了，而是使用hasimg来表示是否存在发票图片 end
-		
+		cardObject.mFPaddr = jsonObject.optString("imgaddr", "");
+		cardObject.mFPName = jsonObject.optString("imgstr", "");
 		cardObject.mPKY = jsonObject.optString("pky", BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY);
 		if ("null".equalsIgnoreCase(cardObject.mPKY)) {
 			cardObject.mPKY = BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY;
@@ -320,6 +325,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		
 		newBaoxiuCardObject.mBXPhone = mBXPhone;
 		newBaoxiuCardObject.mFPaddr = mFPaddr;
+		newBaoxiuCardObject.mFPName = mFPName;
 		newBaoxiuCardObject.mBuyDate = mBuyDate;
 		newBaoxiuCardObject.mBuyPrice = mBuyPrice;
 		newBaoxiuCardObject.mBuyTuJing = mBuyTuJing;
@@ -430,6 +436,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
     	baoxiuCardObject.mSHBianHao = c.getString(KEY_CARD_SERIAL);
     	baoxiuCardObject.mBXPhone = c.getString(KEY_CARD_BXPhone);
     	baoxiuCardObject.mFPaddr = c.getString(KEY_CARD_FPaddr);
+    	baoxiuCardObject.mFPName = c.getString(KEY_CARD_FPname);
     	baoxiuCardObject.mBuyDate = c.getString(KEY_CARD_BUT_DATE);
     	baoxiuCardObject.mBuyPrice = c.getString(KEY_CARD_CARD_PRICE);
     	baoxiuCardObject.mBuyTuJing = c.getString(KEY_CARD_BUY_TUJING);
@@ -460,7 +467,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		values.put(HaierDBHelper.CARD_SERIAL, mSHBianHao);
 		values.put(HaierDBHelper.CARD_BXPhone, mBXPhone);
 		values.put(HaierDBHelper.CARD_FPaddr, mFPaddr);
-		
+		values.put(HaierDBHelper.CARD_FPname, mFPName);
 		values.put(HaierDBHelper.CARD_BUT_DATE, mBuyDate);
 		values.put(HaierDBHelper.CARD_PRICE, mBuyPrice);
 		values.put(HaierDBHelper.CARD_BUY_TUJING, mBuyTuJing);
@@ -659,7 +666,9 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	 * @return
 	 */
 	public boolean hasBillAvator() {
-		return mFPaddr != null && mFPaddr.equals("1");
+		//modify by chenkai, 20140701, 将发票地址存进数据库（不再拼接），增加海尔奖励延保时间 begin
+		return !TextUtils.isEmpty(mFPaddr) && mFPaddr.startsWith("http");
+		//modify by chenkai, 20140701, 将发票地址存进数据库（不再拼接），增加海尔奖励延保时间 end
 	}
 	/**
 	 * 添加发票时候使用，用来表示是否有临时的拍摄发票文件，有的话，我们认为是要上传的
@@ -680,14 +689,24 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 //			photoId = photoId.replaceAll("/", "_");
 //			return photoId;
 //		}
-		if (mUID > 0 && mAID > 0 && mBID > 0) {
+		if (false && mUID > 0 && mAID > 0 && mBID > 0) {
 			StringBuilder sb = new StringBuilder();
 			//delete by chenkai, 发票id为md5(aid+bid) begin
 			//sb.append(mUID).append(PHOTOID_SEPERATOR).append(mAID).append(PHOTOID_SEPERATOR).append(mBID);
 			sb.append(SecurityUtils.MD5.md5(String.valueOf(mAID) + String.valueOf(mBID)));
 			//delete by chenkai, 发票id为md5(aid+bid) begin
 			return sb.toString();
+		} else if (hasBillAvator()) {
+			//"imgaddr": "http://115.29.231.29/Fapiao/2014-06-27/e60c6c55aceaf5e139291b
+			//如果有发票，我们提取e60c6c55aceaf5e139291b455f3c0ce0文件名
+			int indexStart = mFPaddr.lastIndexOf("/");
+			int indexEnd = mFPaddr.lastIndexOf(".");
+			if (indexStart > 0 && indexEnd > 0) {
+				DebugUtils.logD(TAG, "getFapiaoPhotoId() " + mFPaddr.substring(indexStart+1, indexEnd));
+				return mFPaddr.substring(indexStart+1, indexEnd);
+			}
 		}
+		DebugUtils.logD(TAG, "getFapiaoPhotoId() " + PHOTOID_PLASEHOLDER);
 		return PHOTOID_PLASEHOLDER;
 	}
 	
@@ -803,5 +822,14 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	public static  DateFormat DATE_FORMAT_YUYUE_TIME = new SimpleDateFormat("yyyyMMddHHmmss");
 	/**用于详细界面显示发票日期*/
 	public static  DateFormat DATE_FORMAT_FAPIAO_TIME = new SimpleDateFormat("yyyy.MM.dd");
+	
+	
+	/***
+	 * 返回远程发票的绝对路径
+	 * @return
+	 */
+	public String getFapiaoServicePath() {
+		return mFPaddr;
+	}
 
 }

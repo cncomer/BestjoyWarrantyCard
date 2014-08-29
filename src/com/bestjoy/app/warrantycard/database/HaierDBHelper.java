@@ -14,7 +14,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 7;
+  private static final int DB_VERSION = 8;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -68,7 +68,9 @@ private static final String TAG = "HaierDBHelper";
   public static final String CARD_MODEL = "XingHao";
   /**保修电话*/
   public static final String CARD_BXPhone = "BXPhone";
-  /**发票路径*/
+  /**发票文件名*/
+  public static final String CARD_FPname = "FPname";
+  /**发票绝对路径*/
   public static final String CARD_FPaddr = "FPaddr";
   /**购买价格*/
   public static final String CARD_PRICE = "BuyPrice";
@@ -368,6 +370,7 @@ private static final String TAG = "HaierDBHelper";
 	            CARD_MODEL + " TEXT, " +
 	            CARD_SERIAL + " TEXT, " +
 	            CARD_BXPhone + " TEXT, " +
+	            CARD_FPname + " TEXT, " +
 	            CARD_FPaddr + " TEXT, " +
 	            CARD_BUT_DATE + " TEXT, " +
 	            CARD_PRICE + " TEXT, " +
@@ -521,7 +524,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 6) {
+	  if (oldVersion <= 7) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);

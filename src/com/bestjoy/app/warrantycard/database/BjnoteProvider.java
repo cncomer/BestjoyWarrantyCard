@@ -269,7 +269,7 @@ public class BjnoteProvider extends ContentProvider{
 			case MAINTENCE_POINT_ID:
         	     result = db.query(table, projection, selection, selectionArgs, null, null, sortOrder);
          }
-         result.setNotificationUri(getContext().getContentResolver(), uri);
+         if(result != null)result.setNotificationUri(getContext().getContentResolver(), uri);
 		return result;
 	}
 

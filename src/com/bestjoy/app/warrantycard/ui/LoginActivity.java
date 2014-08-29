@@ -83,6 +83,10 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		mTelInput = (EditText) findViewById(R.id.tel);
 		//显示上一次输入的用户号码
 		mTelInput.setText(MyAccountManager.getInstance().getLastUsrTel());
+		Bundle bundle = getIntent().getExtras();
+		if (bundle != null) {
+			mTelInput.setText(bundle.getString(Intents.EXTRA_TEL));
+		}
 		
 		mPasswordInput = (EditText) findViewById(R.id.pwd);
 	}

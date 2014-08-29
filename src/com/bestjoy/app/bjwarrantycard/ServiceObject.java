@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
 import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
@@ -128,9 +129,7 @@ public class ServiceObject {
 	 * @return
 	 */
 	public static String getBaoxiucardFapiao(String photoId) {
-		StringBuilder sb = new StringBuilder(FAPIAO_URL);
-		sb.append(photoId).append(".jpg");
-		return sb.toString();
+		return BaoxiuCardObject.getBaoxiuCardObject().getFapiaoServicePath();
 	}
 	//modify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 end
 	
