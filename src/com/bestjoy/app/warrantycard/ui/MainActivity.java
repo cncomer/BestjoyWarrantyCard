@@ -48,6 +48,7 @@ import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.NetworkUtils;
+import com.umeng.message.PushAgent;
 
 public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
 	private static final String TAG = "MainActivity";
@@ -116,6 +117,8 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		findViewById(R.id.button_qr_scan).setOnClickListener(this);
 		
 		YouMengMessageHelper.getInstance().startCheckDeviceTokenAsync();
+		//统计应用启动数据
+		PushAgent.getInstance(mContext).onAppStart();
 	}
 	
 	@Override

@@ -72,6 +72,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	private CircleProgressView mCircleProgressView;
 	
 	private ImageView mFapiaoDownloadView;
+	private static final int WHAT_SHOW_FAPIAO_WAIT = 12;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -84,17 +85,29 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	            switch(msg.what) {
 	            case NotifyRegistrant.EVENT_NOTIFY_MESSAGE_RECEIVED:
 	            	Bundle bundle = (Bundle) msg.obj;
-	            	if (bundle.get(Intents.EXTRA_PHOTOID).equals(mBaoxiuCardObject.getFapiaoPhotoId())) {
-	            		//下载完成
-	            		DebugUtils.logD(TAG, "FapiaoTask finished for " + mBaoxiuCardObject.getFapiaoPhotoId());
-	            		File fapiao = MyApplication.getInstance().getProductFaPiaoFile(mBaoxiuCardObject.getFapiaoPhotoId());
-	        			if (fapiao.exists()) {
-	        				DebugUtils.logD(TAG, "FapiaoTask downloaded " + fapiao.getAbsolutePath());
-	        				BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
-	        			}
-	        			dismissDialog(DIALOG_PROGRESS);
+	            	boolean status = bundle.getBoolean(PhotoManagerUtilsV2.EXTRA_DOWNLOAD_STATUS);
+	            	String photoid = bundle.getString(Intents.EXTRA_PHOTOID);
+	            	File fapiao = MyApplication.getInstance().getProductFaPiaoFile(mBaoxiuCardObject.getFapiaoPhotoId());
+	            	if (photoid.equals(mBaoxiuCardObject.getFapiaoPhotoId())) {
+	            		dismissDialog(DIALOG_PROGRESS);
+	            		if (status) {
+	            			//下载完成
+	            			DebugUtils.logD(TAG, "FapiaoTask finished for " + mBaoxiuCardObject.getFapiaoPhotoId());
+		            		
+		        			if (fapiao.exists()) {
+		        				mBillView.setEnabled(false);
+		        				mHandler.sendEmptyMessageDelayed(WHAT_SHOW_FAPIAO_WAIT, 6000);
+		        				DebugUtils.logD(TAG, "FapiaoTask downloaded " + fapiao.getAbsolutePath());
+		        				BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
+		        			}
+	            		} else {
+	            			MyApplication.getInstance().showMessage(bundle.getString(PhotoManagerUtilsV2.EXTRA_DOWNLOAD_STATUS_MESSAGE));
+	            		}
 	            	}
 	            	return;
+	            case WHAT_SHOW_FAPIAO_WAIT:
+	            	mBillView.setEnabled(true);
+	            	break;
 	            }
 	            super.handleMessage(msg);
             }
@@ -270,6 +283,8 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		case R.id.button_bill:
 			File fapiao = MyApplication.getInstance().getProductFaPiaoFile(mBaoxiuCardObject.getFapiaoPhotoId());
 			if (fapiao.exists()) {
+				mBillView.setEnabled(false);
+				mHandler.sendEmptyMessageDelayed(WHAT_SHOW_FAPIAO_WAIT, 6000);
 				BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
 			} else {
 				//需要下载
@@ -279,7 +294,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 				}
 				//为了传值給发票下载
 				BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
-				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mFapiaoDownloadView, mBaoxiuCardObject.getFapiaoPhotoId(), null, PhotoManagerUtilsV2.TaskType.FaPiao);
+				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mFapiaoDownloadView, mBaoxiuCardObject.getFapiaoPhotoId(), null, PhotoManagerUtilsV2.TaskType.FaPiao, true);
 			}
 			
 			break;

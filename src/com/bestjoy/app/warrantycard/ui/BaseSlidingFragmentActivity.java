@@ -61,8 +61,6 @@ public abstract class BaseSlidingFragmentActivity extends SlidingFragmentActivit
 			return;
 		}
 		mContext = this;
-		//统计应用启动数据
-		PushAgent.getInstance(mContext).onAppStart();
 	}
 	//add by chenkai, 20140726 增加youmeng统计时长 begin
 	@Override

@@ -68,6 +68,49 @@ public class SpeechRecognizerEngine {
 	 * @param
 	 */
 	public void showIatDialog(Context context) {
+		// 清空Grammar_ID，防止识别后进行听写时Grammar_ID的干扰
+		iatRecognizer.setParameter(SpeechConstant.CLOUD_GRAMMAR, null);
+				// 设置听写Dialog的引擎
+				iatRecognizer.setParameter(SpeechConstant.DOMAIN, "iat");
+				iatRecognizer.setParameter(SpeechConstant.SAMPLE_RATE, "16000");
+				// 清空结果显示框.
+				mResultText.setText(null);
+		iatRecognizer.startListening(new RecognizerListener() {
+
+			@Override
+			public void onBeginOfSpeech() {
+				
+			}
+
+			@Override
+			public void onEndOfSpeech() {
+				
+			}
+
+			@Override
+			public void onError(SpeechError arg0) {
+				
+			}
+
+			@Override
+			public void onEvent(int arg0, int arg1, int arg2, String arg3) {
+				
+			}
+
+			@Override
+			public void onResult(RecognizerResult arg0, boolean arg1) {
+				String text = JsonParser.parseIatResult(arg0.getResultString());
+				mResultText.append(text);
+				mResultText.setSelection(mResultText.length());
+			}
+
+			@Override
+			public void onVolumeChanged(int arg0) {
+				
+			}
+			
+		});
+		if (true)return;
 		//if (null == iatDialog) {
 			// 初始化听写Dialog
 			iatDialog = new RecognizerDialog(context);

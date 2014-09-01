@@ -50,8 +50,6 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
 			return;
 		}
 		mContext = this;
-		//统计应用启动数据
-		PushAgent.getInstance(mContext).onAppStart();
 		
 		PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
 		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);

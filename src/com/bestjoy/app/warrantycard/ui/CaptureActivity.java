@@ -138,8 +138,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     historyManager.trimHistory();
     
     media = BeepAndVibrate.getInstance();
-  //统计应用启动数据
-	PushAgent.getInstance(this).onAppStart();
   }
 
   @Override

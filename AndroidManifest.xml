@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="19"
-    android:versionName="V1.92" >
+    android:versionCode="20"
+    android:versionName="V1.94" >
 
      <supports-screens
         android:anyDensity="true"
@@ -10,7 +10,7 @@
         android:normalScreens="true"
         android:smallScreens="true" />
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="11"
         android:targetSdkVersion="18" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -23,7 +23,6 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     
      <!-- add by chenkai 2012-10-20 for privacy module begin -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -51,6 +50,9 @@
     <!-- 保存联系人相关 begin-->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <!-- 保存联系人相关 end-->
+    
+    <uses-permission android:name="android.permission.READ_LOGS" />
+	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
     
     <application android:name="com.bestjoy.app.bjwarrantycard.MyApplication"
         android:allowBackup="true"
@@ -101,7 +103,6 @@
             android:name="com.bestjoy.app.warrantycard.ui.MyChooseDevicesActivity"
             android:configChanges="orientation|keyboardHidden"
              android:screenOrientation="portrait"
-             android:parentActivityName="com.bestjoy.app.warrantycard.ui.MainActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:label="@string/activity_title_choose_device_general">

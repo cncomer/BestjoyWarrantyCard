@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
+import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.Base64;
@@ -642,7 +643,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		sb.append(cardType);
 		return sb.toString();
 	}
-	private static final int mAvatorWidth = 480, mAvatorHeight = 800;
+	private static final int mAvatorWidth = 1200, mAvatorHeight =1200;
 	public static final String PHOTOID_SEPERATOR = "_";
 	/**占位符号*/
 	public static final String PHOTOID_PLASEHOLDER = "00_00_00";
@@ -757,9 +758,12 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
     
     public void updateBillAvatorTempLocked(File file) {
     	mBillTempFile = file;
-    	mBillTempBitmap = ImageHelper.getSmallBitmap(file.getAbsolutePath(), mAvatorWidth, mAvatorWidth);
+    	mBillTempBitmap = ImageHelper.getSmallBitmap(file.getAbsolutePath(), mAvatorWidth, mAvatorHeight);
 //    	mBillTempBitmap = ImageHelper.rotateBitmap(mBillTempBitmap, 90);
-		ImageHelper.bitmapToFile(mBillTempBitmap, mBillTempFile, 100);
+    	mBillTempBitmap = ImageHelper.scaleBitmapFile(mBillTempBitmap, mAvatorWidth, mAvatorHeight);
+		ImageHelper.bitmapToFile(mBillTempBitmap, mBillTempFile, 65);
+		mBillTempBitmap.recycle();
+		mBillTempBitmap = ImageHelper.getSmallBitmap(file.getAbsolutePath(), mAvatorWidth, mAvatorHeight);
     }
 	
 	public void clear() {
@@ -776,6 +780,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	public static void showBill(Context context, BaoxiuCardObject baociuCardObject) {
 		objectUseForbill = baociuCardObject;
 		if (baociuCardObject != null) {
+			MyApplication.getInstance().showMessage(R.string.msg_wait_for_fapiao_show);
 			Intent intent = new Intent(Intent.ACTION_VIEW);
 			intent.setDataAndType(BjnoteContent.BaoxiuCard.BILL_CONTENT_URI, "image/png");
 			context.startActivity(intent);
