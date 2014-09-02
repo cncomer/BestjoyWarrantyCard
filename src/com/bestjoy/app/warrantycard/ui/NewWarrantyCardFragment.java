@@ -276,6 +276,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			
 			//如果有发票，我们显示出来
 			if (mBaoxiuCardObject.hasBillAvator()) {
+				//为了传值給发票下载
+				BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
 				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mBillImageView, mBaoxiuCardObject.getFapiaoPhotoId(), null, PhotoManagerUtilsV2.TaskType.FaPiao);
 			}
 			

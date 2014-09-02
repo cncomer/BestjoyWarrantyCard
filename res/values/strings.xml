@@ -543,6 +543,6 @@
            <string name="menu_ymessage">广播</string>
            <string name="password_accept_chars">"0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
            
-           <string name="msg_no_existed_fapiao_in_service">请检查服务器上是否有对应发票</string>
+           <string name="msg_no_existed_photo_in_service">抱歉，服务器上是没有找到对应的图片</string>
            <string name="msg_wait_for_fapiao_show">"正在进入图库显示发票，请稍后..."</string>
 </resources>

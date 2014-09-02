@@ -124,6 +124,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		
 		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundles);
 		mHomeObject = HomeObject.getHomeObject(mBundles);
+		NotifyRegistrant.getInstance().register(mHandler);
 	}
 	
 	@Override
@@ -273,7 +274,6 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	public void onResume() {
 		getActivity().setTitle(R.string.title_baoxiucard_info);
 		super.onResume();
-		NotifyRegistrant.getInstance().register(mHandler);
 	}
 
 	@Override
@@ -328,6 +328,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	 public void onDestroy() {
 		 super.onDestroy();
 		 PhotoManagerUtilsV2.getInstance().releaseToken(TOKEN);
+		 NotifyRegistrant.getInstance().unRegister(mHandler);
 	 }
 	
 	private DeleteCardAsyncTask mDeleteCardAsyncTask;
@@ -339,9 +340,8 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	}
 	
 	@Override
-	public void onPause() {
+	public void onStop() {
 		super.onStop();
-		NotifyRegistrant.getInstance().unRegister(mHandler);
 	}
 	
 	private class DeleteCardAsyncTask extends AsyncTask<Void, Void, ServiceResultObject> {
