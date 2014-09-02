@@ -85,7 +85,11 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		mTelInput.setText(MyAccountManager.getInstance().getLastUsrTel());
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {
-			mTelInput.setText(bundle.getString(Intents.EXTRA_TEL));
+			String tel = bundle.getString(Intents.EXTRA_TEL);
+			if (!TextUtils.isEmpty(tel)) {
+				mTelInput.setText(tel);
+			}
+			
 		}
 		
 		mPasswordInput = (EditText) findViewById(R.id.pwd);

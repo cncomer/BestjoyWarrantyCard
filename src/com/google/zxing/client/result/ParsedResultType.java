@@ -30,7 +30,7 @@ public enum ParsedResultType {
   TEXT,
   GEO,
   TEL,
-  HAIER,  //海尔条码
+  BXK,  //保修卡条码
   MYLIFE, //生活圈
   WIFI,
   SMS,

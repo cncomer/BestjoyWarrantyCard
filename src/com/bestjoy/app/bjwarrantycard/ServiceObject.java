@@ -319,4 +319,25 @@ public class ServiceObject {
 			  return sb.toString();
 			  
 		  }
+		  public static String getBaoxiucardSalesmanAvatorPreview(String mm) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder("http://www.mingdown.com/mmimage/");
+			  sb.append(mm).append(".jpg");
+			  return sb.toString();
+		  }
+		  
+		  public static String updateBaoxiucardSalesmanInfo(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("AddBIDMM.ashx?")
+			  .append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  /**
+		   * 从条码中识别出保修卡条码，从网络获取条码的保修卡对象信息
+		   * @return
+		   */
+		  public static String queryBaoxiuCardUrlFromBarCode() {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Deal.ashx?para=");
+			  return sb.toString();
+		  }
 }

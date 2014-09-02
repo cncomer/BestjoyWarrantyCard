@@ -337,6 +337,77 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		newBaoxiuCardObject.mPKY = mPKY;
 		return newBaoxiuCardObject;
 	}
+	/**
+	 * 获取保修卡对象的Bundle对象
+	 * @return
+	 */
+	public Bundle getBaoxiuCardObjectBundle() {
+		Bundle bundle = new Bundle();
+		bundle.putLong("id", mId);
+		bundle.putLong("uid", mUID);
+		bundle.putLong("aid", mAID);
+		bundle.putLong("bid", mBID);
+		bundle.putString("wy", mWY);
+		bundle.putString("mCardName", mCardName);
+		bundle.putString("mZhuBx", mZhuBx);
+		
+		bundle.putString("mLeiXin", mLeiXin);
+		bundle.putString("mPinPai", mPinPai);
+		bundle.putString("mXingHao", mXingHao);
+		
+		bundle.putString("mSHBianHao", mSHBianHao);
+		bundle.putString("mBXPhone", mBXPhone);
+		bundle.putString("mFPaddr", mFPaddr);
+		
+		bundle.putString("mFPName", mFPName);
+		bundle.putString("mBuyDate", mBuyDate);
+		bundle.putString("mBuyPrice", mBuyPrice);
+		
+		bundle.putString("mBuyTuJing", mBuyTuJing);
+		bundle.putString("mYanBaoTime", mYanBaoTime);
+		bundle.putString("mYanBaoDanWei", mYanBaoDanWei);
+		
+		bundle.putString("mYBPhone", mYBPhone);
+		bundle.putString("mKY", mKY);
+		bundle.putString("mPKY", mPKY);
+		return bundle;
+	}
+	
+	public static BaoxiuCardObject getBaoxiuCardObjectFromBundle(Bundle bundle) {
+		BaoxiuCardObject baoxiuCardObject = new BaoxiuCardObject();
+		bundle = bundle.getBundle("BaoxiuCardObject");
+		if (bundle == null) {
+			return baoxiuCardObject;
+		}
+		baoxiuCardObject.mId = bundle.getLong("id", -1);
+		baoxiuCardObject.mUID = bundle.getLong("uid", -1);
+		baoxiuCardObject.mAID = bundle.getLong("aid", -1);
+		baoxiuCardObject.mBID = bundle.getLong("bid", -1);
+		
+		baoxiuCardObject.mWY = bundle.getString("wy");
+		baoxiuCardObject.mCardName = bundle.getString("mCardName");
+		baoxiuCardObject.mZhuBx = bundle.getString("mZhuBx");
+		baoxiuCardObject.mLeiXin = bundle.getString("mLeiXin");
+		baoxiuCardObject.mPinPai = bundle.getString("mPinPai");
+		baoxiuCardObject.mXingHao = bundle.getString("mXingHao");
+		
+		baoxiuCardObject.mSHBianHao = bundle.getString("mSHBianHao");
+		baoxiuCardObject.mBXPhone = bundle.getString("mBXPhone");
+		baoxiuCardObject.mFPaddr = bundle.getString("mFPaddr");
+		baoxiuCardObject.mFPName = bundle.getString("mFPName");
+		baoxiuCardObject.mBuyDate = bundle.getString("mBuyDate");
+		
+		baoxiuCardObject.mBuyPrice = bundle.getString("mBuyPrice");
+		baoxiuCardObject.mBuyTuJing = bundle.getString("mBuyTuJing");
+		baoxiuCardObject.mYanBaoTime = bundle.getString("mYanBaoTime");
+		baoxiuCardObject.mYanBaoDanWei = bundle.getString("mYanBaoDanWei");
+		baoxiuCardObject.mYBPhone = bundle.getString("mYBPhone");
+		
+		baoxiuCardObject.mKY = bundle.getString("mKY");
+		baoxiuCardObject.mPKY = bundle.getString("mPKY");
+		
+		return baoxiuCardObject;
+	}
 	
 	@Override
 	public String toString() {
@@ -380,7 +451,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	 * @return
 	 */
     public static Cursor getAllBaoxiuCardsCursor(ContentResolver cr, long uid, long aid) {
-		return cr.query(BjnoteContent.BaoxiuCard.CONTENT_URI, PROJECTION, WHERE_UID_AND_AID, new String[]{String.valueOf(uid), String.valueOf(aid)}, null);
+		return cr.query(BjnoteContent.BaoxiuCard.CONTENT_URI, PROJECTION, WHERE_UID_AND_AID, new String[]{String.valueOf(uid), String.valueOf(aid)}, HaierDBHelper.CARD_BID+" DESC");
 	}
     
     public static BaoxiuCardObject getBaoxiuCardObject(ContentResolver cr, long uid, long aid, long bid) {
@@ -394,6 +465,11 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		}
 		return object;
 	}
+    /**
+     * 根据Bundle对象得到保修卡对象，如果Bundle中给定了aid, bid, uid,我们需要从数据库中获取保修卡对象.
+     * @param bundle
+     * @return
+     */
     public static BaoxiuCardObject getBaoxiuCardObject(Bundle bundle) {
     	long aid = bundle.getLong("aid", -1);
 		long bid = bundle.getLong("bid", -1);
@@ -404,7 +480,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 			return BaoxiuCardObject.getBaoxiuCardObject(MyApplication.getInstance().getContentResolver(), uid, aid, bid);
 		} else {
 			
-			BaoxiuCardObject newBaoxiuCardObject = new BaoxiuCardObject();
+			BaoxiuCardObject newBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObjectFromBundle(bundle);
 			newBaoxiuCardObject.mAID = aid;
 			newBaoxiuCardObject.mUID = uid;
 			newBaoxiuCardObject.mBID = bid;

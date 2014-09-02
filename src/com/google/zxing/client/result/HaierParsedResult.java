@@ -43,19 +43,32 @@ public final class HaierParsedResult extends ParsedResult {
   private final String text;
   private final String param;
   private BarcodeFormat mBarcodeFormat;
+  private ResultBaoxiuCardType mResultBaoxiuCardType = ResultBaoxiuCardType.General;
+  public static enum ResultBaoxiuCardType {
+	  Haier,
+	  General, //通用
+  }
 
   public HaierParsedResult(String text, String param) {
-    super(ParsedResultType.HAIER);
+    super(ParsedResultType.BXK);
     this.text = text;
     this.param = param;
     mBarcodeFormat = BarcodeFormat.QR_CODE;
   }
   
   public HaierParsedResult(String text, String param, BarcodeFormat barcodeFormat) {
-	    super(ParsedResultType.HAIER);
+	    super(ParsedResultType.BXK);
 	    this.text = text;
 	    this.param = param;
 	    mBarcodeFormat = barcodeFormat;
+	  }
+  
+  public HaierParsedResult(String text, String param, BarcodeFormat barcodeFormat, ResultBaoxiuCardType baoxiuCardType) {
+	    super(ParsedResultType.BXK);
+	    this.text = text;
+	    this.param = param;
+	    mBarcodeFormat = barcodeFormat;
+	    mResultBaoxiuCardType = baoxiuCardType;
 	  }
 
   public String getParam() {
@@ -70,6 +83,16 @@ public final class HaierParsedResult extends ParsedResult {
   public String getDisplayResult() {
     return text;
   }
+  /**
+   * 返回扫码内容的保修卡类型
+   * @return
+   */
+  public ResultBaoxiuCardType getResultBaoxiuCardType() {
+	return mResultBaoxiuCardType;
+  }
+  public void setResultBaoxiuCardType(ResultBaoxiuCardType baoxiuCardType) {
+		mResultBaoxiuCardType = baoxiuCardType;
+   }
   
   public static class HaierBaoxiuCardParser extends InfoInterfaceImpl{
 	  /**
@@ -84,7 +107,7 @@ public final class HaierParsedResult extends ParsedResult {
 				<Class>洗共体—双桶洗衣机</Class>   名称
 				<Type>XPB80-1186BS</Type>       型号
 				<BarCode>CA0KQ200M00PAD4AY005</BarCode> 编码
-				<WY>3<WY>  保修期
+				<WY>3</WY>  保修期
 			</ProductInfo>
 		</Data>
 	   * @param content
@@ -133,6 +156,8 @@ public final class HaierParsedResult extends ParsedResult {
 		       		    	baoxiuCardObject.mSHBianHao = nextTextElement(parser);
 		       		    } else if ("WY".equals(tag)) {
 		       		    	baoxiuCardObject.mWY = nextTextElement(parser);
+		       		    } else if ("CELL".equals(tag)) {
+		       		    	baoxiuCardObject.mBXPhone = nextTextElement(parser);
 		       		    }
 		        	}
 		        }
