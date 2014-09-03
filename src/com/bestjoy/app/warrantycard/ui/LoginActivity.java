@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -83,9 +84,8 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		mTelInput = (EditText) findViewById(R.id.tel);
 		//显示上一次输入的用户号码
 		mTelInput.setText(MyAccountManager.getInstance().getLastUsrTel());
-		Bundle bundle = getIntent().getExtras();
-		if (bundle != null) {
-			String tel = bundle.getString(Intents.EXTRA_TEL);
+		if (mBundles != null) {
+			String tel = mBundles.getString(Intents.EXTRA_TEL);
 			if (!TextUtils.isEmpty(tel)) {
 				mTelInput.setText(tel);
 			}
@@ -103,7 +103,7 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 	public void onClick(View v) {
 		switch(v.getId()) {
 			case R.id.button_register:
-				RegisterActivity.startIntent(this, getIntent().getExtras());
+				RegisterActivity.startIntent(this, mBundles);
 				break;
 			case R.id.button_find_password:
 				//如果电话号码为空，提示用户先输入号码，在找回密码
@@ -222,8 +222,19 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 			dismissDialog(DIALOG_PROGRESS);
 			if (result.isOpSuccessfully()) {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			} else if (result.mStatusCode == 2){
+				DialogUtils.createSimpleConfirmAlertDialog(mContext, result.mStatusMessage, new DialogUtils.DialogCallbackSimpleImpl() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						super.onClick(dialog, which);
+						RegisterActivity.startIntent(mContext, mBundles);
+						finish();
+					}
+					
+				});
 			} else {
-				DialogUtils.createSimpleConfirmAlertDialog(mContext, mContext.getString(R.string.tel_not_register), null);
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
 		}
 		@Override
