@@ -71,8 +71,16 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		
 		
 	};
-	
-	private static final String[] PINPAI_PROJECTION = new String[]{
+	/**
+	 *  HaierDBHelper.ID,
+		DeviceDBHelper.DEVICE_PINPAI_NAME,            //1
+		DeviceDBHelper.DEVICE_PINPAI_XID,
+		DeviceDBHelper.DEVICE_PINPAI_PID,
+		DeviceDBHelper.DEVICE_PINPAI_PINYIN,
+		DeviceDBHelper.DEVICE_PINPAI_CODE,
+		DeviceDBHelper.DEVICE_PINPAI_BXPHONE,       //6
+	 */
+	public static final String[] PINPAI_PROJECTION = new String[]{
 		HaierDBHelper.ID,
 		DeviceDBHelper.DEVICE_PINPAI_NAME,            //1
 		DeviceDBHelper.DEVICE_PINPAI_XID,

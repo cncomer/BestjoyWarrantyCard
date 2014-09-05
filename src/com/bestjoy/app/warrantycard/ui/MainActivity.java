@@ -13,22 +13,25 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -39,14 +42,24 @@ import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
+import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.update.UpdateService;
+import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
+import com.bestjoy.app.warrantycard.utils.CodeConstants;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.bestjoy.app.warrantycard.utils.JsonParser;
+import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
+import com.iflytek.cloud.speech.RecognizerListener;
+import com.iflytek.cloud.speech.RecognizerResult;
+import com.iflytek.cloud.speech.SpeechError;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.FilesUtils;
+import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.umeng.message.PushAgent;
 
@@ -119,6 +132,8 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		YouMengMessageHelper.getInstance().startCheckDeviceTokenAsync();
 		//统计应用启动数据
 		PushAgent.getInstance(mContext).onAppStart();
+		
+		initVoiceLayout();
 	}
 	
 	@Override
@@ -132,6 +147,294 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	public void onStop() {
 		super.onStop();
 		mHandler.removeCallbacks(mChangeAdsRunnable);
+	}
+	
+	private View mVoiceInputPopLayout;
+	private TextView mVoiceInputStatus;
+	private EditText mAskInput;
+	private ImageView mVoiceBtn, mVoiceImage;
+	private SpeechRecognizerEngine mSpeechRecognizerEngine;
+	private VoiceButtonTouchListener mVoiceButtonTouchListener;
+	private String[] mVoiceKeepKeys = null;
+	private String[] mVoiceTrainSupport = null;
+	private void initVoiceLayout() {
+		mVoiceKeepKeys = mContext.getResources().getStringArray(R.array.voice_kepp_keys);
+		mVoiceTrainSupport = mContext.getResources().getStringArray(R.array.voice_train_support);
+		mVoiceInputPopLayout = findViewById(R.id.voice_input_layout);
+		mVoiceInputPopLayout.setVisibility(View.GONE);
+		mVoiceBtn = (ImageView) findViewById(R.id.button_voice);
+		mVoiceInputStatus = (TextView) findViewById(R.id.voice_input_status);
+		mVoiceButtonTouchListener = new VoiceButtonTouchListener();
+		mVoiceBtn.setOnTouchListener(mVoiceButtonTouchListener);
+		
+		mAskInput = (EditText) findViewById(R.id.voice_input_confirm);
+		
+		mVoiceImage = (ImageView) findViewById(R.id.voice_input_imageview);
+		mSpeechRecognizerEngine = SpeechRecognizerEngine.getInstance(mContext);
+		
+	}
+	
+	private RecognizerListener mRecognizerListener = new RecognizerListener() {
+		public boolean _isCanceled = false;
+		
+		@Override
+		public void onBeginOfSpeech() {
+			mAskInput.setHint(R.string.hint_voice_input);
+			DebugUtils.logD(TAG, "chenkai onBeginOfSpeech");
+			
+		}
+	
+		@Override
+		public void onEndOfSpeech() {
+			mAskInput.setHint(R.string.hint_voice_input_wait);
+			DebugUtils.logD(TAG, "chenkai onEndOfSpeech");
+			mSpeechRecognizerEngine.stopListen();
+		}
+	
+		@Override
+		public void onError(SpeechError err) {
+			//MyApplication.getInstance().showMessage(err.getPlainDescription(true));
+			DebugUtils.logD(TAG, "chenkai onError " + err.getPlainDescription(true));
+			if (mVoiceInputPopLayout.getVisibility() == View.VISIBLE) {
+				mVoiceInputPopLayout.setVisibility(View.GONE);
+			}
+		}
+	
+		@Override
+		public void onEvent(int arg0, int arg1, int arg2, String arg3) {
+			
+		}
+	
+		@Override
+		public void onResult(RecognizerResult arg0, boolean arg1) {
+			
+			String text = JsonParser.parseIatResult(arg0.getResultString());
+			DebugUtils.logD(TAG, "chenkai onResult " + text);
+			if (!TextUtils.isEmpty(text)) {
+				//BeepAndVibrate.getInstance().playBeepSoundAndVibrate();
+				mAskInput.append(text);
+				mAskInput.setSelection(mAskInput.length());
+				
+				if (mVoiceInputPopLayout.getVisibility() == View.VISIBLE && !mVoiceButtonTouchListener._isCanceled && mVoiceButtonTouchListener._isUp) {
+					mVoiceInputPopLayout.setVisibility(View.GONE);
+					doVoiceQuery(text);
+				}
+			}
+		}
+	
+		@Override
+		public void onVolumeChanged(int volume) {
+			mVoiceImage.setImageLevel(volume);
+		}
+		
+	};
+	
+	private class VoiceButtonTouchListener implements View.OnTouchListener{
+		private float _downX = 0.0f;
+		private float _downY = 0.0f;
+		private boolean _isCanceled = false;
+		private boolean _isUp = false;
+		
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch(event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				_isCanceled = false;
+				_isUp = false;
+				mVoiceInputPopLayout.setVisibility(View.VISIBLE);
+				_downX = event.getX();
+				_downY = event.getY();
+				mVoiceInputStatus.setText(R.string.msg_cancel_voice_input_down);
+				mAskInput.setText("");
+				mAskInput.setHint(R.string.hint_voice_input);
+				mVoiceImage.setImageResource(R.drawable.voice_input_listen);
+				mSpeechRecognizerEngine.stopListen();
+				mSpeechRecognizerEngine.startListen(mRecognizerListener);
+				break;
+			case MotionEvent.ACTION_MOVE:
+				float moveX = event.getX();
+				float moveY = event.getY();
+				if (_downY - moveY > 100) {
+					_isCanceled = true;
+					mVoiceInputStatus.setText(R.string.msg_cancel_voice_input_by_cancel);
+					mSpeechRecognizerEngine.stopListen();
+					mSpeechRecognizerEngine.cancel();
+					mVoiceImage.setImageResource(R.drawable.voice_cancel);
+					mAskInput.setText("");
+					mAskInput.setHint(R.string.hint_voice_input_canceled);
+				} else if (_isCanceled){
+					_isCanceled = false;
+					mVoiceInputStatus.setText(R.string.msg_cancel_voice_input_down);
+					mAskInput.setHint(R.string.hint_voice_input);
+					mSpeechRecognizerEngine.stopListen();
+					mSpeechRecognizerEngine.startListen(mRecognizerListener);
+					mVoiceImage.setImageResource(R.drawable.voice_input_listen);
+				}
+				break;
+			case MotionEvent.ACTION_CANCEL:
+				_isCanceled = true;
+				mVoiceInputPopLayout.setVisibility(View.GONE);
+				mVoiceInputStatus.setText(R.string.msg_cancel_voice_input_by_cancel);
+				mSpeechRecognizerEngine.stopListen();
+				break;
+			case MotionEvent.ACTION_UP:
+				_isUp = true;
+				String query = mAskInput.getText().toString().trim();
+				mSpeechRecognizerEngine.stopListen();
+				if (_isCanceled) {
+					mVoiceInputPopLayout.setVisibility(View.GONE);
+					mSpeechRecognizerEngine.cancel();
+				} else if (query.length() > 0) {
+					mVoiceInputPopLayout.setVisibility(View.GONE);
+					doVoiceQuery(query);
+				}
+				break;
+			}
+			return false;
+		}
+	}
+	
+	private void doVoiceQuery(String query) {
+		DebugUtils.logD(TAG, "doVoiceQuery() query=" + query);
+		
+		AsyncTaskUtils.cancelTask(mVoiceQueryTask);
+		mVoiceQueryTask = new VoiceQueryTask();
+		mVoiceQueryTask.execute(query);
+		//MyApplication.getInstance().showMessage(getString(R.string.msg_query_pinpai_wait_format, query));
+	}
+	private VoiceQueryTask mVoiceQueryTask;
+	private class VoiceQueryTask extends AsyncTask<String, Void, Integer> {
+
+		private String _pinpai, _bxPhone;
+		private String _query;
+		@Override
+		protected Integer doInBackground(String... params) {
+			DebugUtils.logD(TAG, "VoiceQueryTask.doInBackground()");
+			_query = params[0];
+			//如果是保留字，我们暂时不支持
+			for(String keepKey : mVoiceKeepKeys) {
+				if (_query.contains(keepKey)) {
+					DebugUtils.logD(TAG, "query contains keppKey " + keepKey + ", so do nothing.");
+					return CodeConstants.NOT_SUPPORT;
+				}
+			}
+			
+			//首先检索品牌
+			StringBuilder sb = new StringBuilder(DeviceDBHelper.DEVICE_PINPAI_NAME);
+			sb.append(" like ").append("'%").append(_query).append("%'");
+			DebugUtils.logD(TAG, "pinpai selection " + sb.toString());
+			Cursor c = getContentResolver().query(BjnoteContent.PinPai.CONTENT_URI, NewCardChooseFragment.PINPAI_PROJECTION, sb.toString(), null, null);
+			if (c != null) {
+				if (c.moveToNext()) {
+					_pinpai = c.getString(1);
+					_bxPhone = c.getString(6);
+					DebugUtils.logD(TAG, "find pinpai=" + _pinpai + ", bxphone=" + _bxPhone);
+					return CodeConstants.PINPAI;
+				}
+				c.close();
+			}
+			
+			//猜测是否是火车
+			if (_query.length() > 2) {
+				char firstChar = _query.charAt(0);
+				boolean isSupport = false;
+				for (String support : mVoiceTrainSupport) {
+					if (support.charAt(0) == firstChar) {
+						isSupport = true;
+						break;
+					}
+				}
+				if (isSupport && TextUtils.isDigitsOnly(_query.substring(1))) {
+					_query = _query.replace(mVoiceTrainSupport[0], "G");
+					_query = _query.replace(mVoiceTrainSupport[1], "D");
+					_query = _query.replace(mVoiceTrainSupport[2], "T");
+					return CodeConstants.TRAIN;
+				}
+			}
+			
+			//猜测是否是飞机航班
+			if (_query.length() >= 5) {
+				char firstChar = _query.charAt(0);
+				
+				if ( _query.matches("[0-9a-zA-Z]{2}\\d{3,6}") && TextUtils.isDigitsOnly(_query.substring(2))) {
+					return CodeConstants.AIRPLANE;
+				}
+			}
+			
+			return CodeConstants.NOT_SUPPORT;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			super.onPostExecute(result);
+			switch(result) {
+			case CodeConstants.NOT_SUPPORT:
+				MyApplication.getInstance().showMessage(getString(R.string.msg_query_no_support_format, _query));
+				break;
+			case CodeConstants.PINPAI:
+				if (!TextUtils.isEmpty(_pinpai)) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
+					.setMessage(_pinpai+" " + _bxPhone);
+					
+					if (!TextUtils.isEmpty(_bxPhone)) {
+						builder.setPositiveButton(R.string.text_call, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Intents.callPhone(mContext, _bxPhone);
+								
+							}
+						});
+					}
+					builder.setNegativeButton(android.R.string.cancel, null)
+					.show();
+				} 
+				break;
+			case CodeConstants.TRAIN:
+				if (!TextUtils.isEmpty(_query)) {
+					new AlertDialog.Builder(mContext)
+					.setMessage(getString(R.string.tip_find_train, _query))
+					.setPositiveButton(R.string.text_train, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Intents.openURL(mContext, CodeConstants.getTrainUrl(_query));
+								
+							}
+						})
+					.setNegativeButton(android.R.string.cancel, null)
+					.show();
+				} 
+				break;
+			case CodeConstants.AIRPLANE:
+				if (!TextUtils.isEmpty(_query)) {
+					new AlertDialog.Builder(mContext)
+					.setMessage(getString(R.string.tip_find_flightno, _query))
+					.setPositiveButton(R.string.text_flightno, new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Intents.openURL(mContext, CodeConstants.getAirPlaneUrl(_query));
+								
+							}
+						})
+					.setNegativeButton(android.R.string.cancel, null)
+					.show();
+				} 
+				break;
+			case CodeConstants.NOT_FOUND:
+				//没有找到，我们猜测是否是
+				break;
+			}
+			
+			
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+		}
+		
 	}
 	
 	 @Override
