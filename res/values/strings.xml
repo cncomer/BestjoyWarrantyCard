@@ -3,7 +3,7 @@
 
     <string name="app_name">电子保修卡</string>
     <string name="app_name_2014">电子保修卡 2014</string>
-    <string name="app_id">5350f3d3</string>
+    <string name="app_id">540fbabe</string>
     <string name="button_register">新用户注册</string>
     <string name="button_register_now">"马上注册>"</string>
      <string name="button_find_password">找回密码</string>
@@ -545,6 +545,8 @@
            <string name="msg_need_to_get_demo_data">你当前未登录，是否查看演示，该操作会先从服务器获取最新的演示数据</string>
            
            <string name="menu_ymessage">广播</string>
+           <string name="button_commit">发送</string>
+           <string name="title_im_conversation">会话</string>
            <string name="password_accept_chars">"0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
            
            <string name="msg_no_existed_photo_in_service">抱歉，服务器上是没有找到对应的图片</string>
