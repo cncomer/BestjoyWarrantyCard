@@ -87,9 +87,6 @@
             android:label="@string/activity_title_repair" 
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|fontScale"
 			android:windowSoftInputMode="stateAlwaysHidden|adjustPan"/>
-        <activity
-            android:name="com.bestjoy.app.warrantycard.ui.InstallActivity"
-            android:label="@string/activity_title_install" />
         
         <activity
             android:name="com.bestjoy.app.warrantycard.ui.LoginActivity"
