@@ -46,16 +46,15 @@ import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.update.UpdateService;
-import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.bestjoy.app.warrantycard.utils.CodeConstants;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.JsonParser;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
-import com.iflytek.cloud.speech.RecognizerListener;
-import com.iflytek.cloud.speech.RecognizerResult;
-import com.iflytek.cloud.speech.SpeechError;
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechError;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.FilesUtils;
@@ -201,11 +200,6 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		}
 	
 		@Override
-		public void onEvent(int arg0, int arg1, int arg2, String arg3) {
-			
-		}
-	
-		@Override
 		public void onResult(RecognizerResult arg0, boolean arg1) {
 			
 			String text = JsonParser.parseIatResult(arg0.getResultString());
@@ -225,6 +219,12 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		@Override
 		public void onVolumeChanged(int volume) {
 			mVoiceImage.setImageLevel(volume);
+		}
+
+		@Override
+		public void onEvent(int arg0, int arg1, int arg2, Bundle arg3) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	};
@@ -318,7 +318,8 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 					return CodeConstants.NOT_SUPPORT;
 				}
 			}
-			
+			_query = _query.replaceAll(" ", "");
+			DebugUtils.logD(TAG, "doVoiceQuery() start query-replaced " + _query);
 			//首先检索品牌
 			StringBuilder sb = new StringBuilder(DeviceDBHelper.DEVICE_PINPAI_NAME);
 			sb.append(" like ").append("'%").append(_query).append("%'");

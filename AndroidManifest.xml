@@ -219,6 +219,16 @@
             android:name="com.bestjoy.app.warrantycard.ui.YMessageListActivity" />
          <!-- add by chenkai, 20140810, Youmeng广播历史 end -->
          
+         <!-- add by chenkai, 20140910, 保修卡即时通信会话列表 begin -->
+         <activity
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:label="@string/title_im_conversation"
+            android:parentActivityName="com.bestjoy.app.warrantycard.ui.MainActivity"
+            android:name="com.bestjoy.app.bjwarrantycard.imbasedympush.IMConversationActivity" />
+         <!-- add by chenkai, 20140910, Y保修卡即时通信会话列表 end -->
+         
          <!-- add by chenkai, for Usage PDF阅读界面, 2014.05.31 begin-->
           <activity android:name="org.vudroid.pdfdroid.PdfViewerActivity" 
               android:configChanges="orientation|keyboardHidden"

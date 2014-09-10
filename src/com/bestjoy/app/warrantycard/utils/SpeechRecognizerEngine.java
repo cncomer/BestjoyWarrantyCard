@@ -10,17 +10,20 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bestjoy.app.bjwarrantycard.R;
-import com.iflytek.cloud.speech.RecognizerListener;
-import com.iflytek.cloud.speech.RecognizerResult;
-import com.iflytek.cloud.speech.SpeechConstant;
-import com.iflytek.cloud.speech.SpeechError;
-import com.iflytek.cloud.speech.SpeechListener;
-import com.iflytek.cloud.speech.SpeechRecognizer;
-import com.iflytek.cloud.speech.SpeechUser;
+import com.iflytek.cloud.ErrorCode;
+import com.iflytek.cloud.InitListener;
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechListener;
+import com.iflytek.cloud.SpeechUtility;
+import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
 
@@ -41,14 +44,30 @@ public class SpeechRecognizerEngine {
 		DebugUtils.logD(TAG, "onCreate()");
 		mContext = context;
 		// 用户登录
-		SpeechUser.getUser().login(mContext, null, null,
-				"appid=" + mContext.getString(R.string.app_id), listener);
+		SpeechUtility.createUtility(context, "appid="+mContext.getString(R.string.app_id));
+		
+//		SpeechUser.getUser().login(mContext, null, null,
+//				"appid=" + mContext.getString(R.string.app_id), listener);
 		// 创建听写对象,如果只使用无UI听写功能,不需要创建RecognizerDialog
-		iatRecognizer = SpeechRecognizer.createRecognizer(mContext);
+		iatRecognizer = SpeechRecognizer.createRecognizer(mContext, mInitListener);
 		// 初始化听写Dialog,如果只使用有UI听写功能,无需创建SpeechRecognizer
-		iatDialog = new RecognizerDialog(mContext);
+		iatDialog = new RecognizerDialog(mContext, null);
 		mToast = Toast.makeText(mContext, "", Toast.LENGTH_LONG);
 	}
+	
+	/**
+     * 初始化监听器。
+     */
+    private InitListener mInitListener = new InitListener() {
+
+		@Override
+		public void onInit(int code) {
+			Log.d(TAG, "SpeechRecognizer init() code = " + code);
+			if (code != ErrorCode.SUCCESS) {
+        		showTip("初始化失败,错误码："+code);
+        	}
+		}
+    };
 
 	public static SpeechRecognizerEngine getInstance(Context context) {
 		if (mSpeechRecognizerEngine == null) {
@@ -88,7 +107,7 @@ public class SpeechRecognizerEngine {
 		
 		//if (null == iatDialog) {
 			// 初始化听写Dialog
-			iatDialog = new RecognizerDialog(context);
+			iatDialog = new RecognizerDialog(context, null);
 		//}
 
 		// 清空Grammar_ID，防止识别后进行听写时Grammar_ID的干扰
@@ -123,10 +142,6 @@ public class SpeechRecognizerEngine {
 			showTip(mContext.getString(R.string.end_speak));
 		}
 
-		@Override
-		public void onEvent(int eventType, int arg1, int arg2, String msg) {
-
-		}
 
 		@Override
 		public void onResult(RecognizerResult results, boolean isLast) {
@@ -138,6 +153,11 @@ public class SpeechRecognizerEngine {
 		@Override
 		public void onVolumeChanged(int volume) {
 			showTip(mContext.getString(R.string.speak_tips) + volume);
+		}
+
+		@Override
+		public void onEvent(int arg0, int arg1, int arg2, Bundle arg3) {
+			
 		}
 
 	};
