@@ -12,6 +12,8 @@ import com.actionbarsherlock.view.Menu;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.bjwarrantycard.imbasedympush.IMConversationActivity;
+import com.bestjoy.app.bjwarrantycard.imbasedympush.IMHelper;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -71,6 +73,9 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		mBottomContentLayout = findViewById(R.id.content_frame_bottom);
 		mBottomContentTop = findViewById(R.id.contet_bottom_frame_top);
 		mBottomContentTop.setOnClickListener(this);
+		
+		
+		findViewById(R.id.button_im).setOnClickListener(this);
 	}
 	
 	  @Override
@@ -154,6 +159,9 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 				MyApplication.getInstance().showUnsupportMessage();
 				return;
 			}
+			break;
+		case R.id.button_im:
+			IMConversationActivity.startActivity(mContext, IMHelper.TARGET_TYPE_QUN, mBaoxiuCardObject.mXingHao);
 			break;
 	    }
 	    

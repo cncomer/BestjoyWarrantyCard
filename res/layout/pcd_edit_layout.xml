@@ -43,7 +43,7 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="horizontal">
-	    <TextView
+	    <TextView android:id="@+id/text_place_detail"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:visibility="invisible"

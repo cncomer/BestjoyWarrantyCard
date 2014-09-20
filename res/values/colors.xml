@@ -19,6 +19,8 @@
     <drawable name="button_green">#ff1ed1aa</drawable>
     <drawable name="button_green_on">#ff198870</drawable>
     
+    <drawable name="button_red">#ffa60c0c</drawable>
+    <drawable name="button_red_on">#ffce3535</drawable>
     
     <color name="default_pop_background">#cf393f4d</color>
     

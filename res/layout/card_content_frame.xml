@@ -32,7 +32,7 @@
     android:paddingLeft="@dimen/detail_card_view_padding"
     android:paddingRight="@dimen/detail_card_view_padding"
     android:showDividers="middle"
-    android:weightSum="3" >
+    android:weightSum="4" >
 
     <TextView
         android:id="@+id/button_malfunction"
@@ -64,6 +64,17 @@
         android:clickable="true"
         android:gravity="center"
         android:text="@string/button_maintenance_componnet"
+        android:textColor="#ffffffff"
+        android:textSize="14sp" />
+    
+    <TextView
+        android:id="@+id/button_im"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="@string/title_im_conversation"
         android:textColor="#ffffffff"
         android:textSize="14sp" />
 </com.actionbarsherlock.internal.widget.IcsLinearLayout>
