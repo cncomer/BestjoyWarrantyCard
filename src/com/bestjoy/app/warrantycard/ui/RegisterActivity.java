@@ -26,9 +26,11 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
+import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.bestjoy.app.warrantycard.view.HaierProCityDisEditPopView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DevicesUtils;
@@ -46,6 +48,10 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 	
 	private AccountObject mAccountObject;
 	private Bundle mBundles;
+	
+	private HaierProCityDisEditPopView mProCityDisEditPopView;
+	private EditText mHomeEditText;
+	private HomeObject mHomeObject ;
 
 	@Override
 	protected boolean checkIntent(Intent intent) {
@@ -74,6 +80,10 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 		mPasswordInput = (EditText) findViewById(R.id.password_input);
 		mConfirmPasswordInput = (EditText) findViewById(R.id.confirm_password_input);
 		mTelInput = (EditText) findViewById(R.id.tel_input);
+		
+		mProCityDisEditPopView = new HaierProCityDisEditPopView(this);
+		mHomeEditText = (EditText) findViewById(R.id.my_home);
+		mHomeEditText.setText(R.string.my_home);
 	}
 	
 	 public boolean onCreateOptionsMenu(Menu menu) {
@@ -147,11 +157,15 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			MyApplication.getInstance().showMessage(R.string.msg_input_usr_pwd);
 			return false;
 		}
+		//delete by chenkai, 不用确认密码 begin
+		/*
 		String usrPwdConfirm = mConfirmPasswordInput.getText().toString().trim();
 		if (!usrPwdConfirm.equals(mAccountObject.mAccountPwd)) {
 			MyApplication.getInstance().showMessage(R.string.msg_input_pwd_not_match_tips);
 			return false;
 		}
+		*/
+		//delete by chenkai, 不用确认密码 end
 		if (TextUtils.isEmpty(mAccountObject.mAccountTel)) {
 			MyApplication.getInstance().showMessage(R.string.msg_input_usrtel);
 			return false;
@@ -162,6 +176,24 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			return false;
 		}
 		//add by chenkai, 对手机号码非11位的排除注册, 2014.06.04 end
+		return valiHomeInput();
+	}
+	
+	private boolean valiHomeInput() {
+		mHomeObject = mProCityDisEditPopView.getHomeObject();
+		if(TextUtils.isEmpty(mHomeObject.mHomeProvince)) {
+			MyApplication.getInstance().showMessage(R.string.msg_input_usr_pro);
+			return false;
+		} else if (TextUtils.isEmpty(mHomeObject.mHomeCity)){
+			MyApplication.getInstance().showMessage(R.string.msg_input_usr_city);
+			return false;
+		} else if (TextUtils.isEmpty(mHomeObject.mHomeDis)){
+			MyApplication.getInstance().showMessage(R.string.msg_input_usr_dis);
+			return false;
+		} else if (TextUtils.isEmpty(mHomeObject.mHomePlaceDetail)){
+			MyApplication.getInstance().showMessage(R.string.msg_input_usr_place_detail);
+			return false;
+		}
 		return true;
 	}
 	
@@ -190,6 +222,9 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 					jsonObject.put("cell", mAccountObject.mAccountTel)
 					.put("UserName", mAccountObject.mAccountName)
 					.put("pwd", mAccountObject.mAccountPwd)
+					.put("admin_code", mProCityDisEditPopView.getDisID())
+					.put("tag", mHomeEditText.getText().toString().trim())
+					.put("detail", mHomeObject.mHomePlaceDetail)
 					.put("iemi", DevicesUtils.getInstance().getImei())
 					.put("imsi", DevicesUtils.getInstance().getIMSI());
 					

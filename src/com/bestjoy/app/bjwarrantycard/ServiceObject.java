@@ -153,7 +153,7 @@ public class ServiceObject {
 	 */
 	public static String getRegisterUrl(String para, String jsonString) {
 		UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
-		sb.append("20140826/register.ashx?")
+		sb.append("RegisterUser.ashx?")
 		.append(para).append("=").appendUrlEncodedString(jsonString);
 		return sb.toString();
 	}
@@ -338,6 +338,17 @@ public class ServiceObject {
 		  public static String queryBaoxiuCardUrlFromBarCode() {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
 			  sb.append("Deal.ashx?para=");
+			  return sb.toString();
+		  }
+		  /**
+		   * 意见反馈url
+		   * @param para
+		   * @param jsonString
+		   * @return
+		   */
+		  public static String getFeedbackUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("AddSuggestion.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
 }

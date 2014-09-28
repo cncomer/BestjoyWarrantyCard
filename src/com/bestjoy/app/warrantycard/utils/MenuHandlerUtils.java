@@ -7,6 +7,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.ui.FeedbackActivity;
 import com.bestjoy.app.warrantycard.ui.HomeManagerActivity;
 import com.bestjoy.app.warrantycard.ui.LoginActivity;
 import com.bestjoy.app.warrantycard.ui.RegisterActivity;
@@ -25,7 +26,7 @@ public class MenuHandlerUtils {
         subMenu1.add(1000, R.string.menu_setting, 1004, R.string.menu_setting);
         subMenu1.add(1000, R.string.menu_about, 1005, R.string.menu_about);
 //        subMenu1.add(1000, R.string.menu_exit, 1005, R.string.menu_exit);
-
+        subMenu1.add(1000, R.string.title_feedback, 1006, R.string.title_feedback);
         MenuItem subMenu1Item = subMenu1.getItem();
         subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_dark);
         subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -52,6 +53,11 @@ public class MenuHandlerUtils {
         case R.string.menu_ymessage:
         	//Ymessage历史记录
         	YMessageListActivity.startActivity(context);
+        	break;
+        case R.string.title_feedback:
+        	FeedbackActivity.startActivity(context, MyAccountManager.getInstance().getCurrentAccountId());
+        	break;
+        	
 //        case R.string.menu_exit:
 //        	HaierAccountManager.getInstance().deleteDefaultAccount();
 //        	break;

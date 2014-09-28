@@ -34,6 +34,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.view.menu.MenuItemWrapper;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
@@ -87,7 +91,6 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
-		setHasOptionsMenu(true);
 		mCalendar = Calendar.getInstance();
 		if (savedInstanceState == null) {
 			mBundle = getArguments();
@@ -110,6 +113,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		initTempFile();
 		
 		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
+		
+		setHasOptionsMenu(true);
 	}
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -185,6 +190,35 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		super.onViewCreated(view, savedInstanceState);
 	}
 	
+	@Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		MenuItem item = menu.add(0, R.id.button_save, 101, R.string.button_save);
+		if (isEditable()) {
+			item.setTitle(R.string.button_update);
+		}
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    }
+	
+//	@Override
+//    public void onPrepareOptionsMenu(Menu menu) {
+//		MenuItem menuItem = menu.findItem(R.id.button_save);
+//		if (menuItem != null) {
+//			if (isEditable()) {
+//				menuItem.setTitle(R.string.button_update);
+//			}
+//		}
+//    }
+	
+	 @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+		 switch(item.getItemId()){
+		 case R.id.button_save:
+			 onSave();
+			 return true;
+		 }
+        return false;
+    }
+	
 	
 	@Override
 	public void onDestroyView() {
@@ -232,7 +266,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	}
 	
 	public boolean isEditable() {
-		return mBaoxiuCardObject.mBID > 0;
+		return mBaoxiuCardObject != null && mBaoxiuCardObject.mBID > 0;
 	}
 	
 	private void populateBaoxiuInfoView() {
@@ -374,23 +408,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 //			} else {
 //				MyApplication.getInstance().showMessage(R.string.msg_cant_show_bill);
 //			}
-			if (!MyAccountManager.getInstance().hasLoginned() || MyAccountManager.getInstance().getCurrentAccountId() == AccountObject.DEMO_ACCOUNT_UID) {
-				MyApplication.getInstance().showNeedLoginMessage();
-				LoginActivity.startIntent(getActivity(), mBundle);
-				return;
-			}
-			 if (ComConnectivityManager.getInstance().isConnected()) {
-				 if (!checkInput()) {
-					 return;
-				 }
-				 if (isEditable()) {
-						updateWarrantyCardAsync();
-					} else {
-						saveNewWarrantyCardAndSync();
-					}
-			 } else {
-				 showDialog(DIALOG_DATA_NOT_CONNECTED);
-			 }
+			onSave();
 			break;
 		case R.id.menu_choose:
 			//如果内容为空，我们显示侧边栏
@@ -400,18 +418,33 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		
 	}
 	
-	private void saveNewWarrantyCardAndSync() {
-		mSaveBtn.setEnabled(false);
-		requestNewWarrantyCardAndSync();
+	private void onSave() {
+		if (!MyAccountManager.getInstance().hasLoginned() || MyAccountManager.getInstance().getCurrentAccountId() == AccountObject.DEMO_ACCOUNT_UID) {
+			MyApplication.getInstance().showNeedLoginMessage();
+			LoginActivity.startIntent(getActivity(), mBundle);
+			return;
+		}
+		 if (ComConnectivityManager.getInstance().isConnected()) {
+			 if (!checkInput()) {
+				 return;
+			 }
+			 if (isEditable()) {
+					updateWarrantyCardAsync();
+				} else {
+					saveNewWarrantyCardAndSync();
+				}
+		 } else {
+			 showDialog(DIALOG_DATA_NOT_CONNECTED);
+		 }
 	}
 	
-
 	private CreateNewWarrantyCardAsyncTask mCreateNewWarrantyCardAsyncTask;
-	private void requestNewWarrantyCardAndSync(String... param) {
+	private void saveNewWarrantyCardAndSync() {
+		mSaveBtn.setEnabled(false);
 		AsyncTaskUtils.cancelTask(mCreateNewWarrantyCardAsyncTask);
 		showDialog(DIALOG_PROGRESS);
 		mCreateNewWarrantyCardAsyncTask = new CreateNewWarrantyCardAsyncTask();
-		mCreateNewWarrantyCardAsyncTask.execute(param);
+		mCreateNewWarrantyCardAsyncTask.execute();
 	}
 
 	private class CreateNewWarrantyCardAsyncTask extends AsyncTask<String, Void, ServiceResultObject> {

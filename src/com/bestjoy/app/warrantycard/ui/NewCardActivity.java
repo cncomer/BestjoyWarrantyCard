@@ -154,6 +154,10 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 			menu.findItem(R.string.menu_search).setVisible(false);
 			menu.findItem(R.string.menu_done).setVisible(false);
 		}
+		MenuItem menuItem = menu.findItem(R.id.button_save);
+		if (menuItem != null) {
+			menuItem.setVisible(!getSlidingMenu().isMenuShowing());
+		}
 		return true;
 	}
 	

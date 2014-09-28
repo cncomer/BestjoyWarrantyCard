@@ -3,6 +3,7 @@ package com.bestjoy.app.warrantycard.ui;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -23,7 +24,9 @@ import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -83,7 +86,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	private static final int DEFAULT_MAX_ADS_SIZE = 3;
 	
 	private Handler mHandler;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -148,6 +151,30 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		mHandler.removeCallbacks(mChangeAdsRunnable);
 	}
 	
+	@Override
+	public void onBackPressed() {
+		if (mVoiceInputPopLayout.getVisibility() == View.VISIBLE) {
+			mVoiceInputPopLayout.setVisibility(View.GONE);
+		} else {
+			super.onBackPressed();
+		}
+		
+	}
+	/**
+	 * 目前语音识别对于火车字母+2位数字的车次，会将数字识别成大写，这里做了一个映射
+	 */
+	private static final HashMap<Character, Character> CHARS_FOR_TRAIN = new HashMap<Character, Character>();
+	static {
+		CHARS_FOR_TRAIN.put('一', '1');
+		CHARS_FOR_TRAIN.put('二', '2');
+		CHARS_FOR_TRAIN.put('三', '3');
+		CHARS_FOR_TRAIN.put('四', '4');
+		CHARS_FOR_TRAIN.put('五', '5');
+		CHARS_FOR_TRAIN.put('六', '6');
+		CHARS_FOR_TRAIN.put('七', '7');
+		CHARS_FOR_TRAIN.put('八', '8');
+		CHARS_FOR_TRAIN.put('九', '9');
+	}
 	private View mVoiceInputPopLayout;
 	private TextView mVoiceInputStatus;
 	private EditText mAskInput;
@@ -208,10 +235,10 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				//BeepAndVibrate.getInstance().playBeepSoundAndVibrate();
 				mAskInput.append(text);
 				mAskInput.setSelection(mAskInput.length());
-				
+				mVoiceInputStatus.setText(R.string.msg_check_voice_input_by_up);
 				if (mVoiceInputPopLayout.getVisibility() == View.VISIBLE && !mVoiceButtonTouchListener._isCanceled && mVoiceButtonTouchListener._isUp) {
 					mVoiceInputPopLayout.setVisibility(View.GONE);
-					doVoiceQuery(text);
+					doVoiceQuery(text, true);
 				}
 			}
 		}
@@ -286,7 +313,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 					mSpeechRecognizerEngine.cancel();
 				} else if (query.length() > 0) {
 					mVoiceInputPopLayout.setVisibility(View.GONE);
-					doVoiceQuery(query);
+					doVoiceQuery(query, true);
 				}
 				break;
 			}
@@ -294,12 +321,12 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		}
 	}
 	
-	private void doVoiceQuery(String query) {
+	private void doVoiceQuery(String query, boolean needCheck) {
 		DebugUtils.logD(TAG, "doVoiceQuery() query=" + query);
 		
 		AsyncTaskUtils.cancelTask(mVoiceQueryTask);
-		mVoiceQueryTask = new VoiceQueryTask();
-		mVoiceQueryTask.execute(query);
+		mVoiceQueryTask = new VoiceQueryTask(query, needCheck);
+		mVoiceQueryTask.execute();
 		//MyApplication.getInstance().showMessage(getString(R.string.msg_query_pinpai_wait_format, query));
 	}
 	private VoiceQueryTask mVoiceQueryTask;
@@ -307,10 +334,15 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 
 		private String _pinpai, _bxPhone;
 		private String _query;
+		private boolean _needCheck = false;
+		
+		private VoiceQueryTask (String query, boolean needCheck) {
+			_query = query;
+			_needCheck = needCheck;
+		}
 		@Override
 		protected Integer doInBackground(String... params) {
 			DebugUtils.logD(TAG, "VoiceQueryTask.doInBackground()");
-			_query = params[0];
 			//如果是保留字，我们暂时不支持
 			for(String keepKey : mVoiceKeepKeys) {
 				if (_query.contains(keepKey)) {
@@ -336,7 +368,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			}
 			
 			//猜测是否是火车
-			if (_query.length() > 2) {
+			if (_query.length() > 1) {
 				char firstChar = _query.charAt(0);
 				boolean isSupport = false;
 				for (String support : mVoiceTrainSupport) {
@@ -345,24 +377,48 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 						break;
 					}
 				}
-				if (isSupport && TextUtils.isDigitsOnly(_query.substring(1))) {
-					_query = _query.replace(mVoiceTrainSupport[0], "G");
-					_query = _query.replace(mVoiceTrainSupport[1], "D");
-					_query = _query.replace(mVoiceTrainSupport[2], "T");
-					return CodeConstants.TRAIN;
+				if (isSupport) {
+					StringBuilder newSb = new StringBuilder();
+					newSb.append(firstChar);
+					String checi = _query.substring(1);
+					char cr = 0;
+					char findReplace = 0;
+					for (int index=0; index < checi.length(); index++) {
+						cr = checi.charAt(index);
+						for(char key:CHARS_FOR_TRAIN.keySet()) {
+							if (cr == key) {
+								findReplace = CHARS_FOR_TRAIN.get(key);
+								break;
+							}
+						}
+						if (findReplace != 0) {
+							newSb.append(findReplace);
+						} else {
+							newSb.append(cr);
+						}
+					}
+					_query = newSb.toString();
+
+					if (TextUtils.isDigitsOnly(_query.substring(1))) {
+						_query = _query.replace(mVoiceTrainSupport[0], "G");
+						_query = _query.replace(mVoiceTrainSupport[1], "D");
+						_query = _query.replace(mVoiceTrainSupport[2], "T");
+						return CodeConstants.TRAIN;
+					}
 				}
 			}
 			
 			//猜测是否是飞机航班
-			if (_query.length() >= 5) {
-				char firstChar = _query.charAt(0);
-				
-				if ( _query.matches("[0-9a-zA-Z]{2}\\d{3,6}") && TextUtils.isDigitsOnly(_query.substring(2))) {
+			if (_query.length() >= 4) {
+				if (_query.startsWith("h2")) {
+					_query = _query.replace("h2", "h");//吉祥航空识别的时候h会识别成h2
+				}
+				if ( _query.matches("[0-9a-zA-Z]{2}\\d{2,6}") && TextUtils.isDigitsOnly(_query.substring(2))) {
 					return CodeConstants.AIRPLANE;
 				}
 			}
 			
-			return CodeConstants.NOT_SUPPORT;
+			return _needCheck?CodeConstants.NOT_FOUND:CodeConstants.NOT_SUPPORT;
 		}
 
 		@Override
@@ -425,6 +481,9 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				break;
 			case CodeConstants.NOT_FOUND:
 				//没有找到，我们猜测是否是
+				if (!TextUtils.isEmpty(_query)) {
+					showCheckVoiceDialog(_query);
+				}
 				break;
 			}
 			
@@ -438,12 +497,51 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		
 	}
 	
+	private void showCheckVoiceDialog(String query) {
+		final EditText input = new EditText(mContext);
+		input.setText(query);
+		input.setSelection(query.length());
+		final AlertDialog dialog = new AlertDialog.Builder(mContext)
+		.setMessage(R.string.text_check_voice_title)
+		.setView(input)
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					doVoiceQuery(input.getText().toString().trim(), false);
+					
+				}
+			})
+		.setNegativeButton(android.R.string.cancel, null)
+		.create();
+		input.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(s.toString().trim().length() > 0);
+			}
+			
+		});
+		
+		dialog.show();
+	}
+	
 	 @Override
      public boolean onCreateOptionsMenu(Menu menu) {
   	     boolean result = super.onCreateOptionsMenu(menu);
   	     MenuItem subMenu1Item = menu.findItem(R.string.menu_more);
-  	   subMenu1Item.getSubMenu().add(1000, R.string.menu_refresh, 1005, R.string.menu_refresh);
-  	     subMenu1Item.getSubMenu().add(1000, R.string.menu_exit, 1006, R.string.menu_exit);
+  	   subMenu1Item.getSubMenu().add(1000, R.string.menu_refresh, 2005, R.string.menu_refresh);
+  	     subMenu1Item.getSubMenu().add(1000, R.string.menu_exit, 2006, R.string.menu_exit);
 //  	     subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_light);
          return result;
      }

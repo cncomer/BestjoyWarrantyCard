@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 
+import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.shwy.bestjoy.utils.SecurityUtils;
+import com.shwy.bestjoy.utils.SecurityUtils.SecurityKeyValuesObject;
 
 public class MyAccountManager {
 	private static final String TAG = "HaierAccountManager";
@@ -41,6 +44,16 @@ public class MyAccountManager {
 		if (mHaierAccount == null) {
 			mHaierAccount = AccountObject.getHaierAccountFromDatabase(mContext, AccountObject.DEMO_ACCOUNT_UID);
 		}
+		SecurityKeyValuesObject securityKeyValuesObject = SecurityKeyValuesObject.getSecurityKeyValuesObject();
+		securityKeyValuesObject.put("uid", String.valueOf(getCurrentAccountId()));
+		//cell + password
+		if (getCurrentAccountId() == -1) {
+			securityKeyValuesObject.put("token", "");
+		} else {
+			securityKeyValuesObject.put("token", SecurityUtils.MD5.md5(mHaierAccount.mAccountTel + mHaierAccount.mAccountPwd));
+		}
+		
+		MyApplication.getInstance().setSecurityKeyValuesObject(securityKeyValuesObject);
 		initAccountHomes();
 	}
 	

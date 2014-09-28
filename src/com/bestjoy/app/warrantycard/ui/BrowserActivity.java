@@ -66,6 +66,7 @@ public final class BrowserActivity extends BaseActionbarActivity {
 		webView = (WebView) findViewById(R.id.webview);
 		webView.setWebViewClient(new HelpClient());
 		webView.setWebChromeClient(new WebChromeClient() {
+			
 			public void onProgressChanged(WebView view, int progress) {
 				// Activities and WebViews measure progress with different
 				// scales.

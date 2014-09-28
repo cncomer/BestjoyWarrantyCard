@@ -20,6 +20,8 @@
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:windowBackground">@color/wt</item>
+        <item name="android:actionMenuTextAppearance">@style/MainActivityTextAppearance</item>
+        <item name="actionMenuTextAppearance">@style/MainActivityTextAppearance</item>
         <!--  item name="android:windowFullscreen">true</item-->
     </style>
      <style name="AppTheme.MainActivityActionBar">
@@ -31,6 +33,8 @@
         <!--   name="android:background">@color/action_bar_black</item-->
         <item name="actionButtonStyle">@style/Widget.Sherlock.ActionButton</item>
         <item name="android:actionButtonStyle">@style/Widget.Sherlock.ActionButton</item>
+         <item name="titleTextStyle">@style/ActionBarBlueTitle</item>
+        <item name="android:titleTextStyle">@style/ActionBarBlueTitle</item>
     </style>
     
     <style name="Widget.Styled.ActionBar.MainActivity">
@@ -49,6 +53,18 @@
         <item name="android:paddingLeft">12dip</item>
         <item name="android:paddingRight">12dip</item>
         <item name="android:scaleType">center</item>
+    </style>
+    
+      <style name="ActionBarBlueTitle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
+         <item name="android:textSize">@dimen/action_bar_title_text_size</item>
+         <item name="android:textColor">@color/wt</item>
+         <item name="android:textStyle">bold</item>
+        <!-- item name="android:textColor">@color/main_color</item -->
+    </style>
+      
+    <style name="MainActivityTextAppearance">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
     
     <style name="DashboardWidgetImage">

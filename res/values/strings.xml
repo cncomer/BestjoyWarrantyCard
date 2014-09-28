@@ -30,6 +30,7 @@
      <string name="tip_find_flightno">你的意思是航班 %s?</string>
      <string name="tip_find_train">你的意思是车次 %s?</string>
      <string name="text_train">查询车次信息</string>
+     <string name="text_check_voice_title">请输入报修品牌/查询航班、高铁</string>
       <string name="menu_picture_gallery">上传手机中的照片</string>
         <string name="menu_picture_camera">拍照上传</string>
         <string name="menu_bill_edit">拍摄发票</string>
@@ -85,11 +86,11 @@
        <string name="usr_repwd_hint">请再次输入你的密码</string>
        <string name="usr_tel_hint">输入你的手机号</string>
     
-    <string name="activity_title_choose_device_general">我的保修卡</string>
+    <string name="activity_title_choose_device_general">家当清单</string>
     <string name="activity_title_choose_device_card">选择设备</string>
     <string name="activity_title_choose_device_install">请先选择你要预约安装的产品</string>
     <string name="activity_title_choose_device_repair">请先选择你要预约维修的产品</string>
-    <string name="activity_title_repair">预约维修</string>
+    <string name="activity_title_repair">电子报修单</string>
     <string name="activity_title_install">预约安装</string>
     <string name="activity_title_choose_device_feedback">选择设备</string>
     
@@ -187,8 +188,6 @@
     <string name="msg_input_pwd_not_match_tips">两次密码输入不一致，请重新输入</string>
     <string name="msg_usr_pwd_too_short_tips">密码不能小于6位</string>
     
-    <string name="title_feedback">评价</string>
-    
     <string name="baoxiucard_validity">%s天</string>
     <string name="baoxiucard_validity_toomuch">"9999天"</string>
     <string name="baoxiucard_outdate">过保</string>
@@ -230,7 +229,7 @@
      <string name="msg_input_tel_when_find_password">请先输入要找回密码的手机号码</string>
      <string name="msg_find_password_success">密码已成功找回，请查看短信</string>
       <string name="msg_local_save_card_failed">服务器上传信息成功，但本地保存失败，请重新登录同步数据</string>
-      <string name="title_baoxiucard_info">保修卡信息</string>
+      <string name="title_baoxiucard_info">电子保修卡</string>
       <string name="msg_cant_show_bill">"请先拍摄发票"</string>
       
       <!-- 自动更新 begin -->
@@ -302,10 +301,10 @@
          <string name="hint_input_new_password">请输入你的新密码</string>
          <string name="hint_reinput_new_password">请再次输入你的新密码</string>
          
-          <string name="hint_input_password">输入你的密码</string>
-         <string name="hint_input_confirm_password">输入你的确认密码</string>
-         <string name="hint_input_usrname">输入你的用户名</string>
-          <string name="hint_input_tel">输入你的手机号码</string>
+          <string name="hint_input_password">输入您的密码</string>
+         <string name="hint_input_confirm_password">输入您的确认密码</string>
+         <string name="hint_input_usrname">输入您的用户名</string>
+          <string name="hint_input_tel">输入您的手机号码</string>
          
          <string name="msg_input_old_password_error">输入的当前密码有误，请重新输入...</string>
          <string name="msg_input_new_password_error">你输入的新密码不一致，请确认重新输入</string>
@@ -553,11 +552,14 @@
            <string name="msg_wait_for_fapiao_show">"正在进入图库显示发票，请稍后..."</string>
            
            <string name="msg_cancel_voice_input_down">手指上滑，取消识别</string>
+            <string name="msg_check_voice_input_by_up">松开手指可以修正您的输入</string>
            <string name="msg_cancel_voice_input_by_cancel">手指下滑，开始识别</string>
            <string name="hint_voice_input_wait">正在识别....</string>
            <string name="hint_voice_input">请开始说话</string>
            <string name="hint_voice_input_canceled">已取消</string>
            
            <string name="msg_query_pinpai_wait_format">"正在检索 %s....."</string>
-           <string name="msg_query_no_support_format">"目前暂不支持处理 %s"</string>
+           <string name="msg_query_no_support_format">"【%s】请说出报修品牌/查询航班、高铁"</string>
+           
+           <string name="title_feedback">意见反馈</string>
 </resources>

@@ -50,11 +50,10 @@
 			    <EditText android:id="@+id/password_input"
 			        android:hint="@string/hint_input_password"
 			        android:digits="@string/password_accept_chars"
-                    android:inputType="textPassword"
 			        style="@style/ProductInfoInput"/>
 			</LinearLayout>
 	
-            <LinearLayout
+            <LinearLayout android:visibility="gone"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:gravity="center_vertical"
@@ -81,6 +80,22 @@
 			        style="@style/ProductInfoInput"/>
 			</LinearLayout>
 
+            <View android:layout_width="fill_parent"
+                android:layout_height="1dip"
+                android:layout_marginTop="8dip"
+                android:background="#ff1a4f95"/>
+            <LinearLayout 
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="vertical" >
+	
+	            <EditText
+	                android:id="@+id/my_home"
+	                style="@style/ProductInfoInput"
+					android:hint="@string/hint_input_home_name"
+					android:layout_width="fill_parent"/>
+			    <include layout="@layout/pcd_edit_layout" />
+        	</LinearLayout>
             <Button
                 android:layout_marginTop="20dip"
                 android:id="@+id/button_next"
