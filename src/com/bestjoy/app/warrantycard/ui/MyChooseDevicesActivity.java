@@ -1,5 +1,8 @@
 package com.bestjoy.app.warrantycard.ui;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -79,7 +82,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 			setTitle(title);
 		}
 		mViewPager = (ViewPager) findViewById(R.id.pagerview);
-		mMyPagerAdapter = new MyPagerAdapter(this.getSupportFragmentManager());
+		mMyPagerAdapter = new MyPagerAdapter(this.getSupportFragmentManager(), MyAccountManager.getInstance().getAccountObject().mAccountHomes);
 		mViewPager.setAdapter(mMyPagerAdapter);
 		mViewPager.setOnPageChangeListener(mMyPagerAdapter);
 		
@@ -109,6 +112,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 		super.onDestroy();
 		DebugUtils.logD(TAG, "onDestroy()");
 		getContentResolver().unregisterContentObserver(mContentObserver);
+		mMyPagerAdapter.changeData(null);
 	}
 	
 	
@@ -159,13 +163,14 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 		@Override
 		protected Void doInBackground(Void... params) {
 			MyAccountManager.getInstance().initAccountHomes();
+			MyAccountManager.getInstance().updateHomeObject(-1);
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			mMyPagerAdapter.notifyDataSetChanged();
+			mMyPagerAdapter.changeData(MyAccountManager.getInstance().getAccountObject().mAccountHomes);
 			if (mHomeSelected < mMyPagerAdapter.getCount() && mHomeSelected != mViewPager.getCurrentItem()) {
 				mViewPager.setCurrentItem(mHomeSelected);
 			} else if (mHomeSelected >= mMyPagerAdapter.getCount()) {
@@ -183,9 +188,15 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 
 
 	class MyPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener {
-		
-		public MyPagerAdapter(FragmentManager fm) {
+		public List<HomeObject> accountHomes = new LinkedList<HomeObject>();
+		public MyPagerAdapter(FragmentManager fm, List<HomeObject> homeObjectList) {
 			super(fm);
+			accountHomes = homeObjectList;
+		}
+		
+		public void changeData(List<HomeObject> homeObjectList) {
+			accountHomes = homeObjectList;
+			notifyDataSetChanged();
 		}
 		
 		
@@ -199,7 +210,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 		}
 		
 		private HomeObject getHome(int position) {
-			return MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(position);
+			return accountHomes.get(position);
 		}
 
 
@@ -229,10 +240,10 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 
 		@Override
 		public int getCount() {
-			if (MyAccountManager.getInstance().getAccountObject() == null) {
+			if (accountHomes == null) {
 				return 0;
 			}
-			return MyAccountManager.getInstance().getAccountObject().mAccountHomes.size();
+			return accountHomes.size();
 		}
 
 	}

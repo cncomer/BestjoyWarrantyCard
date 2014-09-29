@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="xinghao_modification_src">
+	    <item>ao史密斯</item>
+	    <item>A.O.SMS</item>
+	    <item>爱丽丝</item>
+	    <item>博士</item>
+	    <item>到齐</item>
+	    <item>到期</item>
+	    
+	    <item>点击</item>
+	    <item>东林</item>
+	    <item>东陵</item>
+	    
+	    <item>号码</item>
+	    <item>华零</item>
+	    <item>捷达</item>
+	    
+	    <item>科隆</item>
+	    <item>美林</item>
+	    <item>名人</item>
+	    
+	    <item>日历</item>
+	    <item>三零</item>
+	    <item>山里</item>
+	    
+	    <item>武林</item>
+	    <item>小雅</item>
+	    <item>小丫</item>
+	    
+	    <item>眼中</item>
+	    <item>言中</item>
+	</string-array>
+	
+	<string-array name="xinghao_modification_des">
+	    <item>A.O.史密斯</item>
+	    <item>A.O.史密斯</item>
+	    <item>艾丽斯电动车</item>
+	    <item>博世</item>
+	    <item>道奇</item>
+	    <item>道奇</item>
+	    
+	    <item>典籍</item>
+	    <item>东菱</item>
+	    <item>东菱</item>
+	    
+	    <item>奥马</item>
+	    <item>华凌</item>
+	    <item>杰达JIEEDA</item>
+	    
+	    <item>科龙</item>
+	    <item>美菱</item>
+	    <item>铭仁</item>
+	    
+	    <item>日立</item>
+	    <item>三菱电机</item>
+	    <item>三菱电机</item>
+	    
+	    <item>五菱</item>
+	    <item>小鸭</item>
+	    <item>小鸭</item>
+	    
+	     <item>延中</item>
+	    <item>延中</item>
+	</string-array>
+	
+	
+	<string-array name="xinghao_modification_des_tel">
+	    <item>4008288988</item>
+	    <item>4008288988</item>
+	    <item>022-58658698</item>
+	    <item>4008855888</item>
+	    <item>4006500118</item>
+	    <item>4006500118</item>
+	    
+	    <item>0755-86281275</item>
+	    <item>4008308188</item>
+	    <item>4008308188</item>
+	    
+	    <item>4007001770</item>
+	    <item>4008899800</item>
+	    <item>0373-3510256</item>
+	    
+	    <item>4008099999</item>
+	    <item>4008111666</item>
+	    <item>4000328568</item>
+	    
+	    <item>010-65908111</item>
+	    <item>010-65391700</item>
+	    <item>010-65391700</item>
+	    
+	    <item>4008895050</item>
+	    <item>4006586222</item>
+	    <item>4006586222</item>
+	    
+	     <item>4008807337</item>
+	    <item>"4008807337"</item>
+	</string-array>
+
+
+</resources>

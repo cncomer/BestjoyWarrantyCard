@@ -175,6 +175,8 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		CHARS_FOR_TRAIN.put('八', '8');
 		CHARS_FOR_TRAIN.put('九', '9');
 	}
+	
+	private String[] mVoiceXinghaoModificationSrc, mVoiceXinghaoModificationDes, mVoiceXinghaoModificationDesTel;;
 	private View mVoiceInputPopLayout;
 	private TextView mVoiceInputStatus;
 	private EditText mAskInput;
@@ -185,6 +187,10 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	private String[] mVoiceTrainSupport = null;
 	private void initVoiceLayout() {
 		mVoiceKeepKeys = mContext.getResources().getStringArray(R.array.voice_kepp_keys);
+		mVoiceXinghaoModificationSrc = mContext.getResources().getStringArray(R.array.xinghao_modification_src);
+		mVoiceXinghaoModificationDes = mContext.getResources().getStringArray(R.array.xinghao_modification_des);
+		mVoiceXinghaoModificationDesTel = mContext.getResources().getStringArray(R.array.xinghao_modification_des_tel);
+		
 		mVoiceTrainSupport = mContext.getResources().getStringArray(R.array.voice_train_support);
 		mVoiceInputPopLayout = findViewById(R.id.voice_input_layout);
 		mVoiceInputPopLayout.setVisibility(View.GONE);
@@ -198,6 +204,17 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		mVoiceImage = (ImageView) findViewById(R.id.voice_input_imageview);
 		mSpeechRecognizerEngine = SpeechRecognizerEngine.getInstance(mContext);
 		
+	}
+	
+	private int getModifiedXinghaoIndex(String query) {
+		int index = 0;
+		for(String key:mVoiceXinghaoModificationSrc) {
+			if (query.contains(key)) {
+				return index;
+			}
+			index++;
+		}
+		return -1;
 	}
 	
 	private RecognizerListener mRecognizerListener = new RecognizerListener() {
@@ -227,19 +244,22 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		}
 	
 		@Override
-		public void onResult(RecognizerResult arg0, boolean arg1) {
+		public void onResult(RecognizerResult results, boolean isLast) {
 			
-			String text = JsonParser.parseIatResult(arg0.getResultString());
+			String text = JsonParser.parseIatResult(results.getResultString());
 			DebugUtils.logD(TAG, "chenkai onResult " + text);
 			if (!TextUtils.isEmpty(text)) {
 				//BeepAndVibrate.getInstance().playBeepSoundAndVibrate();
 				mAskInput.append(text);
 				mAskInput.setSelection(mAskInput.length());
-				mVoiceInputStatus.setText(R.string.msg_check_voice_input_by_up);
-				if (mVoiceInputPopLayout.getVisibility() == View.VISIBLE && !mVoiceButtonTouchListener._isCanceled && mVoiceButtonTouchListener._isUp) {
-					mVoiceInputPopLayout.setVisibility(View.GONE);
-					doVoiceQuery(text, true);
+				if (isLast) {
+					mVoiceInputStatus.setText(R.string.msg_check_voice_input_by_up);
+					if (mVoiceInputPopLayout.getVisibility() == View.VISIBLE && !mVoiceButtonTouchListener._isCanceled && mVoiceButtonTouchListener._isUp) {
+						mVoiceInputPopLayout.setVisibility(View.GONE);
+						doVoiceQuery(text, true);
+					}
 				}
+				
 			}
 		}
 	
@@ -365,6 +385,12 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 					return CodeConstants.PINPAI;
 				}
 				c.close();
+			}
+			int pinpaiIndex = getModifiedXinghaoIndex(_query);
+			if (pinpaiIndex != -1) {
+				_pinpai = mVoiceXinghaoModificationDes[pinpaiIndex];
+				_bxPhone = mVoiceXinghaoModificationDesTel[pinpaiIndex];
+				return CodeConstants.PINPAI;
 			}
 			
 			//猜测是否是火车
