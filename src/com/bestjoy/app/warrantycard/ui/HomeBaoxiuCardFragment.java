@@ -38,6 +38,8 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 	
 	private long mAid = -1, mUid = -1;
 	
+	private boolean mNewAdd = false;
+	
 	public static interface OnBaoxiuCardItemClickListener {
 		void onItemClicked(BaoxiuCardObject card) ;
 	}
@@ -45,6 +47,7 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 		mHomeObject = homeObject;
 		mAid = homeObject.mHomeAid;
 		mUid = homeObject.mHomeUid;
+		mNewAdd = true;
 	}
 	
 
@@ -59,7 +62,7 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (savedInstanceState != null) {
+		if (savedInstanceState != null && !mNewAdd) {
 			mAid = savedInstanceState.getLong("aid");
 			mUid = savedInstanceState.getLong("uid");
 			DebugUtils.logD(TOKEN, "onCreate() savedInstanceState!=null, mAid="+ mAid + ", mUid="+mUid + ",loadCardsAsync()");
@@ -83,6 +86,7 @@ public class HomeBaoxiuCardFragment extends SherlockFragment implements OnItemCl
 		mListView.setAdapter(mCardsAdapter);
 		mListView.setOnItemClickListener(this);
 //		getActivity().getContentResolver().registerContentObserver(BjnoteContent.BaoxiuCard.CONTENT_URI, true, mContentObserver);
+		mNewAdd = false;
 		return view;
 	}
 	

@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 
@@ -112,7 +113,6 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 		super.onDestroy();
 		DebugUtils.logD(TAG, "onDestroy()");
 		getContentResolver().unregisterContentObserver(mContentObserver);
-		mMyPagerAdapter.changeData(null);
 	}
 	
 	
@@ -192,6 +192,11 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 		public MyPagerAdapter(FragmentManager fm, List<HomeObject> homeObjectList) {
 			super(fm);
 			accountHomes = homeObjectList;
+		}
+		
+		@Override
+		public int getItemPosition(Object object) {
+			return PagerAdapter.POSITION_NONE;
 		}
 		
 		public void changeData(List<HomeObject> homeObjectList) {
