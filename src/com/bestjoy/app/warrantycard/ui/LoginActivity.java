@@ -28,9 +28,9 @@ import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
-import com.bestjoy.app.warrantycard.utils.DialogUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.DialogUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
@@ -158,7 +158,7 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 					finish();
 					break;
 					default : //其他情况我们回到主界面，海尔要求
-						MainActivity.startActivityForTop(mContext);
+						MainActivity20141010.startActivityForTop(mContext);
 						finish();
 						break;
 				}

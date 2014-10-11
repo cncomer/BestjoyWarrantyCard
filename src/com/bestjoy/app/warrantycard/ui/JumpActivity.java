@@ -16,9 +16,9 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
 import com.bestjoy.app.warrantycard.update.ServiceAppInfo;
-import com.bestjoy.app.warrantycard.utils.InstallFileUtils;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.FilesUtils;
+import com.shwy.bestjoy.utils.InstallFileUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
@@ -123,7 +123,7 @@ public class JumpActivity extends Activity {
 
 			@Override
 			public void run() {
-				MainActivity.startActivityForTop(mContext);
+				MainActivity20141010.startActivityForTop(mContext);
 				finish();
 			}
 			

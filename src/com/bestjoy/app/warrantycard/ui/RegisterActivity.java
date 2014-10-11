@@ -107,7 +107,7 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 					finish();
 					break;
 					default ://否则回到主界面
-						MainActivity.startActivityForTop(mContext);
+						MainActivity20141010.startActivityForTop(mContext);
 				}
 			}
 		} else {

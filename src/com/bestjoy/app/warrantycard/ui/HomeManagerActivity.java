@@ -220,7 +220,7 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 			dismissDialog(DIALOG_PROGRESS);
 			super.onPostExecute(result);
 			if (mHomeManagerAdapter.getCount() == 0) {
-				MainActivity.startActivityForTop(mContext);
+				MainActivity20141010.startActivityForTop(mContext);
 			} else {
 				mHomeManagerAdapter.notifyDataSetChanged();
 			}

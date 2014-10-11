@@ -21,13 +21,16 @@ import android.widget.Toast;
 
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
+import com.bestjoy.app.warrantycard.utils.BaiduLocationManager;
 import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
-import com.bestjoy.app.warrantycard.utils.BitmapUtils;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.VcfAsyncDownloadUtils;
+import com.bestjoy.app.warrantycard.utils.WeatherManager;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.contacts.AddrBookUtils;
+import com.shwy.bestjoy.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.DateUtils;
 import com.shwy.bestjoy.utils.DeviceStorageUtils;
 import com.shwy.bestjoy.utils.DevicesUtils;
@@ -60,6 +63,7 @@ public class MyApplication extends Application{
 		//��ʼ���豸�����࣬���ڵõ��豸��Ϣ
 		DevicesUtils.getInstance().setContext(this);
 		DeviceStorageUtils.getInstance().setContext(this);
+		ComPreferencesManager.getInstance().setContext(this);
 //		//��ʼ���˺Ź�����
 //		BjnoteAccountsManager.getInstance().setContext(this);
 //		IncomingCallCallbackImp.getInstance().setContext(this);
@@ -102,6 +106,10 @@ public class MyApplication extends Application{
 		Log.d(TAG, getDeviceInfo(this));
 		
 		YouMengMessageHelper.getInstance().setContext(this);
+		//add by chenkai, 20141010, 百度定位api
+		BaiduLocationManager.getInstance().setContext(this);
+		//add by chenkai, 20141011, 天气
+		WeatherManager.getInstance().setContext(this);
 	}
 	
 	public synchronized static MyApplication getInstance() {
@@ -184,6 +192,23 @@ public class MyApplication extends Application{
 			productRoot.mkdirs();
 		}
 		return productRoot;
+	}
+	
+	public File getCachedFile(String name) {
+		return new File(getCacheDir(), name);
+	}
+	/**
+	 * 得到包路径下files/dirName/fileName文件
+	 * @param dirName
+	 * @param fileName
+	 * @return
+	 */
+	public File getFile(String dirName, String fileName) {
+		File dir =  new File(getFilesDir(), dirName);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		return new File(dir, fileName);
 	}
 	
 	@Override

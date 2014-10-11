@@ -41,18 +41,17 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
-import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2.TaskType;
-import com.bestjoy.app.warrantycard.utils.DialogUtils;
-import com.bestjoy.app.warrantycard.utils.FilesLengthUtils;
-import com.bestjoy.app.warrantycard.utils.TextViewUtils;
 import com.bestjoy.app.warrantycard.view.CircleProgressView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DebugUtils;
+import com.shwy.bestjoy.utils.DialogUtils;
+import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.NotifyRegistrant;
+import com.shwy.bestjoy.utils.TextViewUtils;
 
 public class CardViewFragment extends ModleBaseFragment implements View.OnClickListener{
 	private static final String TOKEN = CardViewFragment.class.getName();
@@ -463,7 +462,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 							if (code == HttpStatus.SC_OK) {
 								mPdfLength = response.getEntity().getContentLength();
 								DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return length of pdf file is " + mPdfLength);
-								mPdfLengthStr = FilesLengthUtils.computeLengthToString(mPdfLength);
+								mPdfLengthStr = FilesUtils.computeLengthToString(mPdfLength);
 								is = response.getEntity().getContent();
 								
 								fos = new FileOutputStream(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY));

@@ -87,11 +87,6 @@ public class BeepAndVibrate {
 		    }
 		  }
 	  
-	  /**
-	   * �н�����񶯰�
-	   * @param pattern��ģʽ��һ��Long���飬��һ��ֵ����ú�ʼ�񶯣����ž���
-	   * @param vRepeat off/on/off/on/off/on ģʽ�е��±꣬��1��ʾ��ѭ�������֮�⣬��ģʽ���±�����ʼѭ����
-	   */
 	  public void playBeepSoundAndVibrate(long[] pattern, int vRepeat) {
 		  
 		    if (playBeep && mediaPlayer != null) {

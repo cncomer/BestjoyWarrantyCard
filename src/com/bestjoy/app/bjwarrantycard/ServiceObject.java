@@ -219,6 +219,7 @@ public class ServiceObject {
 		public JSONObject mJsonData;
 		public String mStrData;
 		public JSONArray mAddresses;
+		public JSONArray mJsonArray;
 		
 		public static ServiceResultObject parse(String content) {
 			ServiceResultObject resultObject = new ServiceResultObject();
@@ -260,6 +261,30 @@ public class ServiceObject {
 					resultObject.mJsonData = jsonObject.getJSONObject("results");
 				} catch (JSONException e) {
 					resultObject.mStrData = jsonObject.getString("results");
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+				resultObject.mStatusMessage = e.getMessage();
+			}
+			return resultObject;
+		}
+		
+		public static ServiceResultObject parseArray(String content) {
+			ServiceResultObject resultObject = new ServiceResultObject();
+			if (TextUtils.isEmpty(content)) {
+				return resultObject;
+			}
+			try {
+				JSONObject jsonObject = new JSONObject(content);
+				resultObject.mStatusCode = Integer.parseInt(jsonObject.getString("StatusCode"));
+				resultObject.mStatusMessage = jsonObject.getString("StatusMessage");
+				DebugUtils.logD("HaierResultObject", "mAddresses = " + resultObject.mAddresses);
+				DebugUtils.logD("HaierResultObject", "StatusCode = " + resultObject.mStatusCode);
+				DebugUtils.logD("HaierResultObject", "StatusMessage = " +resultObject.mStatusMessage);
+				try {
+					resultObject.mJsonArray = jsonObject.getJSONArray("Data");
+				} catch (JSONException e) {
+					resultObject.mStrData = jsonObject.getString("Data");
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -349,6 +374,18 @@ public class ServiceObject {
 		  public static String getFeedbackUrl(String para, String jsonString) {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
 			  sb.append("AddSuggestion.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  
+		  public static String getWeatherUrl(String adminCode) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Weather/GetWeatherByAdminCode.ashx?admin_code=").append(adminCode);
+			  return sb.toString();
+		  }
+		  
+		  public static String getWeatherIcon(String photoId) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Weather/icon/day/").append(photoId).append(".png");
 			  return sb.toString();
 		  }
 }

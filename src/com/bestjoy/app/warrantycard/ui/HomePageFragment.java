@@ -1,6 +1,8 @@
 package com.bestjoy.app.warrantycard.ui;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -11,7 +13,6 @@ import org.json.JSONException;
 
 import android.app.AlertDialog;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -31,15 +32,20 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.widget.IcsLinearLayout;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.baidu.location.BDLocation;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
@@ -47,12 +53,20 @@ import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
+import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
+import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2.TaskType;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
-import com.bestjoy.app.warrantycard.update.UpdateService;
+import com.bestjoy.app.warrantycard.utils.BaiduLocationManager;
+import com.bestjoy.app.warrantycard.utils.BaiduLocationManager.LocationChangeCallback;
 import com.bestjoy.app.warrantycard.utils.CodeConstants;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.JsonParser;
+import com.bestjoy.app.warrantycard.utils.MenuHandlerUtils;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
+import com.bestjoy.app.warrantycard.utils.WeatherManager;
+import com.bestjoy.app.warrantycard.utils.WeatherManager.WeatherEvent;
+import com.bestjoy.app.warrantycard.utils.WeatherManager.WeatherObject;
+import com.bestjoy.app.warrantycard.utils.WeatherManager.WeekWeather;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
@@ -60,16 +74,20 @@ import com.iflytek.cloud.SpeechError;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.ComPreferencesManager;
+import com.shwy.bestjoy.utils.DialogUtils;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
-import com.umeng.message.PushAgent;
 
-public class MainActivity extends BaseActionbarActivity implements View.OnClickListener {
-	private static final String TAG = "MainActivity";
+public class HomePageFragment extends BaseFragment implements View.OnClickListener {
+	public static final String TAG = "HomeFragment";
 	private LinearLayout mDotsLayout;
+	private IcsLinearLayout mWeatherLayout;
 	private ViewPager mAdsViewPager;
 	private boolean mAdsViewPagerIsScrolling = false;
+	
+	private LocationChangeCallback mLocationChangeCallback;
 	
 	private int[] mAddsDrawableId = new int[]{
 			R.drawable.ad1,
@@ -87,17 +105,40 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	
 	private Handler mHandler;
 	
+	private View mContent;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		PhotoManagerUtilsV2.getInstance().requestToken(TAG);
 		mHandler = new Handler();
-		
-		getSupportActionBar().setDisplayShowHomeEnabled(false);
-		getSupportActionBar().setDisplayShowTitleEnabled(false);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-		setContentView(R.layout.activity_main);
-		mDotsLayout = (LinearLayout) findViewById(R.id.dots);
-		mAdsViewPager = (ViewPager) findViewById(R.id.adsViewPager);
+		this.setHasOptionsMenu(true);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		getActivity().invalidateOptionsMenu();
+		changeAdsDelay();
+	}
+	
+	
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		initVoiceLayout(mContent);
+		if (WeatherManager.getInstance().getCachedWeatherFile().exists()) {
+			DebugUtils.logD(TAG, "onActivityCreated loadCachedWeatherFile");
+			loadWeatherAsync();
+		}
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		mContent = inflater.inflate(R.layout.home_fragment, container, false);
+		mDotsLayout = (LinearLayout) mContent.findViewById(R.id.dots);
+		mAdsViewPager = (ViewPager) mContent.findViewById(R.id.adsViewPager);
 		this.initViewPagers(3);
 		this.initDots(3);
 		mAdsViewPager.setAdapter(new AdsViewPagerAdapter());
@@ -124,42 +165,28 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			}
 		});
 		
-		//ModleSettings.addModelsAdapter(this, (ListView) findViewById(R.id.listview));
-		UpdateService.startUpdateServiceOnAppLaunch(mContext);
+		 View weatherLayout = mContent.findViewById(R.id.weather_layout);
+		if (weatherLayout != null) {
+			mWeatherLayout = (IcsLinearLayout) weatherLayout;
+			mWeatherLayout.removeAllViews();
+			mLocationChangeCallback = new MyLocationChangeCallback();
+			BaiduLocationManager.getInstance().addLocationChangeCallback(mLocationChangeCallback);
+			BaiduLocationManager.getInstance().mLocationClient.start();
+		}
 		
-		findViewById(R.id.button_my_card).setOnClickListener(this);
-		findViewById(R.id.button_telecontrol).setOnClickListener(this);
-		findViewById(R.id.button_qr_scan).setOnClickListener(this);
-		
-		YouMengMessageHelper.getInstance().startCheckDeviceTokenAsync();
-		//统计应用启动数据
-		PushAgent.getInstance(mContext).onAppStart();
-		
-		initVoiceLayout();
+		mContent.findViewById(R.id.ic_module_baoxiucard).setOnClickListener(this);
+		mContent.findViewById(R.id.ic_module_home).setOnClickListener(this);
+		mContent.findViewById(R.id.ic_module_car).setOnClickListener(this);
+		mContent.findViewById(R.id.ic_module_vip).setOnClickListener(this);
+		return mContent;
 	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		invalidateOptionsMenu();
-		changeAdsDelay();
-	}
-	
+
 	@Override
 	public void onStop() {
 		super.onStop();
 		mHandler.removeCallbacks(mChangeAdsRunnable);
 	}
 	
-	@Override
-	public void onBackPressed() {
-		if (mVoiceInputPopLayout.getVisibility() == View.VISIBLE) {
-			mVoiceInputPopLayout.setVisibility(View.GONE);
-		} else {
-			super.onBackPressed();
-		}
-		
-	}
 	/**
 	 * 目前语音识别对于火车字母+2位数字的车次，会将数字识别成大写，这里做了一个映射
 	 */
@@ -185,24 +212,24 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	private VoiceButtonTouchListener mVoiceButtonTouchListener;
 	private String[] mVoiceKeepKeys = null;
 	private String[] mVoiceTrainSupport = null;
-	private void initVoiceLayout() {
-		mVoiceKeepKeys = mContext.getResources().getStringArray(R.array.voice_kepp_keys);
-		mVoiceXinghaoModificationSrc = mContext.getResources().getStringArray(R.array.xinghao_modification_src);
-		mVoiceXinghaoModificationDes = mContext.getResources().getStringArray(R.array.xinghao_modification_des);
-		mVoiceXinghaoModificationDesTel = mContext.getResources().getStringArray(R.array.xinghao_modification_des_tel);
+	private void initVoiceLayout(View content) {
+		mVoiceKeepKeys = getActivity().getResources().getStringArray(R.array.voice_kepp_keys);
+		mVoiceXinghaoModificationSrc = getActivity().getResources().getStringArray(R.array.xinghao_modification_src);
+		mVoiceXinghaoModificationDes = getActivity().getResources().getStringArray(R.array.xinghao_modification_des);
+		mVoiceXinghaoModificationDesTel = getActivity().getResources().getStringArray(R.array.xinghao_modification_des_tel);
 		
-		mVoiceTrainSupport = mContext.getResources().getStringArray(R.array.voice_train_support);
-		mVoiceInputPopLayout = findViewById(R.id.voice_input_layout);
+		mVoiceTrainSupport = getActivity().getResources().getStringArray(R.array.voice_train_support);
+		mVoiceInputPopLayout = content.findViewById(R.id.voice_input_layout);
 		mVoiceInputPopLayout.setVisibility(View.GONE);
-		mVoiceBtn = (ImageView) findViewById(R.id.button_voice);
-		mVoiceInputStatus = (TextView) findViewById(R.id.voice_input_status);
+		mVoiceBtn = (ImageView) content.findViewById(R.id.button_voice);
+		mVoiceInputStatus = (TextView) content.findViewById(R.id.voice_input_status);
 		mVoiceButtonTouchListener = new VoiceButtonTouchListener();
 		mVoiceBtn.setOnTouchListener(mVoiceButtonTouchListener);
 		
-		mAskInput = (EditText) findViewById(R.id.voice_input_confirm);
+		mAskInput = (EditText) content.findViewById(R.id.voice_input_confirm);
 		
-		mVoiceImage = (ImageView) findViewById(R.id.voice_input_imageview);
-		mSpeechRecognizerEngine = SpeechRecognizerEngine.getInstance(mContext);
+		mVoiceImage = (ImageView) content.findViewById(R.id.voice_input_imageview);
+		mSpeechRecognizerEngine = SpeechRecognizerEngine.getInstance(getActivity());
 		
 	}
 	
@@ -376,7 +403,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			StringBuilder sb = new StringBuilder(DeviceDBHelper.DEVICE_PINPAI_NAME);
 			sb.append(" like ").append("'%").append(_query).append("%'");
 			DebugUtils.logD(TAG, "pinpai selection " + sb.toString());
-			Cursor c = getContentResolver().query(BjnoteContent.PinPai.CONTENT_URI, NewCardChooseFragment.PINPAI_PROJECTION, sb.toString(), null, null);
+			Cursor c = getActivity().getContentResolver().query(BjnoteContent.PinPai.CONTENT_URI, NewCardChooseFragment.PINPAI_PROJECTION, sb.toString(), null, null);
 			if (c != null) {
 				if (c.moveToNext()) {
 					_pinpai = c.getString(1);
@@ -456,7 +483,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				break;
 			case CodeConstants.PINPAI:
 				if (!TextUtils.isEmpty(_pinpai)) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
+					AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
 					.setMessage(_pinpai+" " + _bxPhone);
 					
 					if (!TextUtils.isEmpty(_bxPhone)) {
@@ -464,7 +491,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								Intents.callPhone(mContext, _bxPhone);
+								Intents.callPhone(getActivity(), _bxPhone);
 								
 							}
 						});
@@ -475,13 +502,13 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				break;
 			case CodeConstants.TRAIN:
 				if (!TextUtils.isEmpty(_query)) {
-					new AlertDialog.Builder(mContext)
+					new AlertDialog.Builder(getActivity())
 					.setMessage(getString(R.string.tip_find_train, _query))
 					.setPositiveButton(R.string.text_train, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								Intents.openURL(mContext, CodeConstants.getTrainUrl(_query));
+								Intents.openURL(getActivity(), CodeConstants.getTrainUrl(_query));
 								
 							}
 						})
@@ -491,13 +518,13 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				break;
 			case CodeConstants.AIRPLANE:
 				if (!TextUtils.isEmpty(_query)) {
-					new AlertDialog.Builder(mContext)
+					new AlertDialog.Builder(getActivity())
 					.setMessage(getString(R.string.tip_find_flightno, _query))
 					.setPositiveButton(R.string.text_flightno, new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								Intents.openURL(mContext, CodeConstants.getAirPlaneUrl(_query));
+								Intents.openURL(getActivity(), CodeConstants.getAirPlaneUrl(_query));
 								
 							}
 						})
@@ -524,10 +551,10 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	}
 	
 	private void showCheckVoiceDialog(String query) {
-		final EditText input = new EditText(mContext);
+		final EditText input = new EditText(getActivity());
 		input.setText(query);
 		input.setSelection(query.length());
-		final AlertDialog dialog = new AlertDialog.Builder(mContext)
+		final AlertDialog dialog = new AlertDialog.Builder(getActivity())
 		.setMessage(R.string.text_check_voice_title)
 		.setView(input)
 		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -563,26 +590,25 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	}
 	
 	 @Override
-     public boolean onCreateOptionsMenu(Menu menu) {
-  	     boolean result = super.onCreateOptionsMenu(menu);
+     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  	     super.onCreateOptionsMenu(menu, inflater);
+  	     MenuHandlerUtils.onCreateOptionsMenu(menu);
   	     MenuItem subMenu1Item = menu.findItem(R.string.menu_more);
-  	   subMenu1Item.getSubMenu().add(1000, R.string.menu_refresh, 2005, R.string.menu_refresh);
+  	     subMenu1Item.getSubMenu().add(1000, R.string.menu_refresh, 2005, R.string.menu_refresh);
   	     subMenu1Item.getSubMenu().add(1000, R.string.menu_exit, 2006, R.string.menu_exit);
-//  	     subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_light);
-         return result;
      }
 	 
-	 public boolean onPrepareOptionsMenu(Menu menu) {
+	 public void onPrepareOptionsMenu(Menu menu) {
+		 MenuHandlerUtils.onPrepareOptionsMenu(menu, getActivity());
 		 menu.findItem(R.string.menu_exit).setVisible(MyAccountManager.getInstance().hasLoginned());
 		 menu.findItem(R.string.menu_refresh).setVisible(MyAccountManager.getInstance().hasLoginned());
-	     return super.onPrepareOptionsMenu(menu);
 	 }
 	 
 	 @Override
 	 public boolean onOptionsItemSelected(MenuItem menuItem) {
 		 switch(menuItem.getItemId()) {
 		 case R.string.menu_exit:
-			 new AlertDialog.Builder(mContext)
+			 new AlertDialog.Builder(getActivity())
 				.setMessage(R.string.msg_existing_system_confirm)
 				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 					
@@ -613,7 +639,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			 }
 			 break;
 		 }
-		 return super.onOptionsItemSelected(menuItem);
+		 return MenuHandlerUtils.onOptionsItemSelected(menuItem, getActivity());
 	 }
 	 
 	 private DeleteAccountTask mDeleteAccountTask;
@@ -636,14 +662,14 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			dismissDialog(DIALOG_PROGRESS);
-			invalidateOptionsMenu();
+			getActivity().invalidateOptionsMenu();
 			MyApplication.getInstance().showMessage(R.string.msg_op_successed);
 		}
 
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
-			invalidateOptionsMenu();
+			getActivity().invalidateOptionsMenu();
 			dismissDialog(DIALOG_PROGRESS);
 		}
 		
@@ -654,7 +680,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 
 
 	private void initDots(int count){
-		LayoutInflater flater = this.getLayoutInflater();
+		LayoutInflater flater = getActivity().getLayoutInflater();
 		if (mDotDrawableArray == null) {
 			mDotDrawableArray = new Drawable[2];
 			mDotDrawableArray[0] = this.getResources().getDrawable(R.drawable.dot);
@@ -683,20 +709,17 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		}
 		int adsW = getResources().getDimensionPixelSize(R.dimen.ads_width);
 		int adsH = getResources().getDimensionPixelSize(R.dimen.ads_height);
-		mAdsBitmaps = BitmapUtils.getSuitedBitmaps(this, mAddsDrawableId, 800, 1024);
+		mAdsBitmaps = BitmapUtils.getSuitedBitmaps(getActivity(), mAddsDrawableId, 800, 1024);
 	}
 	
 	private void initViewPagers(int count) {
 		initAdsBitmap();
 		mAdsPagerViews = new ImageView[count];
-		LayoutInflater flater = getLayoutInflater();
+		LayoutInflater flater = getActivity().getLayoutInflater();
 		for (int j = 0; j < count; j++) {
 			mAdsPagerViews[j] = (ImageView) flater.inflate(R.layout.ads, null, false);
 			mAdsPagerViews[j].setImageBitmap(mAdsBitmaps[j]);
 		}
-	}
-	
-	private void initAdsPager(){
 	}
 	
 	class AdsViewPagerAdapter extends PagerAdapter{
@@ -751,27 +774,12 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	}
 
 	@Override
-	protected boolean checkIntent(Intent intent) {
-		return true;
-	}
-	/**
-	 * 回到主界面
-	 * @param context
-	 */
-	public static void startActivityForTop(Context context) {
-		Intent intent = new Intent(context, MainActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		context.startActivity(intent);
-	}
-
-	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.button_my_card:
+		case R.id.ic_module_baoxiucard:
 			//判断有没有登陆，没有的话提示登录
 			if (!MyAccountManager.getInstance().hasLoginned()) {
-				 LoginActivity.startIntent(this, null);
+				 LoginActivity.startIntent(getActivity(), null);
 				 MyApplication.getInstance().showNeedLoginMessage();
 				 return;
 			} else {
@@ -784,9 +792,9 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 						//如果是第一次，我们需要拉取演示家数据
 						if (!ComConnectivityManager.getInstance().isConnected()) {
 							//没有联网，这里提示用户
-							ComConnectivityManager.getInstance().onCreateNoNetworkDialog(mContext).show();
+							ComConnectivityManager.getInstance().onCreateNoNetworkDialog(getActivity()).show();
 						} else {
-							new AlertDialog.Builder(mContext)
+							new AlertDialog.Builder(getActivity())
 							.setMessage(R.string.msg_need_to_get_demo_data)
 							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 								
@@ -806,28 +814,28 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			if (!MyAccountManager.getInstance().hasHomes()) {
 				HomeObject.setHomeObject(new HomeObject());
 				MyApplication.getInstance().showNeedHomeMessage();
-				NewHomeActivity.startActivity(this);
+				NewHomeActivity.startActivity(getActivity());
 				return;
 			}
 			//判断是否有保修卡
 			
 			if (MyAccountManager.getInstance().hasBaoxiuCards()) {
-				Bundle bundle = ModleSettings.createMyCardDefaultBundle(this);
+				Bundle bundle = ModleSettings.createMyCardDefaultBundle(getActivity());
 				bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
 				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
-				MyChooseDevicesActivity.startIntent(this, bundle);
+				MyChooseDevicesActivity.startIntent(getActivity(), bundle);
 			} else {
-				Bundle bundle = ModleSettings.createMyCardDefaultBundle(this);
+				Bundle bundle = ModleSettings.createMyCardDefaultBundle(getActivity());
 				bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
 				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
-				NewCardActivity.startIntent(this, bundle);
+				NewCardActivity.startIntent(getActivity(), bundle);
 			}
 			break;
 		case R.id.button_telecontrol:
 			MyApplication.getInstance().showUnsupportMessage();
 			break;
 		case R.id.button_qr_scan:
-			Intent scanIntent = new Intent(this, CaptureActivity.class);
+			Intent scanIntent = new Intent(getActivity(), CaptureActivity.class);
 			startActivity(scanIntent);
 			break;
 		}
@@ -844,7 +852,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 
 		@Override
         protected ServiceResultObject doInBackground(Void... params) {
-			ContentResolver cr = mContext.getContentResolver();
+			ContentResolver cr = getActivity().getContentResolver();
 			if (!MyAccountManager.getInstance().hasHomes()) {
 				//如果没有家，我们创建演示家
 				HomeObject homeObject = HomeObject.getDemoHomeObject(AccountObject.DEMO_ACCOUNT_UID, HomeObject.DEMO_HOME_AID);
@@ -878,7 +886,7 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 		            		}
 		            		MyAccountManager.getInstance().updateHomeObject(HomeObject.DEMO_HOME_AID);
 	            		} else {
-	            			serviceObject.mStatusMessage = mContext.getString(R.string.msg_get_no_demo_data);
+	            			serviceObject.mStatusMessage = getActivity().getString(R.string.msg_get_no_demo_data);
 	            		}
 	            		
 	            	}
@@ -909,20 +917,20 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 				if (!MyAccountManager.getInstance().hasHomes()) {
 					HomeObject.setHomeObject(new HomeObject());
 					MyApplication.getInstance().showNeedHomeMessage();
-					NewHomeActivity.startActivity(mContext);
+					NewHomeActivity.startActivity(getActivity());
 					return;
 				}
 				//判断是否有保修卡
 				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
-					Bundle newBundle = ModleSettings.createMyCardDefaultBundle(mContext);
+					Bundle newBundle = ModleSettings.createMyCardDefaultBundle(getActivity());
 					newBundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
 					newBundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
-					MyChooseDevicesActivity.startIntent(mContext, newBundle);
+					MyChooseDevicesActivity.startIntent(getActivity(), newBundle);
 				} else {
-					Bundle newBundle = ModleSettings.createMyCardDefaultBundle(mContext);
+					Bundle newBundle = ModleSettings.createMyCardDefaultBundle(getActivity());
 					newBundle.putLong("aid", MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(0).mHomeAid);
 					newBundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
-					NewCardActivity.startIntent(mContext, newBundle);
+					NewCardActivity.startIntent(getActivity(), newBundle);
 				}
 	        } else {
 	        	MyApplication.getInstance().showMessage(result.mStatusMessage);
@@ -943,7 +951,158 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		mContent = null;
 		YouMengMessageHelper.getInstance().cancelCheckDeviceTokenTask();
+		BaiduLocationManager.getInstance().mLocationClient.stop();
+		BaiduLocationManager.getInstance().removeLocationChangeCallback(mLocationChangeCallback);
+		PhotoManagerUtilsV2.getInstance().releaseToken(TAG);
+	}
+	
+	
+	
+	private class MyLocationChangeCallback implements LocationChangeCallback {
+
+		@Override
+		public boolean isLocationChanged(BDLocation location) {
+			String adminCode = HomeObject.getDisID(getActivity().getContentResolver(), location.getProvince().replaceAll("[省市]", ""), location.getCity().replaceAll("[省市]", ""), location.getDistrict());
+			if (!TextUtils.isEmpty(adminCode)) {
+				String lastAdminCode = ComPreferencesManager.getInstance().mPreferManager.getString("admincode", "");
+				if (!lastAdminCode.equals(adminCode)) {
+					ComPreferencesManager.getInstance().mPreferManager.edit().putString("admincode", adminCode).commit();
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public boolean onLocationChanged(BDLocation location) {
+			updateWeatherAsync(ComPreferencesManager.getInstance().mPreferManager.getString("admincode", ""));
+			return true;
+		}
+		
+	}
+	
+	private UpdateWeatherTask mUpdateWeatherTask;
+	private void updateWeatherAsync(String adminCode) {
+		AsyncTaskUtils.cancelTask(mUpdateWeatherTask);
+		mUpdateWeatherTask = new UpdateWeatherTask();
+		mUpdateWeatherTask.execute(adminCode);
+	}
+	//下载天气数据
+	private class UpdateWeatherTask extends AsyncTask<String, Void, ServiceResultObject> {
+
+		@Override
+		protected ServiceResultObject doInBackground(String... params) {
+			ServiceResultObject result = new ServiceResultObject();
+			InputStream is = null;
+			try {
+				is = NetworkUtils.openContectionLocked(ServiceObject.getWeatherUrl(params[0]), MyApplication.getInstance().getSecurityKeyValuesObject());
+				boolean saved = WeatherManager.getInstance().saveWeather(is);
+				DebugUtils.logD(TAG, "UpdateWeatherTask saveWeather " + saved);
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				result.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				result.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			//显示数据
+			loadWeatherAsync();
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+		}
+		
+	}
+	
+	
+	private LoadWeatherTask mLoadWeatherTask;
+	private void loadWeatherAsync() {
+		AsyncTaskUtils.cancelTask(mLoadWeatherTask);
+		mLoadWeatherTask = new LoadWeatherTask();
+		mLoadWeatherTask.execute();
+	}
+	private class LoadWeatherTask extends AsyncTask<Void, Void, WeekWeather> {
+
+		@Override
+		protected WeekWeather doInBackground(Void... params) {
+			try {
+				String content = NetworkUtils.getContentFromInput(new FileInputStream(WeatherManager.getInstance().getCachedWeatherFile()));
+				ServiceResultObject result = ServiceResultObject.parseArray(content);
+				if (result.isOpSuccessfully()) {
+					return WeatherManager.getInstance().getWeekWeather(result.mJsonArray);
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(WeekWeather result) {
+			super.onPostExecute(result);
+			mWeatherLayout.removeAllViews();
+			if (result == null) {
+				mWeatherLayout.setVisibility(View.GONE);
+			} else {
+				//add weather items
+				for(final WeatherObject weatherObject : result.mWeatherObjectList) {
+					View weatherItem = getActivity().getLayoutInflater().inflate(R.layout.weather_item, mWeatherLayout, false);
+					//加载星期数
+					TextView weekday = (TextView) weatherItem.findViewById(R.id.textview);
+					weekday.setText(weatherObject._weekday);
+					//加载天气图标
+					ImageView icon = (ImageView) weatherItem.findViewById(R.id.icon);
+					PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TAG, icon, weatherObject._weatherIcon, null, TaskType.WeatherIcon);
+					//加载天气事件
+					
+					Button event = (Button) weatherItem.findViewById(R.id.event);
+					if (weatherObject._weatherEventList.size() > 1) {
+						event.setText(R.string.view_weather_event_more);
+//						event.setOnClickListener(new View.OnClickListener() {
+//
+//							@Override
+//							public void onClick(View v) {
+//								StringBuilder sb = new StringBuilder();
+//								for(WeatherEvent weatherEvent: weatherObject._weatherEventList) {
+//									sb.append(weatherEvent._eventName).append("/");
+//								}
+//								if (sb.toString().endsWith("/")) {
+//									sb.deleteCharAt(sb.length() - 1);
+//								}
+//								DialogUtils.createSimpleConfirmAlertDialog(getActivity(), sb.toString(), null);
+//							}
+//							
+//						});
+					} else if (weatherObject._weatherEventList.size() == 1) {
+						event.setText(weatherObject._weatherEventList.get(0)._eventName);
+					} else {
+						event.setVisibility(View.INVISIBLE);
+					}
+					
+					mWeatherLayout.addView(weatherItem);
+				}
+				mWeatherLayout.setVisibility(View.VISIBLE);
+			}
+			
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+		}
+		
 	}
 
 }

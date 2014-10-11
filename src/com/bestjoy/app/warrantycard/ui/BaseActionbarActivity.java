@@ -229,22 +229,6 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
        }
        
        @Override
-       public boolean onCreateOptionsMenu(Menu menu) {
-    	   MenuHandlerUtils.onCreateOptionsMenu(menu);
-//           SubMenu subMenu1 = menu.addSubMenu(R.string.menu_more);
-//           subMenu1.add(0, R.string.menu_login, 0, R.string.menu_login);
-//           subMenu1.add(0, R.string.menu_register, 0, R.string.menu_register);
-//           subMenu1.add(0, R.string.menu_setting, 0, R.string.menu_setting);
-//           subMenu1.add(0, R.string.menu_help, 0, R.string.menu_help);
-//           subMenu1.add(0, R.string.menu_about, 0, R.string.menu_about);
-//
-//           MenuItem subMenu1Item = subMenu1.getItem();
-//           subMenu1Item.setIcon(R.drawable.ic_menu_moreoverflow_normal_holo_light);
-//           subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-           return super.onCreateOptionsMenu(menu);
-       }
-       
-       @Override
        public boolean onOptionsItemSelected(MenuItem item) {
            switch (item.getItemId()) {
            // Respond to the action bar's Up/Home button
@@ -270,15 +254,9 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
                }
                return true;
                default :
-            	   return MenuHandlerUtils.onOptionsItemSelected(item, this);
+            	   return super.onOptionsItemSelected(item);
            }
 
        }
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean result = MenuHandlerUtils.onPrepareOptionsMenu(menu, this);
-		return result | super.onPrepareOptionsMenu(menu);
-	}
        
 }

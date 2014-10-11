@@ -638,6 +638,8 @@ public class PhotoManagerUtilsV2 {
 			return MyApplication.getInstance().getProductPreviewAvatorFile(photoId);
 		case FaPiao:
 			return MyApplication.getInstance().getProductFaPiaoFile(photoId);
+		case WeatherIcon:
+			return MyApplication.getInstance().getFile("weather", photoId);
 		case PREVIEW:
 		}
 		return null;
@@ -651,6 +653,8 @@ public class PhotoManagerUtilsV2 {
 			return ServiceObject.getProdcutAvatorUrl(photoId);
 		case FaPiao:
 			return ServiceObject.getBaoxiucardFapiao(photoId);
+		case WeatherIcon:
+			return ServiceObject.getWeatherIcon(photoId);
 		}
 		return null;
 	}
@@ -790,6 +794,7 @@ public class PhotoManagerUtilsV2 {
 		PREVIEW("PreviewVcfType"),       //联系人预览
 		MYPREVIEW("MyPreviewVcfType"),    //我的名片预览
 		FaPiao("FaPiao"),
+		WeatherIcon("WeatherIcon"),
 		HOME_DEVICE_AVATOR("HomeDeviceAvatorType");  //设备avator
 		private String mTypeName;
 		TaskType(String typeName) {

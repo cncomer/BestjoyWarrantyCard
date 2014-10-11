@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout android:layout_width="fill_parent"
+                android:layout_height="@dimen/ads_height">
+                <android.support.v4.view.ViewPager
+	                android:id="@+id/adsViewPager"
+	                android:layout_width="fill_parent"
+	                android:layout_height="fill_parent" >
+            	</android.support.v4.view.ViewPager>
+            	
+                <LinearLayout
+	                android:id="@+id/dots"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_marginBottom="4dip"
+	                android:layout_gravity="bottom|center_horizontal"
+	                android:orientation="horizontal" />
+            </FrameLayout>
+
+            <View
+                android:id="@+id/line"
+                android:layout_width="fill_parent"
+                android:layout_height="3dip"
+                android:layout_marginTop="2dip"
+                android:background="@drawable/xuxian" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="1.0"
+                android:background="#ffe1dfdf"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingBottom="8dip" >
+
+                <include layout="@layout/module_button_layout" />
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dip"
+                    android:layout_weight="1.0" />
+
+                <ImageView
+                    android:id="@+id/button_voice"
+                    android:layout_width="100dip"
+                    android:layout_height="100dip"
+                    android:background="@drawable/ic_voice_btn"
+                    android:clickable="true" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/voice_input_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/blk"
+        android:gravity="center_horizontal"
+        android:minWidth="100dp"
+        android:orientation="vertical"
+        android:padding="20dip"
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/voice_input_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:enabled="false"
+            android:gravity="center"
+            android:hint="@string/hint_voice_input"
+            android:textColor="@color/wt"
+            android:textColorHint="@color/wt" />
+
+        <ImageView
+            android:id="@+id/voice_input_imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dip"
+            android:src="@drawable/voice_input_listen" />
+
+        <TextView
+            android:id="@+id/voice_input_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dip"
+            android:text="@string/button_qr_scan"
+            android:textColor="@color/wt" />
+    </LinearLayout>
+
+</FrameLayout>
