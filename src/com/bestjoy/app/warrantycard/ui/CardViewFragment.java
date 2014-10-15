@@ -11,6 +11,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.vudroid.pdfdroid.PdfViewerActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -41,6 +42,7 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
+import com.bestjoy.app.warrantycard.view.BaoxiuCardViewSalemanInfoView;
 import com.bestjoy.app.warrantycard.view.CircleProgressView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
@@ -51,15 +53,14 @@ import com.shwy.bestjoy.utils.InfoInterface;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.NotifyRegistrant;
-import com.shwy.bestjoy.utils.TextViewUtils;
 
 public class CardViewFragment extends ModleBaseFragment implements View.OnClickListener{
 	private static final String TOKEN = CardViewFragment.class.getName();
 	private static final String TAG = "CardViewFragment";
 	//商品信息
-	private TextView  mPinpaiInput, mModelInput, mBaoxiuInput, mYanbaoInput, mYanbaoText, mFapiaoDateInput;
-	private ImageView mAvatorView, mUsageView, mFlagYanbao;
-	private Button mBillView;
+	private TextView  mPinpaiInput, mModelInput, mBaoxiuTelInput, mYanbaoTelInput, mYanbaoCompanyInput, mYanbaoTimeInput, mFapiaoDateInput, mLeixingInput;
+	private ImageView mAvatorView;
+	private Button mBillView, mUsageView, mBuyYanbaoView;
 	private BaoxiuCardObject mBaoxiuCardObject;
 	
 	private HomeObject mHomeObject;
@@ -71,6 +72,10 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	private CircleProgressView mCircleProgressView;
 	
 	private ImageView mFapiaoDownloadView;
+	
+	/**是否显示销售人员信息*/
+	private static final boolean SHOW_SALES_INFO = true;
+	private BaoxiuCardViewSalemanInfoView mMMOne, mMMTwo;
 	private static final int WHAT_SHOW_FAPIAO_WAIT = 12;
 	
 	@Override
@@ -134,31 +139,61 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			//商品信息
 			 mPinpaiInput = (TextView) view.findViewById(R.id.product_brand_input);
 			 mModelInput = (TextView) view.findViewById(R.id.product_model_input);
-			 mBaoxiuInput = (TextView) view.findViewById(R.id.baoxiu_input);
-			 mYanbaoText = (TextView) view.findViewById(R.id.yanbao); 
-			 mYanbaoInput = (TextView) view.findViewById(R.id.yanbao_input);
+			 mLeixingInput = (TextView) view.findViewById(R.id.product_leixing_input);
 			 
-			 TextViewUtils.setBoldText(mPinpaiInput);
-			 TextViewUtils.setBoldText(mModelInput);
-			 TextViewUtils.setBoldText(mBaoxiuInput);
-			 TextViewUtils.setBoldText(mYanbaoInput);
+			 mBaoxiuTelInput = (TextView) view.findViewById(R.id.baoxiu_tel_input);
+			 mYanbaoCompanyInput = (TextView) view.findViewById(R.id.product_buy_delay_componey); 
+			 mYanbaoTelInput = (TextView) view.findViewById(R.id.product_buy_delay_componey_tel);
+			 mYanbaoTimeInput = (TextView) view.findViewById(R.id.product_buy_delay_time);
+			 mBuyYanbaoView = (Button) view.findViewById(R.id.button_buy_yanbao);
+			 mBuyYanbaoView.setOnClickListener(this);
+			 
+//			 TextViewUtils.setBoldText(mPinpaiInput);
+//			 TextViewUtils.setBoldText(mModelInput);
+//			 TextViewUtils.setBoldText(mBaoxiuInput);
+//			 TextViewUtils.setBoldText(mYanbaoInput);
 			
 			 mAvatorView = (ImageView) view.findViewById(R.id.avator);
 			 mAvatorView.setOnClickListener(this);
 			 
 			 mFapiaoDateInput = (TextView) view.findViewById(R.id.fapiao_date_input);
-			 //已延保标示
-			 mFlagYanbao = (ImageView) view.findViewById(R.id.flag_yanbao); 
 			 
 			 mBillView = (Button) view.findViewById(R.id.button_bill);
 			 mBillView.setOnClickListener(this);
 			 
-			 mUsageView = (ImageView) view.findViewById(R.id.button_usage);
+			 mUsageView = (Button) view.findViewById(R.id.button_usage);
 			 mUsageView.setOnClickListener(this);
 			 
 	         mCircleProgressView = (CircleProgressView) view.findViewById(R.id.baoxiuday);
+	         populateView();
 	         
-			 populateView();
+	       //根据SHOW_SALES_INFO的值来决定是否要显示销售员信息布局
+			 View salesLayout = view.findViewById(R.id.sales_layout);
+			 if (salesLayout != null) {
+				 salesLayout.setVisibility(SHOW_SALES_INFO?View.VISIBLE:View.GONE);
+			 }
+			 if (SHOW_SALES_INFO) {
+				 mMMOne = (BaoxiuCardViewSalemanInfoView) view.findViewById(R.id.mmone);
+				 mMMOne.setParantFragment(this);
+				//销售员
+				 mMMOne.setTitle(R.string.salesman_title);
+				 mMMOne.setMmType(BaoxiuCardViewSalemanInfoView.TYPE_MM_ONE);
+				 
+				 //服务员
+				 mMMTwo = (BaoxiuCardViewSalemanInfoView) view.findViewById(R.id.mmtwo);
+				 mMMTwo.setParantFragment(this);
+				 mMMTwo.setTitle(R.string.serverman_title);
+				 mMMTwo.setMmType(BaoxiuCardViewSalemanInfoView.TYPE_MM_TWO);
+				 
+				 if (!TextUtils.isEmpty(mBaoxiuCardObject.mMMOne)) {
+					 mMMOne.setSalesPersonInfo(mBaoxiuCardObject, TOKEN);
+				 }
+				 
+				 if (!TextUtils.isEmpty(mBaoxiuCardObject.mMMTwo)) {
+					 mMMTwo.setSalesPersonInfo(mBaoxiuCardObject, TOKEN);
+				 }
+			 }
+			 
 		return view;
 	}
 
@@ -184,18 +219,25 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			 mFapiaoDateInput.setText(mBaoxiuCardObject.mBuyDate);
 		 }
 		 
-		 mPinpaiInput.setText(BaoxiuCardObject.getTagName(mBaoxiuCardObject.mCardName, mBaoxiuCardObject.mPinPai, mBaoxiuCardObject.mLeiXin));
+//		 mPinpaiInput.setText(BaoxiuCardObject.getTagName(mBaoxiuCardObject.mCardName, mBaoxiuCardObject.mPinPai, mBaoxiuCardObject.mLeiXin));
+		 mPinpaiInput.setText(mBaoxiuCardObject.mPinPai);
+		 mLeixingInput.setText(mBaoxiuCardObject.mLeiXin);
 		 mModelInput.setText(mBaoxiuCardObject.mXingHao);
 		 
-		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mWY)) {
-			 //保修期，这里单位是年
-			 float year = Float.valueOf(mBaoxiuCardObject.mWY);
-			 if (year > 0 && (year - 0.5f) < 0.00001f) {
-				 mBaoxiuInput.setText(R.string.unit_half_year);
-			 } else {
-				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
-			 }
-		 }
+		 mBaoxiuTelInput.setText(mBaoxiuCardObject.mBXPhone);
+		 mYanbaoTelInput.setText(mBaoxiuCardObject.mYBPhone);
+		 mYanbaoCompanyInput.setText(mBaoxiuCardObject.mYanBaoDanWei);
+		 mYanbaoTimeInput.setText(mBaoxiuCardObject.mYanBaoTime);
+		 
+//		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mWY)) {
+//			 //保修期，这里单位是年
+//			 float year = Float.valueOf(mBaoxiuCardObject.mWY);
+//			 if (year > 0 && (year - 0.5f) < 0.00001f) {
+//				 mBaoxiuInput.setText(R.string.unit_half_year);
+//			 } else {
+//				 mBaoxiuInput.setText(mBaoxiuCardObject.mWY + getString(R.string.unit_year));
+//			 }
+//		 }
 		 int day = mBaoxiuCardObject.getBaoxiuValidity();
 		 day = day > 0 ? day : 0;
 		 mCircleProgressView.setNumber(day);
@@ -207,26 +249,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		 int validityTotal = (int) ((Float.valueOf(mBaoxiuCardObject.mWY) + Float.valueOf(mBaoxiuCardObject.mYanBaoTime)) * 365 + 0.5f);
 		 int endDegree = (int) (1.0 * validity / validityTotal * 360 + 0.5f);
 		 mCircleProgressView.setOutterDegree(startDegree, endDegree, true);
-		
-		 mYanbaoInput.setVisibility(View.INVISIBLE);
-		 mYanbaoText.setVisibility(View.INVISIBLE);
-		 mFlagYanbao.setVisibility(View.INVISIBLE);
-		 if (!TextUtils.isEmpty(mBaoxiuCardObject.mYanBaoTime)) {
-			//延保期，单位是年
-			 float year = Float.valueOf(mBaoxiuCardObject.mYanBaoTime);
-			 if (year > 0) {
-				 mYanbaoInput.setVisibility(View.VISIBLE);
-				 mYanbaoText.setVisibility(View.VISIBLE);
-				 mFlagYanbao.setVisibility(View.VISIBLE);
-				 if ((year - 0.5f) < 0.00001f) {
-					 mYanbaoInput.setText(R.string.unit_half_year);
-				 } else {
-					 mYanbaoInput.setText(mBaoxiuCardObject.mYanBaoTime + getString(R.string.unit_year));
-				 }
-			 }
-			
-			 
-		 }
+		 
 	}
 	
 	 @Override
@@ -539,5 +562,22 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			outState.putBundle(TAG, mBundles);
 			DebugUtils.logD(TAG, "onSaveInstanceState(), we try to save mBundles=" + mBundles);
 		}
+		
+		@Override
+	   	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	   		super.onActivityResult(requestCode, resultCode, data);
+	   		if (resultCode == Activity.RESULT_OK) {
+	   			//扫描到了mm号
+	   			String mm = data.getStringExtra(Intents.EXTRA_BID);
+	   			DebugUtils.logD(TAG, "onActivityResult return mm=" + mm);
+	   			if (!TextUtils.isEmpty(mm)) {
+	   				if (requestCode == BaoxiuCardViewSalemanInfoView.TYPE_MM_ONE) {
+	   					mMMOne.downloadSalesPersonInfo(mBaoxiuCardObject, mm, TOKEN);
+	   				} else if (requestCode == BaoxiuCardViewSalemanInfoView.TYPE_MM_TWO) {
+	   					mMMTwo.downloadSalesPersonInfo(mBaoxiuCardObject, mm, TOKEN);
+	   				}
+	   	   		 }
+	   		}
+	   	}
 
 }

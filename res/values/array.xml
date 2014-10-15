@@ -83,4 +83,9 @@
 		<item>动</item>
 		<item>特</item>
 	</string-array>
+	
+	<string-array name="im_resend_items">
+		<item>@string/im_resend</item>
+		<item>@string/im_send_cancel</item>
+	</string-array>
 </resources>

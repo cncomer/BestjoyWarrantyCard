@@ -29,6 +29,7 @@ import android.text.TextUtils;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.im.RelationshipObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.Base64;
@@ -101,6 +102,11 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	
 	private int mZhengjiValidity = -1, mComponentValidity = -1;
 	
+	/**对应关系表中的service_id*/
+	public String mMMOne="", mMMTwo="";
+	RelationshipObject mMMOneRelationshipObject;
+	RelationshipObject mMMTwoRelationshipObject;
+	
 	public static final String[] PROJECTION = new String[]{
 		HaierDBHelper.ID,
 		HaierDBHelper.CARD_TYPE, 
@@ -124,6 +130,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		HaierDBHelper.CARD_KY,               //19
 		HaierDBHelper.CARD_PKY,           //20
 		HaierDBHelper.CARD_FPname,           //21 add by chenkai, FaPiao's name 20140701 begin
+		HaierDBHelper.CARD_MM_ONE,        //22
+		HaierDBHelper.CARD_MM_TWO,        //23
 	};
 	
 	public static final int KEY_CARD_ID = 0;
@@ -149,6 +157,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	
 	public static final int KEY_CARD_PKY = 20;
 	public static final int KEY_CARD_FPname = 21; //add by chenkai, FaPiao's name.
+	public static final int KEY_CARD_MMONE = 22;
+	public static final int KEY_CARD_MMTWO = 23;
 	
 	public static final String WHERE_UID = HaierDBHelper.CARD_UID + "=?";
 	public static final String WHERE_AID = HaierDBHelper.CARD_AID + "=?";
@@ -256,6 +266,16 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		cardObject.mPKY = jsonObject.optString("pky", BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY);
 		if ("null".equalsIgnoreCase(cardObject.mPKY)) {
 			cardObject.mPKY = BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY;
+		}
+		
+		JSONObject mmone = jsonObject.optJSONObject("MMOne");
+		if (mmone != null) {
+			cardObject.mMMOneRelationshipObject = RelationshipObject.parse(mmone);
+		}
+		
+		mmone = jsonObject.optJSONObject("MMTwo");
+		if (mmone != null) {
+			cardObject.mMMTwoRelationshipObject = RelationshipObject.parse(mmone);
 		}
 		return cardObject;
 	}
@@ -406,6 +426,9 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		baoxiuCardObject.mKY = bundle.getString("mKY");
 		baoxiuCardObject.mPKY = bundle.getString("mPKY");
 		
+		baoxiuCardObject.mMMOne = bundle.getString("mMMOne");
+		baoxiuCardObject.mMMTwo = bundle.getString("mMMTwo");
+		
 		return baoxiuCardObject;
 	}
 	
@@ -526,6 +549,9 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
     	baoxiuCardObject.mYBPhone = c.getString(KEY_CARD_YBPHONE);
     	baoxiuCardObject.mKY = c.getString(KEY_CARD_KY);
     	baoxiuCardObject.mPKY = c.getString(KEY_CARD_PKY);
+    	
+    	baoxiuCardObject.mMMOne =c.getString(KEY_CARD_MMONE);
+    	baoxiuCardObject.mMMTwo =c.getString(KEY_CARD_MMTWO);
 		return baoxiuCardObject;
 	}
 
@@ -558,7 +584,8 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 		values.put(HaierDBHelper.CARD_KY, mKY);
 		
 		values.put(HaierDBHelper.CARD_PKY, mPKY);
-		
+		values.put(HaierDBHelper.CARD_MM_ONE, mMMOne);
+		values.put(HaierDBHelper.CARD_MM_TWO, mMMTwo);
 		values.put(HaierDBHelper.DATE, new Date().getTime());
 		
 		if (id > 0) {

@@ -14,7 +14,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 9;
+  private static final int DB_VERSION = 12;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -97,7 +97,10 @@ private static final String TAG = "HaierDBHelper";
   public static final String DEVICE_WARRANTY_PERIOD = "warranty_period";
   /**配件保修*/
   public static final String CARD_COMPONENT_VALIDITY = "component_validity";
-  
+  /**对应TABLE_ACCOUNT_RELATIONSHIP表的RELATIONSHIP_SERVICE_ID*/
+  public static final String CARD_MM_ONE = "mmone";
+  /**对应TABLE_ACCOUNT_RELATIONSHIP表的RELATIONSHIP_SERVICE_ID*/
+  public static final String CARD_MM_TWO = "mmtwo";
   //这里是设备表的扩展，如遥控器
   
   
@@ -207,12 +210,15 @@ private static final String TAG = "HaierDBHelper";
   public static final String YOUMENG_MESSAGE_CUSTOM = "custom";
   public static final String YOUMENG_MESSAGE_RAW = "raw_json";
   
-  //IM模块 begin
-  public static final String TABLE_IM_HISTORY = "im_message_history";
+//IM模块 begin
+  public static final String TABLE_IM_QUN_HISTORY = "im_message_qun_history";
+  public static final String TABLE_IM_FRIEND_HISTORY = "im_message_friend_history";
   /**服务器上对应的消息ID*/
   public static final String IM_SERVICE_ID = "service_id";
   /**消息正文*/
   public static final String IM_TEXT = "text";
+  /**消息是否已经看过了*/
+  public static final String IM_SEEN = "seen";
   /**消息对象，根据IM_TARGET_TYPE的值来区分对象*/
   public static final String IM_TARGET = "target";
   public static final String IM_TARGET_TYPE = "target_type";
@@ -222,6 +228,28 @@ private static final String TAG = "HaierDBHelper";
   /**消息发送状态，对于收到的消息总是1，否则位0*/
   public static final String IM_MESSAGE_STATUS = "message_status";
   //IM模块 end
+  
+ //好友关系 begin
+  public static final String TABLE_ACCOUNT_RELATIONSHIP = "account_relationship";
+  public static final String RELATIONSHIP_BID = CARD_BID;
+  public static final String RELATIONSHIP_BID_MM_TYPE = "mmtype";
+  public static final String RELATIONSHIP_TYPE = IM_TARGET_TYPE;
+  public static final String RELATIONSHIP_TARGET = IM_TARGET;
+  public static final String RELATIONSHIP_NAME = IM_UNAME;
+  public static final String RELATIONSHIP_UID = IM_UID;
+  /**对应于服务器上的id*/
+  public static final String RELATIONSHIP_SERVICE_ID = IM_SERVICE_ID;
+  /**消息对象，根据IM_TARGET_TYPE的值来区分对象*/
+  public static final String DATA1 = "data1";
+  public static final String DATA2 = "data2";
+  public static final String DATA3 = "data3";
+  public static final String DATA4 = "data4";
+  public static final String DATA5 = "data5";
+  public static final String DATA6 = "data6";
+  public static final String DATA7 = "data7";
+  public static final String DATA8 = "data8";
+  public static final String DATA9 = "data9";
+  //好友关系 end
   
   public HaierDBHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
@@ -292,6 +320,7 @@ private static final String TAG = "HaierDBHelper";
   		createYoumengMessageTable(sqLiteDatabase);
   		
   		createImMessageTable(sqLiteDatabase);
+  		createAccountRelationshipTable(sqLiteDatabase);
   		
   }
   
@@ -397,6 +426,8 @@ private static final String TAG = "HaierDBHelper";
 	            CARD_YBPhone + " TEXT, " +
 	            CARD_KY + " TEXT, " +
 	            CARD_PKY + " TEXT, " +
+	            CARD_MM_ONE + " TEXT, " +
+	            CARD_MM_TWO + " TEXT, " +
 	            CARD_YANBAO_TIME + " TEXT, " +
 	            CARD_YANBAO_TIME_COMPANY + " TEXT, " +
 	            CARD_YANBAO_TIME_COPMANY_TEL + " TEXT, " +
@@ -532,16 +563,54 @@ private static final String TAG = "HaierDBHelper";
   
   private void createImMessageTable(SQLiteDatabase sqLiteDatabase) {
 	  sqLiteDatabase.execSQL(
-	            "CREATE TABLE " + TABLE_IM_HISTORY + " (" +
+	            "CREATE TABLE " + TABLE_IM_QUN_HISTORY + " (" +
 	            ID + " INTEGER PRIMARY KEY, " +
 	            IM_MESSAGE_STATUS + " INTEGER NOT NULL DEFAULT 0, " +  //信息发送状态
 	            IM_SERVICE_ID + " TEXT, " +
 	            IM_TEXT + " TEXT, " +
+	            IM_SEEN + " INTEGER, " +   //是否看过了
 	            IM_TARGET + " TEXT, " +
-	            IM_TARGET_TYPE + " TEXT, " +
+	            IM_TARGET_TYPE + " INTEGER, " +
 	            IM_UID + " TEXT, " +
 	            IM_UNAME + " TEXT, " +
 	            IM_SERVICE_TIME + " TEXT, " +
+	            DATE + " TEXT);");
+	  
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_IM_FRIEND_HISTORY + " (" +
+	            ID + " INTEGER PRIMARY KEY, " +
+	            IM_MESSAGE_STATUS + " INTEGER NOT NULL DEFAULT 0, " +  //信息发送状态
+	            IM_SERVICE_ID + " TEXT, " +
+	            IM_TEXT + " TEXT, " +
+	            IM_SEEN + " INTEGER, " +   //是否看过了
+	            IM_TARGET + " TEXT, " +
+	            IM_TARGET_TYPE + " INTEGER, " +
+	            IM_UID + " TEXT, " +
+	            IM_UNAME + " TEXT, " +
+	            IM_SERVICE_TIME + " TEXT, " +
+	            DATE + " TEXT);");
+  }
+  
+  private void createAccountRelationshipTable(SQLiteDatabase sqLiteDatabase) {
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_ACCOUNT_RELATIONSHIP + " (" +
+	            ID + " INTEGER PRIMARY KEY, " +
+	            RELATIONSHIP_BID + " TEXT, " +
+	            RELATIONSHIP_BID_MM_TYPE + " INTEGER, " +
+	            RELATIONSHIP_TYPE + " INTEGER, " + 
+	            RELATIONSHIP_TARGET + " TEXT, " +
+	            RELATIONSHIP_NAME + " TEXT, " +
+	            RELATIONSHIP_UID + " TEXT, " +
+	            RELATIONSHIP_SERVICE_ID + " TEXT, " +
+	            DATA1 + " TEXT, " +
+	            DATA2 + " TEXT, " +
+	            DATA3 + " TEXT, " +
+	            DATA4 + " TEXT, " +
+	            DATA5 + " TEXT, " +
+	            DATA6 + " TEXT, " +
+	            DATA7 + " TEXT, " +
+	            DATA8 + " TEXT, " +
+	            DATA9 + " TEXT, " +
 	            DATE + " TEXT);");
   }
   
@@ -557,7 +626,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 7) {
+	  if (oldVersion <= 11) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
@@ -568,7 +637,9 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MAINTENCE_POINT);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_YOUMENG_PUSHMESSAGE_HISTORY);
 		    
-		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_IM_HISTORY);
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_IM_QUN_HISTORY);
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_IM_FRIEND_HISTORY);
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ACCOUNT_RELATIONSHIP);
 		    
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "insert_account");
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "update_default_account");
@@ -586,10 +657,5 @@ private static final String TAG = "HaierDBHelper";
 		    onCreate(sqLiteDatabase);
 		    return;
 		}
-	  
-	  if (oldVersion == 8) {
-		  createImMessageTable(sqLiteDatabase);
-		  oldVersion = 9;
-	  }
   }
 }

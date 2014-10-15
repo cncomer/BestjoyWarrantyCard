@@ -16,15 +16,13 @@
 	    <EditText android:id="@+id/product_type_input"
 	        style="@style/ProductInfoInput"/>
 	    <Button android:id="@+id/menu_choose"
-	        android:layout_width="wrap_content"
+	        android:layout_width="45dip"
 	        android:text="@string/menu_choose"
 	        style="@style/DefaultShapeButton"
-	        android:paddingLeft="8dip"
-	        android:paddingRight="8dip"
 	        android:textSize="12sp"
-	        android:textColor="@color/blk"
-	        android:background="@drawable/default_green_btn"
-	        android:layout_height="30dip"/>
+	        android:textColor="@color/wt"
+	        android:background="@drawable/default_blue_btn"
+	        android:layout_height="25dip"/>
 	</LinearLayout>
 	
     <LinearLayout
@@ -103,7 +101,7 @@
 	        android:text="@string/product_baoxiu_date_tips"/>
 	</LinearLayout>
 	
-    <LinearLayout
+    <!--  LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:gravity="center_vertical"
@@ -114,5 +112,22 @@
 	        android:text="@string/product_beizhu"/>
 	    <EditText android:id="@+id/product_beizhu_tag"
 	        style="@style/ProductInfoInput"/>
-	</LinearLayout>
+	</LinearLayout-->
+	
+	<LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:gravity="center_vertical"
+         android:orientation="horizontal" >
+		<ImageView style="@style/ProductStarIcon"
+            android:layout_width="4dip" />
+         <TextView
+             style="@style/ProductInfo"
+             android:text="@string/product_buy_date" />
+
+         <TextView
+             android:id="@+id/product_buy_date"
+             style="@style/ProductInfoInput"
+             android:clickable="true" />
+     </LinearLayout>
 </LinearLayout>

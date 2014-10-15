@@ -3,6 +3,8 @@ package com.bestjoy.app.warrantycard.utils;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class WeatherManager {
 	
 	private static final HashMap<String, String> mWeekdayMap = new HashMap<String, String>();
 	
-	private static final File mLocalWeatherCachedFile = MyApplication.getInstance().getFile("weather", "weather.xml");
+	private static final File mLocalWeatherCachedFile = MyApplication.getInstance().getCachedFile("weather", "weather.xml");
 	private WeatherManager(){}
 	
 	public void setContext(Context context) {
@@ -105,6 +107,19 @@ public class WeatherManager {
 	 */
 	public File getCachedWeatherFile() {
 		return mLocalWeatherCachedFile;
+	}
+	
+	public boolean isOldCahcedWeatherFile() {
+		if (!mLocalWeatherCachedFile.exists()) {
+			//如果没有缓存，那么我们就认为是需要更新天气数据
+			return true;
+		}
+		Calendar today = Calendar.getInstance();
+		today.setTime(new Date());
+		
+		Calendar last = Calendar.getInstance();
+		last.setTime(new Date(mLocalWeatherCachedFile.lastModified()));
+		return today.get(Calendar.DAY_OF_YEAR) != last.get(Calendar.DAY_OF_YEAR);
 	}
 
 }

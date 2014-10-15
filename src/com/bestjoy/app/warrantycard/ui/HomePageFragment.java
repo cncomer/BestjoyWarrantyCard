@@ -53,6 +53,7 @@ import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
+import com.bestjoy.app.warrantycard.service.IMService;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2.TaskType;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
@@ -64,7 +65,6 @@ import com.bestjoy.app.warrantycard.utils.JsonParser;
 import com.bestjoy.app.warrantycard.utils.MenuHandlerUtils;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.bestjoy.app.warrantycard.utils.WeatherManager;
-import com.bestjoy.app.warrantycard.utils.WeatherManager.WeatherEvent;
 import com.bestjoy.app.warrantycard.utils.WeatherManager.WeatherObject;
 import com.bestjoy.app.warrantycard.utils.WeatherManager.WeekWeather;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
@@ -75,7 +75,6 @@ import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.ComPreferencesManager;
-import com.shwy.bestjoy.utils.DialogUtils;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
@@ -128,7 +127,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		initVoiceLayout(mContent);
-		if (WeatherManager.getInstance().getCachedWeatherFile().exists()) {
+		if (!WeatherManager.getInstance().isOldCahcedWeatherFile()) {
 			DebugUtils.logD(TAG, "onActivityCreated loadCachedWeatherFile");
 			loadWeatherAsync();
 		}
@@ -653,6 +652,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 
 		@Override
 		protected Void doInBackground(Void... params) {
+			IMService.disconnectIMService(getActivity(), MyAccountManager.getInstance().getAccountObject());
 			MyAccountManager.getInstance().deleteDefaultAccount();
 			MyAccountManager.getInstance().saveLastUsrTel("");
 			return null;
@@ -967,7 +967,8 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 			String adminCode = HomeObject.getDisID(getActivity().getContentResolver(), location.getProvince().replaceAll("[省市]", ""), location.getCity().replaceAll("[省市]", ""), location.getDistrict());
 			if (!TextUtils.isEmpty(adminCode)) {
 				String lastAdminCode = ComPreferencesManager.getInstance().mPreferManager.getString("admincode", "");
-				if (!lastAdminCode.equals(adminCode)) {
+				if (!lastAdminCode.equals(adminCode) 
+						|| WeatherManager.getInstance().isOldCahcedWeatherFile()) {
 					ComPreferencesManager.getInstance().mPreferManager.edit().putString("admincode", adminCode).commit();
 					return true;
 				}
@@ -1053,6 +1054,9 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 		protected void onPostExecute(WeekWeather result) {
 			super.onPostExecute(result);
 			mWeatherLayout.removeAllViews();
+			if (getActivity() == null) {
+				return;
+			}
 			if (result == null) {
 				mWeatherLayout.setVisibility(View.GONE);
 			} else {

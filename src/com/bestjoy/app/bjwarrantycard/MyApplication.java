@@ -211,6 +211,14 @@ public class MyApplication extends Application{
 		return new File(dir, fileName);
 	}
 	
+	public File getCachedFile(String dirName, String fileName) {
+		File dir =  new File(getCacheDir(), dirName);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		return new File(dir, fileName);
+	}
+	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();

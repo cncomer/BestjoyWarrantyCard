@@ -388,4 +388,37 @@ public class ServiceObject {
 			  sb.append("Weather/icon/day/").append(photoId).append(".png");
 			  return sb.toString();
 		  }
+		  
+		  /**
+		   * 获取suid的关系
+		   *  http://115.29.231.29/Haier/Start/GetServiceUserByUID.ashx?uid=682038&pwd=844605
+		   */
+		  public static String getRelationshipUrl(String uid, String pwd) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Start/GetServiceUserByUID.ashx?uid=").append(uid).append("&pwd=").append(pwd);
+			  return sb.toString();
+		  }
+		  /**
+		   * http://115.29.231.29/Haier/Start/GetMessageByUIDByTID.ashx?UID=607421&TID=42300&type=p2p
+		   * @param uid
+		   * @param target
+		   * @return
+		   */
+		  public static String getMessagesUrlByUidByTid(String uid, String target, String targetType) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Start/GetMessageByUIDByTID.ashx?uid=").append(uid).append("&TID=").append(target).append("&type=").append(targetType);
+			  return sb.toString();
+		  }
+		  public static String getMessagesUrlByUidByTid(String uid, String target, int targetType) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Start/GetMessageByUIDByTID.ashx?uid=").append(uid).append("&TID=").append(target).append("&type=").append(targetType);
+			  return sb.toString();
+		  }
+		  
+		  public static String buildPageQuery(String url, int pageIndex, int pageSize) {
+			  StringBuilder sb = new StringBuilder(url).append('&');
+			  sb.append("pageindex=").append(pageIndex).append('&');
+			  sb.append("pagesize=").append(pageSize);
+	    	  return sb.toString();
+		  }
 }

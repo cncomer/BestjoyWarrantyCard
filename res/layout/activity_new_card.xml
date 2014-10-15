@@ -53,26 +53,19 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dip"
-            android:background="@drawable/default_green_btn"
+            android:background="@drawable/qrcode_scan_btn"
             android:paddingLeft="8dip"
             android:paddingRight="8dip"
             android:text="@string/title_scan_button"
-            android:textColor="@color/blk"
+            android:textColor="@color/wt"
             android:textSize="14sp" />
     </RelativeLayout>
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_marginLeft="@dimen/title_my_product_left_margin"
-        android:layout_marginRight="@dimen/title_my_product_left_margin"
-        android:layout_marginTop="10dip"
-        android:background="@color/light_gray" />
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="0dip"
         android:layout_weight="1.0"
+        android:layout_marginTop="10dip"
         android:scrollbars="none" >
 
         <LinearLayout
@@ -93,6 +86,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="1dip"
                     android:layout_marginTop="10dip"
+                    android:visibility="gone"
                     android:background="@color/light_gray" />
             </LinearLayout>
 
@@ -100,30 +94,28 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/light_gray"
-                android:gravity="center_vertical"
+                android:gravity="center"
+                android:layout_marginTop="10dip"
+                android:padding="6dip"
                 android:paddingLeft="@dimen/title_my_product_left_margin"
                 android:paddingRight="@dimen/title_my_product_left_margin"
-                android:orientation="horizontal" >
-
-                <TextView
-                    style="@style/ProductInfo"
-                    android:text="@string/product_bill" />
+                android:orientation="vertical" >
 
                 <ImageView
                     android:id="@+id/button_scan_bill"
-                    android:layout_width="48dip"
-                    android:layout_height="48dip"
+                    android:layout_width="53dip"
+                    android:layout_height="53dip"
                     android:clickable="true"
-                    android:padding="8dip"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_camera" />
+                    android:src="@drawable/ic_camera_fapiao" />
 
                 <TextView
+                    android:layout_marginTop="6dip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/product_bill_desc"
-                    android:textColor="#ff696365"
-                    android:textSize="10sp" />
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -137,20 +129,22 @@
                     android:layout_width="fill_parent"
                     android:layout_height="1dip"
                     android:layout_marginTop="10dip"
+                    android:visibility="gone"
                     android:background="@color/light_gray" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
+                    android:layout_marginTop="10dip"
                     android:orientation="horizontal" >
 
                     <TextView
                         style="@style/ProductInfo"
-                        android:text="@string/product_buy_date" />
+                        android:text="@string/product_beizhu" />
 
-                    <TextView
-                        android:id="@+id/product_buy_date"
+                    <EditText
+                        android:id="@+id/product_beizhu_tag"
                         style="@style/ProductInfoInput"
                         android:clickable="true" />
                 </LinearLayout>
@@ -159,7 +153,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal" >
+                    android:orientation="horizontal"
+                    android:visibility="gone" >
 
                     <TextView
                         style="@style/ProductInfo"
@@ -183,9 +178,9 @@
 			</LinearLayout>
                 -->
 
-                <include layout="@layout/pop_win_edit_layout" />
+                <include layout="@layout/pop_win_edit_layout" android:visibility="gone"/>
 
-                <View
+                <View android:visibility="gone"
                     android:layout_width="fill_parent"
                     android:layout_height="1dip"
                     android:layout_marginTop="10dip"
@@ -208,15 +203,13 @@
                     <TextView style="@style/ProductInfo"
 			        android:text="@string/year"/>
 				    <Button android:id="@+id/menu_choose_yanbao"
-				        android:layout_width="wrap_content"
+				        android:layout_width="45dip"
 				        android:text="@string/menu_choose"
 				        style="@style/DefaultShapeButton"
-				        android:paddingLeft="8dip"
-				        android:paddingRight="8dip"
 				        android:textSize="12sp"
-				        android:textColor="@color/blk"
-				        android:background="@drawable/default_green_btn"
-				        android:layout_height="30dip"/>
+				        android:textColor="@color/wt"
+				        android:background="@drawable/default_blue_btn"
+				        android:layout_height="25dip"/>
                 </LinearLayout>
 
                 <LinearLayout

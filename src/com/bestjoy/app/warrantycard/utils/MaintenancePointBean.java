@@ -7,8 +7,9 @@ import android.net.Uri;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.DebugUtils;
+import com.shwy.bestjoy.utils.InfoInterface;
 
-public class MaintenancePointBean {
+public class MaintenancePointBean implements InfoInterface{
 	private static final String TAG = "MaintenancePointBean";
 	/**维修点名称*/
 	private String maintenancePointName;
@@ -90,6 +91,29 @@ public class MaintenancePointBean {
 		}
 		values.put(HaierDBHelper.MAINTENCE_POINT_AID, aid);
 		values.put(HaierDBHelper.MAINTENCE_POINT_BID, bid);
+		values.put(HaierDBHelper.MAINTENCE_POINT_NAME, maintenancePointName);
+		values.put(HaierDBHelper.MAINTENCE_POINT_NAME, maintenancePointName);
+		values.put(HaierDBHelper.MAINTENCE_POINT_NAME, maintenancePointName);
+		values.put(HaierDBHelper.MAINTENCE_POINT_ADDRESS, maintenancePointDetail);
+		values.put(HaierDBHelper.MAINTENCE_POINT_TEL, maintenancePointTel);
+		values.put(HaierDBHelper.MAINTENCE_POINT_DISTANCE, maintenancePointDistance);
+		values.put(HaierDBHelper.MAINTENCE_POINT_DETAIL_URL, maintenancePointUrl);
+		
+		Uri uri = cr.insert(BjnoteContent.MaintencePoint.CONTENT_URI, values);
+		if (uri != null) {
+			DebugUtils.logD(TAG, "saveInDatebase insert");
+			return true;
+		} else {
+			DebugUtils.logD(TAG, "saveInDatebase failly insert");
+		}
+		return false;
+	}
+	@Override
+	public boolean saveInDatebase(ContentResolver cr, ContentValues addtion) {
+		ContentValues values = new ContentValues();
+		if (addtion != null) {
+			values.putAll(addtion);
+		}
 		values.put(HaierDBHelper.MAINTENCE_POINT_NAME, maintenancePointName);
 		values.put(HaierDBHelper.MAINTENCE_POINT_NAME, maintenancePointName);
 		values.put(HaierDBHelper.MAINTENCE_POINT_NAME, maintenancePointName);

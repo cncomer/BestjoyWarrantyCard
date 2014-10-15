@@ -1,10 +1,12 @@
 package com.bestjoy.app.warrantycard.database;
 
 
-import com.bestjoy.app.bjwarrantycard.MyApplication;
-
 import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
+
+import com.bestjoy.app.bjwarrantycard.MyApplication;
 
 public class BjnoteContent {
 
@@ -147,4 +149,88 @@ public class BjnoteContent {
     public static class MaintencePoint extends BjnoteContent{
     	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "maintencepoint");
     }
+    
+    public static class IM extends BjnoteContent{
+    	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "im/qun");
+    	public static final Uri CONTENT_URI_QUN = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "im/qun");
+    	public static final Uri CONTENT_URI_FRIEND = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "im/friend");
+    }
+    
+    public static class RELATIONSHIP extends BjnoteContent{
+    	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "relationship");
+    	public static final String UID_SELECTION = HaierDBHelper.RELATIONSHIP_UID + "=?";
+    	public static final String SORT_BY_SID = HaierDBHelper.RELATIONSHIP_SERVICE_ID + " asc";
+    	public static final String[] RELATIONSHIP_PROJECTION = new String[]{
+    		HaierDBHelper.ID,              //0
+    		HaierDBHelper.RELATIONSHIP_SERVICE_ID,   //1
+    		HaierDBHelper.RELATIONSHIP_TYPE,  //2
+    		HaierDBHelper.RELATIONSHIP_TARGET,       //3
+    		HaierDBHelper.RELATIONSHIP_UID,         //4
+    		HaierDBHelper.RELATIONSHIP_NAME,           //5
+    		HaierDBHelper.DATA1,         //6
+    		HaierDBHelper.DATA2,  //7
+    		HaierDBHelper.DATA3,  //8
+    		HaierDBHelper.DATA4,  //9
+    		HaierDBHelper.DATA5,  //10
+    		HaierDBHelper.DATA6,  //11
+    		HaierDBHelper.DATA7,  //12
+    		HaierDBHelper.DATA8,  //13
+    		HaierDBHelper.DATA9,  //14
+    		HaierDBHelper.DATE,   //15
+    	};
+    	public static final int INDEX_RELASTIONSHIP_ID = 0;
+    	public static final int INDEX_RELASTIONSHIP_SERVICE_ID = 1;
+    	public static final int INDEX_RELASTIONSHIP_TARGET_TYPE = 2;
+    	public static final int INDEX_RELASTIONSHIP_TARGET = 3;
+    	public static final int INDEX_RELASTIONSHIP_UID = 4;
+    	public static final int INDEX_RELASTIONSHIP_UNAME = 5;
+    	/**DATA1*/
+    	public static final int INDEX_RELASTIONSHIP_TITLE = 6;
+    	/**DATA2*/
+    	public static final int INDEX_RELASTIONSHIP_ORG = 7;
+    	/**DATA3*/
+    	public static final int INDEX_RELASTIONSHIP_WORKPLACE = 8;
+    	/**DATA4*/
+    	public static final int INDEX_RELASTIONSHIP_BRIEF = 9;
+    	/**DATA5*/
+    	public static final int INDEX_RELASTIONSHIP_CELL = 10;
+    	/**DATA6, 用作头像*/
+    	public static final int INDEX_RELASTIONSHIP_AVATOR = 11;
+    	/**DATA7, 类型*/
+    	public static final int INDEX_RELASTIONSHIP_LEIXING = 12;
+    	/**DATA8, 型号*/
+    	public static final int INDEX_RELASTIONSHIP_XINGHAO = 13;
+    	/**DATA9, MM*/
+    	public static final int INDEX_RELASTIONSHIP_MM = 14;
+    	public static final int INDEX_RELASTIONSHIP_LOCAL_DATE = 15;
+    	/**返回我的全部关系*/
+    	public static Cursor getAllRelationships(ContentResolver cr, String uid) {
+    		return cr.query(BjnoteContent.RELATIONSHIP.CONTENT_URI, RELATIONSHIP_PROJECTION, UID_SELECTION, new String[]{uid}, SORT_BY_SID);
+    	}
+    	
+    }
+    
+    public static long existed(ContentResolver cr, Uri uri, String where, String[] selectionArgs) {
+    	long id = -1;
+		Cursor c = cr.query(uri, ID_PROJECTION, where, selectionArgs, null);
+		if (c != null) {
+			if (c.moveToNext()) {
+				id = c.getLong(0);
+			}
+			c.close();
+		}
+		return id;
+	}
+	
+	public static int update(ContentResolver cr, Uri uri, ContentValues values, String where, String[] selectionArgs) {
+		return cr.update(uri, values, where, selectionArgs);
+	}
+	
+	public static Uri insert(ContentResolver cr, Uri uri, ContentValues values) {
+		return cr.insert(uri, values);
+	}
+	
+	public static int delete(ContentResolver cr, Uri uri,  String where, String[] selectionArgs) {
+		return cr.delete(uri, where, selectionArgs);
+	}
 }

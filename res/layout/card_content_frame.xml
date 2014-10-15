@@ -2,37 +2,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="30dip"
     android:orientation="vertical">
     
     <FrameLayout android:id="@+id/content_frame"
     	android:layout_width="match_parent"
    		android:layout_height="0dip"
    		android:layout_weight="1.0"
-   		android:layout_marginBottom="30dip">
+   		android:layout_marginBottom="2dip">
     </FrameLayout>
 	<ImageView
         android:id="@+id/contet_bottom_frame_top"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:scaleType="centerInside"
+        android:layout_height="30dp"
         android:visibility="gone"
+        android:scaleType="centerInside"
         android:layout_gravity="center"
         android:src="@drawable/top_more_info"
         android:background="@drawable/blue_background"
-        android:layout_marginBottom="10dip" />
+        android:layout_marginBottom="2dip" />
 <com.actionbarsherlock.internal.widget.IcsLinearLayout
     android:layout_width="match_parent"
-    android:layout_height="60dip"
-    android:background="#ff1f253d"
+    android:layout_height="50dip"
+    android:background="#ff1f68ba"
     android:divider="@drawable/linearlayout_divider"
     android:dividerPadding="10dip"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingLeft="@dimen/detail_card_view_padding"
-    android:paddingRight="@dimen/detail_card_view_padding"
     android:showDividers="middle"
-    android:weightSum="3" >
+    android:weightSum="5" >
 
     <TextView
         android:id="@+id/button_malfunction"
@@ -43,8 +40,41 @@
         android:gravity="center"
         android:text="@string/button_malfunction"
         android:textColor="#ffffffff"
-        android:textSize="14sp" />
+        android:textSize="12sp" />
+    
+    <TextView
+        android:id="@+id/button_zhengduan"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="@string/button_zhenduan"
+        android:textColor="#ffffffff"
+        android:textSize="12sp" />
 
+    <TextView
+        android:id="@+id/button_baoxiu_policy"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="@string/button_baoxiu_policy"
+        android:textColor="#ffffffff"
+        android:textSize="12sp" />
+    
+    <TextView
+        android:id="@+id/button_im"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="@string/button_im"
+        android:textColor="#ffffffff"
+        android:textSize="12sp" />
+    
     <TextView
         android:id="@+id/button_maintenance_point"
         android:layout_width="0dip"
@@ -54,30 +84,7 @@
         android:gravity="center"
         android:text="@string/button_maintenance_point"
         android:textColor="#ffffffff"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/button_maintenance_componnet"
-        android:layout_width="0dip"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:clickable="true"
-        android:gravity="center"
-        android:text="@string/button_maintenance_componnet"
-        android:textColor="#ffffffff"
-        android:textSize="14sp" />
-    
-    <TextView
-        android:id="@+id/button_im"
-        android:layout_width="0dip"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:clickable="true"
-        android:gravity="center"
-        android:visibility="gone"
-        android:text="@string/title_im_conversation"
-        android:textColor="#ffffffff"
-        android:textSize="14sp" />
+        android:textSize="12sp" />
 </com.actionbarsherlock.internal.widget.IcsLinearLayout>
 	<FrameLayout android:id="@+id/content_frame_bottom"
     	android:layout_width="match_parent"

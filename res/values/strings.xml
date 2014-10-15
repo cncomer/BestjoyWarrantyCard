@@ -328,8 +328,12 @@
          
           <string name="text_fapiao_date">发票日期</string>
          <string name="button_malfunction">故障报修</string>
+         <string name="button_zhenduan">故障诊断</string>
+         <string name="button_baoxiu_policy">保修规定</string>
+         <string name="button_im">留言互动</string>
+         
          <string name="button_maintenance_componnet">购买维修配件</string>
-         <string name="button_maintenance_point">最近的报修点</string>
+         <string name="button_maintenance_point">最近维修点</string>
          <string name="text_baoxiu_validate">还剩</string>
          <string name="text_baoxiu_day_remain">距离质保结束</string>
          <string name="unit_day">天</string>
@@ -564,6 +568,7 @@
            <string name="title_feedback">意见反馈</string>
            
            <string name="ic_button_home">首页</string>
+           <string name="ic_button_im">互动</string>
            <string name="ic_button_new_card">建卡</string>
            <string name="ic_button_maintenance">维修</string>
            <string name="ic_button_scan">扫码</string>
@@ -584,4 +589,49 @@
            <string name="sunday">周天</string>
            <string name="view_weather_event">查看</string>
            <string name="view_weather_event_more">洗/油</string>
+           
+     <string name="title_business">互动</string>
+     <string name="new_msg_comming">下面有新的消息</string>
+     <string name="msg_sending">发送中....</string>
+     <string name="msg_offline_confirm">你现在处于离线中，是否重新连接通讯服务器</string>
+     <string name="msg_im_status_logining">正在连接..</string>
+     <string name="msg_im_status_offline">离线</string>
+     <string name="msg_im_status_no_network">无网络连接</string>
+     <string name="msg_offline_confirm_click">你现在处于离线中，点击重新连接通讯服务器</string>
+     
+     <string name="msg_nonew_for_receive">数据已是最新</string>
+      <string name="msg_nomore_for_receive">服务器上没有更多数据了</string>
+      <string name="msg_network_error_for_receive">抱歉，暂时无法获取数据, 请检查网络或是稍后重试</string>
+      <string name="msg_refreshing_for_receive">正在更新数据</string>
+      <string name="msg_empty_list">(空)</string>
+      <string name="load_more_text">载入更多...</string>
+      
+      <string name="title_store_name">"店名:"</string>
+      <string name="title_type_name">"类别:"</string>
+      <string name="title_workplace_name">"地址:"</string>
+      
+      
+      <string name="hint_input_message">"请输入内容... ..."</string>
+      <string name="press_speak">按住说话</string>
+      
+      <string name="im_resend">重新发送</string>
+      <string name="im_send_cancel">删除</string>
+      <string name="msg_sending_failed">发送失败</string>
+      
+      
+      <string name="msg_download_mm_wait">正在下载名片数据，请稍等...</string>
+      <string name="salesman_title">销售员</string>
+      <string name="serverman_title">服务员</string>
+      <string name="msg_get_no_content_from_server">抱歉，服务器没有返回数据，请重试，如果多次提示该错误，请反馈給开发者，非常感谢.</string>
+      
+      <string name="product_buy_delay_time_biaodian">延保时间:</string>
+       <string name="product_buy_delay_componey_biaodian">延保单位:</string>
+       <string name="product_buy_delay_componey_tel_biaodian">延保电话:</string>
+       <string name="product_model_biaodian">型号:</string>
+       <string name="text_fapiao_date_biaodian">发票日期:</string>
+       <string name="text_baoxiu_tel_biaodian">保修电话:</string>
+       <string name="button_buy_yanbao">购买延保</string>
+        <string name="button_usage">使用说明</string>
+        <string name="get_cloud_url">查看云名片</string>
+       
 </resources>

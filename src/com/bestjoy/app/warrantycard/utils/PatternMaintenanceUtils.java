@@ -39,19 +39,23 @@ public class PatternMaintenanceUtils {
 		return getMaintenancePoint(addresses, cr, aid, bid);
 	}
 	
+	public static MaintenancePointBean getMaintenancePointFromCursor(Cursor c) {
+		MaintenancePointBean maintenancePointBean = new MaintenancePointBean();
+		maintenancePointBean.setMaintenancePointName(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_NAME)));
+		maintenancePointBean.setMaintenancePointDetail(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_ADDRESS)));
+		maintenancePointBean.setMaintenancePointTel(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_TELEPHONE)));
+		maintenancePointBean.setMaintenancePointDistance(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE)));
+		maintenancePointBean.setMaintenancePointUrl(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_URL)));
+		
+		return maintenancePointBean;
+	}
+	
 	public static List<MaintenancePointBean> getMaintenancePointLocal(ContentResolver cr, long aid, long bid){
 		List<MaintenancePointBean> result = new ArrayList<MaintenancePointBean>();
 		Cursor c = cr.query(BjnoteContent.MaintencePoint.CONTENT_URI, MaintenancePointBean.MAINTENCE_PROJECTION, MaintenancePointBean.MAINTENCE_PROJECTION_AID_BID_SELECTION, new String[]{String.valueOf(aid), String.valueOf(bid)}, null);
 		if (c != null) {
 			while (c.moveToNext()) {
-				MaintenancePointBean maintenancePointBean = new MaintenancePointBean();
-				maintenancePointBean.setMaintenancePointName(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_NAME)));
-				maintenancePointBean.setMaintenancePointDetail(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_ADDRESS)));
-				maintenancePointBean.setMaintenancePointTel(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_TELEPHONE)));
-				maintenancePointBean.setMaintenancePointDistance(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE)));
-				maintenancePointBean.setMaintenancePointUrl(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_URL)));
-
-				result.add(maintenancePointBean);
+				result.add(getMaintenancePointFromCursor(c));
 			}
 			c.close();
 		}

@@ -37,6 +37,7 @@ import android.widget.ImageView;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.shwy.bestjoy.utils.Contents;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
@@ -51,6 +52,7 @@ public class PhotoManagerUtilsV2 {
 	private static Bitmap mDefaultLoadBitmap;
 	private static Bitmap mDefaultKyBitmap;
 	private static Bitmap mDefaultFaPiaoBitmap;
+	public static Bitmap mDefaultAvatorBitmap;
 	private Context mContext;
 	private Resources mResources;
 	private static final int MAX_CAPACITY = 100;
@@ -91,6 +93,11 @@ public class PhotoManagerUtilsV2 {
         	sHardBitmapCache.remove(sPhotoId);
         	DebugUtils.logPhotoUtils(TAG, " remove bitmap from BitmapCache for photoId " + sPhotoId);
         }
+    }
+    
+    public static boolean removeBitmapFromCache(String photoId) {
+    	sHardBitmapCache.remove(photoId);
+    	return true;
     }
  
     public static Bitmap getBitmapFromCache(String photoId, TaskType type) {
@@ -149,6 +156,7 @@ public class PhotoManagerUtilsV2 {
 			mCurrentImageSize = MAX_RESULT_IMAGE_SIZE;
 			mDefaultKyBitmap = BitmapFactory.decodeResource(mResources, R.drawable.ky_default);
 			mDefaultFaPiaoBitmap = BitmapFactory.decodeResource(mResources, R.drawable.ic_camera);
+			mDefaultAvatorBitmap = BitmapFactory.decodeResource(mResources, R.drawable.baoxiuka_avator_default);
 		}
 		
 //		initCache();
@@ -352,6 +360,7 @@ public class PhotoManagerUtilsV2 {
 		case FaPiao:
 			return mDefaultFaPiaoBitmap;
 		case PREVIEW:
+			return mDefaultAvatorBitmap;
 			default:
 				return mDefaultBitmap; 
 		}
@@ -641,6 +650,7 @@ public class PhotoManagerUtilsV2 {
 		case WeatherIcon:
 			return MyApplication.getInstance().getFile("weather", photoId);
 		case PREVIEW:
+			return MyApplication.getInstance().getCachedPreviewAvatorFile(photoId);
 		}
 		return null;
 	}
@@ -648,7 +658,7 @@ public class PhotoManagerUtilsV2 {
 	public static String getServiceUrl(TaskType type, String photoId) {
 		switch(type) {
 		case PREVIEW:
-			return null;
+			return Contents.MingDang.buildAvatorUrl(photoId);
 		case HOME_DEVICE_AVATOR:
 			return ServiceObject.getProdcutAvatorUrl(photoId);
 		case FaPiao:

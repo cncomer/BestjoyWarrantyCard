@@ -8,6 +8,8 @@ import android.view.View;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.im.RelationshipActivity;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.umeng.message.PushAgent;
@@ -40,7 +42,7 @@ public class MainActivity20141010 extends BaseActionbarActivity implements View.
 	}
 	
 	public void initButtons() {
-		findViewById(R.id.button_home).setOnClickListener(this);
+		findViewById(R.id.button_im).setOnClickListener(this);
 		findViewById(R.id.button_new_card).setOnClickListener(this);
 		findViewById(R.id.button_maintenance).setOnClickListener(this);
 		findViewById(R.id.button_scan).setOnClickListener(this);
@@ -70,6 +72,13 @@ public class MainActivity20141010 extends BaseActionbarActivity implements View.
 		case R.id.button_scan:
 			Intent scanIntent = new Intent(mContext, CaptureActivity.class);
 			startActivity(scanIntent);
+			break;
+		case R.id.button_im:
+			if (MyAccountManager.getInstance().hasLoginned()) {
+				RelationshipActivity.startActivity(mContext);
+			} else {
+				MyApplication.getInstance().showNeedLoginMessage();
+			}
 			break;
 		}
 	}

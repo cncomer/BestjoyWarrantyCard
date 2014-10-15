@@ -27,20 +27,6 @@
         android:weightSum="5" >
 
         <TextView
-            android:id="@+id/button_home"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:drawablePadding="4dip"
-            android:drawableTop="@drawable/ic_button_home"
-            android:gravity="center"
-            android:text="@string/ic_button_home"
-            android:textColor="#ffffffff"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
             android:id="@+id/button_new_card"
             android:layout_width="0dip"
             android:layout_height="fill_parent"
@@ -51,8 +37,20 @@
             android:text="@string/ic_button_new_card"
             android:textColor="#ffffffff"
             android:drawablePadding="4dip"
-            android:textStyle="bold"
             android:textSize="16sp" />
+        
+        <TextView
+            android:id="@+id/button_im"
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:drawablePadding="4dip"
+            android:drawableTop="@drawable/ic_button_im"
+            android:gravity="center"
+            android:text="@string/ic_button_im"
+            android:textColor="#ffffffff"
+            android:textSize="16sp"/>
 
         <TextView
             android:id="@+id/button_maintenance"
@@ -65,7 +63,6 @@
             android:text="@string/ic_button_maintenance"
             android:textColor="#ffffffff"
             android:drawablePadding="4dip"
-            android:textStyle="bold"
             android:textSize="16sp" />
 
         <TextView
@@ -79,7 +76,6 @@
             android:text="@string/ic_button_scan"
             android:textColor="#ffffffff"
             android:drawablePadding="4dip"
-            android:textStyle="bold"
             android:textSize="16sp" />
         
         <TextView
@@ -93,7 +89,6 @@
             android:drawableTop="@drawable/ic_button_remote"
             android:textColor="#ffffffff"
             android:drawablePadding="4dip"
-            android:textStyle="bold"
             android:textSize="16sp" />
     </com.actionbarsherlock.internal.widget.IcsLinearLayout>
 

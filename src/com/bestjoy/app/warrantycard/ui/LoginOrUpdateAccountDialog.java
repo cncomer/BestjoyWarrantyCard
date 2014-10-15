@@ -9,10 +9,8 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -21,17 +19,18 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
+import com.bestjoy.app.bjwarrantycard.im.RelationshipActivity;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.AccountParser;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
-import com.bestjoy.app.warrantycard.database.BjnoteContent;
-import com.bestjoy.app.warrantycard.database.HaierDBHelper;
+import com.bestjoy.app.warrantycard.service.IMService;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
+import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 /**
@@ -76,7 +75,7 @@ public class LoginOrUpdateAccountDialog extends Activity{
 			mAccountObject = null;
 			_is = null;
 			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
-			sb.append("20140611/login.ashx?cell=").append(mTel)
+			sb.append("20140625/login.ashx?cell=").append(mTel)
 			.append("&pwd=");
 			try {
 				_is = NetworkUtils.openContectionLocked(sb.toString(), mPwd, null);
@@ -167,11 +166,14 @@ public class LoginOrUpdateAccountDialog extends Activity{
 			} else if (mAccountObject != null) {
 				//如果登陆成功
 				if (mAccountObject.isLogined()) {
+					IMService.connectIMService(LoginOrUpdateAccountDialog.this);
 					setResult(Activity.RESULT_OK);
 					//每次登陆，我们都需要注册设备Token
 					YouMengMessageHelper.getInstance().saveDeviceTokenStatus(false);
 					//登录成功，我们需要检查是否能够上传设备Token到服务器绑定uid和token
 					UpdateService.startCheckDeviceTokenToService(LoginOrUpdateAccountDialog.this);
+					//每次登录我们都重新设置需要重新拉好友列表
+					ComPreferencesManager.getInstance().setFirstLaunch(RelationshipActivity.FIRST, true);
 				} else {
 					MyApplication.getInstance().showMessage(mAccountObject.mStatusMessage);
 					setResult(Activity.RESULT_CANCELED);

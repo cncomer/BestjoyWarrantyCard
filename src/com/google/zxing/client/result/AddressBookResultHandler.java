@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.Activity;
-import android.net.Uri;
+import android.content.Intent;
 import android.telephony.PhoneNumberUtils;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -30,8 +30,8 @@ import android.text.TextUtils;
 import android.text.style.StyleSpan;
 
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.warrantycard.utils.RecordDownloadUtils;
 import com.shwy.bestjoy.contacts.AddrBookUtils;
+import com.shwy.bestjoy.utils.Intents;
 
 /**
  * Handles address book entries.
@@ -90,8 +90,8 @@ public final class AddressBookResultHandler extends ResultHandler {
     fields[0] = true; // 返回扫描
     //Add contact is always available
     fields[1] = true;
-    fields[2] = false;  //下载并交换
-    fields[3] = hasBidMessage;
+    fields[2] = hasBidMessage;  //下载并交换
+    fields[3] = false;
 
     buttonCount = 0;
     for (int x = 0; x < MAX_BUTTON_COUNT; x++) {
@@ -103,7 +103,10 @@ public final class AddressBookResultHandler extends ResultHandler {
 
   @Override
   public int getButtonCount() {
-    return buttonCount;
+	  if (mParseTask) {
+		return 2; //如果是解析任务，我们只显示两个按钮，返回扫描和确定商品信息
+	  }
+      return buttonCount;
   }
 
   @Override
@@ -113,12 +116,9 @@ public final class AddressBookResultHandler extends ResultHandler {
       case 0:
         return R.string.button_ignore;
       case 1:
-        return R.string.button_add_contact;
+        return mParseTask?R.string.button_scan_finish_return_result:R.string.button_save_contact;
       case 2:
-//        return R.string.button_dial;//拨号
-    	  return R.string.button_get_and_exchange;//下载并交换
-      case 3:
-        return R.string.button_get_cloud_card;
+        return R.string.get_cloud_url;
       default:
         throw new ArrayIndexOutOfBoundsException();
     }
@@ -135,22 +135,19 @@ public final class AddressBookResultHandler extends ResultHandler {
     	gobackAndScan();
         break;
       case 1:
-    	  Uri uri = AddrBookUtils.getInstance().createContactEntry(addressResult);
-    	  AddrBookUtils.getInstance().viewContact(uri);
-//    	  createContactEntry(addressResult, media);
-//    	addContact(addressResult.getNames(), addressResult.getPhoneNumbers());
+    	  if (mParseTask) {
+      		//设置联系人信息
+          	  Intent data = new Intent();
+          	  activity.setResult(Activity.RESULT_OK, data);
+          	  data.putExtra(Intents.EXTRA_BID, addressResult.getMM());
+          	  activity.finish();
+      	  } else {
+      		  //保存联系人
+      		  AddrBookUtils.getInstance().downloadAndViewContactLock(addressResult.getBid(), true);
+      	  }
         break;
       case 2:
-    	//if has more than one phone number, we call the first one.
-//        dialPhone(addressResult.getPhoneNumbers()[0]);//拨号
-        //下载并交换
-    	  RecordDownloadUtils.downloadAndExchange(activity, addressResult, null, false);
-        break;
-      case 3:
-    	//下载云名片并添加联系人
-    	AddrBookUtils.getInstance().downloadAndViewContactLock(addressResult.getBid(), true);
-        //sendEmail(addressResult.getEmails()[0], null, null);
-    	break;
+    	  Intents.openURL(activity, addressResult.getFirstURL());
       default:
         break;
     }
@@ -219,4 +216,12 @@ private static Date parseDate(String s) {
   public int getDisplayTitle() {
     return R.string.result_address_book;
   }
+  
+  /**是否是其他Activity调用来识别条码任务*/
+	private boolean mParseTask = false;
+	private static final int[] parse_task_buttons = { R.string.button_rescan,
+		R.string.button_scan_finish_return_result,};
+	public void setParseOperation(boolean parseTask) {
+		mParseTask = parseTask;
+	}
 }

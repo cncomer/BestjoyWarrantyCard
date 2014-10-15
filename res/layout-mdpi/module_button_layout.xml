@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:gravity="center"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dip"
+    android:layout_marginBottom="10dip"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/ic_module_baoxiucard"
+            android:layout_width="60dip"
+            android:layout_height="60dip"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:clickable="true"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_module_baoxiucard" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dip"
+            android:text="@string/ic_module_baoxiucard"
+            android:textColor="@color/blk" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginLeft="15dip"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/ic_module_home"
+            android:layout_width="60dip"
+            android:layout_height="60dip"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:clickable="true"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_module_home" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dip"
+            android:text="@string/ic_module_home"
+            android:textColor="@color/blk" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginLeft="15dip"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/ic_module_car"
+            android:layout_width="60dip"
+            android:layout_height="60dip"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:clickable="true"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_module_car" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dip"
+            android:text="@string/ic_module_car"
+            android:textColor="@color/blk" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginLeft="15dip"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/ic_module_vip"
+            android:layout_width="60dip"
+            android:layout_height="60dip"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:clickable="true"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_module_vip" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dip"
+            android:text="@string/ic_module_vip"
+            android:textColor="@color/blk" />
+    </LinearLayout>
+
+</LinearLayout>

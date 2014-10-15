@@ -5,15 +5,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
+
 import com.actionbarsherlock.view.Menu;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
-import com.bestjoy.app.bjwarrantycard.imbasedympush.IMConversationActivity;
-import com.bestjoy.app.bjwarrantycard.imbasedympush.IMHelper;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -25,7 +24,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	private CardViewFragment mContent;
 	public Bundle mBundle;
 	
-	private TextView mMalfunctionBtn, mMaintenancePointBtn, mBuyMaintenanceComponentBtn;
+	private TextView mMalfunctionBtn, mMaintenancePointBtn;
 	private BaoxiuCardObject mBaoxiuCardObject;
 	private HomeObject mHomeObject;
 	
@@ -49,10 +48,8 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		setContentView(R.layout.card_content_frame);
 		mMalfunctionBtn = (TextView) findViewById(R.id.button_malfunction);
         mMaintenancePointBtn = (TextView) findViewById(R.id.button_maintenance_point);
-        mBuyMaintenanceComponentBtn = (TextView) findViewById(R.id.button_maintenance_componnet);
         mMalfunctionBtn.setOnClickListener(this);
         mMaintenancePointBtn.setOnClickListener(this);
-        mBuyMaintenanceComponentBtn.setOnClickListener(this);
 		
 		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
 		mHomeObject = HomeObject.getHomeObject(mBundle);
@@ -60,12 +57,12 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		mContent = new CardViewFragment();
 		mContent.setArguments(mBundle);
 
-		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
-		newRepairCardFragment.setArguments(mBundle);
+//		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
+//		newRepairCardFragment.setArguments(mBundle);
 		getSupportFragmentManager()
 		.beginTransaction()
 		.replace(R.id.content_frame, mContent)
-		.replace(R.id.content_frame_bottom, newRepairCardFragment)
+//		.replace(R.id.content_frame_bottom, newRepairCardFragment)
 		.commit();
 		
 		mContentLayout = findViewById(R.id.content_frame);
@@ -153,15 +150,6 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 			break;
 		case R.id.button_maintenance_point:
 			showMaintenancePointFragment();
-			break;
-		case R.id.button_maintenance_componnet:
-			if (true) {
-				MyApplication.getInstance().showUnsupportMessage();
-				return;
-			}
-			break;
-		case R.id.button_im:
-			IMConversationActivity.startActivity(mContext, IMHelper.TARGET_TYPE_QUN, mBaoxiuCardObject.mXingHao);
 			break;
 	    }
 	    

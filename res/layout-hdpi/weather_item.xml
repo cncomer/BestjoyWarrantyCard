@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="42dip"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+    
+    <TextView android:id="@+id/textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:text="@string/sunday"/>
+
+    <ImageView android:id="@+id/icon"
+        android:layout_width="26dip"
+        android:layout_height="26dip"
+        android:scaleType="center"
+        android:src="@drawable/weather_icon_demo"/>
+    <Button 
+        android:background="@drawable/weather_event_bg"
+        android:id="@+id/event"
+        android:layout_width="40dip"
+        android:layout_height="20dip"
+        android:textSize="10sp"
+        android:text="@string/view_weather_event_more"/>
+</LinearLayout>
