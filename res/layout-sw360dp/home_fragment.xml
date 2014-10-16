@@ -56,6 +56,7 @@
         			android:showDividers="middle"
         			android:gravity="center_horizontal"
         			android:padding="2dip"
+        			android:visibility="gone"
         			android:dividerPadding="10dip"
 	                android:background="@color/wt"
 	                android:orientation="horizontal">

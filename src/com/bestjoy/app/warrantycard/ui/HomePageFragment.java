@@ -171,6 +171,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 			mLocationChangeCallback = new MyLocationChangeCallback();
 			BaiduLocationManager.getInstance().addLocationChangeCallback(mLocationChangeCallback);
 			BaiduLocationManager.getInstance().mLocationClient.start();
+			BaiduLocationManager.getInstance().mLocationClient.requestLocation();
 		}
 		
 		mContent.findViewById(R.id.ic_module_baoxiucard).setOnClickListener(this);
@@ -964,6 +965,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 
 		@Override
 		public boolean isLocationChanged(BDLocation location) {
+			BaiduLocationManager.getInstance().setScanSpan(60*1000);//60秒请求一次定位数据
 			String adminCode = HomeObject.getDisID(getActivity().getContentResolver(), location.getProvince().replaceAll("[省市]", ""), location.getCity().replaceAll("[省市]", ""), location.getDistrict());
 			if (!TextUtils.isEmpty(adminCode)) {
 				String lastAdminCode = ComPreferencesManager.getInstance().mPreferManager.getString("admincode", "");
