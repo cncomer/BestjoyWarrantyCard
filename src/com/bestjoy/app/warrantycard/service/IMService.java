@@ -32,6 +32,7 @@ import com.bestjoy.app.bjwarrantycard.im.IMHelper;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
+import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NotifyRegistrant;
@@ -59,6 +60,8 @@ public class IMService extends Service{
 	public static final int WHAT_SEND_MESSAGE_OFFLINE = 1003;
 	/**收到用户验证失败的消息*/
 	public static final int WHAT_SEND_MESSAGE_INVALID_USER = 1004;
+	/**无网络*/
+	public static final int WHAT_SEND_MESSAGE_NO_NETWORK = 1008;
 	/**30s*/
 	private static final int HEART_BEAT_DELAY_TIME = 30 * 1000;
 	/**在会话结束前，我们需要等待，比如退出当前界面*/
@@ -108,9 +111,9 @@ public class IMService extends Service{
 					break;
 				case WHAT_CHECK_HEART_BEAT:
 					//如果10秒钟没有接收到登录应答，我们认为连接丢失，等待重新连接
-					mIsConnected = mIsRecLoginRes;
+					mIsConnected = false;
 					//通知连接结果
-					NotifyRegistrant.getInstance().notify(WHAT_SEND_MESSAGE_LOGIN);
+					NotifyRegistrant.getInstance().notify(WHAT_SEND_MESSAGE_NO_NETWORK);
 					break;
 				case WHAT_SEND_MESSAGE_LOGIN:
 					
@@ -177,6 +180,20 @@ public class IMService extends Service{
 		
 		//启动一个计时器来定时检查发送状态
 		mWorkHandler.sendEmptyMessageDelayed(WHAT_CHECK_SENDING_MESSAGE, CHECK_HEART_BEAT_DELAY);
+		
+		ComConnectivityManager.getInstance().addConnCallback(new ComConnectivityManager.ConnCallback() {
+			
+			@Override
+			public void onConnChanged(ComConnectivityManager cm) {
+				if (cm.isConnected()) {
+					//如果网络变化了，我们立即重新发送心跳包
+					mWorkHandler.sendEmptyMessageDelayed(WHAT_SEND_MESSAGE_LOGIN, 500);//立即登录一次
+				} else {
+					mIsConnected = false;
+					NotifyRegistrant.getInstance().notify(WHAT_SEND_MESSAGE_NO_NETWORK);
+				}
+			}
+		});
 	}
 
 	

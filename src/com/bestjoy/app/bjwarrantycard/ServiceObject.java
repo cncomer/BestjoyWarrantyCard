@@ -421,4 +421,21 @@ public class ServiceObject {
 			  sb.append("pagesize=").append(pageSize);
 	    	  return sb.toString();
 		  }
+		  
+		  public static String getPoiNearbySearchUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("GetNearbyxq.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  /**
+		   * 关联家和小区
+		   * @param para
+		   * @param jsonString
+		   * @return
+		   */
+		  public static String relatedHomeToCommunity(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Xiaoqu/addXiaoQuDetail.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
 }

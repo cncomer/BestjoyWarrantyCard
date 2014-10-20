@@ -25,6 +25,10 @@ public class HomeParser extends InfoInterfaceImpl{
 		homeObject.mHomeUid = jsonObject.getLong("UID");
 		homeObject.mHomeAid = jsonObject.getLong("AID");
 		homeObject.mHomeName = jsonObject.getString("Tag");
+		
+		//小区相关
+		homeObject.mHid = jsonObject.optLong("HID", -1);
+		homeObject.mHname = jsonObject.optString("HNAME", "");
 		return homeObject;
 	}
 	/**

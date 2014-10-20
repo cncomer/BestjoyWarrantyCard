@@ -91,12 +91,11 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 					mConnectedStatusView.setVisibility(View.VISIBLE);
 					mConnectedStatusView.setText(R.string.msg_offline_confirm_click);
 				}
-				NotifyRegistrant.getInstance().register(mUiHandler);
+				
 			}
 
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
-				NotifyRegistrant.getInstance().unRegister(mUiHandler);
 				mImService.setIsInConversationSession(false, mRelationshipObject.mTarget);
 			}
 		};
@@ -142,7 +141,7 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 				}
 			}
 		};
-		
+		NotifyRegistrant.getInstance().register(mUiHandler);
 		IMService.connectIMService(this);
 		
 		initEditLayout();

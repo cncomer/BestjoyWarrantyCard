@@ -14,7 +14,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 12;
+  private static final int DB_VERSION = 13;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -250,6 +250,12 @@ private static final String TAG = "HaierDBHelper";
   public static final String DATA8 = "data8";
   public static final String DATA9 = "data9";
   //好友关系 end
+  /**社区服务表*/
+  public static final String TABLE_HOME_COMMUNITY_SERVICE = "home_community_service";
+  /**社区id*/
+  public static final String HOME_COMMUNITY_HID = "hid";
+  /**社区名称*/
+  public static final String HOME_COMMUNITY_NAME = "hname";
   
   public HaierDBHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
@@ -322,6 +328,8 @@ private static final String TAG = "HaierDBHelper";
   		createImMessageTable(sqLiteDatabase);
   		createAccountRelationshipTable(sqLiteDatabase);
   		
+  		createHomeCommunityTable(sqLiteDatabase);
+  		
   }
   
   private void createTriggerForAccountTable(SQLiteDatabase sqLiteDatabase) {
@@ -393,6 +401,8 @@ private static final String TAG = "HaierDBHelper";
 	            HOME_AID + " INTEGER, " +
 	            HOME_NAME + " TEXT, " +
 	            HOME_CARD_COUNT + " INTEGER NOT NULL DEFAULT 0, " +
+	            HOME_COMMUNITY_HID + " INTEGER NOT NULL DEFAULT -1, " +
+	            HOME_COMMUNITY_NAME + " TEXT, " +
 	            DeviceDBHelper.DEVICE_PRO_NAME + " TEXT, " +
 	            DeviceDBHelper.DEVICE_CITY_NAME + " TEXT, " +
 	            DeviceDBHelper.DEVICE_DIS_NAME + " TEXT, " +
@@ -526,6 +536,40 @@ private static final String TAG = "HaierDBHelper";
 	            ");");
   }
   
+  private void createHomeCommunityTable(SQLiteDatabase sqLiteDatabase) {
+//	  sqLiteDatabase.execSQL(
+//	            "CREATE TABLE " + TABLE_HOME_COMMUNITY + " (" +
+//	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+//	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +
+//	            HOME_COMMUNITY_HID + " INTEGER, " +
+//	            DATA1 + " TEXT, " +
+//	            DATA2 + " TEXT, " +
+//	            DATA3 + " TEXT, " +
+//	            DATA4 + " TEXT, " +
+//	            DATA5 + " TEXT, " +
+//	            DATA6 + " TEXT, " +
+//	            DATA7 + " INTEGER, " +
+//	            DATA8 + " INTEGER NOT NULL DEFAULT 0, " +
+//	            DATA9 + " TEXT" +
+//	            ");");
+	  
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_HOME_COMMUNITY_SERVICE + " (" +
+	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +
+	            HOME_COMMUNITY_HID + " INTEGER, " +
+	            DATA1 + " TEXT, " +
+	            DATA2 + " TEXT, " +
+	            DATA3 + " TEXT, " +
+	            DATA4 + " TEXT, " +
+	            DATA5 + " TEXT, " +
+	            DATA6 + " TEXT, " +
+	            DATA7 + " INTEGER, " +
+	            DATA8 + " INTEGER NOT NULL DEFAULT 0, " +
+	            DATA9 + " TEXT" +
+	            ");");
+  }
+  
   private void createDemoAccountAndHomeData(SQLiteDatabase sqLiteDatabase) {
 	  long id = sqLiteDatabase.insert(TABLE_NAME_ACCOUNTS, null, AccountObject.getDemoAccountObjectContentValues());
 	  DebugUtils.logE(TAG, "createDemoAccountData() newId=" + id);
@@ -626,7 +670,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 11) {
+	  if (oldVersion <= 12) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
@@ -640,6 +684,8 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_IM_QUN_HISTORY);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_IM_FRIEND_HISTORY);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ACCOUNT_RELATIONSHIP);
+//		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_HOME_COMMUNITY);
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_HOME_COMMUNITY_SERVICE);
 		    
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "insert_account");
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "update_default_account");

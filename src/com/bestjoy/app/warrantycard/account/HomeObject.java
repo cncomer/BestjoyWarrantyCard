@@ -51,6 +51,10 @@ public class HomeObject implements InfoInterface{
 	private boolean mOutOfDate = true;
 	
 	private static String DEFAUL_HOME_NAME;
+	/**小区id*/
+	public long mHid = -1;
+	/**小区名称*/
+	public String mHname = "";
 	
 	public String getHomeTag(Context context) {
 		if (TextUtils.isEmpty(mHomeName)) {
@@ -60,6 +64,10 @@ public class HomeObject implements InfoInterface{
 			return DEFAUL_HOME_NAME;
 		}
 		return mHomeName;
+	}
+	
+	public boolean hasCommunity() {
+		return mHid > 0;
 	}
 	
 	public HomeObject clone() {
@@ -77,7 +85,8 @@ public class HomeObject implements InfoInterface{
 		newHomeObject.mIsDefault = mIsDefault;
 		newHomeObject.mHomeCardCount = mHomeCardCount;
 		newHomeObject.mOutOfDate = true;
-		
+		newHomeObject.mHid = mHid;
+		newHomeObject.mHname = mHname;
 		return newHomeObject;
 	}
 	
@@ -125,6 +134,8 @@ public class HomeObject implements InfoInterface{
 		HaierDBHelper.POSITION,
 		HaierDBHelper.ID,
 		HaierDBHelper.HOME_CARD_COUNT,      //10
+		HaierDBHelper.HOME_COMMUNITY_HID,   //11
+		HaierDBHelper.HOME_COMMUNITY_NAME,  //12
 	};
 	
 	public static final int KEY_HOME_UID = 0;
@@ -138,6 +149,9 @@ public class HomeObject implements InfoInterface{
 	public static final int KEY_HOME_POSITION = 8;
 	public static final int KEY_HOME_ID = 9;
 	public static final int KEY_HOME_CARD_COUNT = 10;
+	
+	public static final int KEY_HOME_COMMUNITY_HID = 11;
+	public static final int KEY_HOME_COMMUNITY_NAME = 12;
 	
 	public static long getProvinceId(ContentResolver cr, String provinceName) {
 		if (TextUtils.isEmpty(provinceName)) {
@@ -221,6 +235,8 @@ public class HomeObject implements InfoInterface{
 		values.put(HaierDBHelper.HOME_DETAIL, mHomePlaceDetail);
 		values.put(HaierDBHelper.DATE, new Date().getTime());
 		values.put(HaierDBHelper.POSITION, mHomePosition);
+		values.put(HaierDBHelper.HOME_COMMUNITY_HID, mHid);
+		values.put(HaierDBHelper.HOME_COMMUNITY_NAME, mHname);
 		//对于家，只有位置是0的才是默认，其余的都不是, Home的uid和aid只有新增的时候会插入
 		if (mHomePosition == 0) {
 			values.put(HaierDBHelper.HOME_DEFAULT, 1);
@@ -312,6 +328,8 @@ public class HomeObject implements InfoInterface{
 		homeObject.mHomeCardCount = c.getInt(KEY_HOME_CARD_COUNT);
 //		homeObject.mHomeCardCount = BaoxiuCardObject.getAllBaoxiuCardsCount(cr, homeObject.mHomeUid, homeObject.mHomeAid);
 		homeObject.mIsDefault = c.getInt(KEY_HOME_DEFAULT) == 1;
+		homeObject.mHid = c.getLong(KEY_HOME_COMMUNITY_HID);
+		homeObject.mHname = c.getString(KEY_HOME_COMMUNITY_NAME);
 		return homeObject;
 	}
 	
@@ -451,17 +469,41 @@ public class HomeObject implements InfoInterface{
 		}
 		return deleted;
 	}
+	/**
+	 * 返回所有的小区
+	 * @return
+	 */
+	public static List<HomeObject> getAllCommunities() {
+		List<HomeObject> list = new ArrayList<HomeObject>();
+		if (MyAccountManager.getInstance().hasHomes()) {
+			for(HomeObject homeObject : MyAccountManager.getInstance().getAccountObject().mAccountHomes) {
+				if (homeObject.hasCommunity()) {
+					list.add(homeObject);
+				}
+			}
+		}
+		return list;
+	}
 	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("HomeObject[")
 		.append("uid=").append(mHomeUid)
+		.append(", community=").append(mHname)
 		.append(", aid=").append(mHomeAid)
 		.append(", homeName=").append(mHomeName)
 		.append(", placeDetail=").append(mHomePlaceDetail)
 		.append(", isDefault=").append(mIsDefault)
 		.append("]");
+		return sb.toString();
+	}
+	
+	public String toFriendString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(mHomeCity)
+		.append(" ").append(mHomeDis)
+		.append(" ").append(mHomePlaceDetail);
 		return sb.toString();
 	}
 	

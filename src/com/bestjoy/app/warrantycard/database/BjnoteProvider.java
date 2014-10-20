@@ -17,6 +17,7 @@ import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.HomesCommunityManager;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.shwy.bestjoy.utils.DebugUtils;
 
@@ -34,6 +35,8 @@ public class BjnoteProvider extends ContentProvider{
 			HaierDBHelper.TABLE_IM_QUN_HISTORY,
 			HaierDBHelper.TABLE_IM_FRIEND_HISTORY,
 			HaierDBHelper.TABLE_ACCOUNT_RELATIONSHIP,
+			HaierDBHelper.TABLE_HOME_COMMUNITY_SERVICE,
+//			HaierDBHelper.TABLE_HOME_COMMUNITY,
 //			ContactsDBHelper.TABLE_NAME_MYLIFE_CONSUME,
 	};
 	private static final int BASE = 8;
@@ -70,6 +73,12 @@ public class BjnoteProvider extends ContentProvider{
 	private static final int ACCOUNT_RELATIONSHIP = 0x0900;
 	private static final int ACCOUNT_RELATIONSHIP_ID = 0x0901;
 	
+	private static final int HOME_COMMUNITY_SERVICE = 0x0a00;
+	private static final int HOME_COMMUNITY_SERVICE_ID = 0x0a01;
+	
+	private static final int HOME_COMMUNITY = 0x0b00;
+	private static final int HOME_COMMUNITY_ID = 0x0b01;
+	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	 static {
 	        // URI matching table
@@ -104,6 +113,12 @@ public class BjnoteProvider extends ContentProvider{
 	        
 	        matcher.addURI(BjnoteContent.AUTHORITY, "relationship", ACCOUNT_RELATIONSHIP);
 	        matcher.addURI(BjnoteContent.AUTHORITY, "relationship/#", ACCOUNT_RELATIONSHIP_ID);
+	        
+	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/service", HOME_COMMUNITY_SERVICE);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/service/#", HOME_COMMUNITY_SERVICE_ID);
+	        
+//	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community", HOME_COMMUNITY);
+//	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/#", HOME_COMMUNITY_ID);
 	        
 	        //TODO 增加
 	 }
@@ -184,6 +199,15 @@ public class BjnoteProvider extends ContentProvider{
 		case ACCOUNT_RELATIONSHIP_ID:
 			notify = BjnoteContent.RELATIONSHIP.CONTENT_URI;
 			break;
+		case HOME_COMMUNITY:
+		case HOME_COMMUNITY_ID:
+			notify = HomesCommunityManager.CONTENT_URI;
+			break;
+		case HOME_COMMUNITY_SERVICE:
+		case HOME_COMMUNITY_SERVICE_ID:
+			notify = HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI;
+			break;
+			
     	}
     	ContentResolver resolver = context.getContentResolver();
         resolver.notifyChange(notify, null);
@@ -349,6 +373,8 @@ public class BjnoteProvider extends ContentProvider{
 			case IM_FRIEND_ID:
 			case IM_QUN_ID:
 			case ACCOUNT_RELATIONSHIP_ID:
+			case HOME_COMMUNITY_ID:
+			case HOME_COMMUNITY_SERVICE_ID:
 			try {
 				id = ContentUris.parseId(uri);
 			} catch(java.lang.NumberFormatException e) {

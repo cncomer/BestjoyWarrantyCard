@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -778,6 +779,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.ic_module_baoxiucard:
+		case R.id.ic_module_home://物业卡
 			//判断有没有登陆，没有的话提示登录
 			if (!MyAccountManager.getInstance().hasLoginned()) {
 				 LoginActivity.startIntent(getActivity(), null);
@@ -819,17 +821,31 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 				return;
 			}
 			//判断是否有保修卡
-			
-			if (MyAccountManager.getInstance().hasBaoxiuCards()) {
-				Bundle bundle = ModleSettings.createMyCardDefaultBundle(getActivity());
-				bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
-				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
-				MyChooseDevicesActivity.startIntent(getActivity(), bundle);
-			} else {
-				Bundle bundle = ModleSettings.createMyCardDefaultBundle(getActivity());
-				bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
-				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
-				NewCardActivity.startIntent(getActivity(), bundle);
+			switch(v.getId()) {
+			case R.id.ic_module_home:
+				List<HomeObject> communities = HomeObject.getAllCommunities();
+				if (communities.size() == 1) {
+					
+				} else {
+					//没有小区或是有多个小区，我们需要前往家列表进行选择
+					Bundle bundle = ModleSettings.createHomeCommunityBundle(getActivity());
+					bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					HomeManagerActivity.startActivity(getActivity(), bundle);
+				}
+				break;
+			case R.id.ic_module_baoxiucard:
+				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
+					Bundle bundle = ModleSettings.createMyCardDefaultBundle(getActivity());
+					bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
+					bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					MyChooseDevicesActivity.startIntent(getActivity(), bundle);
+				} else {
+					Bundle bundle = ModleSettings.createMyCardDefaultBundle(getActivity());
+					bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
+					bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					NewCardActivity.startIntent(getActivity(), bundle);
+				}
+				break;
 			}
 			break;
 		case R.id.button_telecontrol:
@@ -1043,7 +1059,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 			try {
 				String content = NetworkUtils.getContentFromInput(new FileInputStream(WeatherManager.getInstance().getCachedWeatherFile()));
 				ServiceResultObject result = ServiceResultObject.parseArray(content);
-				if (result.isOpSuccessfully()) {
+				if (result.isOpSuccessfully() && result.mJsonArray != null) {
 					return WeatherManager.getInstance().getWeekWeather(result.mJsonArray);
 				}
 			} catch (FileNotFoundException e) {

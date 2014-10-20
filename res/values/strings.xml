@@ -85,7 +85,9 @@
        <string name="usr_pwd_hint">输入你的密码</string>
        <string name="usr_repwd_hint">请再次输入你的密码</string>
        <string name="usr_tel_hint">输入你的手机号</string>
-    
+    <string name="activity_title_choose_homecommunity">选择小区所在家</string>
+    <string name="activity_title_choose_community">选择家所在小区</string>
+     <string name="activity_title_my_homecommunity">我的小区</string>
     <string name="activity_title_choose_device_general">家当清单</string>
     <string name="activity_title_choose_device_card">选择设备</string>
     <string name="activity_title_choose_device_install">请先选择你要预约安装的产品</string>
@@ -570,6 +572,7 @@
            <string name="ic_button_home">首页</string>
            <string name="ic_button_im">互动</string>
            <string name="ic_button_new_card">建卡</string>
+           <string name="ic_button_notification">通知</string>
            <string name="ic_button_maintenance">维修</string>
            <string name="ic_button_scan">扫码</string>
            <string name="ic_button_remote">遥控</string>
@@ -634,4 +637,11 @@
         <string name="button_usage">使用说明</string>
         <string name="get_cloud_url">查看云名片</string>
        
+        
+        <string name="hint_community_keyword">请输入您的小区名称</string>
+        <string name="msg_load_communities_wait">正在检索 %s 周边小区,请稍等...</string>
+        <string name="title_unit_m_format">"%s 米"</string>
+        <string name="cling_relate_home_to_community">您需要选择家所在的小区，一旦关联小区的相关服务了，如果要关联其他的家地址，请在家管理-选择一个家-关联小区</string>
+        <string name="format_relate_home_to_community_first_time">您确定要将【%1$s】与【%2$s】物业关联?一旦关联成功，你就可以使用家所在小区的相关服务了，如果要关联其他的家地址，请在家管理-选择一个家-关联小区</string>
+        <string name="format_relate_home_to_community">您确定要将【%1$s】与【%1$s】物业关联?</string>
 </resources>
