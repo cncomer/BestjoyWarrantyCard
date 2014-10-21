@@ -19,6 +19,7 @@ import android.text.TextUtils;
 
 import com.baidu.location.BDLocation;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
+import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.bjwarrantycard.propertymanagement.HomesCommunityManager.CommunityServiceObject;
@@ -55,7 +56,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity{
 		if (this.isFinishing()) {
 			return;
 		}
-		
+		setContentView(R.layout.activity_property_management);
 		//设置小区标题
 		setTitle(mHomeObject.mHname);
 		loadLocalCommunityServiceData();
@@ -85,6 +86,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity{
 		protected void onPostExecute(List<CommunityServiceObject> result) {
 			super.onPostExecute(result);
 			if (result != null && result.size() == 0) {
+				mCommunityServiceObjectList = HomesCommunityManager.getAllDefaultCommunityServiceObject();
 				loadCommunityServiceData();
 			} else {
 				mCommunityServiceObjectList = result;
@@ -119,13 +121,9 @@ public class PropertyManagementActivity extends BaseActionbarActivity{
 				queryJsonObject.put("xid", mHomeObject.mHid);
 				queryJsonObject.put("uid", mHomeObject.mHomeUid);
 				is = NetworkUtils.openContectionLocked(ServiceObject.getCommunityServices("para", queryJsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
-				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				serviceResultObject = ServiceResultObject.parseArray(NetworkUtils.getContentFromInput(is));
 				if (serviceResultObject.isOpSuccessfully()) {
-					//添加成功
-//					if (updated > 0) {
-//						//刷新本地家
-//						MyAccountManager.getInstance().initAccountHomes();
-//					}
+					
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();

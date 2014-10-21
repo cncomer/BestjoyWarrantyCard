@@ -3,6 +3,10 @@ package com.bestjoy.app.bjwarrantycard.propertymanagement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -108,15 +112,11 @@ public class HomesCommunityManager extends BjnoteContent {
 		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA8 + "=0 and " + HaierDBHelper.DATA7 + ">? and " + HaierDBHelper.DATA7 + "<?", new String[]{uid, hid, aid, String.valueOf(TYPE_KUANDAI), String.valueOf(TYPE_TONGZHI)}, HaierDBHelper.DATA7 + " asc");
 	}
 	
-	/**
-	 * {"StatusCode":"1","StatusMessage":"返回小区","Data":[{"cell":"021-110","name":"小区物业","level":0,"levelValue":"3","st":0,"stvalue":"1","PhoneID":"1","xid":"1","uid":"575401"}]}
-	 * @author bestjoy
-	 *
-	 */
 	public static class CommunityServiceObject {
 		public String mServiceId,mServiceName, mServiceContent;
-		public long mAid, mHid, mUid, mId;
+		public long mAid=-1, mHid=-1, mUid=-1, mId=-1;
 		public int mServiceType, mEditable;
+		public int mServiceIconResId;
 		
 	}
 	
@@ -149,4 +149,47 @@ public class HomesCommunityManager extends BjnoteContent {
 		return communityServiceObject;
 		
 	}
+	
+	public static List<CommunityServiceObject> getAllCommunityServiceObject(JSONArray result) {
+		if (result == null) {
+			return new ArrayList<CommunityServiceObject>();
+		}
+		List<CommunityServiceObject> communityServiceObjectList = new ArrayList<CommunityServiceObject>(result.length());
+		int len = result.length();
+		for(int index=0; index <len; index++) {
+			try {
+				communityServiceObjectList.add(getCommunityServiceObject(result.getJSONObject(index)));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		return communityServiceObjectList;
+	}
+	/**
+	 * {"StatusCode":"1","StatusMessage":"返回小区","Data":[{"cell":"021-110","name":"小区物业","level":0,"levelValue":"3","st":0,"stvalue":"1","PhoneID":"1","xid":"1","uid":"575401"}]}
+	 * @author bestjoy
+	 * @throws JSONException 
+	 * @throws NumberFormatException 
+	 *
+	 */
+	public static CommunityServiceObject getCommunityServiceObject(JSONObject result) throws NumberFormatException, JSONException {
+		CommunityServiceObject communityServiceObject = new CommunityServiceObject();
+		communityServiceObject.mServiceType = Integer.valueOf(result.getString("levelValue"));
+		communityServiceObject.mEditable = Integer.valueOf(result.getString("stvalue"));
+		communityServiceObject.mServiceId = result.getString("PhoneID");
+		communityServiceObject.mServiceName = result.getString("name");
+		communityServiceObject.mServiceContent = result.getString("cell");
+		
+		communityServiceObject.mAid = Long.valueOf(result.getString("aid"));
+		communityServiceObject.mHid = Long.valueOf(result.getString("xid"));
+		communityServiceObject.mUid = Long.valueOf(result.getString("uid"));
+		return communityServiceObject;
+		
+	}
+	
+	public static List<CommunityServiceObject> getAllDefaultCommunityServiceObject() {
+		List<CommunityServiceObject> communityServiceObjectList = new ArrayList<CommunityServiceObject>();
+		return communityServiceObjectList;
+	}
+	
 }

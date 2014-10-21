@@ -8,25 +8,24 @@
 	    android:fillViewport="true">
         <LinearLayout 
 		    android:layout_width="fill_parent"
-		    android:layout_height="fill_parent"
+		    android:layout_height="wrap_content"
 		    android:orientation="vertical"
 		    android:background="#ffededed" >
 		    
-            <LinearLayout 
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:orientation="vertical"
+            <com.bestjoy.app.warrantycard.view.MyGridView 
+                android:id="@+id/main_service"
+			    android:layout_width="wrap_content"
+			    android:layout_height="300dip"
 			    android:layout_marginTop="18dip"
-			    android:layout_marginLeft="35dip"
-			    android:layout_marginRight="35dip"
+			    android:layout_gravity="center_horizontal"
+			    android:stretchMode="spacingWidth"
+			    android:gravity="center"
+			    android:verticalSpacing="10dp"
+			    android:horizontalSpacing="30dp" 
+			    android:numColumns="4"
+			    android:columnWidth="50dip"
 			    android:background="@color/wt" >
-				<LinearLayout 
-				    android:layout_width="fill_parent"
-				    android:layout_height="wrap_content"
-				    android:orientation="horizontal">
-				    
-				</LinearLayout>
-	        </LinearLayout>
+	        </com.bestjoy.app.warrantycard.view.MyGridView>
 	    </LinearLayout>
     </ScrollView>
     
