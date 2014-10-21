@@ -130,7 +130,7 @@ public class MyChooseDevicesActivity extends BaseActionbarActivity implements Ho
 		case R.string.menu_manage_home:
 			//管理家
 	    	//HomeObject.setHomeObject(mMyPagerAdapter.getHome(mHomeSelected).clone());
-	    	HomeManagerActivity.startActivity(mContext);
+	    	HomeManagerActivity.startActivity(mContext, mBundle);
 	        return true;
 		case android.R.id.home:
 			finish();

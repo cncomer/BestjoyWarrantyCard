@@ -1,6 +1,7 @@
 package com.bestjoy.app.warrantycard.utils;
 
 import android.content.Context;
+import android.os.Bundle;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -13,6 +14,7 @@ import com.bestjoy.app.warrantycard.ui.LoginActivity;
 import com.bestjoy.app.warrantycard.ui.RegisterActivity;
 import com.bestjoy.app.warrantycard.ui.SettingsPreferenceActivity;
 import com.bestjoy.app.warrantycard.ui.YMessageListActivity;
+import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.update.AppAboutActivity;
 
 public class MenuHandlerUtils {
@@ -48,7 +50,9 @@ public class MenuHandlerUtils {
         	context.startActivity(AppAboutActivity.createIntent(context));
       	   break;
         case R.string.menu_manage_home:
-	    	HomeManagerActivity.startActivity(context);
+        	Bundle bundle = ModleSettings.createHomeCommunityBundle(context);
+			bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+			HomeManagerActivity.startActivity(context, bundle);
         	break;
         case R.string.menu_ymessage:
         	//Ymessage历史记录

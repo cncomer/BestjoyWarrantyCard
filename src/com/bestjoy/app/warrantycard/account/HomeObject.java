@@ -2,9 +2,11 @@ package com.bestjoy.app.warrantycard.account;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -120,7 +122,7 @@ public class HomeObject implements InfoInterface{
 	// home table
 	private static final String WHERE_HOME_ACCOUNTID = HaierDBHelper.ACCOUNT_UID + "=?";
 	private static final String WHERE_HOME_ADDRESS_ID = HaierDBHelper.HOME_AID + "=?";
-	private static final String WHERE_UID_AND_AID = WHERE_HOME_ACCOUNTID + " and " + WHERE_HOME_ADDRESS_ID;
+	public static final String WHERE_UID_AND_AID = WHERE_HOME_ACCOUNTID + " and " + WHERE_HOME_ADDRESS_ID;
 	private static final String WHERE_ACCOUNT_ID_AND_HOME_ADDRESS_ID = WHERE_HOME_ACCOUNTID + " and " + WHERE_HOME_ADDRESS_ID;
 	public static final String[] HOME_PROJECTION = new String[]{
 		HaierDBHelper.ACCOUNT_UID,        //0
@@ -287,12 +289,25 @@ public class HomeObject implements InfoInterface{
 	public static int deleteAllHomesInDatabaseForAccount(ContentResolver cr, long uid) {
 		int deleted = cr.delete(BjnoteContent.Homes.CONTENT_URI, WHERE_HOME_ACCOUNTID, new String[]{String.valueOf(uid)});
 		DebugUtils.logD(TAG, "deleteAllHomesInDatabaseForAccount uid#" + uid + ", delete " + deleted);
+		if (deleted > 0) {
+			synchronized(mLock) {
+				mHomeObjectCache.clear();
+			}
+			
+		}
 		return deleted;
 	}
 	
 	public static int deleteHomeInDatabaseForAccount(ContentResolver cr, long uid, long aid) {
 		int deleted = cr.delete(BjnoteContent.Homes.CONTENT_URI, WHERE_UID_AND_AID, new String[]{String.valueOf(uid), String.valueOf(aid)});
 		DebugUtils.logD(TAG, "deleteHomeInDatabaseForAccount aid#" + aid + ", delete " + deleted);
+		if (deleted > 0) {
+			synchronized(mLock) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(uid).append('_').append(aid);
+				mHomeObjectCache.remove(sb.toString());
+			}
+		}
 		return deleted;
 	}
 	
@@ -303,6 +318,10 @@ public class HomeObject implements InfoInterface{
 	public static List<HomeObject> getAllHomeObjects(ContentResolver cr, long uid) {
 		Cursor c = getAllHomesCursor(cr, uid);
 		List<HomeObject> list = new ArrayList<HomeObject>();
+		
+		synchronized(mLock) {
+			mHomeObjectCache.clear();
+		}
 		if (c != null) {
 			list = new ArrayList<HomeObject>(c.getCount());
 			while(c.moveToNext()) {
@@ -314,7 +333,6 @@ public class HomeObject implements InfoInterface{
 	}
 	
 	private static HomeObject getFromHomeSCursor(Cursor c, ContentResolver cr) {
-		
 		HomeObject homeObject = new HomeObject();
 		homeObject.mHomeId = c.getLong(KEY_HOME_ID);
 		homeObject.mHomeUid = c.getLong(KEY_HOME_UID);
@@ -330,10 +348,34 @@ public class HomeObject implements InfoInterface{
 		homeObject.mIsDefault = c.getInt(KEY_HOME_DEFAULT) == 1;
 		homeObject.mHid = c.getLong(KEY_HOME_COMMUNITY_HID);
 		homeObject.mHname = c.getString(KEY_HOME_COMMUNITY_NAME);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(homeObject.mHomeUid).append('_').append(homeObject.mHomeAid);
+		synchronized(mLock) {
+			mHomeObjectCache.put(sb.toString(), homeObject);
+		}
 		return homeObject;
 	}
-	
+	private static final int MAX_CACHE_SIZE = 20;
+	private static LinkedHashMap<String, HomeObject> mHomeObjectCache = new LinkedHashMap<String, HomeObject>(MAX_CACHE_SIZE){
+
+		@Override
+		protected boolean removeEldestEntry(Entry<String, HomeObject> eldest) {
+			 return size() > MAX_CACHE_SIZE;
+		}
+		
+	};
+	private static Object mLock = new Object();
 	public static HomeObject getHomeObject(ContentResolver cr, long uid, long aid) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(uid).append('_').append(aid);
+		
+		synchronized(mLock) {
+			if (mHomeObjectCache.containsKey(sb.toString())) {
+				return mHomeObjectCache.get(sb.toString());
+			}
+		}
+		
 		Cursor c = cr.query(BjnoteContent.Homes.CONTENT_URI, HOME_PROJECTION, WHERE_ACCOUNT_ID_AND_HOME_ADDRESS_ID, new String[]{String.valueOf(uid), String.valueOf(aid)}, null);
 		HomeObject homeObject = null;
 		if (c != null) {
@@ -403,23 +445,6 @@ public class HomeObject implements InfoInterface{
 	 */
 	public static void setHomeObject(HomeObject homeObject) {
 		mHomeObject = homeObject;
-	}
-	
-	private static LinkedHashMap<Long, HomeObject> mHomesMapCache = new LinkedHashMap<Long, HomeObject>(20) {
-		@Override
-		protected boolean removeEldestEntry(Entry<Long, HomeObject> eldest) {
-			return size() >= 20;
-		}
-	};
-	public static HomeObject getCachedHomeObject(long uid, long aid) {
-		if (mHomesMapCache.containsKey(aid)) {
-			return mHomesMapCache.get(aid);
-		}
-		HomeObject homeObject = HomeObject.getHomeObject(MyApplication.getInstance().getContentResolver(), uid, aid);
-		if (homeObject != null) {
-			mHomesMapCache.put(aid, homeObject);
-		}
-		return homeObject;
 	}
 	
 	public static long DEMO_HOME_AID = 353766;

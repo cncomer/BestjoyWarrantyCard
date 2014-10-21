@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.Button;
 import android.widget.EditText;
+import android.view.View;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -19,9 +21,10 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.ChooseCommunityActivity;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.PropertyManagementActivity;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
-import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.view.HaierProCityDisEditPopView;
@@ -30,17 +33,23 @@ import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
 import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 
-public class NewHomeActivity extends BaseActionbarActivity {
+public class NewHomeActivity extends BaseActionbarActivity implements View.OnClickListener{
 	private static final String TAG = "NewHomeActivity";
 	private HaierProCityDisEditPopView mProCityDisEditPopView;
 	private EditText mHomeEditText;
 	private HomeObject mHomeObject ;
+	private Bundle mBundles;
+	private Button mEnterCommunityBtn;
 	@Override
 	protected boolean checkIntent(Intent intent) {
-		mHomeObject = HomeObject.getHomeObject();
-		if (mHomeObject == null) {
-			DebugUtils.logD(TAG, "mHomeObject is null, so finish it");
+		mBundles = intent.getExtras();
+		if (mBundles == null) {
+			DebugUtils.logD(TAG, "checkIntent failed, due to mBundles is null");
+		} else {
+			DebugUtils.logD(TAG, "checkIntent true, find mBundles=" + mBundles);
 		}
+		mHomeObject = HomeObject.getHomeObject(mBundles);
+		DebugUtils.logD(TAG, "checkIntent mHomeObject=" + mHomeObject);
 		return mHomeObject != null;
 	}
 	
@@ -48,14 +57,42 @@ public class NewHomeActivity extends BaseActionbarActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_home);
-		if (mHomeObject.mHomeAid > 0) {
-			setTitle(R.string.activity_title_update_home);
+		if (this.isFinishing()) {
+			return;
 		}
+		
 		mProCityDisEditPopView = new HaierProCityDisEditPopView(this);
 		mHomeEditText = (EditText) findViewById(R.id.my_home);
+		
+		mEnterCommunityBtn = (Button) findViewById(R.id.button_enter);
+		mEnterCommunityBtn.setOnClickListener(this);
+		if (mHomeObject.mHomeAid > 0) {
+			setTitle(R.string.activity_title_update_home);
+			mEnterCommunityBtn.setVisibility(View.VISIBLE);
+		} else {
+			mEnterCommunityBtn.setVisibility(View.GONE);
+		}
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		mHomeObject = HomeObject.getHomeObject(mBundles);
+		if (mHomeObject == null) {
+			DebugUtils.logE(TAG, "onResume() HomeObject.getHomeObject(mBundles) return null, mBundles=" + mBundles);
+			finish();
+			return;
+		}
 		mProCityDisEditPopView.setHomeObject(mHomeObject);
 		mHomeEditText.setText(mHomeObject.getHomeTag(this));
+		if (mHomeObject.hasCommunity()) {
+			mEnterCommunityBtn.setText(getString(R.string.format_button_enter_community, mHomeObject.mHname));
+		} else {
+			mEnterCommunityBtn.setText(R.string.button_relate_community);
+		}
 	}
+	
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -95,8 +132,9 @@ public class NewHomeActivity extends BaseActionbarActivity {
 		return true;
 	}
 
-	public static void startActivity(Context context) {
+	public static void startActivity(Context context, Bundle bundle) {
 		Intent intent = new Intent(context, NewHomeActivity.class);
+		if (bundle != null) intent.putExtras(bundle);
 		context.startActivity(intent);
 	}
 
@@ -245,5 +283,20 @@ public class NewHomeActivity extends BaseActionbarActivity {
 			super.onCancelled();
 			dismissDialog(DIALOG_PROGRESS);
 		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()) {
+		case R.id.button_enter:
+			if (mHomeObject.hasCommunity()) {
+				//如果已经关联过小区了，我们直接进到小区
+				PropertyManagementActivity.startActivity(mContext, mBundles);
+			} else {
+				ChooseCommunityActivity.startActivity(mContext, mBundles);
+			}
+			break;
+		}
+		
 	}
 }

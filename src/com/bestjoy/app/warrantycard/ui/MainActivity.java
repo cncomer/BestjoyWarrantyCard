@@ -804,9 +804,11 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 			}
 			//判断是否有家，没有的话，就要去新建一个家
 			if (!MyAccountManager.getInstance().hasHomes()) {
-				HomeObject.setHomeObject(new HomeObject());
+				Bundle bundles = ModleSettings.createHomeCommunityBundle(this);
+				bundles.putLong("aid", -1);
+				bundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 				MyApplication.getInstance().showNeedHomeMessage();
-				NewHomeActivity.startActivity(this);
+				NewHomeActivity.startActivity(this, bundles);
 				return;
 			}
 			//判断是否有保修卡
@@ -907,9 +909,11 @@ public class MainActivity extends BaseActionbarActivity implements View.OnClickL
 	        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
 	        	//判断是否有家，没有的话，就要去新建一个家
 				if (!MyAccountManager.getInstance().hasHomes()) {
-					HomeObject.setHomeObject(new HomeObject());
+					Bundle bundles = ModleSettings.createHomeCommunityBundle(mContext);
+					bundles.putLong("aid", -1);
+					bundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 					MyApplication.getInstance().showNeedHomeMessage();
-					NewHomeActivity.startActivity(mContext);
+					NewHomeActivity.startActivity(mContext, bundles);
 					return;
 				}
 				//判断是否有保修卡

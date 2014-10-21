@@ -558,6 +558,7 @@ private static final String TAG = "HaierDBHelper";
 	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +
 	            HOME_COMMUNITY_HID + " INTEGER, " +
+	            HOME_AID + " INTEGER, " +
 	            DATA1 + " TEXT, " +
 	            DATA2 + " TEXT, " +
 	            DATA3 + " TEXT, " +

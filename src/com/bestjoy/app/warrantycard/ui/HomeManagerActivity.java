@@ -36,8 +36,10 @@ import com.bestjoy.app.bjwarrantycard.propertymanagement.ChooseCommunityActivity
 import com.bestjoy.app.bjwarrantycard.propertymanagement.PropertyManagementActivity;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.utils.ClingHelper;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
+import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
@@ -62,19 +64,24 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home_manager_main);
-		if (mBundles != null) {
-			String title = mBundles.getString(Intents.EXTRA_NAME);
-			//如果我们设置了title,显示设置的值
-			if (!TextUtils.isEmpty(title)) {
-				setTitle(title);
-			}
-		}
 
 		mHomeListView = (ListView) findViewById(R.id.home_listview);
 		mHomeManagerAdapter = new HomeManagerAdapter(this);
 		mHomeListView.setAdapter(mHomeManagerAdapter);
 		mHomeListView.setOnItemClickListener(mHomeManagerAdapter);
 		mHomeListView.setAdapter(mHomeManagerAdapter);
+		if (mBundles != null) {
+			String title = mBundles.getString(Intents.EXTRA_NAME);
+			//如果我们设置了title,显示设置的值
+			if (!TextUtils.isEmpty(title)) {
+				setTitle(title);
+			}
+			int type = mBundles.getInt(Intents.EXTRA_TYPE, -1);
+			if (type == R.id.model_pick_community) {
+				ClingHelper.showGuide("HomeManagerActivity.community_cling", this);
+			}
+		}
+		
 	}
 	
 	public void onResume() {
@@ -86,11 +93,6 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 		if (mBundles != null) mBundles.remove("aid");
 	}
 
-	public static void startActivity(Context context) {
-		Intent intent = new Intent(context, HomeManagerActivity.class);
-		context.startActivity(intent);
-	}
-	
 	public static void startActivity(Context context, Bundle bundle) {
 		Intent intent = new Intent(context, HomeManagerActivity.class);
 		if (bundle != null) {
@@ -132,8 +134,8 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.string.menu_create:
-			HomeObject.setHomeObject(new HomeObject());
-			NewHomeActivity.startActivity(this);
+			mBundles.putLong("aid", -1);
+			NewHomeActivity.startActivity(this, mBundles);
 			break;
 		case R.string.menu_delete:
 			if(deleteHomeIDList.size() <= 0) {
@@ -342,12 +344,12 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 				}
 				invalidateOptionsMenu();
 			} else {
+				HomeObject homeObject = MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(pos);
+				mBundles.putLong("aid", homeObject.mHomeAid);
 				if (mBundles != null) {
 					int type = mBundles.getInt(Intents.EXTRA_TYPE, -1);
-					if (type == R.id.model_property_manager) {
+					if (type == R.id.model_pick_community) {//选择小区
 						//从物业卡里进来的
-						HomeObject homeObject = MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(pos);
-						mBundles.putLong("aid", homeObject.mHomeAid);
 						if (homeObject.hasCommunity()) {
 							//如果已经关联过小区了，我们直接进到小区
 							PropertyManagementActivity.startActivity(mContext, mBundles);
@@ -357,8 +359,7 @@ public class HomeManagerActivity extends BaseActionbarActivity{
 						return;
 					}
 				}
-				HomeObject.setHomeObject(MyAccountManager.getInstance().getAccountObject().mAccountHomes.get(pos));
-				NewHomeActivity.startActivity(mContext);
+				NewHomeActivity.startActivity(mContext, mBundles);
 			}
 		}
 		

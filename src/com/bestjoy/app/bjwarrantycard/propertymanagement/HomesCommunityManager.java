@@ -1,5 +1,8 @@
 package com.bestjoy.app.bjwarrantycard.propertymanagement;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -50,61 +53,100 @@ public class HomesCommunityManager extends BjnoteContent {
 	public static final int TYPE_WUYE_JIAOFEI = 18;
 	public static final String UID_SELECTION = HaierDBHelper.ACCOUNT_UID + "=?";
 	public static final String UID_AND_HID_SELECTION = UID_SELECTION + " and " + HaierDBHelper.HOME_COMMUNITY_HID + "=?";
+	public static final String UID_AND_HID_SELECTION_SERVICEID = UID_AND_HID_SELECTION + " and " + HaierDBHelper.DATA6 + "=?";
+	public static final String UID_AND_HID_AND_AID_SELECTION = UID_AND_HID_SELECTION + " and " + HaierDBHelper.HOME_AID + "=?";
 	public static final String[] COMMUNITY_PROJECTION = new String[]{
 		HaierDBHelper.ID,                 //0
 		HaierDBHelper.ACCOUNT_UID,        //1
-		HaierDBHelper.HOME_COMMUNITY_HID, //2
-		HaierDBHelper.DATA1,              //3
-		HaierDBHelper.DATA2,              //4
-		HaierDBHelper.DATA3,              //5
-		HaierDBHelper.DATA4,              //6
-		HaierDBHelper.DATA5,              //7
-		HaierDBHelper.DATA6,              //8
-		HaierDBHelper.DATA7,              //9
-		HaierDBHelper.DATA8,              //10
-		HaierDBHelper.DATA9,              //11
+		HaierDBHelper.HOME_AID,           //2
+		HaierDBHelper.HOME_COMMUNITY_HID, //3
+		HaierDBHelper.DATA1,              //4
+		HaierDBHelper.DATA2,              //5
+		HaierDBHelper.DATA3,              //6
+		HaierDBHelper.DATA4,              //7
+		HaierDBHelper.DATA5,              //8
+		HaierDBHelper.DATA6,              //9
+		HaierDBHelper.DATA7,              //10
+		HaierDBHelper.DATA8,              //11
+		HaierDBHelper.DATA9,              //12
+		
 	};
 	
 	public static final int INDEX_ID = 0;
 	public static final int INDEX_UID = 1;
+	public static final int INDEX_AID = 2;
 	/**小区id*/
-	public static final int INDEX_HID = 2;
-	/**DATA1, 服务项目名称*/
-	public static final int INDEX_SERVICE_TITLE = 3;
-	/**DATA2, 服务项目数据*/
-	public static final int INDEX_SERVICE_DATA = 4;
+	public static final int INDEX_HID = 3;
+	/**DATA6, 服务项目名称*/
+	public static final int INDEX_SERVICE_TITLE = 4;
+	/**DATA5, 服务项目数据*/
+	public static final int INDEX_SERVICE_DATA = 5;
 	/**DATA6, 服务项目sid*/
-	public static final int INDEX_SERVICE_SID = 8;
+	public static final int INDEX_SERVICE_SID = 6;
 	/**DATA7, 类型*/
-	public static final int INDEX_SERVICE_TYPE = 9;
-	/**DATA8, parent,如果为0表示的是大类，如果非0表示的是INDEX_SERVICE_SID的项目的子项目*/
-	public static final int INDEX_PARENT = 10;
-	/**DATA9, MM*/
-	public static final int INDEX_DATE = 11;
+	public static final int INDEX_SERVICE_TYPE = 7;
+	/**DATA8, 日期*/
+	public static final int INDEX_DATE = 8;
+	/**DATA9, 3表示的是用户编辑过，0为系统推送的值*/
+	public static final int INDEX_EDITABLE = 9;
 	
 	/**返回全部小区*/
 	public static Cursor getAllCommunitys(ContentResolver cr, String uid) {
 		return cr.query(CONTENT_URI, COMMUNITY_PROJECTION, UID_SELECTION, new String[]{uid}, HaierDBHelper.HOME_COMMUNITY_HID + " desc");
 	}
 	/**返回小区的全部服务项目*/
-	public static Cursor getAllCommunityServices(ContentResolver cr, String uid, String hid) {
-		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_SELECTION + " and " + HaierDBHelper.DATA8 + "=0 and " + HaierDBHelper.DATA7 + " <?", new String[]{uid, hid, String.valueOf(TYPE_KUAIDI)}, HaierDBHelper.DATA8 + " asc");
+	public static Cursor getAllCommunityServices(ContentResolver cr, String uid, String aid, String hid) {
+		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION, new String[]{uid, hid, aid}, HaierDBHelper.DATA7 + " asc");
+	}
+	/**返回小区的全部固定服务项目*/
+	public static Cursor getCommunityMainServices(ContentResolver cr, String uid, String aid, String hid) {
+		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA8 + "=0 and " + HaierDBHelper.DATA7 + " <?", new String[]{uid, hid, aid, String.valueOf(TYPE_KUAIDI)}, HaierDBHelper.DATA7 + " asc");
 	}
 	
 	/**返回小区的快捷服务项目*/
-	public static Cursor getAllKuaijieServices(ContentResolver cr, String uid, String hid) {
-		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_SELECTION + " and " + HaierDBHelper.DATA8 + "=0 and " + HaierDBHelper.DATA7 + ">? and " + HaierDBHelper.DATA7 + "<?", new String[]{uid, hid, String.valueOf(TYPE_KUANDAI), String.valueOf(TYPE_TONGZHI)}, null);
+	public static Cursor getCommunityKuaijieServices(ContentResolver cr, String uid, String aid, String hid) {
+		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA8 + "=0 and " + HaierDBHelper.DATA7 + ">? and " + HaierDBHelper.DATA7 + "<?", new String[]{uid, hid, aid, String.valueOf(TYPE_KUANDAI), String.valueOf(TYPE_TONGZHI)}, HaierDBHelper.DATA7 + " asc");
 	}
 	
 	/**
-	 * 返回小区的快捷服务项目
-	 * @param cr
-	 * @param uid
-	 * @param hid
-	 * @param serviceId 服务项目
-	 * @return
+	 * {"StatusCode":"1","StatusMessage":"返回小区","Data":[{"cell":"021-110","name":"小区物业","level":0,"levelValue":"3","st":0,"stvalue":"1","PhoneID":"1","xid":"1","uid":"575401"}]}
+	 * @author bestjoy
+	 *
 	 */
-	public static Cursor getAllKuaijieServices(ContentResolver cr, String uid, String hid, String serviceId) {
-		return cr.query(BjnoteContent.RELATIONSHIP.CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_SELECTION + " and " + HaierDBHelper.DATA8 + "=? and " + HaierDBHelper.DATA7 + ">? and " + HaierDBHelper.DATA7 + "<?", new String[]{uid, hid, serviceId, String.valueOf(TYPE_KUANDAI), String.valueOf(TYPE_TONGZHI)}, null);
+	public static class CommunityServiceObject {
+		public String mServiceId,mServiceName, mServiceContent;
+		public long mAid, mHid, mUid, mId;
+		public int mServiceType, mEditable;
+		
+	}
+	
+	public static List<CommunityServiceObject> getAllCommunityServiceObject(ContentResolver cr, String uid, String aid, String hid) {
+		
+		Cursor cursor = getAllCommunityServices(cr, uid, aid, hid);
+		if (cursor != null) {
+			List<CommunityServiceObject> communityServiceObjectList = new ArrayList<CommunityServiceObject>(cursor.getCount());
+			while(cursor.moveToNext()) {
+				communityServiceObjectList.add(getCommunityServiceObjectFromCursor(cursor));
+			}
+			cursor.close();
+			return communityServiceObjectList;
+		}
+		return new ArrayList<CommunityServiceObject>();
+	}
+	
+	public static CommunityServiceObject getCommunityServiceObjectFromCursor(Cursor cursor) {
+		CommunityServiceObject communityServiceObject = new CommunityServiceObject();
+		communityServiceObject.mServiceType = cursor.getInt(INDEX_SERVICE_TYPE);
+		communityServiceObject.mEditable = cursor.getInt(INDEX_EDITABLE);
+		communityServiceObject.mServiceId = cursor.getString(INDEX_SERVICE_SID);
+		communityServiceObject.mServiceName = cursor.getString(INDEX_SERVICE_TITLE);
+		communityServiceObject.mServiceContent = cursor.getString(INDEX_SERVICE_DATA);
+		
+		communityServiceObject.mAid = cursor.getLong(INDEX_AID);
+		communityServiceObject.mHid = cursor.getLong(INDEX_HID);
+		communityServiceObject.mUid = cursor.getLong(INDEX_UID);
+		communityServiceObject.mId = cursor.getLong(INDEX_ID);
+		return communityServiceObject;
+		
 	}
 }

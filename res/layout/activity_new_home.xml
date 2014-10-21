@@ -27,5 +27,16 @@
 				android:layout_width="fill_parent"/>
 		    <include layout="@layout/pcd_edit_layout" />
         </LinearLayout>
+        
+        <Button android:id="@+id/button_enter"
+            android:layout_height="30dip"
+            android:layout_width="wrap_content"
+            android:paddingLeft="8dip"
+            android:paddingRight="8dip"
+            android:textColor="@color/wt"
+            android:layout_marginTop="30dip"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/default_black_btn"
+            android:text="@string/button_relate_community"/>
 
 </LinearLayout>

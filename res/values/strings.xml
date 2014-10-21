@@ -637,11 +637,18 @@
         <string name="button_usage">使用说明</string>
         <string name="get_cloud_url">查看云名片</string>
        
-        
+        <string name="format_button_enter_community">进入小区【%s】</string>
+         <string name="button_relate_community">关联小区</string>
         <string name="hint_community_keyword">请输入您的小区名称</string>
         <string name="msg_load_communities_wait">正在检索 %s 周边小区,请稍等...</string>
         <string name="title_unit_m_format">"%s 米"</string>
-        <string name="cling_relate_home_to_community">您需要选择家所在的小区，一旦关联小区的相关服务了，如果要关联其他的家地址，请在家管理-选择一个家-关联小区</string>
-        <string name="format_relate_home_to_community_first_time">您确定要将【%1$s】与【%2$s】物业关联?一旦关联成功，你就可以使用家所在小区的相关服务了，如果要关联其他的家地址，请在家管理-选择一个家-关联小区</string>
-        <string name="format_relate_home_to_community">您确定要将【%1$s】与【%1$s】物业关联?</string>
+        <string name="cling_select_home_to_community">物业卡功能需要您完善家所在小区信息，请选择一个家，然后选择家所在小区</string>
+        <string name="cling_relate_community_to_home">在列表中找到小区，点击确定后就可以关联小区并使用小区物业等相关服务了，如果需要关联其他的家的小区，请到家管理中-选择一个家-关联小区</string>
+        <string name="format_relate_home_to_community">您确定要将【%1$s】与【%2$s】物业关联?</string>
+        
+        <string name="sort_by_time">时间排序</string>
+      <string name="sort_by_type">类别排序</string>
+      <string name="button_qun_send">群发</string>
+      <string name="button_select_all">全选</string>
+      <string name="button_unselect_all">重选</string>
 </resources>

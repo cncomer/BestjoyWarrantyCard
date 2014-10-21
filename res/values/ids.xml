@@ -5,6 +5,7 @@
     <item type="id" name="model_repair" />
     <item type="id" name="model_feedback" />
     <item type="id" name="model_property_manager" />
+    <item type="id" name="model_pick_community" />
     
    <item type="id" name="auto_focus"/>
   <item type="id" name="decode"/>
@@ -22,4 +23,24 @@
   <!-- add by chenkai, 增加一键保养, 2014.05.31 begin-->
   <item type="id" name="model_maintenance" />
   <!-- add by chenkai, 增加一键保养, 2014.05.31 end-->
+  
+  
+  
+  
+  <item type="id" name="community_service_type1" />
+  <item type="id" name="community_service_type2" />
+  <item type="id" name="community_service_type3" />
+  <item type="id" name="community_service_type4" />
+  <item type="id" name="community_service_type5" />
+  <item type="id" name="community_service_type6" />
+  <item type="id" name="community_service_type7" />
+  <item type="id" name="community_service_type8" />
+  <item type="id" name="community_service_type9" />
+  <item type="id" name="community_service_type10" />
+  <item type="id" name="community_service_type11" />
+  <item type="id" name="community_service_type12" />
+  <item type="id" name="community_service_type13" />
+  <item type="id" name="community_service_type14" />
+  <item type="id" name="community_service_type15" />
+  <item type="id" name="community_service_type16" />
 </resources>

@@ -262,10 +262,25 @@ public class ModleSettings {
 			return bundle;
 		}
 		//add by chenkai, 2014.05.31, 增加一键保养 end
-		
+		/**
+		 * 我的小区
+		 * @param context
+		 * @return
+		 */
 		public static Bundle createHomeCommunityBundle(Context context) {
 			Bundle bundle = new Bundle();
 			bundle.putInt(Intents.EXTRA_TYPE, R.id.model_property_manager);
+			bundle.putString(Intents.EXTRA_NAME, context.getString(R.string.activity_title_my_homecommunity));
+			return bundle;
+		}
+		/**
+		 * 选择小区
+		 * @param context
+		 * @return
+		 */
+		public static Bundle createPickCommunityBundle(Context context) {
+			Bundle bundle = new Bundle();
+			bundle.putInt(Intents.EXTRA_TYPE, R.id.model_pick_community);
 			bundle.putString(Intents.EXTRA_NAME, context.getString(R.string.activity_title_choose_homecommunity));
 			return bundle;
 		}

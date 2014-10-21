@@ -438,4 +438,10 @@ public class ServiceObject {
 			  sb.append("Xiaoqu/addXiaoQuDetail.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
+		  public static String getCommunityServices(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Xiaoqu/GetXiaoQuAround.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  
 }

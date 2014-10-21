@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,11 +34,15 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
+import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.bestjoy.app.warrantycard.ui.BaseActionbarActivity;
+import com.bestjoy.app.warrantycard.utils.ClingHelper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
-import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.DialogUtils;
+import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 
 public class ChooseCommunityActivity extends BaseActionbarActivity implements OnItemClickListener{
@@ -125,6 +130,7 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 	public void onDestroy() {
 		super.onDestroy();
 		AsyncTaskUtils.cancelTask(mQueryServiceTask);
+		AsyncTaskUtils.cancelTask(mRelateCommunityTask);
 	}
 	
 	private FilterTask mFilterTask;
@@ -180,14 +186,17 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 		@Override
 		protected ServiceResultObject doInBackground(Void... arg0) {
 			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			InputStream is = null;
 			try {
 				//para={admin_code:310115,address:"浦东区张江高科技园区碧波路49弄1号%20",radius:"2000",pagesize:"50"}
+//				InputStream iss = NetworkUtils.openContectionLocked("http://115.29.231.29/Haier/TestAgent.ashx", MyApplication.getInstance().getSecurityKeyValuesObject());
+//				DebugUtils.logD(TAG, "chenkai " + NetworkUtils.getContentFromInput(iss));
 				JSONObject queryJson = new JSONObject();
 				queryJson.put("admin_code", HomeObject.getDisID(mContentResolver, mHomeObject.mHomeProvince, mHomeObject.mHomeCity, mHomeObject.mHomeDis));
 				queryJson.put("address", mHomeObject.mHomePlaceDetail);
 				queryJson.put("radius", "1000");
 				queryJson.put("pagesize", String.valueOf(mQuerySize));
-				InputStream is = NetworkUtils.openContectionLocked(ServiceObject.getPoiNearbySearchUrl("para", queryJson.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				is = NetworkUtils.openContectionLocked(ServiceObject.getPoiNearbySearchUrl("para", queryJson.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
 				if (is != null) {
 					JSONObject jsonObject = new JSONObject(NetworkUtils.getContentFromInput(is));
 					serviceResultObject.mStatusCode = jsonObject.getInt("status");
@@ -203,10 +212,15 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 				
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} catch (IOException e) {
 				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} catch (JSONException e) {
 				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
 			}
 			return serviceResultObject;
 		}
@@ -218,6 +232,9 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 			mProgressLayout.setVisibility(View.GONE);
 			if (result.isOpSuccessfully()) {
 				mPoiAdapter.notifyDataSetChanged();
+				ClingHelper.showGuide("ChooseCommunityActivity.community_cling", ChooseCommunityActivity.this);
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
 		}
 
@@ -290,18 +307,13 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 	}
 	public static void startActivity(Context context, Bundle bundle) {
 		Intent intent = new Intent(context, ChooseCommunityActivity.class);
-		intent.putExtras(bundle);
+		if (bundle != null) intent.putExtras(bundle);
 		context.startActivity(intent);
 	}
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		HomesCommunityObject homesCommunityObject = mHomesCommunityObjectList.get(position);
-		int formatResId = R.string.format_relate_home_to_community;
-		if (ComPreferencesManager.getInstance().isFirstLaunch(TAG, true)) {
-			ComPreferencesManager.getInstance().setFirstLaunch(TAG, false);
-			formatResId = R.string.format_relate_home_to_community_first_time;
-		}
-		DialogUtils.createSimpleConfirmAlertDialog(mContext, mContext.getString(formatResId, mHomeObject.toFriendString(), homesCommunityObject.mName), new DialogUtils.DialogCallback(){
+		final HomesCommunityObject homesCommunityObject = mHomesCommunityObjectList.get(position);
+		DialogUtils.createSimpleConfirmAlertDialog(mContext, mContext.getString(R.string.format_relate_home_to_community, mHomeObject.toFriendString(), homesCommunityObject.mName), new DialogUtils.DialogCallback(){
 
 			@Override
 			public void onCancel(DialogInterface dialog) {
@@ -317,12 +329,83 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 			public void onClick(DialogInterface dialog, int which) {
 				switch(which) {
 				case DialogInterface.BUTTON_POSITIVE:
-					
+					relateCommunityAsync(homesCommunityObject.mName);
 					break;
 				}
 			}
 			
 		});
+	}
+	
+	private RelateCommunityTask mRelateCommunityTask;
+	private void relateCommunityAsync(String communityName) {
+		AsyncTaskUtils.cancelTask(mRelateCommunityTask);
+		mRelateCommunityTask = new RelateCommunityTask();
+		mRelateCommunityTask.execute(communityName);
+		showDialog(DIALOG_PROGRESS);
+	}
+	private class RelateCommunityTask extends AsyncTask<String, Void, ServiceResultObject> {
+
+		@Override
+		protected ServiceResultObject doInBackground(String... params) {
+			InputStream is = null;
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			try {
+				JSONObject queryJsonObject = new JSONObject();
+				queryJsonObject.put("xiaoqu_name", params[0]);
+				queryJsonObject.put("aid", mHomeObject.mHomeAid);
+				is = NetworkUtils.openContectionLocked(ServiceObject.relatedHomeToCommunity("para", queryJsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				if (serviceResultObject.isOpSuccessfully()) {
+					//添加成功
+					long hid = Long.parseLong(serviceResultObject.mStrData);
+					mBundles.putLong("hid", hid);
+					ContentValues values = new ContentValues();
+					values.put(HaierDBHelper.HOME_COMMUNITY_HID, hid);
+					values.put(HaierDBHelper.HOME_COMMUNITY_NAME, params[0]);
+					int updated = BjnoteContent.update(getContentResolver(), BjnoteContent.Homes.CONTENT_URI, values, HomeObject.WHERE_UID_AND_AID, new String[]{String.valueOf(mHomeObject.mHomeUid), String.valueOf(mHomeObject.mHomeAid)});
+					DebugUtils.logD(TAG, "RelateCommunityTask update Home with hid " + hid + ", hname " + params[0] + ", updated rows " + updated);
+					if (updated > 0) {
+						//刷新本地家
+						MyAccountManager.getInstance().initAccountHomes();
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			dismissDialog(DIALOG_PROGRESS);
+			if (result.isOpSuccessfully()) {
+				int type = mBundles.getInt(Intents.EXTRA_TYPE, -1);
+				if (type == R.id.model_pick_community) {//选择小区
+					PropertyManagementActivity.startActivity(mContext, mBundles);
+				}
+				finish();
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			dismissDialog(DIALOG_PROGRESS);
+		}
+		
 	}
 	
 	

@@ -48,6 +48,7 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.PropertyManagementActivity;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
@@ -815,9 +816,11 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 			}
 			//判断是否有家，没有的话，就要去新建一个家
 			if (!MyAccountManager.getInstance().hasHomes()) {
-				HomeObject.setHomeObject(new HomeObject());
+				Bundle bundles = ModleSettings.createHomeCommunityBundle(getActivity());
+				bundles.putLong("aid", -1);
+				bundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 				MyApplication.getInstance().showNeedHomeMessage();
-				NewHomeActivity.startActivity(getActivity());
+				NewHomeActivity.startActivity(getActivity(), bundles);
 				return;
 			}
 			//判断是否有保修卡
@@ -825,10 +828,14 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 			case R.id.ic_module_home:
 				List<HomeObject> communities = HomeObject.getAllCommunities();
 				if (communities.size() == 1) {
-					
+					//直接进入我得小区
+					Bundle bundle = ModleSettings.createPickCommunityBundle(getActivity());
+					bundle.putString(Intents.EXTRA_NAME, getActivity().getString(R.string.activity_title_my_homecommunity));
+					bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					PropertyManagementActivity.startActivity(getActivity(), bundle);
 				} else {
 					//没有小区或是有多个小区，我们需要前往家列表进行选择
-					Bundle bundle = ModleSettings.createHomeCommunityBundle(getActivity());
+					Bundle bundle = ModleSettings.createPickCommunityBundle(getActivity());
 					bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 					HomeManagerActivity.startActivity(getActivity(), bundle);
 				}
@@ -932,9 +939,11 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
 	        	//判断是否有家，没有的话，就要去新建一个家
 				if (!MyAccountManager.getInstance().hasHomes()) {
-					HomeObject.setHomeObject(new HomeObject());
+					Bundle bundles = ModleSettings.createHomeCommunityBundle(getActivity());
+					bundles.putLong("aid", -1);
+					bundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 					MyApplication.getInstance().showNeedHomeMessage();
-					NewHomeActivity.startActivity(getActivity());
+					NewHomeActivity.startActivity(getActivity(), bundles);
 					return;
 				}
 				//判断是否有保修卡
