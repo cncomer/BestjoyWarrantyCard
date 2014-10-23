@@ -27,8 +27,12 @@ public class HomeParser extends InfoInterfaceImpl{
 		homeObject.mHomeName = jsonObject.getString("Tag");
 		
 		//小区相关
-		homeObject.mHid = jsonObject.optLong("HID", -1);
-		homeObject.mHname = jsonObject.optString("HNAME", "");
+		//"xiaoqu":{"aid":"787018","xiaoqu_name":"大宁龙盛雅苑小区","xid":"1"}}
+		JSONObject xiaoqu = jsonObject.optJSONObject("xiaoqu");
+		if (xiaoqu != null) {
+			homeObject.mHid = xiaoqu.optLong("xid", -1);
+			homeObject.mHname = xiaoqu.optString("xiaoqu_name", "");
+		}
 		return homeObject;
 	}
 	/**

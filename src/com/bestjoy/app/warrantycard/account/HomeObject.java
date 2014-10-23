@@ -51,6 +51,7 @@ public class HomeObject implements InfoInterface{
 	public List<BaoxiuCardObject> mBaoxiuCards = new LinkedList<BaoxiuCardObject>();
 	/**表示当前数据是否过时了，如果是，那么{@link #initBaoxiuCards()}就要重新读取数据库*/
 	private boolean mOutOfDate = true;
+	public int mCommunityServiceLoaded = 0;
 	
 	private static String DEFAUL_HOME_NAME;
 	/**小区id*/
@@ -138,6 +139,7 @@ public class HomeObject implements InfoInterface{
 		HaierDBHelper.HOME_CARD_COUNT,      //10
 		HaierDBHelper.HOME_COMMUNITY_HID,   //11
 		HaierDBHelper.HOME_COMMUNITY_NAME,  //12
+		HaierDBHelper.HOME_COMMUNITY_SERVICE_LOADED, //13
 	};
 	
 	public static final int KEY_HOME_UID = 0;
@@ -154,6 +156,7 @@ public class HomeObject implements InfoInterface{
 	
 	public static final int KEY_HOME_COMMUNITY_HID = 11;
 	public static final int KEY_HOME_COMMUNITY_NAME = 12;
+	public static final int KEY_HOME_COMMUNITY_SERVICE_LOADED = 13;
 	
 	public static long getProvinceId(ContentResolver cr, String provinceName) {
 		if (TextUtils.isEmpty(provinceName)) {
@@ -312,7 +315,7 @@ public class HomeObject implements InfoInterface{
 	}
 	
 	public static Cursor getAllHomesCursor(ContentResolver cr, long uid) {
-		return cr.query(BjnoteContent.Homes.CONTENT_URI, HOME_PROJECTION, WHERE_HOME_ACCOUNTID, new String[]{String.valueOf(uid)}, null);
+		return cr.query(BjnoteContent.Homes.CONTENT_URI, HOME_PROJECTION, WHERE_HOME_ACCOUNTID, new String[]{String.valueOf(uid)}, HaierDBHelper.HOME_AID + " asc");
 	}
 	
 	public static List<HomeObject> getAllHomeObjects(ContentResolver cr, long uid) {
@@ -348,6 +351,7 @@ public class HomeObject implements InfoInterface{
 		homeObject.mIsDefault = c.getInt(KEY_HOME_DEFAULT) == 1;
 		homeObject.mHid = c.getLong(KEY_HOME_COMMUNITY_HID);
 		homeObject.mHname = c.getString(KEY_HOME_COMMUNITY_NAME);
+		homeObject.mCommunityServiceLoaded = c.getInt(KEY_HOME_COMMUNITY_SERVICE_LOADED);
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(homeObject.mHomeUid).append('_').append(homeObject.mHomeAid);

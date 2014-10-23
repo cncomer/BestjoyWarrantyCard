@@ -232,10 +232,10 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 			mProgressLayout.setVisibility(View.GONE);
 			if (result.isOpSuccessfully()) {
 				mPoiAdapter.notifyDataSetChanged();
-				ClingHelper.showGuide("ChooseCommunityActivity.community_cling", ChooseCommunityActivity.this);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
+			ClingHelper.showGuide("ChooseCommunityActivity.community_cling", ChooseCommunityActivity.this);
 		}
 
 		@Override
@@ -360,6 +360,7 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 					//添加成功
 					long hid = Long.parseLong(serviceResultObject.mStrData);
 					mBundles.putLong("hid", hid);
+					mHomeObject.mHomeUid = hid;
 					ContentValues values = new ContentValues();
 					values.put(HaierDBHelper.HOME_COMMUNITY_HID, hid);
 					values.put(HaierDBHelper.HOME_COMMUNITY_NAME, params[0]);

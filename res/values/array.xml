@@ -88,4 +88,23 @@
 		<item>@string/im_resend</item>
 		<item>@string/im_send_cancel</item>
 	</string-array>
+	
+	<string-array name="community_service_name">
+		<item>物业</item>
+		<item>业委会</item>
+		<item>居委会</item>
+		<item>街道办</item>
+		<item>派出所</item>
+		<item>供水</item>
+		<item>供电</item>
+		<item>供气</item>
+		<item>供暖</item>
+		<item>有线</item>
+		<item>宽带</item>
+		<item>快递</item>
+		<item>送水</item>
+		<item>废品</item>
+		<item>搬家</item>
+		<item>开锁</item>
+	</string-array>
 </resources>

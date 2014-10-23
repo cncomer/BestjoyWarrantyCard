@@ -131,10 +131,11 @@ public class BaiduLocationManager {
 				sb.append(_location.getOperators());
 			}
 			DebugUtils.logD(TAG, sb.toString());
-			
-			for(LocationChangeCallback callback : mLocationChangeCallbackList) {
-				if (callback.isLocationChanged(_location)) {
-					publishProgress(callback);
+			if (_location != null) {
+				for(LocationChangeCallback callback : mLocationChangeCallbackList) {
+					if (callback.isLocationChanged(_location)) {
+						publishProgress(callback);
+					}
 				}
 			}
 			return null;

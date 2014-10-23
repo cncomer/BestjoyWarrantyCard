@@ -645,10 +645,35 @@
         <string name="cling_select_home_to_community">物业卡功能需要您完善家所在小区信息，请选择一个家，然后选择家所在小区</string>
         <string name="cling_relate_community_to_home">在列表中找到小区，点击确定后就可以关联小区并使用小区物业等相关服务了，如果需要关联其他的家的小区，请到家管理中-选择一个家-关联小区</string>
         <string name="format_relate_home_to_community">您确定要将【%1$s】与【%2$s】物业关联?</string>
-        
+        <string name="cling_update_community_service">"        这里看到的是小区提供的一些常规服务电话，对于小部分小区，这些数据需要用户自己填入，填入的数据会自动同步到云端。\n\n        长按选项可以设置对应服务的电话，一旦设置了数据，就可以单击快速拨打电话。"</string>
         <string name="sort_by_time">时间排序</string>
       <string name="sort_by_type">类别排序</string>
       <string name="button_qun_send">群发</string>
       <string name="button_select_all">全选</string>
       <string name="button_unselect_all">重选</string>
+      
+      <string name="msg_load_community_service_failed">加载小区信息失败，请重试</string>
+      <string name="hint_add_community_service_data">添加号码</string>
+      
+      <string name="community_service_type1">物业</string>
+		<string name="community_service_type2">业委会</string>
+		<string name="community_service_type3">居委会</string>
+		<string name="community_service_type4">街道办</string>
+		<string name="community_service_type5">派出所</string>
+		<string name="community_service_type6">供水</string>
+		<string name="community_service_type7">供电</string>
+		<string name="community_service_type8">供气</string>
+		<string name="community_service_type9">供暖</string>
+		<string name="community_service_type10">有线</string>
+		<string name="community_service_type11">宽带</string>
+		<string name="community_service_type12">快递</string>
+		<string name="community_service_type13">送水</string>
+		<string name="community_service_type14">废品</string>
+		<string name="community_service_type15">搬家</string>
+		<string name="community_service_type16">开锁</string>
+		<string name="community_service_type17">小区通知</string>
+		<string name="community_service_type18">物业缴费</string>
+		
+		<string name="format_title_modify_community_service_data">输入%s电话</string>
+     
 </resources>

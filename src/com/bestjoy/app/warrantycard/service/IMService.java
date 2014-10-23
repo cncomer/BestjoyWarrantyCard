@@ -77,7 +77,7 @@ public class IMService extends Service{
 	
 	private static final int WHAT_CHECK_SENDING_MESSAGE = 10;
 	private static final int WHAT_CHECK_HEART_BEAT = 11;
-	private static final int CHECK_HEART_BEAT_DELAY = 10 *1000; //10秒中如果没有检查到心跳包，就认为是和服务器暂时无法连接
+	private static final int CHECK_HEART_BEAT_DELAY = 20 *1000; //10秒中如果没有检查到心跳包，就认为是和服务器暂时无法连接
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -346,6 +346,7 @@ public class IMService extends Service{
 				case IMHelper.TYPE_LOGIN: //登录成功
 					mIsConnected = true;
 					mIsRecLoginRes = true;
+					mWorkHandler.removeMessages(WHAT_CHECK_HEART_BEAT);
 					NotifyRegistrant.getInstance().notify(WHAT_SEND_MESSAGE_LOGIN);
 					break;
 				case IMHelper.TYPE_EXIT: //退出登录成功
@@ -360,7 +361,10 @@ public class IMService extends Service{
 						conversationItemObject.mUid = serviceResult.mUid;
 						conversationItemObject.mUName = serviceResult.mUName;
 						conversationItemObject.mPwd = serviceResult.mPwd;
-						
+						StringBuilder sb = new StringBuilder();
+						sb.append(conversationItemObject.mUid).append('_').append(conversationItemObject.mTarget).append('_').append(conversationItemObject.mServiceDate);
+						conversationItemObject.mServiceId = sb.toString();
+						DebugUtils.logD(TAG, "getConversationItemObject(JSONObject result) mServiceId " + conversationItemObject.mServiceId);
 						if (IMHelper.TYPE_MESSAGE == type) {
 							if (conversationItemObject.mUid.equals(MyAccountManager.getInstance().getCurrentAccountUid())) {
 								//服务器返回了我们之前发送的信息，表明该条消息发送成功，我们更新本地信息的发送状态
@@ -399,6 +403,7 @@ public class IMService extends Service{
 				case IMHelper.TYPE_LOGIN: //登录失败
 					mIsConnected = false;
 					mIsRecLoginRes = true;
+					mWorkHandler.removeMessages(WHAT_CHECK_HEART_BEAT);
 					mWorkHandler.removeMessages(WHAT_SEND_MESSAGE_LOGIN);
 					mUiHandler.sendEmptyMessage(WHAT_SEND_MESSAGE_OFFLINE);
 					NotifyRegistrant.getInstance().notify(WHAT_SEND_MESSAGE_OFFLINE);
@@ -414,6 +419,7 @@ public class IMService extends Service{
 				switch(type){
 				case IMHelper.TYPE_LOGIN: //登录失败
 					mIsConnected = false;
+					mWorkHandler.removeMessages(WHAT_CHECK_HEART_BEAT);
 					mWorkHandler.removeMessages(WHAT_SEND_MESSAGE_LOGIN);
 					NotifyRegistrant.getInstance().notify(WHAT_SEND_MESSAGE_INVALID_USER);
 					return;

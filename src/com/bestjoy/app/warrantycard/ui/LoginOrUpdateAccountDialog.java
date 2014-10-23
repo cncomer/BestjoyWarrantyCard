@@ -20,11 +20,13 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.bjwarrantycard.im.RelationshipActivity;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.HomesCommunityManager;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.AccountParser;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.service.IMService;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -83,58 +85,64 @@ public class LoginOrUpdateAccountDialog extends Activity{
 				NetworkUtils.closeInputStream(_is);
 				ContentResolver cr = LoginOrUpdateAccountDialog.this.getContentResolver();
 				if (mAccountObject != null && mAccountObject.isLogined()) {
+					//Step1 删除演示账户
+					MyAccountManager.deleteAccountForUid(cr, AccountObject.DEMO_ACCOUNT_UID);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete AccountObject demo");
+					int deleted = BjnoteContent.delete(cr, BjnoteContent.Homes.CONTENT_URI, null, null);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete Homes effected rows#" + deleted);
+					BjnoteContent.delete(cr, BjnoteContent.BaoxiuCard.CONTENT_URI, null, null);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete BaoxiuCards effected rows#" + deleted);
+					BjnoteContent.delete(cr, BjnoteContent.RELATIONSHIP.CONTENT_URI, null, null);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete RELATIONSHIP effected rows#" + deleted);
+					BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_FRIEND, null, null);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.FRIEND effected rows#" + deleted);
+					BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_QUN, null, null);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.QUN effected rows#" + deleted);
+					BjnoteContent.delete(cr, BjnoteContent.YMESSAGE.CONTENT_URI, null, null);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete YMESSAGE effected rows#" + deleted);
+					BjnoteContent.delete(cr, HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI, null, null);
+					DebugUtils.logD(TAG, "LoginAsyncTask start to delete COMMUNITY_SERVICES effected rows#" + deleted);
+					//标识下次不用拉取演示数据了
+		        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
+		        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
+		        	
+		        	if (mAccountObject.mAccountHomes.size() == 0) {
+						//Setp2 家数据为空，我们需要创建演示家
+						HomeObject homeObject = HomeObject.getDemoHomeObject(mAccountObject.mAccountUid, HomeObject.DEMO_HOME_AID);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to insert HomeObject demo " + homeObject.toString());
+						mAccountObject.mAccountHomes.add(homeObject);
+						//Setp3, 创建保修卡演示数据
+						ServiceResultObject serviceObject = new ServiceResultObject();
+						sb = new StringBuilder("http://www.dzbxk.com/bestjoy/GetBaoXiuDataByUID.ashx?");
+						sb.append("UID=").append(AccountObject.DEMO_ACCOUNT_UID)
+						.append("&AID=").append(HomeObject.DEMO_HOME_AID);
+			            _is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+			            if (_is != null) {
+			            	serviceObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(_is));
+			            	if (serviceObject.isOpSuccessfully()) {
+			            		if (serviceObject.mStrData != null) {
+			            			JSONArray baoxiuCards = new JSONArray(serviceObject.mStrData);
+			            			//JSONArray baoxiuCards = serviceObject.mJsonData.getJSONArray(BaoxiuCardObject.JSONOBJECT_NAME);
+				            		int len = baoxiuCards.length();
+				            		BaoxiuCardObject baoxiuCardObject = null;
+				            		for(int index=0; index < len; index++) {
+				            			baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(baoxiuCards.getJSONObject(index), null);
+				            			baoxiuCardObject.mAID = HomeObject.DEMO_HOME_AID;
+				            			baoxiuCardObject.mUID = mAccountObject.mAccountUid;
+				            			homeObject.mBaoxiuCards.add(baoxiuCardObject);
+				            		}
+			            		} else {
+			            			MyApplication.getInstance().showMessageAsync(R.string.msg_get_no_demo_data);
+			            		}
+			            		
+			            	}
+			            }
+					}
+		        	
 					boolean saveAccountOk = MyAccountManager.getInstance().saveAccountObject(cr, mAccountObject);
 					if (!saveAccountOk) {
 						//登录成功了，但本地数据保存失败，通常不会走到这里
 						_error = LoginOrUpdateAccountDialog.this.getString(R.string.msg_login_save_success);
-					} else {
-						//保存本地成功
-						//Step1 删除演示账户
-						DebugUtils.logD(TAG, "LoginAsyncTask start to delete AccountObject demo");
-						MyAccountManager.deleteAccountForUid(cr, AccountObject.DEMO_ACCOUNT_UID);
-						//标识下次不用拉取演示数据了
-			        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
-			        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
-						AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
-						if (accountObject.mAccountHomes.size() == 0) {
-							//Setp2 家数据为空，我们需要创建演示家
-							HomeObject homeObject = HomeObject.getDemoHomeObject(accountObject.mAccountUid, HomeObject.DEMO_HOME_AID);
-							DebugUtils.logD(TAG, "LoginAsyncTask start to insert HomeObject demo " + homeObject.toString());
-							if (homeObject.saveInDatebase(cr, null)) {
-								DebugUtils.logD(TAG, "LoginAsyncTask start to insert BaoxiuCardObject demo");
-								//Setp3, 创建保修卡演示数据
-								ServiceResultObject serviceObject = new ServiceResultObject();
-								sb = new StringBuilder("http://www.dzbxk.com/bestjoy/GetBaoXiuDataByUID.ashx?");
-								sb.append("UID=").append(AccountObject.DEMO_ACCOUNT_UID)
-								.append("&AID=").append(HomeObject.DEMO_HOME_AID);
-					            _is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
-					            if (_is != null) {
-					            	serviceObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(_is));
-					            	if (serviceObject.isOpSuccessfully()) {
-					            		if (serviceObject.mStrData != null) {
-					            			JSONArray baoxiuCards = new JSONArray(serviceObject.mStrData);
-					            			//JSONArray baoxiuCards = serviceObject.mJsonData.getJSONArray(BaoxiuCardObject.JSONOBJECT_NAME);
-						            		int len = baoxiuCards.length();
-						            		BaoxiuCardObject baoxiuCardObject = null;
-						            		for(int index=0; index < len; index++) {
-						            			baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(baoxiuCards.getJSONObject(index), null);
-						            			baoxiuCardObject.mAID = HomeObject.DEMO_HOME_AID;
-						            			baoxiuCardObject.mUID = accountObject.mAccountUid;
-						            			baoxiuCardObject.saveInDatebase(cr, null);
-						            		}
-					            		} else {
-					            			MyApplication.getInstance().showMessageAsync(R.string.msg_get_no_demo_data);
-					            		}
-					            		
-					            	}
-					            }
-								DebugUtils.logD(TAG, "initAccountHomes");
-								MyAccountManager.getInstance().initAccountHomes();
-								DebugUtils.logD(TAG, "updateHomeObject aid=" + HomeObject.DEMO_HOME_AID);
-								MyAccountManager.getInstance().updateHomeObject(HomeObject.DEMO_HOME_AID);
-							}
-							
-						}
 					}
 				} 
 			} catch (ClientProtocolException e) {

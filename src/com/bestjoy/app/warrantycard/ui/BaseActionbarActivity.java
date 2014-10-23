@@ -46,7 +46,7 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
 		DebugUtils.logD(TAG, "onCreate()");
 		if (!checkIntent(getIntent())) {
 			finish();
-			DebugUtils.logD(TAG, "checkIntent() failed, finish this activiy");
+			DebugUtils.logD(TAG, "checkIntent() failed, finish this activiy " + this.getClass().getSimpleName());
 			return;
 		}
 		mContext = this;

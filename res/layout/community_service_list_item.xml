@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical" >
+	<View android:layout_height="1dip"
+        android:layout_width="fill_parent"
+        android:background="#ffededed"/>
+    <LinearLayout android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <ImageView
+	        android:id="@+id/arrow"
+	        android:layout_width="40dip"
+	        android:layout_height="40dip"
+	        android:background="@drawable/abs__item_background_holo_light"
+	        android:clickable="true"
+	        android:scaleType="centerInside"
+	        android:src="@drawable/community_right_arrow" />
+	
+	    <TextView android:id="@+id/name"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/ic_module_baoxiucard"
+	        android:textSize="16sp"
+	        android:textColor="#ff1f68ba" />
+	    
+	    <TextView android:id="@+id/content"
+	        android:layout_width="0dip"
+	        android:layout_weight="1.0"
+	        android:layout_height="fill_parent"
+	        android:gravity="center"
+	        android:text="@string/hint_add_community_service_data"
+	        android:background="@drawable/abs__item_background_holo_light"
+	        android:textSize="16sp"
+	        android:layout_marginLeft="10dip"
+	        android:paddingLeft="20dip"
+	        android:textColor="#ff5a5a5a" />
+	    
+	    <ImageView
+	        android:id="@+id/button_tel"
+	        android:layout_width="40dip"
+	        android:layout_height="40dip"
+	        android:background="@drawable/abs__item_background_holo_light"
+	        android:clickable="true"
+	        android:scaleType="centerInside"
+	        android:layout_marginRight="10dip"
+	        android:visibility="invisible"
+	        android:src="@drawable/ic_community_call" />
+    </LinearLayout>
+    <View android:layout_height="1dip"
+        android:layout_width="fill_parent"
+        android:background="#ffededed"/>
+    <FrameLayout android:id="@+id/expand_layout"
+        android:layout_width="fill_parent"
+        android:visibility="gone"
+	    android:layout_height="wrap_content">
+        <com.bestjoy.app.warrantycard.view.MyListView 
+	        android:id="@+id/listview"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:scrollbars="none"
+	        android:layout_marginLeft="10dip"
+	        android:layout_marginRight="10dip"
+	        android:cacheColorHint="#00000000"/>
+        <include layout="@layout/progress_layout_horizontal"/>
+    </FrameLayout>
+
+</LinearLayout>

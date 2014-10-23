@@ -4,8 +4,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.DebugUtils;
 
 /**
@@ -14,7 +16,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 13;
+  private static final int DB_VERSION = 15;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -256,6 +258,8 @@ private static final String TAG = "HaierDBHelper";
   public static final String HOME_COMMUNITY_HID = "hid";
   /**社区名称*/
   public static final String HOME_COMMUNITY_NAME = "hname";
+  /**社区服务是否已经加载过了，0未加载， 1已加载，主要用于第一次进入小区刷新小区数据使用*/
+  public static final String HOME_COMMUNITY_SERVICE_LOADED = "hservice_loaded";
   
   public HaierDBHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
@@ -409,6 +413,7 @@ private static final String TAG = "HaierDBHelper";
 	            HOME_DETAIL + " TEXT, " +
 	            HOME_DEFAULT + " INTEGER NOT NULL DEFAULT 1, " +
 	            POSITION + " INTEGER NOT NULL DEFAULT 1, " +
+	            HOME_COMMUNITY_SERVICE_LOADED + " INTEGER NOT NULL DEFAULT 0, " +
 	            DATE + " TEXT" +
 	            ");");
 	  createTriggerForHomeTable(sqLiteDatabase);
@@ -572,6 +577,7 @@ private static final String TAG = "HaierDBHelper";
   }
   
   private void createDemoAccountAndHomeData(SQLiteDatabase sqLiteDatabase) {
+	  ComPreferencesManager.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", true).commit();
 	  long id = sqLiteDatabase.insert(TABLE_NAME_ACCOUNTS, null, AccountObject.getDemoAccountObjectContentValues());
 	  DebugUtils.logE(TAG, "createDemoAccountData() newId=" + id);
 	  
@@ -671,7 +677,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 12) {
+	  if (oldVersion <= 14) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
