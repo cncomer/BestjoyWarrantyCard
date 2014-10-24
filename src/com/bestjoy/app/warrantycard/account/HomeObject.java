@@ -283,6 +283,12 @@ public class HomeObject implements InfoInterface{
 		return id;
 	}
 	
+	public static void clearHomeObjectCache() {
+		synchronized(mLock) {
+			mHomeObjectCache.clear();
+		}
+	}
+	
 	/**
 	 * 删除某个account的全部home
 	 * @param cr
@@ -337,25 +343,26 @@ public class HomeObject implements InfoInterface{
 	
 	private static HomeObject getFromHomeSCursor(Cursor c, ContentResolver cr) {
 		HomeObject homeObject = new HomeObject();
-		homeObject.mHomeId = c.getLong(KEY_HOME_ID);
-		homeObject.mHomeUid = c.getLong(KEY_HOME_UID);
-		homeObject.mHomeAid = c.getLong(KEY_HOME_AID);
-		homeObject.mHomeName = c.getString(KEY_HOME_NAME);
-		homeObject.mHomeProvince = c.getString(KEY_HOME_PRO_NAME);
-		homeObject.mHomeCity = c.getString(KEY_HOME_CITY_NAME);
-		homeObject.mHomeDis = c.getString(KEY_HOME_DIS_NAME);
-		homeObject.mHomePlaceDetail = c.getString(KEY_HOME_DETAIL);
-		homeObject.mHomePosition = c.getInt(KEY_HOME_POSITION);
-		homeObject.mHomeCardCount = c.getInt(KEY_HOME_CARD_COUNT);
-//		homeObject.mHomeCardCount = BaoxiuCardObject.getAllBaoxiuCardsCount(cr, homeObject.mHomeUid, homeObject.mHomeAid);
-		homeObject.mIsDefault = c.getInt(KEY_HOME_DEFAULT) == 1;
-		homeObject.mHid = c.getLong(KEY_HOME_COMMUNITY_HID);
-		homeObject.mHname = c.getString(KEY_HOME_COMMUNITY_NAME);
-		homeObject.mCommunityServiceLoaded = c.getInt(KEY_HOME_COMMUNITY_SERVICE_LOADED);
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append(homeObject.mHomeUid).append('_').append(homeObject.mHomeAid);
 		synchronized(mLock) {
+			homeObject = new HomeObject();
+			homeObject.mHomeId = c.getLong(KEY_HOME_ID);
+			homeObject.mHomeUid = c.getLong(KEY_HOME_UID);
+			homeObject.mHomeAid = c.getLong(KEY_HOME_AID);
+			homeObject.mHomeName = c.getString(KEY_HOME_NAME);
+			homeObject.mHomeProvince = c.getString(KEY_HOME_PRO_NAME);
+			homeObject.mHomeCity = c.getString(KEY_HOME_CITY_NAME);
+			homeObject.mHomeDis = c.getString(KEY_HOME_DIS_NAME);
+			homeObject.mHomePlaceDetail = c.getString(KEY_HOME_DETAIL);
+			homeObject.mHomePosition = c.getInt(KEY_HOME_POSITION);
+			homeObject.mHomeCardCount = c.getInt(KEY_HOME_CARD_COUNT);
+//			homeObject.mHomeCardCount = BaoxiuCardObject.getAllBaoxiuCardsCount(cr, homeObject.mHomeUid, homeObject.mHomeAid);
+			homeObject.mIsDefault = c.getInt(KEY_HOME_DEFAULT) == 1;
+			homeObject.mHid = c.getLong(KEY_HOME_COMMUNITY_HID);
+			homeObject.mHname = c.getString(KEY_HOME_COMMUNITY_NAME);
+			homeObject.mCommunityServiceLoaded = c.getInt(KEY_HOME_COMMUNITY_SERVICE_LOADED);
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append(homeObject.mHomeUid).append('_').append(homeObject.mHomeAid);
 			mHomeObjectCache.put(sb.toString(), homeObject);
 		}
 		return homeObject;
@@ -393,6 +400,7 @@ public class HomeObject implements InfoInterface{
 	public static HomeObject getHomeObject(Bundle bundle) {
 		long aid = bundle.getLong("aid", -1);
 		long uid = bundle.getLong("uid", -1);
+		long hid = bundle.getLong("hid", -1);
 		DebugUtils.logD(TAG, "getHomeObject() bundle = " + bundle);
 		if (uid > 0 && aid > 0) {
 			DebugUtils.logD(TAG, "getHomeObject() get getHomeObject from Database");
@@ -401,6 +409,7 @@ public class HomeObject implements InfoInterface{
 			HomeObject newHomeObject =  new HomeObject();
 			newHomeObject.mHomeAid = aid;
 			newHomeObject.mHomeUid = uid;
+			newHomeObject.mHid = hid;
 			DebugUtils.logD(TAG, "getHomeObject() new HomeObject=" + newHomeObject);
 			return newHomeObject;
 		}
@@ -519,8 +528,9 @@ public class HomeObject implements InfoInterface{
 		StringBuilder sb = new StringBuilder();
 		sb.append("HomeObject[")
 		.append("uid=").append(mHomeUid)
-		.append(", community=").append(mHname)
+		.append(", Hname=").append(mHname)
 		.append(", aid=").append(mHomeAid)
+		.append(", hid=").append(mHid)
 		.append(", homeName=").append(mHomeName)
 		.append(", placeDetail=").append(mHomePlaceDetail)
 		.append(", isDefault=").append(mIsDefault)

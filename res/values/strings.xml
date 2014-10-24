@@ -654,7 +654,7 @@
       
       <string name="msg_load_community_service_failed">加载小区信息失败，请重试</string>
       <string name="hint_add_community_service_data">添加号码</string>
-      
+      <string name="community_service_type0">不显示</string>
       <string name="community_service_type1">物业</string>
 		<string name="community_service_type2">业委会</string>
 		<string name="community_service_type3">居委会</string>
@@ -675,5 +675,8 @@
 		<string name="community_service_type18">物业缴费</string>
 		
 		<string name="format_title_modify_community_service_data">输入%s电话</string>
+		
+		<string name="format_empty_nearby_community_service_data">%s 没有提供联系方式，不过你可以查看地图显示</string>
+		<string name="button_view_map">打开地图</string>
      
 </resources>

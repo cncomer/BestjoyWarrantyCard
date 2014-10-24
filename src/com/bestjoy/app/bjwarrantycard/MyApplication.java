@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.BaiduLocationManager;
@@ -110,6 +111,7 @@ public class MyApplication extends Application{
 		BaiduLocationManager.getInstance().setContext(this);
 		//add by chenkai, 20141011, 天气
 		WeatherManager.getInstance().setContext(this);
+		HomeObject.clearHomeObjectCache();
 	}
 	
 	public synchronized static MyApplication getInstance() {

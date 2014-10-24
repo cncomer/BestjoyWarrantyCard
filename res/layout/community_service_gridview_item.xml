@@ -10,7 +10,6 @@
         android:layout_width="50dip"
         android:layout_height="50dip"
         android:background="@drawable/default_rounded_rectangle_blue_btn"
-        android:clickable="true"
         android:scaleType="centerInside"
         android:src="@drawable/community_type_1" />
 

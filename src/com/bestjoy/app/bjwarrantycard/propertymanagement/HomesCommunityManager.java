@@ -64,6 +64,7 @@ public class HomesCommunityManager extends BjnoteContent {
 	public static final int TYPE_WUYE_JIAOFEI = 18;
 	
 	public static final int[] SERVICE_TYPE_IDS = new int[]{
+		R.id.community_service_type0,
 		R.id.community_service_type1, 
 		R.id.community_service_type2,
 		R.id.community_service_type3, 
@@ -84,6 +85,7 @@ public class HomesCommunityManager extends BjnoteContent {
 		R.id.community_service_type18, 
 	};
 	public static final int[] SERVICE_TYPE_CATEGORY = new int[]{
+		-1, 
 		TYPE_WUYE, 
 		TYPE_YEWEIHUI,
 		TYPE_JUWEIHUI,
@@ -104,6 +106,7 @@ public class HomesCommunityManager extends BjnoteContent {
 		TYPE_WUYE_JIAOFEI,
 	};
 	public static final int[] FIRST_SERVICE_TYPE_ICONS = new int[]{
+		-1,
 		R.drawable.community_type_1, 
 		R.drawable.community_type_2,
 		R.drawable.community_type_3, 
@@ -115,9 +118,17 @@ public class HomesCommunityManager extends BjnoteContent {
 		R.drawable.community_type_9, 
 		R.drawable.community_type_10, 
 		R.drawable.community_type_11, 
+		-1,
+		-1,
+		-1, 
+		-1,
+		-1,
+		-1,
+		-1,
 	};
 	
 	public static final int[] SERVICE_TYPE_NAMES = new int[]{
+		R.string.community_service_type0,
 		R.string.community_service_type1, 
 		R.string.community_service_type2,
 		R.string.community_service_type3, 
@@ -138,9 +149,9 @@ public class HomesCommunityManager extends BjnoteContent {
 		R.string.community_service_type18, 
 	};
 	/**小区主要服务，0~10共11项服务*/
-	public static final int FIRST_SERVICE_POSITION = 10;
+	public static final int FIRST_SERVICE_POSITION = 11;
 	/**小区快捷服务，11~15共5项服务*/
-	public static final int SECOND_SERVICE_POSITION = 15;
+	public static final int SECOND_SERVICE_POSITION = 16;
 	
 	public static final String UID_SELECTION = HaierDBHelper.ACCOUNT_UID + "=?";
 	public static final String UID_AND_HID_SELECTION = UID_SELECTION + " and " + HaierDBHelper.HOME_COMMUNITY_HID + "=?";
@@ -249,7 +260,7 @@ public class HomesCommunityManager extends BjnoteContent {
 	public static int getServiceObjectIconResId(int type) {
 		if (type <= SERVICE_TYPE_CATEGORY[FIRST_SERVICE_POSITION]) {
 			//顶部的主要服务
-			return FIRST_SERVICE_TYPE_ICONS[type-1];
+			return FIRST_SERVICE_TYPE_ICONS[type];
 		}
 		return -1;
 	}
@@ -309,8 +320,8 @@ public class HomesCommunityManager extends BjnoteContent {
 	 */
 	public static CommunityServiceObject getCommunityServiceObject(JSONObject result) throws NumberFormatException, JSONException {
 		CommunityServiceObject communityServiceObject = new CommunityServiceObject();
-		communityServiceObject.mServiceType = Integer.valueOf(result.getString("levelValue"));
-		communityServiceObject.mEditable = Integer.valueOf(result.getString("stvalue"));
+		communityServiceObject.mServiceType = Integer.valueOf(result.getString("stvalue"));
+		communityServiceObject.mEditable = Integer.valueOf(result.getString("levelValue"));
 		communityServiceObject.mServiceId = result.getString("PhoneID");
 		communityServiceObject.mServiceName = result.getString("name");
 		communityServiceObject.mServiceContent = result.getString("cell");
@@ -318,13 +329,15 @@ public class HomesCommunityManager extends BjnoteContent {
 		communityServiceObject.mAid = Long.valueOf(result.getString("aid"));
 		communityServiceObject.mHid = Long.valueOf(result.getString("xid"));
 		communityServiceObject.mUid = Long.valueOf(result.getString("uid"));
+		
+		communityServiceObject.mServiceIconResId = getServiceObjectIconResId(communityServiceObject.mServiceType);
 		return communityServiceObject;
 		
 	}
 	
 	public static List<CommunityServiceObject> getAllDefaultCommunityServiceObject(HomeObject homeObject) {
 		List<CommunityServiceObject> communityServiceObjectList = new ArrayList<CommunityServiceObject>();
-		for(int index = 0; index <= FIRST_SERVICE_POSITION; index++) {
+		for(int index =1 ; index <= FIRST_SERVICE_POSITION; index++) {
 			CommunityServiceObject communityServiceObject = new CommunityServiceObject();
 			communityServiceObject.mAid = homeObject.mHomeAid;
 			communityServiceObject.mUid = homeObject.mHomeUid;
@@ -332,9 +345,9 @@ public class HomesCommunityManager extends BjnoteContent {
 			
 			communityServiceObject.mServiceType = SERVICE_TYPE_CATEGORY[index];
 			communityServiceObject.mServiceName = MyApplication.getInstance().getString(SERVICE_TYPE_NAMES[index]);
-			communityServiceObject.mServiceIconResId = FIRST_SERVICE_TYPE_ICONS[index];
+			communityServiceObject.mServiceIconResId = getServiceObjectIconResId(communityServiceObject.mServiceType);
 			communityServiceObject.mServiceContent = "";
-			communityServiceObject.mViewId = SERVICE_TYPE_IDS[index];
+			communityServiceObject.mViewId = getServiceObjectIconResId(communityServiceObject.mServiceType);
 			communityServiceObjectList.add(communityServiceObject);
 		}
 		
@@ -348,7 +361,8 @@ public class HomesCommunityManager extends BjnoteContent {
 			communityServiceObject.mServiceName = MyApplication.getInstance().getString(SERVICE_TYPE_NAMES[index]);
 			communityServiceObject.mServiceIconResId = -1;
 			communityServiceObject.mServiceContent = "";
-			communityServiceObject.mViewId = SERVICE_TYPE_IDS[index];
+			communityServiceObject.mViewId = SERVICE_TYPE_IDS[communityServiceObject.mServiceType];
+			communityServiceObject.mServiceIconResId = getServiceObjectIconResId(communityServiceObject.mServiceType);
 			communityServiceObjectList.add(communityServiceObject);
 		}
 		return communityServiceObjectList;

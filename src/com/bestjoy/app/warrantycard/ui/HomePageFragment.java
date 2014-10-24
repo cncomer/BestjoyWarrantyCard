@@ -831,7 +831,8 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 					//直接进入我得小区
 					Bundle bundle = ModleSettings.createPickCommunityBundle(getActivity());
 					bundle.putString(Intents.EXTRA_NAME, getActivity().getString(R.string.activity_title_my_homecommunity));
-					bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					bundle.putLong("aid", communities.get(0).mHomeAid);
+					bundle.putLong("uid", communities.get(0).mHomeUid);
 					PropertyManagementActivity.startActivity(getActivity(), bundle);
 				} else {
 					//没有小区或是有多个小区，我们需要前往家列表进行选择

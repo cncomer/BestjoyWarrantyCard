@@ -3,6 +3,7 @@ package com.bestjoy.app.bjwarrantycard.propertymanagement;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -15,6 +16,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -37,6 +39,8 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.ChooseCommunityActivity.PoiAdapter;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.ChooseCommunityActivity.PoiViewHolder;
 import com.bestjoy.app.bjwarrantycard.propertymanagement.HomesCommunityManager.CommunityServiceObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
@@ -49,6 +53,7 @@ import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.view.MyGridView;
 import com.bestjoy.app.warrantycard.view.MyListView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
+import com.shwy.bestjoy.utils.DialogUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 
@@ -67,6 +72,8 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 	private List<CommunityServiceObject> mCommunityServiceObjectList = new ArrayList<CommunityServiceObject>();
 	private MyGridView mMyGridView;
 	private MyGridViewAdapter mMyGridViewAdapter;
+	private HashMap<Object, LoadNearbyServiceTask> mLoadNearbyServiceTaskList = new HashMap<Object, LoadNearbyServiceTask>();
+	private Drawable mArrowRightDrawable, mArrowDownDrawable;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +81,8 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 		if (this.isFinishing()) {
 			return;
 		}
+		mArrowRightDrawable = mContext.getResources().getDrawable(R.drawable.community_right_arrow);
+		mArrowDownDrawable = mContext.getResources().getDrawable(R.drawable.community_down_arrow);
 		setContentView(R.layout.activity_property_management);
 		//设置小区标题
 		setTitle(mHomeObject.mHname);
@@ -106,7 +115,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 		LinearLayout kuaijieLayout = (LinearLayout) findViewById(R.id.kuaijie_service_layout);
 		kuaijieLayout.removeAllViews();
 		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-		for(int index=HomesCommunityManager.FIRST_SERVICE_POSITION+1;index <= HomesCommunityManager.SECOND_SERVICE_POSITION; index++) {
+		for(int index=HomesCommunityManager.FIRST_SERVICE_POSITION;index < HomesCommunityManager.SECOND_SERVICE_POSITION; index++) {
 			View view = layoutInflater.inflate(R.layout.community_service_list_item, kuaijieLayout, false);
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder._arrow = (ImageView) view.findViewById(R.id.arrow);
@@ -126,12 +135,11 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 			}
 			
 			viewHolder._arrow.setTag(viewHolder);
+			viewHolder._arrow.setOnClickListener(this);
 			viewHolder._button_tel.setTag(viewHolder);
 			viewHolder._button_tel.setOnClickListener(this);
 			
 			viewHolder._listview.setVisibility(View.GONE);
-			//下拉列表的单击事件
-			viewHolder._listview.setOnItemClickListener(this);
 			
 			viewHolder._content.setTag(viewHolder);
 			viewHolder._content.setOnClickListener(this);
@@ -192,6 +200,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 			try {
 				JSONObject queryJsonObject = new JSONObject();
 				queryJsonObject.put("xid", mHomeObject.mHid);
+				queryJsonObject.put("aid", mHomeObject.mHomeAid);
 				queryJsonObject.put("uid", mHomeObject.mHomeUid);
 				is = NetworkUtils.openContectionLocked(ServiceObject.getCommunityServices("para", queryJsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
 				serviceResultObject = ServiceResultObject.parseArray(NetworkUtils.getContentFromInput(is));
@@ -264,7 +273,12 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 			DebugUtils.logD(TAG, "checkIntent true, find mBundles=" + mBundles);
 		}
 		mHomeObject = HomeObject.getHomeObject(mBundles);
-		return mHomeObject != null;
+		if (mHomeObject == null) {
+			DebugUtils.logD(TAG, "checkIntent failed, due to HomeObject.getHomeObject(mBundles) return null");
+			return false;
+		}
+		DebugUtils.logD(TAG, "checkIntent mHomeObject.mHid=" + mHomeObject.mHid);
+		return mHomeObject != null && mHomeObject.mHid > 0;
 	}
 	public static void startActivity(Context context, Bundle bundle) {
 		Intent intent = new Intent(context, PropertyManagementActivity.class);
@@ -302,7 +316,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 
 		@Override
 		public int getCount() {
-			return Math.min(HomesCommunityManager.FIRST_SERVICE_POSITION + 1, mCommunityServiceObjectList.size());
+			return Math.min(HomesCommunityManager.FIRST_SERVICE_POSITION, mCommunityServiceObjectList.size());
 		}
 
 		@Override
@@ -360,7 +374,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 	public boolean onLongClick(View v) {
 		Object object = v.getTag();
 		if (object != null && object instanceof ViewHolder) {
-			ViewHolder viewHolder = (ViewHolder) v.getTag();
+			ViewHolder viewHolder = (ViewHolder) object;
 			showModifyDialog(viewHolder);
 		}
 		return true;
@@ -369,14 +383,53 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 	@Override
 	public void onClick(View v) {
 		Object object = v.getTag();
-		if (object != null && object instanceof ViewHolder) {
-			ViewHolder viewHolder = (ViewHolder) v.getTag();
-			if (TextUtils.isEmpty(viewHolder._communityServiceObject.mServiceContent)) {
-				//没有数据，我们需要让用户输入
-				showModifyDialog(viewHolder);
-			} else {
-				Intents.callPhone(mContext, viewHolder._communityServiceObject.mServiceContent);
+		switch(v.getId()) {
+		case R.id.arrow://单击了下拉箭头，我们需要显示家附近的服务
+			if (object != null && object instanceof ViewHolder) {
+				ViewHolder viewHolder = (ViewHolder) object;
+				showMorenearbyService(viewHolder);
 			}
+			break;
+			default:
+				if (object != null && object instanceof ViewHolder) {
+					ViewHolder viewHolder = (ViewHolder) object;
+					if (TextUtils.isEmpty(viewHolder._communityServiceObject.mServiceContent)) {
+						//没有数据，我们需要让用户输入
+						showModifyDialog(viewHolder);
+					} else {
+						Intents.callPhone(mContext, viewHolder._communityServiceObject.mServiceContent);
+					}
+				} else if (object instanceof PoiViewHolder) {
+					//兴趣点，我们直接拨打电话
+					final PoiViewHolder viewHolder = (PoiViewHolder) object;
+					if (!TextUtils.isEmpty(viewHolder._homesCommunityObject.mTelephone)) {
+						Intents.callPhone(mContext, viewHolder._homesCommunityObject.mTelephone);
+					} else {
+						DialogUtils.createSimpleConfirmAlertDialog(mContext, getString(R.string.format_empty_nearby_community_service_data, viewHolder._homesCommunityObject.mName), getString(android.R.string.ok), getString(android.R.string.cancel), new DialogUtils.DialogCallbackSimpleImpl() {
+
+							@Override
+							public void onCancel(DialogInterface dialog) {
+								
+							}
+
+							@Override
+							public void onDismiss(DialogInterface dialog) {
+								
+							}
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								switch(which) {
+								case DialogInterface.BUTTON_POSITIVE:
+									Intents.location(mContext, viewHolder._homesCommunityObject.mlat + "," + viewHolder._homesCommunityObject.mlng);
+									break;
+								}
+							}
+						});
+					}
+					
+				}
+				break;
 		}
 	}
 	
@@ -392,8 +445,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					viewHolder._communityServiceObject.mServiceContent = input.getText().toString().trim();
-					updateCommunityServiceDataAsync(viewHolder);
+					updateCommunityServiceDataAsync(viewHolder, input.getText().toString().trim());
 					
 				}
 			})
@@ -422,17 +474,19 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 	}
 	
 	private UpdateCommunityServiceDataTask mUpdateCommunityServiceDataTask;
-	private void updateCommunityServiceDataAsync(ViewHolder viewHolder) {
+	private void updateCommunityServiceDataAsync(ViewHolder viewHolder, String newValue) {
 		AsyncTaskUtils.cancelTask(mUpdateCommunityServiceDataTask);
-		mUpdateCommunityServiceDataTask = new UpdateCommunityServiceDataTask(viewHolder);
+		mUpdateCommunityServiceDataTask = new UpdateCommunityServiceDataTask(viewHolder, newValue);
 		mUpdateCommunityServiceDataTask.execute();
 		showDialog(DIALOG_PROGRESS);
 	}
 	private class UpdateCommunityServiceDataTask extends AsyncTask<Void, Void, ServiceResultObject> {
 
 		private ViewHolder _viewHolder;
-		public UpdateCommunityServiceDataTask(ViewHolder viewHolder) {
+		private String _newValue;
+		public UpdateCommunityServiceDataTask(ViewHolder viewHolder, String newValue) {
 			_viewHolder = viewHolder;
+			_newValue = newValue;
 		}
 		@Override
 		protected ServiceResultObject doInBackground(Void... params) {
@@ -445,7 +499,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 				//&& StrHelper.IsNum(para.uid) 
 				//&& StrHelper.IsNum(para.xid))
 				JSONObject queryJsonObject = new JSONObject();
-				queryJsonObject.put("cell", _viewHolder._communityServiceObject.mServiceContent);
+				queryJsonObject.put("cell", _newValue);
 				queryJsonObject.put("name", _viewHolder._communityServiceObject.mServiceName);
 				queryJsonObject.put("stvalue", _viewHolder._communityServiceObject.mServiceType);
 				queryJsonObject.put("uid", _viewHolder._communityServiceObject.mUid);
@@ -454,6 +508,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 				if (serviceResultObject.isOpSuccessfully()) {
 					//添加或更新成功
+					_viewHolder._communityServiceObject.mServiceContent = _newValue;
 					boolean save = _viewHolder._communityServiceObject.saveInDatebase(mContentResolver, null);
 					DebugUtils.logD(TAG, "UpdateCommunityServiceDataTask save CommunityServiceObject with content " + _viewHolder._communityServiceObject.mServiceContent + ", effected rows " + save);
 				}
@@ -491,5 +546,113 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 		}
 		
 	}
+	
+	
+	private void showMorenearbyService(ViewHolder viewHolder) {
+		View expandLayout = viewHolder._expandLayout;
+		if (expandLayout.getVisibility() == View.GONE) {
+			//如果没有显示，则展开布局
+			expandLayout.setVisibility(View.VISIBLE);
+			viewHolder._arrow.setImageDrawable(mArrowDownDrawable);
+			if (viewHolder._listview.getAdapter() == null || viewHolder._listview.getAdapter().getCount() == 0) {
+				viewHolder._progressLayout.setVisibility(View.VISIBLE);
+				//还没有设置数据，启动任务去后台查询
+				LoadNearbyServiceTask loadNearbyServiceTask = mLoadNearbyServiceTaskList.get(viewHolder);
+				if (loadNearbyServiceTask== null) {
+					loadNearbyServiceTask = new LoadNearbyServiceTask(viewHolder);
+					mLoadNearbyServiceTaskList.put(viewHolder, loadNearbyServiceTask);
+					loadNearbyServiceTask.execute();
+				}
+			} else {
+				viewHolder._progressLayout.setVisibility(View.GONE);
+			}
+		} else {
+			expandLayout.setVisibility(View.GONE);
+			viewHolder._arrow.setImageDrawable(mArrowRightDrawable);
+		}
+	}
+	private class LoadNearbyServiceTask extends AsyncTask<Void, Void, ServiceResultObject> {
+		private ViewHolder _viewHolder;
+		private List<HomesCommunityObject> _homesCommunityObjectList = null;
+		private LoadNearbyServiceTask(ViewHolder viewHolder) {
+			_viewHolder = viewHolder;
+		}
 
+		@Override
+		protected ServiceResultObject doInBackground(Void... params) {
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			InputStream is = null;
+			try {
+				//para={admin_code:310115,address:"浦东区张江高科技园区碧波路49弄1号%20",radius:"2000",pagesize:"50"}
+//				InputStream iss = NetworkUtils.openContectionLocked("http://115.29.231.29/Haier/TestAgent.ashx", MyApplication.getInstance().getSecurityKeyValuesObject());
+//				DebugUtils.logD(TAG, "chenkai " + NetworkUtils.getContentFromInput(iss));
+				JSONObject queryJson = new JSONObject();
+				queryJson.put("admin_code", HomeObject.getDisID(mContentResolver, mHomeObject.mHomeProvince, mHomeObject.mHomeCity, mHomeObject.mHomeDis));
+				queryJson.put("address", mHomeObject.mHomePlaceDetail);
+				queryJson.put("radius", "2000");
+				queryJson.put("query", _viewHolder._communityServiceObject.mServiceName);
+				queryJson.put("pagesize", "6");
+				is = NetworkUtils.openContectionLocked(ServiceObject.getPoiNearbySearchUrl("para", queryJson.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				if (is != null) {
+					JSONObject jsonObject = new JSONObject(NetworkUtils.getContentFromInput(is));
+					serviceResultObject.mStatusCode = jsonObject.getInt("status");
+					serviceResultObject.mStatusMessage = jsonObject.getString("message");
+					
+					int total = jsonObject.getInt("total");
+					DebugUtils.logD(TAG, "find PoiNearby count " + total);
+					serviceResultObject.mJsonArray = jsonObject.getJSONArray("results");
+					serviceResultObject.mStatusCode = 1;
+					_homesCommunityObjectList = HomesCommunityObject.parse(serviceResultObject.mJsonArray);
+				}
+				
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (JSONException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			_viewHolder._progressLayout.setVisibility(View.GONE);
+			mLoadNearbyServiceTaskList.remove(_viewHolder);
+			if (result.isOpSuccessfully()) {
+				PoiAdapter poiAdapter = new PoiAdapter(mContext) {
+					public void bindView(View view, int position) {
+						PoiViewHolder viewHolder = (PoiViewHolder) view.getTag();
+						viewHolder._homesCommunityObject = _homesCommunityObjectList.get(position);
+						viewHolder._name.setText(_homesCommunityObjectList.get(position).mName);
+						viewHolder._address.setText(_homesCommunityObjectList.get(position).mTelephone);
+						viewHolder._distance.setText(mContext.getString(R.string.title_unit_m_format, _homesCommunityObjectList.get(position).mDistance));
+					}
+				};
+				poiAdapter.changeData(_homesCommunityObjectList);
+				_viewHolder._listview.setVisibility(View.VISIBLE);
+				_viewHolder._listview.setAdapter(poiAdapter);
+				//下拉列表的单击事件
+				_viewHolder._listview.setOnItemClickListener(PropertyManagementActivity.this);
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+				_viewHolder._expandLayout.setVisibility(View.GONE);
+				_viewHolder._arrow.setImageDrawable(mArrowRightDrawable);
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			mLoadNearbyServiceTaskList.remove(_viewHolder);
+			_viewHolder._expandLayout.setVisibility(View.GONE);
+		}
+		
+	}
 }

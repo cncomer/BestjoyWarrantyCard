@@ -10,15 +10,20 @@ import org.json.JSONObject;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 
+import com.baidu.location.BDLocation;
 import com.shwy.bestjoy.utils.InfoInterface;
 
 public class HomesCommunityObject implements InfoInterface {
 	public String mName;
-	public long mlat, mlng;
+	/**"location":{ "lat":31.213611, "lng":121.648057 }*/
+	public double mlat, mlng;
+	/**"detail_info":{ "distance":2769, "tag":"生活服务;家政服务" } */
+	public String mTag="";
+	/**"telephone":"(021)58553470"*/
+	public String mTelephone = "";
 	public int mDistance;
 	public long mHid, mId;
 	public String mCity, mProv, mDis, mAddressDetail;
-	
 //	public static HomesCommunityObject getHomesCommunityObject() {
 //		
 //	}
@@ -48,7 +53,14 @@ public class HomesCommunityObject implements InfoInterface {
 					HomesCommunityObject homesCommunityObject = new HomesCommunityObject();
 					homesCommunityObject.mName = jsonObject.getString("name");
 					homesCommunityObject.mAddressDetail = jsonObject.getString("address");
-					homesCommunityObject.mDistance = jsonObject.getJSONObject("detail_info").getInt("distance");
+					JSONObject detail_info = jsonObject.getJSONObject("detail_info");
+					homesCommunityObject.mDistance = detail_info.getInt("distance");
+					homesCommunityObject.mTag = detail_info.optString("tag", "");
+					homesCommunityObject.mTelephone = jsonObject.optString("telephone", "");
+					
+					JSONObject location = jsonObject.getJSONObject("location");
+					homesCommunityObject.mlat = location.optDouble("lat", -1);
+					homesCommunityObject.mlng = location.optDouble("lng", -1);
 					list.add(homesCommunityObject);
 				} catch (JSONException e) {
 					e.printStackTrace();

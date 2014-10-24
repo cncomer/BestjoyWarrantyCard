@@ -92,7 +92,7 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 			
 		});
 		mListView = (ListView) findViewById(R.id.listview);
-		mPoiAdapter = new PoiAdapter();
+		mPoiAdapter = new PoiAdapter(this);
 		mListView.setAdapter(mPoiAdapter);
 		mListView.setOnItemClickListener(this);
 //		GeoCoder geoCoder = GeoCoder.newInstance();
@@ -246,15 +246,19 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 		
 	}
 	
-	private class PoiAdapter extends BaseAdapter{
+	public static class PoiAdapter extends BaseAdapter{
+		private Context _context;
+		public PoiAdapter(Context context) {
+			_context = context;
+		}
 
-		private List<HomesCommunityObject> mHomesCommunityObjectList = new ArrayList<HomesCommunityObject>();
+		private List<HomesCommunityObject> _homesCommunityObjectList = new ArrayList<HomesCommunityObject>();
 		public void changeData(List<HomesCommunityObject> datas) {
-			mHomesCommunityObjectList = datas;
+			_homesCommunityObjectList = datas;
 		}
 		@Override
 		public int getCount() {
-			return mHomesCommunityObjectList.size();
+			return _homesCommunityObjectList.size();
 		}
 
 		@Override
@@ -269,28 +273,36 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder viewHolder = null;
+			PoiViewHolder viewHolder = null;
 			if (convertView == null) {
-				convertView = LayoutInflater.from(mContext).inflate(R.layout.home_community_list_item, parent, false);
-				viewHolder = new ViewHolder();
+				convertView = LayoutInflater.from(_context).inflate(R.layout.home_community_list_item, parent, false);
+				viewHolder = new PoiViewHolder();
 				viewHolder._name = (TextView) convertView.findViewById(R.id.name);
 				viewHolder._address = (TextView) convertView.findViewById(R.id.detail);
 				viewHolder._distance = (TextView) convertView.findViewById(R.id.distance);
 				convertView.setTag(viewHolder);
 			} else {
-				viewHolder = (ViewHolder) convertView.getTag();
+				viewHolder = (PoiViewHolder) convertView.getTag();
 			}
+			viewHolder._homesCommunityObject = _homesCommunityObjectList.get(position);
 			
-			viewHolder._name.setText(mHomesCommunityObjectList.get(position).mName);
-			viewHolder._address.setText(mHomesCommunityObjectList.get(position).mAddressDetail);
-			viewHolder._distance.setText(getString(R.string.title_unit_m_format, mHomesCommunityObjectList.get(position).mDistance));
+			bindView(convertView, position);
 			return convertView;
+		}
+		
+		public void bindView(View view, int position) {
+			PoiViewHolder viewHolder = (PoiViewHolder) view.getTag();
+			viewHolder._homesCommunityObject = _homesCommunityObjectList.get(position);
+			viewHolder._name.setText(_homesCommunityObjectList.get(position).mName);
+			viewHolder._address.setText(_homesCommunityObjectList.get(position).mAddressDetail);
+			viewHolder._distance.setText(_context.getString(R.string.title_unit_m_format, _homesCommunityObjectList.get(position).mDistance));
 		}
 		
 	}
 	
-	private class ViewHolder {
-		private TextView _name, _address, _distance;
+	public static class PoiViewHolder {
+		public TextView _name, _address, _distance;
+		public HomesCommunityObject _homesCommunityObject;
 	}
 
 	@Override
@@ -313,7 +325,7 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		final HomesCommunityObject homesCommunityObject = mHomesCommunityObjectList.get(position);
-		DialogUtils.createSimpleConfirmAlertDialog(mContext, mContext.getString(R.string.format_relate_home_to_community, mHomeObject.toFriendString(), homesCommunityObject.mName), new DialogUtils.DialogCallback(){
+		DialogUtils.createSimpleConfirmAlertDialog(mContext, mContext.getString(R.string.format_relate_home_to_community, mHomeObject.toFriendString(), homesCommunityObject.mName), getString(android.R.string.ok), getString(android.R.string.cancel), new DialogUtils.DialogCallbackSimpleImpl(){
 
 			@Override
 			public void onCancel(DialogInterface dialog) {
@@ -360,7 +372,7 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 					//添加成功
 					long hid = Long.parseLong(serviceResultObject.mStrData);
 					mBundles.putLong("hid", hid);
-					mHomeObject.mHomeUid = hid;
+					mHomeObject.mHid = hid;
 					ContentValues values = new ContentValues();
 					values.put(HaierDBHelper.HOME_COMMUNITY_HID, hid);
 					values.put(HaierDBHelper.HOME_COMMUNITY_NAME, params[0]);

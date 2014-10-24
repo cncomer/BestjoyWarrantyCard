@@ -223,7 +223,7 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 			if (result.isOpSuccessfully()) {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			} else if (result.mStatusCode == 2){
-				DialogUtils.createSimpleConfirmAlertDialog(mContext, result.mStatusMessage, new DialogUtils.DialogCallbackSimpleImpl() {
+				DialogUtils.createSimpleConfirmAlertDialog(mContext, result.mStatusMessage, getString(android.R.string.ok), null, new DialogUtils.DialogCallbackSimpleImpl() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {

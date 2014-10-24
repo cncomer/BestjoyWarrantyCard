@@ -545,7 +545,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 					intent.setClass(getActivity(), PdfViewerActivity.class);
 					startActivity(intent);
 				} else {
-					DialogUtils.createSimpleConfirmAlertDialog(getActivity(), result.mStatusMessage, null);
+					DialogUtils.createSimpleConfirmAlertDialog(getActivity(), result.mStatusMessage, getString(android.R.string.ok), getString(android.R.string.cancel), null);
 				}
 			}
 		}
