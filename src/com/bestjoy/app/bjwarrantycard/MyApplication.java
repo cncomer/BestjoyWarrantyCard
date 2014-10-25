@@ -52,6 +52,8 @@ public class MyApplication extends Application{
 	
 	private InputMethodManager mImMgr;
 	
+	public DisplayMetrics mDisplayMetrics;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -102,8 +104,8 @@ public class MyApplication extends Application{
 		
 		PhotoManagerUtilsV2.getInstance().setContext(this);
 		//用于屏幕适配
-		DisplayMetrics display = this.getResources().getDisplayMetrics();
-		Log.d(TAG, display.toString());
+		mDisplayMetrics = this.getResources().getDisplayMetrics();
+		Log.d(TAG, mDisplayMetrics.toString());
 		Log.d(TAG, getDeviceInfo(this));
 		
 		YouMengMessageHelper.getInstance().setContext(this);

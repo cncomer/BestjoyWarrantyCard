@@ -23,6 +23,6 @@
         android:padding="3dp"
         android:text="@string/load_more_text"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/dark_slate_gray" />
+        android:textColor="@color/light_black"/>
 
 </LinearLayout>

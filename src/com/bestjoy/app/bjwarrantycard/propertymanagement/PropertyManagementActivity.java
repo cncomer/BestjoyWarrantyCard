@@ -19,6 +19,8 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -32,6 +34,7 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
@@ -75,6 +78,9 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 	private HashMap<Object, LoadNearbyServiceTask> mLoadNearbyServiceTaskList = new HashMap<Object, LoadNearbyServiceTask>();
 	private Drawable mArrowRightDrawable, mArrowDownDrawable;
 	
+	private ScrollView mScrollView;
+	private Handler mHandler;
+	private static final int WHAT_SCROLL = 100;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -84,6 +90,21 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 		mArrowRightDrawable = mContext.getResources().getDrawable(R.drawable.community_right_arrow);
 		mArrowDownDrawable = mContext.getResources().getDrawable(R.drawable.community_down_arrow);
 		setContentView(R.layout.activity_property_management);
+		mScrollView = (ScrollView) findViewById(R.id.scrollview); 
+		mHandler = new Handler() {
+
+			@Override
+            public void handleMessage(Message msg) {
+	            super.handleMessage(msg);
+	            switch(msg.what) {
+	            case WHAT_SCROLL:
+	            	mScrollView.scrollBy(0, (int) (80 * MyApplication.getInstance().mDisplayMetrics.density));
+	            	DebugUtils.logD(TAG, "scroll listview");
+	            	break;
+	            }
+            }
+			
+		};
 		//设置小区标题
 		setTitle(mHomeObject.mHname);
 		if (mHomeObject.mCommunityServiceLoaded == 1) {
@@ -436,6 +457,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 	
 	private void showModifyDialog(final ViewHolder viewHolder) {
 		final EditText input = new EditText(mContext);
+		input.setMinLines(2);
 		input.setText(viewHolder._communityServiceObject.mServiceContent);
 		input.setSelection(viewHolder._communityServiceObject.mServiceContent.length());
 		final AlertDialog dialog = new AlertDialog.Builder(mContext)
@@ -469,8 +491,9 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 			}
 			
 		});
-		
 		dialog.show();
+		//一开始就设置为false,这样只有用户改变了内容才可以点击
+	    dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
 	}
 	
 	private UpdateCommunityServiceDataTask mUpdateCommunityServiceDataTask;
@@ -640,6 +663,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 				_viewHolder._listview.setAdapter(poiAdapter);
 				//下拉列表的单击事件
 				_viewHolder._listview.setOnItemClickListener(PropertyManagementActivity.this);
+				mHandler.sendEmptyMessageDelayed(WHAT_SCROLL, 500);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				_viewHolder._expandLayout.setVisibility(View.GONE);

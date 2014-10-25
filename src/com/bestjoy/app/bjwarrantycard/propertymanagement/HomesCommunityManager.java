@@ -157,7 +157,7 @@ public class HomesCommunityManager extends BjnoteContent {
 	public static final String UID_AND_HID_SELECTION = UID_SELECTION + " and " + HaierDBHelper.HOME_COMMUNITY_HID + "=?";
 	public static final String UID_AND_HID_SELECTION_SERVICEID = UID_AND_HID_SELECTION + " and " + HaierDBHelper.DATA6 + "=?";
 	public static final String UID_AND_HID_AND_AID_SELECTION = UID_AND_HID_SELECTION + " and " + HaierDBHelper.HOME_AID + "=?";
-	public static final String UID_AND_HID_AND_AID_AND_SID_SELECTION = UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA3 + "=?";
+	public static final String UID_AND_HID_AND_AID_AND_TYPE_SELECTION = UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA7 + "=?";
 	public static final String[] COMMUNITY_PROJECTION = new String[]{
 		HaierDBHelper.ID,                 //0
 		HaierDBHelper.ACCOUNT_UID,        //1
@@ -232,8 +232,8 @@ public class HomesCommunityManager extends BjnoteContent {
 			if (addtion != null) {
 				values.putAll(addtion);
 			}
-			String[] selectionArgs = new String[]{String.valueOf(mUid), String.valueOf(mHid),  String.valueOf(mAid), mServiceId}; 
-			Cursor cursor = cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_AND_SID_SELECTION , selectionArgs, null);
+			String[] selectionArgs = new String[]{String.valueOf(mUid), String.valueOf(mHid),  String.valueOf(mAid), String.valueOf(mServiceType)}; 
+			Cursor cursor = cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_AND_TYPE_SELECTION , selectionArgs, null);
 			long id = -1;
 			if (cursor != null) {
 				if (cursor.moveToNext()) {
