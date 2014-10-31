@@ -39,7 +39,7 @@ public class NewHomeActivity extends BaseActionbarActivity implements View.OnCli
 	private EditText mHomeEditText;
 	private HomeObject mHomeObject ;
 	private Bundle mBundles;
-	private Button mEnterCommunityBtn;
+	private Button mEnterCommunityBtn, mResetCommunityBtn;
 	@Override
 	protected boolean checkIntent(Intent intent) {
 		mBundles = intent.getExtras();
@@ -72,6 +72,9 @@ public class NewHomeActivity extends BaseActionbarActivity implements View.OnCli
 		} else {
 			mEnterCommunityBtn.setVisibility(View.GONE);
 		}
+		
+		mResetCommunityBtn = (Button) findViewById(R.id.button_change);
+		mResetCommunityBtn.setOnClickListener(this);
 	}
 	
 	@Override
@@ -87,8 +90,10 @@ public class NewHomeActivity extends BaseActionbarActivity implements View.OnCli
 		mHomeEditText.setText(mHomeObject.getHomeTag(this));
 		if (mHomeObject.hasCommunity()) {
 			mEnterCommunityBtn.setText(getString(R.string.format_button_enter_community, mHomeObject.mHname));
+			mResetCommunityBtn.setVisibility(View.VISIBLE);
 		} else {
 			mEnterCommunityBtn.setText(R.string.button_relate_community);
+			mResetCommunityBtn.setVisibility(View.GONE);
 		}
 	}
 	
@@ -295,6 +300,9 @@ public class NewHomeActivity extends BaseActionbarActivity implements View.OnCli
 			} else {
 				ChooseCommunityActivity.startActivity(mContext, mBundles);
 			}
+			break;
+		case R.id.button_change:
+			ChooseCommunityActivity.startActivity(mContext, mBundles);
 			break;
 		}
 		

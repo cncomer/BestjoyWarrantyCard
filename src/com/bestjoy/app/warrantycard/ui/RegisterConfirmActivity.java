@@ -22,6 +22,7 @@ import com.actionbarsherlock.view.Menu;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.account.HomeObject;
@@ -109,11 +110,10 @@ public class RegisterConfirmActivity extends BaseActionbarActivity implements Vi
 		mRegisterAsyncTask.execute(param);
 	}
 
-	private class RegisterAsyncTask extends AsyncTask<String, Void, Boolean> {
-		private String mError;
+	private class RegisterAsyncTask extends AsyncTask<String, Void, ServiceResultObject> {
 		@Override
-		protected Boolean doInBackground(String... params) {
-			mError = null;
+		protected ServiceResultObject doInBackground(String... params) {
+			ServiceResultObject serviceResultObject  = new ServiceResultObject();
 			InputStream is = null;
 			final int LENGTH = 3;
 			String[] urls = new String[LENGTH];
@@ -129,13 +129,9 @@ public class RegisterConfirmActivity extends BaseActionbarActivity implements Vi
 			try {
 				is = NetworkUtils.openContectionLocked(urls, paths, MyApplication.getInstance().getSecurityKeyValuesObject());
 				try {
-					JSONObject jsonObject = new JSONObject(NetworkUtils.getContentFromInput(is));
-					mAccountObject.mStatusCode = Integer.parseInt(jsonObject.getString("StatusCode"));
-					mAccountObject.mStatusMessage = jsonObject.getString("StatusMessage");
-					DebugUtils.logD(TAG, "StatusCode = " + mAccountObject.mStatusCode);
-					DebugUtils.logD(TAG, "StatusMessage = " + mAccountObject.mStatusMessage);
-					if (mAccountObject.mStatusCode == 1) {
-						String data = jsonObject.getString("Data");
+					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+					if (serviceResultObject.isOpSuccessfully()) {
+						String data = serviceResultObject.mJsonData.getString("Data");
 						DebugUtils.logD(TAG, "Data = " + data);
 						mAccountObject.mAccountUid = Long.parseLong(data.substring(data.indexOf(":")+1));
 						DebugUtils.logD(TAG, "Uid = " + mAccountObject.mAccountUid);
@@ -146,51 +142,31 @@ public class RegisterConfirmActivity extends BaseActionbarActivity implements Vi
 //					    	//注册成功，但无法创建账户，请尝试重新登陆
 //					    	mError = mContext.getString(R.string.msg_register_save_fail);
 //					    }
-					    return true;
-					} else {
-						mError = mAccountObject.mStatusMessage;
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				mError = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} catch (IOException e) {
 				e.printStackTrace();
-				mError = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} finally {
 				NetworkUtils.closeInputStream(is);
 			}
-			return false;
+			return serviceResultObject;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(ServiceResultObject result) {
 			super.onPostExecute(result);
 			mConfrimReg.setEnabled(true);
-			if (mError != null) {
-//				if (result) {
-//					//注册成功，但无法创建账户，请尝试重新登陆
-//					new AlertDialog.Builder(mContext)
-//					.setTitle(R.string.msg_tip_title)
-//		   			.setMessage(mError)
-//		   			.setCancelable(false)
-//		   			.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-//		   				@Override
-//		   				public void onClick(DialogInterface dialog, int which) {
-//		   					LoginActivity.startIntent(mContext, null);
-//		   				}
-//		   			})
-//		   			.create()
-//		   			.show();
-//				} else {
-//					MyApplication.getInstance().showMessage(mError);
-//				}
-				MyApplication.getInstance().showMessage(mError);
-			} else if (result) {
+			if (!result.isOpSuccessfully()) {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			} else {
 				//注册后，我们要做一次登陆
-				MyApplication.getInstance().showMessage(mAccountObject.mStatusMessage);
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				MyAccountManager.getInstance().saveLastUsrTel(mAccountObject.mAccountTel);
 				startActivityForResult(LoginOrUpdateAccountDialog.createLoginOrUpdate(mContext, true, mAccountObject.mAccountTel, mAccountObject.mAccountPwd), REQUEST_LOGIN);
 			}

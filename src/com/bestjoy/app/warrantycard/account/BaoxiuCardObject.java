@@ -788,29 +788,20 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	 * @return
 	 */
 	public String getFapiaoPhotoId() {
-//		if (!TextUtils.isEmpty(mFPaddr) && mFPaddr.startsWith(HaierServiceObject.FAPIAO_PREFIX)) {
-//			String photoId = mFPaddr.substring(HaierServiceObject.FAPIAO_PREFIX.length());
-//			photoId = photoId.replaceAll("/", "_");
-//			return photoId;
-//		}
-		if (false && mUID > 0 && mAID > 0 && mBID > 0) {
-			StringBuilder sb = new StringBuilder();
-			//delete by chenkai, 发票id为md5(aid+bid) begin
-			//sb.append(mUID).append(PHOTOID_SEPERATOR).append(mAID).append(PHOTOID_SEPERATOR).append(mBID);
-			sb.append(SecurityUtils.MD5.md5(String.valueOf(mAID) + String.valueOf(mBID)));
-			//delete by chenkai, 发票id为md5(aid+bid) begin
-			return sb.toString();
-		} else if (hasBillAvator()) {
-			//"imgaddr": "http://115.29.231.29/Fapiao/2014-06-27/e60c6c55aceaf5e139291b
-			//如果有发票，我们提取e60c6c55aceaf5e139291b455f3c0ce0文件名
-			int indexStart = mFPaddr.lastIndexOf("/");
-			int indexEnd = mFPaddr.lastIndexOf(".");
-			if (indexStart > 0 && indexEnd > 0) {
-				DebugUtils.logD(TAG, "getFapiaoPhotoId() " + mFPaddr.substring(indexStart+1, indexEnd));
-				return mFPaddr.substring(indexStart+1, indexEnd);
-			}
+		if (hasBillAvator()) {
+			return getFapiaoPhotoIdFromFpAddr(mFPaddr);
 		}
 		DebugUtils.logD(TAG, "getFapiaoPhotoId() " + PHOTOID_PLASEHOLDER);
+		return PHOTOID_PLASEHOLDER;
+	}
+	
+	public static String getFapiaoPhotoIdFromFpAddr(String fPaddr) {
+		int indexStart = fPaddr.lastIndexOf("/");
+		int indexEnd = fPaddr.lastIndexOf(".");
+		if (indexStart > 0 && indexEnd > 0) {
+			String photoId =  fPaddr.substring(indexStart+1, indexEnd);
+			DebugUtils.logD(TAG, "getFapiaoPhotoId(String fPaddr) " + photoId + " from fPaddr " + fPaddr);
+		}
 		return PHOTOID_PLASEHOLDER;
 	}
 	
@@ -924,7 +915,7 @@ public class BaoxiuCardObject extends InfoInterfaceImpl {
 	public static  DateFormat BUY_DATE_FORMAT_DATE = new SimpleDateFormat("yyyy-MM-dd");
 	public static  DateFormat BUY_DATE_FORMAT_TIME = new SimpleDateFormat("HH:mm");
 	public static  DateFormat BUY_DATE_FORMAT_YUYUE_TIME = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-	private static long DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
+	public static long DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
 	
 	//用于tip
 	public static  DateFormat DATE_FORMAT_YUYUE_TIME = new SimpleDateFormat("yyyyMMddHHmmss");

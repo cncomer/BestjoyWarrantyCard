@@ -170,6 +170,7 @@ public class ModleSettings {
 		// add by chenkai, 增加预约保养的处理, 2014.05.31 begin
 		case R.id.model_maintenance:
 		// add by chenkai, 增加预约保养的处理, 2014.05.31 end
+		case R.id.model_my_car_card:
 			NewCardActivity.startIntent(context, bundle);
 		case R.id.model_feedback:
 			break;
@@ -199,6 +200,12 @@ public class ModleSettings {
 			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 			break;
 		}
+		case R.id.model_my_car_card:{
+			MenuItem item = menu.add(0, type, 0, R.string.menu_new_car_card);
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+			item.setIcon(R.drawable.flag_plus);
+			break;
+		}
 		}
 		return true;
 	}
@@ -208,6 +215,7 @@ public class ModleSettings {
 		case R.id.model_my_card:
 		case R.id.model_install:
 		case R.id.model_repair:
+		case R.id.model_my_car_card:
 			ModleSettings.doChoose(context, bundle);
 			return true;
 		}
@@ -282,6 +290,18 @@ public class ModleSettings {
 			Bundle bundle = new Bundle();
 			bundle.putInt(Intents.EXTRA_TYPE, R.id.model_pick_community);
 			bundle.putString(Intents.EXTRA_NAME, context.getString(R.string.activity_title_choose_homecommunity));
+			return bundle;
+		}
+		
+		/**
+		 * 可以使用这个来创建选择设备的Bundle数据
+		 * @param context
+		 * @return
+		 */
+		public static Bundle createMyCarCardDefaultBundle(Context context) {
+			Bundle bundle = new Bundle();
+			bundle.putInt(Intents.EXTRA_TYPE, R.id.model_my_car_card);
+			bundle.putString(Intents.EXTRA_NAME, context.getString(R.string.activity_title_choose_car_general));
 			return bundle;
 		}
 

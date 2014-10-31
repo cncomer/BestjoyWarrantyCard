@@ -34,7 +34,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.internal.view.menu.MenuItemWrapper;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -43,8 +42,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
-import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -57,18 +55,18 @@ import com.shwy.bestjoy.utils.InfoInterface;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
 
-public class NewWarrantyCardFragment extends ModleBaseFragment implements View.OnClickListener{
-	private static final String TAG = "NewWarrantyCardFragment";
-	private static final String TOKEN = NewWarrantyCardFragment.class.getName();
+public class NewCarWarrantyCardFragment extends ModleBaseFragment implements View.OnClickListener{
+	private static final String TAG = "NewCarWarrantyCardFragment";
+	private static final String TOKEN = NewCarWarrantyCardFragment.class.getName();
 	//按钮
 	private Button mSaveBtn;
-	private TextView mDatePickBtn;
+	private TextView mDatePickBtn, mBaoxianDatePickBtn, mBaoYangDatePickBtn, mYanCheDatePickBtn;
 	private ImageView mBillImageView;
-	private EditText mTypeInput, mPinpaiInput, mModelInput, mBianhaoInput, mBaoxiuTelInput, mWyInput, mTagInput;
-	private EditText mPriceInput, mYanbaoComponyInput, mYanbaoTelInput;
-	private Calendar mCalendar;
+	private EditText mPinPaiInput, mXingHaoInput, mChePaiInput, mCheJiaInput, mFaDongJiInput, mBaoxiuTelInput;
+	private EditText mYanbaoComponyInput, mYanbaoTelInput;
+	private Calendar mCalendar, mBaoxianCalendar, mBaoYanCalendar, mYanCheCalendar;
 	/**购买途径*/
-	private HaierPopView mTujingPopView, mYanbaoPopView;
+	private HaierPopView mYanbaoPopView;
 	//临时的拍摄照片路径
 	private File mBillTempFile, mAvatorTempFile;
 	/**请求商品预览图*/
@@ -82,7 +80,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	
 	private int mPictureRequest = -1;
 	
-	private BaoxiuCardObject mBaoxiuCardObject;
+	private CarBaoxiuCardObject mBaoxiuCardObject;
 	private Handler mHandler;
 	private Bundle mBundle;
 
@@ -92,6 +90,10 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		super.onCreate(savedInstanceState);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
 		mCalendar = Calendar.getInstance();
+		mBaoxianCalendar = Calendar.getInstance();
+		mBaoxianCalendar.add(Calendar.YEAR, 1);//自动加一年
+		mBaoYanCalendar = Calendar.getInstance();
+		mYanCheCalendar = Calendar.getInstance();
 		if (savedInstanceState == null) {
 			mBundle = getArguments();
 			DebugUtils.logD(TAG, "onCreate() savedInstanceState == null, getArguments() mBundle=" + mBundle);
@@ -112,7 +114,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		};
 		initTempFile();
 		
-		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
+		mBaoxiuCardObject = CarBaoxiuCardObject.getBaoxiuCardObject(mBundle);
 		
 		setHasOptionsMenu(true);
 	}
@@ -146,37 +148,41 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		 View view = inflater.inflate(R.layout.activity_new_card, container, false);
+		 View view = inflater.inflate(R.layout.activity_new_car_card, container, false);
 		 mBillImageView = (ImageView) view.findViewById(R.id.button_scan_bill);
 		 mBillImageView.setOnClickListener(this);
-		 
-		 mTypeInput = (EditText) view.findViewById(R.id.product_type_input);
-		 mPinpaiInput = (EditText) view.findViewById(R.id.product_brand_input);
-		 mModelInput = (EditText) view.findViewById(R.id.product_model_input);
-		 mBianhaoInput = (EditText) view.findViewById(R.id.product_sn_input);
-		 mBaoxiuTelInput = (EditText) view.findViewById(R.id.product_tel_input);
-		 //保修期
-		 mWyInput = (EditText) view.findViewById(R.id.product_wy_input);
+		 mPinPaiInput = (EditText) view.findViewById(R.id.car_product_pinpai_input);
+		 mXingHaoInput = (EditText) view.findViewById(R.id.car_product_xinghao_input);
+		 mChePaiInput = (EditText) view.findViewById(R.id.car_product_chepai_input);
+		 mCheJiaInput = (EditText) view.findViewById(R.id.car_product_chejia_input);
+		 mFaDongJiInput = (EditText) view.findViewById(R.id.car_product_fadongji_input);
+		 mBaoxiuTelInput = (EditText) view.findViewById(R.id.car_product_tel_input);
 		 //购买日期
 		 mDatePickBtn = (TextView) view.findViewById(R.id.product_buy_date);
 		 mDatePickBtn.setOnClickListener(this);
 		 
 		 mDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mCalendar.getTime()));
 		 
-		 mPriceInput = (EditText) view.findViewById(R.id.product_buy_cost);
-		 //mTujingInput = (EditText) view.findViewById(R.id.product_buy_entry);
-		 mTujingPopView = new HaierPopView(getActivity(), view, R.id.edit_product_buy_tujing, R.id.menu_choose_tujing);
+		 mBaoYangDatePickBtn = (TextView) view.findViewById(R.id.car_product_baoyan_input);
+		 mBaoYangDatePickBtn.setOnClickListener(this);
+		 mBaoYangDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mBaoYanCalendar.getTime()));
+		 
+		 mYanCheDatePickBtn = (TextView) view.findViewById(R.id.car_product_yanche_input);
+		 mYanCheDatePickBtn.setOnClickListener(this);
+		 mYanCheDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mYanCheCalendar.getTime()));
+		//保险到期
+		 mBaoxianDatePickBtn = (TextView) view.findViewById(R.id.car_product_baoxian);
+		 mBaoxianDatePickBtn.setOnClickListener(this);
+		 mBaoxianDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mBaoxianCalendar.getTime()));
+		 
 		 mYanbaoPopView = new HaierPopView(getActivity(), view, R.id.product_buy_delay_time, R.id.menu_choose_yanbao);
 		 //mYanbaoTimeInput = (EditText) view.findViewById(R.id.product_buy_delay_time);
 		 mYanbaoComponyInput = (EditText) view.findViewById(R.id.product_buy_delay_componey);
 		 mYanbaoTelInput = (EditText) view.findViewById(R.id.product_buy_delay_componey_tel);
-		 //增加标签
-		 mTagInput = (EditText) view.findViewById(R.id.product_beizhu_tag);
 		 
 		 mSaveBtn = (Button) view.findViewById(R.id.button_save);
 		 mSaveBtn.setOnClickListener(this);
 
-		mTujingPopView.setDataSource(getResources().getStringArray(R.array.buy_places));
 		mYanbaoPopView.setDataSource(getResources().getStringArray(R.array.yanbao_times));
 
 		view.findViewById(R.id.button_scan_qrcode).setOnClickListener(this);
@@ -224,7 +230,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	public void onDestroyView() {
 		super.onDestroyView();
 		PhotoManagerUtilsV2.getInstance().releaseToken(TOKEN);
-		BaoxiuCardObject.showBill(getActivity(), null);
+		CarBaoxiuCardObject.showBill(getActivity(), null);
 		DebugUtils.logD(TAG, "onDestroyView() mNeedLoadFapiao=" + mNeedLoadFapiao + ", mBillTempFile=" + mBillTempFile);
 		AsyncTaskUtils.cancelTask(mLoadFapiaoTask);
 	}
@@ -234,7 +240,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		super.onDestroy();
 		DebugUtils.logD(TAG, "onDestroy() mNeedLoadFapiao=" + mNeedLoadFapiao + ", mBillTempFile=" + mBillTempFile);
 		mBillImageView.setImageBitmap(null);
-		mBundle.putBundle("BaoxiuCardObject", null);
+		mBundle.putBundle(CarBaoxiuCardObject.TAG, null);
 	}
 	
 	@Override
@@ -248,7 +254,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				public void onClick(DialogInterface dialog, int which) {
 					switch(which) {
 					case 0:
-						BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
+						CarBaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
 						break;
 					case 1:
 						mPictureRequest = REQUEST_BILL;
@@ -266,53 +272,47 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	}
 	
 	public boolean isEditable() {
-		return mBaoxiuCardObject != null && mBaoxiuCardObject.mBID > 0;
+		return mBaoxiuCardObject != null && mBaoxiuCardObject.mSID > 0;
 	}
 	
 	private void populateBaoxiuInfoView() {
 		//init layouts
 		if (!isEditable()) {
-			mTypeInput.setText(mBaoxiuCardObject.mLeiXin);
-			mPinpaiInput.setText(mBaoxiuCardObject.mPinPai);
-			mModelInput.setText(mBaoxiuCardObject.mXingHao);
-			mBianhaoInput.setText(mBaoxiuCardObject.mSHBianHao);
+			mPinPaiInput.setText(mBaoxiuCardObject.mPinPai);
+			mXingHaoInput.setText(mBaoxiuCardObject.mXingHao);
+			mChePaiInput.setText(mBaoxiuCardObject.mChePai);
+			mCheJiaInput.setText(mBaoxiuCardObject.mCheJia);
+			mFaDongJiInput.setText(mBaoxiuCardObject.mFaDongJi);
 			mBaoxiuTelInput.setText(mBaoxiuCardObject.mBXPhone);
-			mWyInput.setText(mBaoxiuCardObject.mWY);
-			mPriceInput.getText().clear();
-			//mTujingInput.getText().clear();
-			mTujingPopView.getText().clear();
+			
 			mYanbaoPopView.getText().clear();
 			mYanbaoComponyInput.getText().clear();
 			mYanbaoTelInput.getText().clear();
-			mTagInput.getText().clear();
 		} else {
-			mTypeInput.setText(mBaoxiuCardObject.mLeiXin);
-			mPinpaiInput.setText(mBaoxiuCardObject.mPinPai);
-			mModelInput.setText(mBaoxiuCardObject.mXingHao);
-			mBianhaoInput.setText(mBaoxiuCardObject.mSHBianHao);
-			
+			mPinPaiInput.setText(mBaoxiuCardObject.mPinPai);
+			mXingHaoInput.setText(mBaoxiuCardObject.mXingHao);
+			mChePaiInput.setText(mBaoxiuCardObject.mChePai);
+			mCheJiaInput.setText(mBaoxiuCardObject.mCheJia);
+			mFaDongJiInput.setText(mBaoxiuCardObject.mFaDongJi);
 			mBaoxiuTelInput.setText(mBaoxiuCardObject.mBXPhone);
-			mWyInput.setText(mBaoxiuCardObject.mWY);
-			mPriceInput.setText(mBaoxiuCardObject.mBuyPrice);
-			//mTujingInput.setText(object.mBuyTuJing);
-			mTujingPopView.setText(mBaoxiuCardObject.mBuyTuJing);
+
 			mYanbaoPopView.setText(mBaoxiuCardObject.mYanBaoTime);
 			mYanbaoComponyInput.setText(mBaoxiuCardObject.mYanBaoDanWei);
 			mYanbaoTelInput.setText(mBaoxiuCardObject.mYBPhone);
-			mTagInput.setText(mBaoxiuCardObject.mCardName);
 			
-			try {
-				Date date = BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate);
-				mCalendar.setTime(date);
-				mDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(date));
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			mCalendar.setTimeInMillis(Long.valueOf(mBaoxiuCardObject.mBuyDate));
+			mDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mCalendar.getTime()));
 			
+			mBaoxianCalendar.setTimeInMillis(Long.valueOf(mBaoxiuCardObject.mBaoXianDeadline));
+			mBaoxianDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mBaoxianCalendar.getTime()));
+			
+			mBaoYanCalendar.setTimeInMillis(Long.valueOf(mBaoxiuCardObject.mLastBaoYanTime));
+			mBaoYangDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mBaoYanCalendar.getTime()));
+			
+			mYanCheCalendar.setTimeInMillis(Long.valueOf(mBaoxiuCardObject.mLastYanCheTime));
+			mYanCheDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mBaoYanCalendar.getTime()));
 			//如果有发票，我们显示出来
 			if (mBaoxiuCardObject.hasBillAvator()) {
-				//为了传值給发票下载
-				BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
 				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mBillImageView, mBaoxiuCardObject.getFapiaoServicePath(), null, PhotoManagerUtilsV2.TaskType.FaPiao);
 			}
 			
@@ -324,58 +324,38 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	}
 	
 	public void setBaoxiuObjectAfterSlideMenu(InfoInterface slideManuObject) {
-		if (slideManuObject instanceof BaoxiuCardObject) {
-			BaoxiuCardObject object = (BaoxiuCardObject) slideManuObject;
-			 mTypeInput.setText(object.mLeiXin);
-			 mPinpaiInput.setText(object.mPinPai);
-			 mBianhaoInput.setText(object.mSHBianHao);
-			 mModelInput.setText(object.mXingHao);
+		if (slideManuObject instanceof CarBaoxiuCardObject) {
+			CarBaoxiuCardObject object = (CarBaoxiuCardObject) slideManuObject;
+			 mPinPaiInput.setText(object.mPinPai);
+			 mXingHaoInput.setText(object.mXingHao);
+			 mChePaiInput.setText(object.mChePai);
+			 mCheJiaInput.setText(object.mCheJia);
+			 mFaDongJiInput.setText(object.mFaDongJi);
 			 mBaoxiuTelInput.setText(object.mBXPhone);
-			 mWyInput.setText(object.mWY);
 			 mBaoxiuCardObject.mKY = object.mKY;
-//			if (!TextUtils.isEmpty(object.mLeiXin)) {
-//				mTypeInput.setText(object.mLeiXin);
-//			}
-//			if (!TextUtils.isEmpty(object.mPinPai)) {
-//				mPinpaiInput.setText(object.mPinPai);
-//			}
-//			
-//			if (!TextUtils.isEmpty(object.mXingHao)) {
-//				mModelInput.setText(object.mXingHao);
-//			}
-//			
-//			if (!TextUtils.isEmpty(object.mSHBianHao)) {
-//				mBianhaoInput.setText(object.mSHBianHao);
-//			}
-//			
-//			if (!TextUtils.isEmpty(object.mBXPhone)) {
-//				mBaoxiuTelInput.setText(object.mBXPhone);
-//			}
-//			if (!TextUtils.isEmpty(object.mWY)) {
-//				mWyInput.setText(object.mWY);
-//			}
+			 mBaoxiuCardObject.mWY = object.mWY;
 		}
 	}
 	
-	private BaoxiuCardObject getmBaoxiuCardObject() {
-		mBaoxiuCardObject.mLeiXin = mTypeInput.getText().toString().trim();
-		mBaoxiuCardObject.mPinPai = mPinpaiInput.getText().toString().trim();
-		mBaoxiuCardObject.mXingHao = mModelInput.getText().toString().trim();
-		mBaoxiuCardObject.mSHBianHao = mBianhaoInput.getText().toString().trim();
+	private CarBaoxiuCardObject getBaoxiuCardObject() {
+		mBaoxiuCardObject.mPinPai = mPinPaiInput.getText().toString().trim();
+		mBaoxiuCardObject.mXingHao = mXingHaoInput.getText().toString().trim();
+		mBaoxiuCardObject.mChePai = mChePaiInput.getText().toString().trim();
+		mBaoxiuCardObject.mCheJia = mCheJiaInput.getText().toString().trim();
+		mBaoxiuCardObject.mFaDongJi = mFaDongJiInput.getText().toString().trim();
 		mBaoxiuCardObject.mBXPhone = mBaoxiuTelInput.getText().toString().trim();
-		mBaoxiuCardObject.mWY = mWyInput.getText().toString().trim();
 		
-		mBaoxiuCardObject.mBuyDate = BaoxiuCardObject.BUY_DATE_TIME_FORMAT.format(mCalendar.getTime());
-		mBaoxiuCardObject.mBuyPrice = mPriceInput.getText().toString().trim();
-		//mBaoxiuCardObject.mBuyTuJing = mTujingInput.getText().toString().trim();
-		mBaoxiuCardObject.mBuyTuJing = mTujingPopView.getText().toString().trim();
+		mBaoxiuCardObject.mBuyDate = String.valueOf(mCalendar.getTimeInMillis());
+		mBaoxiuCardObject.mBaoXianDeadline = String.valueOf(mBaoxianCalendar.getTimeInMillis());
+		
 		String yanbaotime = mYanbaoPopView.getText().toString().trim();
 		if (yanbaotime != null && yanbaotime.contains(getActivity().getString(R.string.year))) yanbaotime = yanbaotime.substring(0, yanbaotime.length() - 1);
 		mBaoxiuCardObject.mYanBaoTime = yanbaotime;
 		mBaoxiuCardObject.mYanBaoDanWei = mYanbaoComponyInput.getText().toString().trim();
 		mBaoxiuCardObject.mYBPhone = mYanbaoTelInput.getText().toString().trim();
 		
-		mBaoxiuCardObject.mCardName = mTagInput.getText().toString().trim();
+		mBaoxiuCardObject.mLastBaoYanTime = String.valueOf(mBaoYanCalendar.getTimeInMillis());
+		mBaoxiuCardObject.mLastYanCheTime = String.valueOf(mYanCheCalendar.getTimeInMillis());
 		
 		return mBaoxiuCardObject;
 	}
@@ -401,6 +381,15 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			break;
 		case R.id.product_buy_date:
 			showDatePickerDialog();
+			break;
+		case R.id.car_product_baoxian:
+			showBaoXianDatePickerDialog();
+			break;
+		case R.id.car_product_baoyan_input:
+			showBaoYanDatePickerDialog();
+			break;
+		case R.id.car_product_yanche_input:
+			showYanCheDatePickerDialog();
 			break;
 		case R.id.button_save:
 //			if (mBaoxiuCardObject.hasBill()) {
@@ -456,69 +445,51 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		@Override
 		protected ServiceResultObject doInBackground(String... params) {
 			//更新保修卡信息
-			BaoxiuCardObject baoxiuCardObject = getmBaoxiuCardObject();
-			DebugUtils.logD(TAG, "CreateNewWarrantyCardAsyncTask for AID " + baoxiuCardObject.mAID);
+			CarBaoxiuCardObject baoxiuCardObject = getBaoxiuCardObject();
+			DebugUtils.logD(TAG, "CreateNewWarrantyCardAsyncTask for SID " + baoxiuCardObject.mSID);
 			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			InputStream is = null;
-			//mdofify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 begin
-			//StringBuilder paramValue = new StringBuilder();
-			//paramValue.append(baoxiuCardObject.mLeiXin)
-			//.append("|").append(baoxiuCardObject.mBuyDate)
-			//.append("|").append(baoxiuCardObject.mBuyPrice)
-			//.append("|").append(baoxiuCardObject.mBuyTuJing)
-			//.append("|").append(baoxiuCardObject.mBXPhone)
-			//.append("|").append(baoxiuCardObject.mPinPai)
-			//.append("|").append(String.valueOf(baoxiuCardObject.mUID))
-			//.append("|").append(baoxiuCardObject.mXingHao)
-			//.append("|").append(baoxiuCardObject.mYanBaoDanWei)
-			//.append("|").append(baoxiuCardObject.mYanBaoTime)
-			//.append("|").append(String.valueOf(baoxiuCardObject.mAID))	
-			//.append("|").append(baoxiuCardObject.mSHBianHao)
-			//.append("|").append(baoxiuCardObject.mCardName)
-			//.append("|").append(baoxiuCardObject.mYBPhone);
-			//paramValue.append("|").append(baoxiuCardObject.getBase64StringFromBillAvator());
-			//paramValue.append("|").append(baoxiuCardObject.mWY);
-			//DebugUtils.logD(TAG, "param " + paramValue.toString());
 			
 			AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
 			try {
 				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("AID", baoxiuCardObject.mAID)
-				.put("BuyDate", baoxiuCardObject.mBuyDate)
-				.put("BuyPrice", baoxiuCardObject.mBuyPrice)
-				.put("BuyTuJing", baoxiuCardObject.mBuyTuJing)
-				.put("BXPhone", baoxiuCardObject.mBXPhone)
-				.put("SHBianHao", baoxiuCardObject.mSHBianHao)
-				.put("token", SecurityUtils.MD5.md5(accountObject.mAccountTel + accountObject.mAccountPwd)) //md5(cell+pwd)
-				.put("Tag", baoxiuCardObject.mCardName)
-				.put("UID", baoxiuCardObject.mUID)
-				.put("WY", baoxiuCardObject.mWY)
-				.put("XingHao", baoxiuCardObject.mXingHao)
-				.put("YanBaoDanWei", baoxiuCardObject.mYanBaoDanWei)
-				.put("YanBaoTime", baoxiuCardObject.mYanBaoTime)
-				.put("YBPhone", baoxiuCardObject.mYBPhone)
-				.put("LeiXin", baoxiuCardObject.mLeiXin)
-				.put("PinPai", baoxiuCardObject.mPinPai)
+				jsonObject.put("xinghao", baoxiuCardObject.mXingHao)
+				.put("che_haoma", baoxiuCardObject.mChePai)
+				.put("che_jiahao", baoxiuCardObject.mCheJia)
+				.put("fadongjihao", baoxiuCardObject.mFaDongJi)
+				.put("buydate", baoxiuCardObject.mBuyDate)
+				.put("changjia_phone", baoxiuCardObject.mBXPhone)
+				.put("shangcibaoyang", baoxiuCardObject.mLastBaoYanTime)
+				.put("uid", baoxiuCardObject.mUID)
+//				.put("WY", baoxiuCardObject.mWY)
+				.put("shangciyanche", baoxiuCardObject.mLastYanCheTime)
+				.put("baoyangdaoqi", baoxiuCardObject.mBaoXianDeadline)
+				.put("yanbaodanwei", baoxiuCardObject.mYanBaoDanWei)
+				.put("yanbaotime", baoxiuCardObject.mYanBaoTime)
+				.put("yanbaophone", baoxiuCardObject.mYBPhone)
+				.put("fsphone", baoxiuCardObject.m4SShopTel)
+				.put("washphone", baoxiuCardObject.m4SWashingShopTel)
+				.put("weixiuphone", baoxiuCardObject.mWeixiuShopTel)
+				.put("chuxianphone", baoxiuCardObject.mChuxianShopTel)
+				.put("pinpai", baoxiuCardObject.mPinPai)
 				.put("imgstr", baoxiuCardObject.getBase64StringFromBillAvator());
 				
-				DebugUtils.logD(TAG, "bjson=" + jsonObject.toString());
-				is = NetworkUtils.openPostContectionLocked(ServiceObject.getCreateBaoxiucardUri(), "bjson", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				DebugUtils.logD(TAG, "para=" + jsonObject.toString());
+				is = NetworkUtils.openPostContectionLocked(ServiceObject.createCarBaoxiuCardUrl(), "para", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				try {
 					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 					if (serviceResultObject.isOpSuccessfully()) {
 						if (serviceResultObject.mJsonData != null) {
-							baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(serviceResultObject.mJsonData, accountObject);
+							baoxiuCardObject = CarBaoxiuCardObject.parseBaoxiuCards(serviceResultObject.mJsonData, accountObject);
 							//如果后台返回了保修卡数据,我们解析它保存在本地
-							DebugUtils.logE(TAG, "new BID=" + baoxiuCardObject.mBID);
-							if (baoxiuCardObject.mBID > 0) {
+							DebugUtils.logE(TAG, "new SID=" + baoxiuCardObject.mSID);
+							if (baoxiuCardObject.mSID > 0) {
 								//正常情况
 								boolean savedOk = baoxiuCardObject.saveInDatebase(getActivity().getContentResolver(), null);
 								if (!savedOk) {
 									//通常不会发生
 									serviceResultObject.mStatusMessage = getActivity().getString(R.string.msg_local_save_card_failed);
-								} else {
-									MyAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
-								}
+								} 
 								return serviceResultObject;
 							}
 						}
@@ -540,7 +511,6 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
             } finally {
 				NetworkUtils.closeInputStream(is);
 			}
-			//mdofify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 end
 			return serviceResultObject;
 		}
 
@@ -554,8 +524,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				getActivity().finish();
 				mBaoxiuCardObject.clear();
-				mBundle.putBundle("BaoxiuCardObject", null);
-				MyChooseDevicesActivity.startIntent(getActivity(), mBundle);
+				mBundle.putBundle(CarBaoxiuCardObject.TAG, null);
+				MyChooseCarCardsActivity.startIntent(getActivity(), mBundle);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
@@ -610,74 +580,59 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		@Override
 		protected ServiceResultObject doInBackground(Void... params) {
 			//更新保修卡信息
-			BaoxiuCardObject baoxiuCardObject = getmBaoxiuCardObject();
-			DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask BID " + baoxiuCardObject.mBID+", ky=" + baoxiuCardObject.mKY);
+			CarBaoxiuCardObject baoxiuCardObject = getBaoxiuCardObject();
+			DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask SID " + baoxiuCardObject.mSID+", ky=" + baoxiuCardObject.mKY);
 			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			InputStream is = null;
-			//delete by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 begin
-			//StringBuilder paramValue = new StringBuilder();
-			//paramValue.append(baoxiuCardObject.mLeiXin)
-			//.append("|").append(baoxiuCardObject.mBuyDate)
-			//.append("|").append(baoxiuCardObject.mBuyPrice)
-			//.append("|").append(baoxiuCardObject.mBuyTuJing)
-			//.append("|").append(baoxiuCardObject.mBXPhone)
-			//.append("|").append(baoxiuCardObject.mPinPai)
-			//.append("|").append(String.valueOf(baoxiuCardObject.mBID))
-			//.append("|").append(baoxiuCardObject.mXingHao)
-			//.append("|").append(baoxiuCardObject.mYanBaoDanWei)
-			//.append("|").append(baoxiuCardObject.mYanBaoTime)
-			//.append("|").append(String.valueOf(baoxiuCardObject.mAID))	
-			//.append("|").append(baoxiuCardObject.mSHBianHao)
-			//.append("|").append(baoxiuCardObject.mCardName)
-			//.append("|").append(baoxiuCardObject.mYBPhone)
-			//.append("|").append(baoxiuCardObject.getBase64StringFromBillAvator())
-			//.append("|").append(baoxiuCardObject.mWY);
-			//DebugUtils.logD(TAG, "param " + paramValue.toString());
 			AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
 			try {
 				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("AID", baoxiuCardObject.mAID)
-				.put("BuyDate", baoxiuCardObject.mBuyDate)
-				.put("BuyPrice", baoxiuCardObject.mBuyPrice)
-				.put("BuyTuJing", baoxiuCardObject.mBuyTuJing)
-				.put("BXPhone", baoxiuCardObject.mBXPhone)
-				.put("SHBianHao", baoxiuCardObject.mSHBianHao)
-				.put("token", SecurityUtils.MD5.md5(accountObject.mAccountTel + accountObject.mAccountPwd)) //md5(cell+pwd)
-				.put("Tag", baoxiuCardObject.mCardName)
-				.put("UID", baoxiuCardObject.mUID)
-				.put("WY", baoxiuCardObject.mWY)
-				.put("XingHao", baoxiuCardObject.mXingHao)
-				.put("YanBaoDanWei", baoxiuCardObject.mYanBaoDanWei)
-				.put("YanBaoTime", baoxiuCardObject.mYanBaoTime)
-				.put("YBPhone", baoxiuCardObject.mYBPhone)
-				.put("LeiXin", baoxiuCardObject.mLeiXin)
-				.put("PinPai", baoxiuCardObject.mPinPai)
-				.put("BID", baoxiuCardObject.mBID)
+				jsonObject.put("xinghao", baoxiuCardObject.mXingHao)
+				.put("che_haoma", baoxiuCardObject.mChePai)
+				.put("che_jiahao", baoxiuCardObject.mCheJia)
+				.put("fadongjihao", baoxiuCardObject.mFaDongJi)
+				.put("buydate", baoxiuCardObject.mBuyDate)
+				.put("changjia_phone", baoxiuCardObject.mBXPhone)
+				.put("shangcibaoyang", baoxiuCardObject.mLastBaoYanTime)
+				.put("uid", baoxiuCardObject.mUID)
+				.put("cid", baoxiuCardObject.mSID)
+				.put("shangciyanche", baoxiuCardObject.mLastYanCheTime)
+				.put("baoyangdaoqi", baoxiuCardObject.mBaoXianDeadline)
+				.put("yanbaodanwei", baoxiuCardObject.mYanBaoDanWei)
+				.put("yanbaotime", baoxiuCardObject.mYanBaoTime)
+				.put("yanbaophone", baoxiuCardObject.mYBPhone)
+				.put("fsphone", baoxiuCardObject.m4SShopTel)
+				.put("washphone", baoxiuCardObject.m4SWashingShopTel)
+				.put("weixiuphone", baoxiuCardObject.mWeixiuShopTel)
+				.put("chuxianphone", baoxiuCardObject.mChuxianShopTel)
+				.put("pinpai", baoxiuCardObject.mPinPai)
 				.put("imgstr", baoxiuCardObject.getBase64StringFromBillAvator());
-				DebugUtils.logD(TAG, "bjson=" + jsonObject.toString(4));
-				is = NetworkUtils.openPostContectionLocked(ServiceObject.getUpdateBaoxiucardUri(), "bjson", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				
-				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
-				if (serviceResultObject.isOpSuccessfully()) {
-					if (serviceResultObject.mJsonData != null) {
-						baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(serviceResultObject.mJsonData, accountObject);
-						//如果后台返回了保修卡数据,我们解析它保存在本地
-						DebugUtils.logE(TAG, "updated BID=" + baoxiuCardObject.mBID);
-						if (baoxiuCardObject.mBID > 0) {
-							//正常情况
-							boolean updated = baoxiuCardObject.saveInDatebase(getActivity().getContentResolver(), null);
-							if (!updated) {
-								//通常不会发生
-								DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask " + getActivity().getString(R.string.msg_local_save_card_failed));
-								serviceResultObject.mStatusMessage = getActivity().getString(R.string.msg_local_save_card_failed);
-							} else {
-								MyAccountManager.getInstance().updateHomeObject(baoxiuCardObject.mAID);
+				DebugUtils.logD(TAG, "para=" + jsonObject.toString());
+				is = NetworkUtils.openPostContectionLocked(ServiceObject.createCarBaoxiuCardUrl(), "para", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				try {
+					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+					if (serviceResultObject.isOpSuccessfully()) {
+						if (serviceResultObject.mJsonData != null) {
+							baoxiuCardObject = CarBaoxiuCardObject.parseBaoxiuCards(serviceResultObject.mJsonData, accountObject);
+							//如果后台返回了保修卡数据,我们解析它保存在本地
+							DebugUtils.logE(TAG, "new SID=" + baoxiuCardObject.mSID);
+							if (baoxiuCardObject.mSID > 0) {
+								//正常情况
+								boolean savedOk = baoxiuCardObject.saveInDatebase(getActivity().getContentResolver(), null);
+								if (!savedOk) {
+									//通常不会发生
+									serviceResultObject.mStatusMessage = getActivity().getString(R.string.msg_local_save_card_failed);
+								} 
+								return serviceResultObject;
 							}
-							return serviceResultObject;
 						}
+						serviceResultObject.mStatusMessage = getActivity().getString(R.string.msg_local_save_card_failed);
 					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+					serviceResultObject.mStatusMessage = getActivity().getString(R.string.msg_local_save_card_failed);
 				}
-						
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 				serviceResultObject.mStatusMessage = e.getMessage();
@@ -687,10 +642,9 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 			} catch (JSONException e) {
 	            e.printStackTrace();
 	            serviceResultObject.mStatusMessage = e.getMessage();
-            } finally {
+	        } finally {
 				NetworkUtils.closeInputStream(is);
 			}
-			//delete by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 end
 			return serviceResultObject;
 		}
 
@@ -703,8 +657,8 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				MyApplication.getInstance().showMessage(R.string.update_success);
 				getActivity().finish();
 				mBaoxiuCardObject.clear();
-				mBundle.putBundle("BaoxiuCardObject", null);
-				MyChooseDevicesActivity.startIntent(getActivity(), getArguments());
+				mBundle.putBundle(CarBaoxiuCardObject.TAG, null);
+				MyChooseCarCardsActivity.startIntent(getActivity(), getArguments());
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
@@ -722,26 +676,30 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	//########################更新操作 结束#################################################
 
 	private boolean checkInput() {
-		if(TextUtils.isEmpty(mTypeInput.getText().toString().trim())){
-			showEmptyInputToast(R.string.product_type);
+		if(TextUtils.isEmpty(mPinPaiInput.getText().toString().trim())){
+			showEmptyInputToast(R.string.car_product_pinpai);
 			return false;
 		}
-		if(TextUtils.isEmpty(mPinpaiInput.getText().toString().trim())){
-			showEmptyInputToast(R.string.product_brand);
+		if(TextUtils.isEmpty(mXingHaoInput.getText().toString().trim())){
+			showEmptyInputToast(R.string.car_product_xinghao);
 			return false;
 		}
-		if(TextUtils.isEmpty(mModelInput.getText().toString().trim())){
-			showEmptyInputToast(R.string.product_model);
+		if(TextUtils.isEmpty(mCheJiaInput.getText().toString().trim())){
+			showEmptyInputToast(R.string.car_product_chejia);
+			return false;
+		}
+		if(TextUtils.isEmpty(mFaDongJiInput.getText().toString().trim())){
+			showEmptyInputToast(R.string.car_product_fadongji);
 			return false;
 		}
 //		if(TextUtils.isEmpty(mBianhaoInput.getText().toString().trim())){
 //			showEmptyInputToast(R.string.product_sn);
 //			return false;
 //		}
-		if(TextUtils.isEmpty(mBaoxiuTelInput.getText().toString().trim())){
-			showEmptyInputToast(R.string.product_tel);
-			return false;
-		}
+//		if(TextUtils.isEmpty(mBaoxiuTelInput.getText().toString().trim())){
+//			showEmptyInputToast(R.string.product_tel);
+//			return false;
+//		}
 		/*if(TextUtils.isEmpty(mDatePickBtn.getText().toString().trim())){
 			showEmptyInputToast(R.string.product_buy_date);
 			return false;
@@ -786,6 +744,43 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 		}, mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH))
 		.show();
 	}
+	private void showBaoXianDatePickerDialog() {
+        new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+			@Override
+			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+				mBaoxianCalendar.set(year, monthOfYear, dayOfMonth);
+				//更新UI
+				mBaoxianDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mCalendar.getTime()));
+			}
+				
+		}, mBaoxianCalendar.get(Calendar.YEAR), mBaoxianCalendar.get(Calendar.MONTH), mBaoxianCalendar.get(Calendar.DAY_OF_MONTH))
+		.show();
+	}
+	private void showBaoYanDatePickerDialog() {
+        new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+			@Override
+			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+				mBaoYanCalendar.set(year, monthOfYear, dayOfMonth);
+				//更新UI
+				mBaoYangDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mBaoYanCalendar.getTime()));
+			}
+				
+		}, mBaoYanCalendar.get(Calendar.YEAR), mBaoYanCalendar.get(Calendar.MONTH), mBaoYanCalendar.get(Calendar.DAY_OF_MONTH))
+		.show();
+	}
+	private void showYanCheDatePickerDialog() {
+        new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+			@Override
+			public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+				mYanCheCalendar.set(year, monthOfYear, dayOfMonth);
+				//更新UI
+				mYanCheDatePickBtn.setText(DateUtils.TOPIC_DATE_TIME_FORMAT.format(mYanCheCalendar.getTime()));
+			}
+				
+		}, mYanCheCalendar.get(Calendar.YEAR), mYanCheCalendar.get(Calendar.MONTH), mYanCheCalendar.get(Calendar.DAY_OF_MONTH))
+		.show();
+	}
+	
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -803,13 +798,15 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	
 	@Override
     public void setScanObjectAfterScan(InfoInterface barCodeObject) {
-		 BaoxiuCardObject object = (BaoxiuCardObject) barCodeObject;
-		 mTypeInput.setText(object.mLeiXin);
-		 mPinpaiInput.setText(object.mPinPai);
-		 mBianhaoInput.setText(object.mSHBianHao);
-		 mModelInput.setText(object.mXingHao);
+		CarBaoxiuCardObject object = (CarBaoxiuCardObject) barCodeObject;
+		 mPinPaiInput.setText(object.mPinPai);
+		 mXingHaoInput.setText(object.mXingHao);
+		 mChePaiInput.setText(object.mChePai);
+		 mCheJiaInput.setText(object.mCheJia);
+		 mFaDongJiInput.setText(object.mFaDongJi);
 		 mBaoxiuTelInput.setText(object.mBXPhone);
-		 mWyInput.setText(object.mWY);
+		 mBaoxiuCardObject.mKY = object.mKY;
+		 mBaoxiuCardObject.mWY = object.mWY;
 		//这里一般我们只设置品牌、型号、编号和名称
 //		if (!TextUtils.isEmpty(object.mLeiXin)) {
 //			mTypeInput.setText(object.mLeiXin);
@@ -833,7 +830,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	
 	@Override
 	public InfoInterface getScanObjectAfterScan() {
-		return BaoxiuCardObject.getBaoxiuCardObject();
+		return CarBaoxiuCardObject.getBaoxiuCardObject();
 	}
 	
 	/**
@@ -859,7 +856,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	@Override
 	public void updateArguments(Bundle bundle) {
 		mBundle = bundle;
-		mBaoxiuCardObject.mAID = mBundle.getLong("aid", -1);
+		mBaoxiuCardObject.mSID = mBundle.getLong("sid", -1);
 		mBaoxiuCardObject.mUID = mBundle.getLong("uid", -1);
 	}
 	

@@ -10,7 +10,7 @@
         android:normalScreens="true"
         android:smallScreens="true" />
     <uses-sdk
-        android:minSdkVersion="11"
+        android:minSdkVersion="12"
         android:targetSdkVersion="18" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -234,19 +234,9 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:label="@string/menu_ymessage"
-            android:parentActivityName="com.bestjoy.app.warrantycard.ui.MainActivity"
+            android:parentActivityName="com.bestjoy.app.warrantycard.ui.MainActivity20141010"
             android:name="com.bestjoy.app.warrantycard.ui.YMessageListActivity" />
          <!-- add by chenkai, 20140810, Youmeng广播历史 end -->
-         
-         <!-- add by chenkai, 20140910, 保修卡即时通信会话列表 begin -->
-         <activity
-            android:excludeFromRecents="true"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"
-            android:label="@string/title_im_conversation"
-            android:parentActivityName="com.bestjoy.app.warrantycard.ui.MainActivity"
-            android:name="com.bestjoy.app.bjwarrantycard.imbasedympush.IMConversationActivity" />
-         <!-- add by chenkai, 20140910, Y保修卡即时通信会话列表 end -->
          
          <activity
             android:name="com.bestjoy.app.warrantycard.ui.FeedbackActivity"
@@ -276,7 +266,22 @@
               android:configChanges="orientation|keyboardHidden"
               android:label="@string/activity_title_my_homecommunity"/>
         <!-- 物业卡界面 end -->
-        
+        <!-- 爱车卡选择界面 begin -->
+        <activity
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:label="@string/activity_title_choose_car_general"
+            android:name="com.bestjoy.app.warrantycard.ui.MyChooseCarCardsActivity" />
+        <!-- 爱车卡选择界面 end -->
+         <!-- 爱车卡详细界面 begin -->
+        <activity
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:label="@string/title_baoxiucard_info"
+            android:name="com.bestjoy.app.warrantycard.ui.CarCardsViewActivity" />
+        <!-- 爱车卡详细界面 end -->
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"

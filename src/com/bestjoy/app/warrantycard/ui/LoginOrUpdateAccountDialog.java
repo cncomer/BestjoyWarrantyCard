@@ -35,6 +35,7 @@ import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
+import com.shwy.bestjoy.utils.UrlEncodeStringBuilder;
 /**
  * 这个类用来更新和登录账户使用。
  * @author chenkai
@@ -67,127 +68,127 @@ public class LoginOrUpdateAccountDialog extends Activity{
 		mLoginAsyncTask = new LoginAsyncTask();
 		mLoginAsyncTask.execute();
 	}
-	private class LoginAsyncTask extends AsyncTask<Void, Void, Void> {
+	private class LoginAsyncTask extends AsyncTask<Void, Void, ServiceResultObject> {
 
-		private String _error;
-		InputStream _is = null;
+		private InputStream _is;
 		@Override
-		protected Void doInBackground(Void... params) {
-			_error = null;
+		protected ServiceResultObject doInBackground(Void... params) {
 			mAccountObject = null;
+			ServiceResultObject serviceResultObject  = new ServiceResultObject();
 			_is = null;
-			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
-			sb.append("20140625/login.ashx?cell=").append(mTel)
-			.append("&pwd=");
+			UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
+			sb.append("20140625/loginandroid.ashx?cell=").append(mTel)
+			.append("&pwd=").appendUrlEncodedString(mPwd).append("&devicetype=").append("android");
 			try {
 				_is = NetworkUtils.openContectionLocked(sb.toString(), mPwd, null);
-				mAccountObject = AccountParser.parseJson(_is, mStatusView);
-				NetworkUtils.closeInputStream(_is);
-				ContentResolver cr = LoginOrUpdateAccountDialog.this.getContentResolver();
-				if (mAccountObject != null && mAccountObject.isLogined()) {
-					//Step1 删除演示账户
-					MyAccountManager.deleteAccountForUid(cr, AccountObject.DEMO_ACCOUNT_UID);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete AccountObject demo");
-					int deleted = BjnoteContent.delete(cr, BjnoteContent.Homes.CONTENT_URI, null, null);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete Homes effected rows#" + deleted);
-					BjnoteContent.delete(cr, BjnoteContent.BaoxiuCard.CONTENT_URI, null, null);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete BaoxiuCards effected rows#" + deleted);
-					BjnoteContent.delete(cr, BjnoteContent.RELATIONSHIP.CONTENT_URI, null, null);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete RELATIONSHIP effected rows#" + deleted);
-					BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_FRIEND, null, null);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.FRIEND effected rows#" + deleted);
-					BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_QUN, null, null);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.QUN effected rows#" + deleted);
-					BjnoteContent.delete(cr, BjnoteContent.YMESSAGE.CONTENT_URI, null, null);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete YMESSAGE effected rows#" + deleted);
-					BjnoteContent.delete(cr, HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI, null, null);
-					DebugUtils.logD(TAG, "LoginAsyncTask start to delete COMMUNITY_SERVICES effected rows#" + deleted);
-					//标识下次不用拉取演示数据了
-		        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
-		        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
-		        	
-		        	if (mAccountObject.mAccountHomes.size() == 0) {
-						//Setp2 家数据为空，我们需要创建演示家
-						HomeObject homeObject = HomeObject.getDemoHomeObject(mAccountObject.mAccountUid, HomeObject.DEMO_HOME_AID);
-						DebugUtils.logD(TAG, "LoginAsyncTask start to insert HomeObject demo " + homeObject.toString());
-						mAccountObject.mAccountHomes.add(homeObject);
-						//Setp3, 创建保修卡演示数据
-						ServiceResultObject serviceObject = new ServiceResultObject();
-						sb = new StringBuilder("http://www.dzbxk.com/bestjoy/GetBaoXiuDataByUID.ashx?");
-						sb.append("UID=").append(AccountObject.DEMO_ACCOUNT_UID)
-						.append("&AID=").append(HomeObject.DEMO_HOME_AID);
-			            _is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
-			            if (_is != null) {
-			            	serviceObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(_is));
-			            	if (serviceObject.isOpSuccessfully()) {
-			            		if (serviceObject.mStrData != null) {
-			            			JSONArray baoxiuCards = new JSONArray(serviceObject.mStrData);
-			            			//JSONArray baoxiuCards = serviceObject.mJsonData.getJSONArray(BaoxiuCardObject.JSONOBJECT_NAME);
-				            		int len = baoxiuCards.length();
-				            		BaoxiuCardObject baoxiuCardObject = null;
-				            		for(int index=0; index < len; index++) {
-				            			baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(baoxiuCards.getJSONObject(index), null);
-				            			baoxiuCardObject.mAID = HomeObject.DEMO_HOME_AID;
-				            			baoxiuCardObject.mUID = mAccountObject.mAccountUid;
-				            			homeObject.mBaoxiuCards.add(baoxiuCardObject);
+				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(_is));
+				if (serviceResultObject.isOpSuccessfully()) {
+					mAccountObject = AccountParser.parseJson(serviceResultObject.mJsonData, mStatusView);
+					NetworkUtils.closeInputStream(_is);
+					ContentResolver cr = LoginOrUpdateAccountDialog.this.getContentResolver();
+					if (mAccountObject != null && mAccountObject.mAccountUid > 0) {
+						//Step1 删除演示账户
+						MyAccountManager.deleteAccountForUid(cr, AccountObject.DEMO_ACCOUNT_UID);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete AccountObject demo");
+						int deleted = BjnoteContent.delete(cr, BjnoteContent.Homes.CONTENT_URI, null, null);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete Homes effected rows#" + deleted);
+						BjnoteContent.delete(cr, BjnoteContent.BaoxiuCard.CONTENT_URI, null, null);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete BaoxiuCards effected rows#" + deleted);
+						BjnoteContent.delete(cr, BjnoteContent.RELATIONSHIP.CONTENT_URI, null, null);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete RELATIONSHIP effected rows#" + deleted);
+						BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_FRIEND, null, null);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.FRIEND effected rows#" + deleted);
+						BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_QUN, null, null);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.QUN effected rows#" + deleted);
+						BjnoteContent.delete(cr, BjnoteContent.YMESSAGE.CONTENT_URI, null, null);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete YMESSAGE effected rows#" + deleted);
+						BjnoteContent.delete(cr, HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI, null, null);
+						DebugUtils.logD(TAG, "LoginAsyncTask start to delete COMMUNITY_SERVICES effected rows#" + deleted);
+						//标识下次不用拉取演示数据了
+			        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
+			        	//标识下次需要拉取数据了
+			        	ComPreferencesManager.getInstance().setFirstLaunch(MyChooseCarCardsActivity.TAG, true);
+			        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
+			        	
+			        	if (mAccountObject.mAccountHomes.size() == 0) {
+							//Setp2 家数据为空，我们需要创建演示家
+							HomeObject homeObject = HomeObject.getDemoHomeObject(mAccountObject.mAccountUid, HomeObject.DEMO_HOME_AID);
+							DebugUtils.logD(TAG, "LoginAsyncTask start to insert HomeObject demo " + homeObject.toString());
+							mAccountObject.mAccountHomes.add(homeObject);
+							//Setp3, 创建保修卡演示数据
+							ServiceResultObject serviceObject = new ServiceResultObject();
+							sb = new UrlEncodeStringBuilder("http://www.dzbxk.com/bestjoy/GetBaoXiuDataByUID.ashx?");
+							sb.append("UID=").append(AccountObject.DEMO_ACCOUNT_UID)
+							.append("&AID=").append(HomeObject.DEMO_HOME_AID);
+				            _is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				            if (_is != null) {
+				            	serviceObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(_is));
+				            	if (serviceObject.isOpSuccessfully()) {
+				            		if (serviceObject.mStrData != null) {
+				            			JSONArray baoxiuCards = new JSONArray(serviceObject.mStrData);
+				            			//JSONArray baoxiuCards = serviceObject.mJsonData.getJSONArray(BaoxiuCardObject.JSONOBJECT_NAME);
+					            		int len = baoxiuCards.length();
+					            		BaoxiuCardObject baoxiuCardObject = null;
+					            		for(int index=0; index < len; index++) {
+					            			baoxiuCardObject = BaoxiuCardObject.parseBaoxiuCards(baoxiuCards.getJSONObject(index), null);
+					            			baoxiuCardObject.mAID = HomeObject.DEMO_HOME_AID;
+					            			baoxiuCardObject.mUID = mAccountObject.mAccountUid;
+					            			homeObject.mBaoxiuCards.add(baoxiuCardObject);
+					            		}
+				            		} else {
+				            			MyApplication.getInstance().showMessageAsync(R.string.msg_get_no_demo_data);
 				            		}
-			            		} else {
-			            			MyApplication.getInstance().showMessageAsync(R.string.msg_get_no_demo_data);
-			            		}
-			            		
-			            	}
-			            }
+				            		
+				            	}
+				            }
+						}
+			        	
+						boolean saveAccountOk = MyAccountManager.getInstance().saveAccountObject(cr, mAccountObject);
+						if (!saveAccountOk) {
+							//登录成功了，但本地数据保存失败，通常不会走到这里
+							serviceResultObject.mStatusMessage = LoginOrUpdateAccountDialog.this.getString(R.string.msg_login_save_success);
+						}
 					}
-		        	
-					boolean saveAccountOk = MyAccountManager.getInstance().saveAccountObject(cr, mAccountObject);
-					if (!saveAccountOk) {
-						//登录成功了，但本地数据保存失败，通常不会走到这里
-						_error = LoginOrUpdateAccountDialog.this.getString(R.string.msg_login_save_success);
-					}
+				
 				} 
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				_error = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} catch (IOException e) {
 				e.printStackTrace();
-				_error = MyApplication.getInstance().getGernalNetworkError();
+				serviceResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
 			} catch (JSONException e) {
 				e.printStackTrace();
-				_error = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} finally {
 				NetworkUtils.closeInputStream(_is);
 			}
-			return null;
+			return serviceResultObject;
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(ServiceResultObject result) {
 			super.onPostExecute(result);
 			if (isCancelled()) {
 				//通常不走到这里
 				onCancelled();
 				return;
 			}
-			if (_error != null) {
-				MyApplication.getInstance().showMessage(_error);
+			if (!result.isOpSuccessfully()) {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				setResult(Activity.RESULT_CANCELED);
 			} else if (mAccountObject != null) {
 				//如果登陆成功
-				if (mAccountObject.isLogined()) {
-					IMService.connectIMService(LoginOrUpdateAccountDialog.this);
-					setResult(Activity.RESULT_OK);
-					//每次登陆，我们都需要注册设备Token
-					YouMengMessageHelper.getInstance().saveDeviceTokenStatus(false);
-					//登录成功，我们需要检查是否能够上传设备Token到服务器绑定uid和token
-					UpdateService.startCheckDeviceTokenToService(LoginOrUpdateAccountDialog.this);
-					//每次登录我们都重新设置需要重新拉好友列表
-					ComPreferencesManager.getInstance().setFirstLaunch(RelationshipActivity.FIRST, true);
-				} else {
-					MyApplication.getInstance().showMessage(mAccountObject.mStatusMessage);
-					setResult(Activity.RESULT_CANCELED);
-				}
+				IMService.connectIMService(LoginOrUpdateAccountDialog.this);
+				setResult(Activity.RESULT_OK);
+				//每次登陆，我们都需要注册设备Token
+				YouMengMessageHelper.getInstance().saveDeviceTokenStatus(false);
+				//登录成功，我们需要检查是否能够上传设备Token到服务器绑定uid和token
+				UpdateService.startCheckDeviceTokenToService(LoginOrUpdateAccountDialog.this);
+				//每次登录我们都重新设置需要重新拉好友列表
+				ComPreferencesManager.getInstance().setFirstLaunch(RelationshipActivity.FIRST, true);
 			} else {
-				MyApplication.getInstance().showMessage(R.string.msg_login_failed_general);
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				setResult(Activity.RESULT_CANCELED);
 			}
 			finish();

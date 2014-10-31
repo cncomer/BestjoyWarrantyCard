@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dip"
+    android:descendantFocusability="blocksDescendants"
+    android:background="@color/wt"
+    android:orientation="vertical" >
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal"
+	    android:layout_marginLeft="10dip" >
+	    <CheckBox android:id="@+id/checkbox"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:clickable="false"
+	        android:checked="false"/>
+	    <ImageView android:id="@+id/avator"
+	        android:layout_width="@dimen/preview_image_view_size"
+	        android:layout_height="@dimen/preview_image_view_size"
+	        android:scaleType="fitCenter"/>
+	
+	    <TextView android:id="@+id/title"
+	            android:layout_width="0dip"
+	            android:layout_weight="1.0"
+	            android:layout_height="wrap_content"
+	            android:textColor="#ff5a5a5a"
+	            android:singleLine="true"
+	            android:textSize="16sp"
+	            android:layout_marginLeft="15dip"
+	            android:layout_marginRight="15dip"
+	            android:text="@string/product_debug_placeholder"/>
+	    
+	     <TextView android:id="@+id/flag_guobao"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:background="@drawable/flag_guobao"
+	        android:visibility="gone"
+	        android:text="@string/title_over_deadline"
+	        android:textColor="#ffffffff"/>
+	    
+	    <TextView android:id="@+id/flag_baoxiu"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:textColor="#ff1a4f95"
+	        android:background="@drawable/baoxiu_zhengji"/>
+	</LinearLayout>
+	
+    <LinearLayout android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="5dip"
+        android:orientation="horizontal">
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:text="@string/car_product_baoyan_title"/>
+        <com.bestjoy.app.warrantycard.view.RightPercentProgressBar 
+            android:id="@+id/car_product_baoyan_progress"
+            android:layout_width="fill_parent"
+            android:indeterminate="false"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:progressDrawable="@drawable/default_rounded_blue_progress"
+            android:layout_marginRight="10dip"
+            android:progress="200"
+            android:max="365"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"/>
+        
+    </LinearLayout>
+    
+    <LinearLayout android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="5dip"
+        android:orientation="horizontal">
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:text="@string/car_product_baoxian_title"/>
+        <com.bestjoy.app.warrantycard.view.RightPercentProgressBar 
+            android:id="@+id/car_product_baoxian_progress"
+            android:layout_width="fill_parent"
+            android:indeterminate="false"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:progressDrawable="@drawable/default_rounded_blue_progress"
+            android:layout_marginRight="10dip"
+            android:progress="200"
+            android:max="365"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"/>
+    </LinearLayout>
+    
+    <LinearLayout android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="5dip"
+        android:orientation="horizontal">
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:text="@string/car_product_nianjian_title"/>
+        
+        <com.bestjoy.app.warrantycard.view.RightPercentProgressBar 
+            android:id="@+id/car_product_nianjian_progress"
+            android:layout_width="fill_parent"
+            android:indeterminate="false"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:progressDrawable="@drawable/default_rounded_blue_progress"
+            android:layout_marginRight="10dip"
+            android:progress="200"
+            android:max="365"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"/>
+    </LinearLayout>
+    
+     <com.actionbarsherlock.internal.widget.IcsLinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="10dip"
+        android:layout_marginRight="10dip"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        android:weightSum="4" >
+        <TextView
+            android:id="@+id/car_product_4s_shop_title"
+            android:layout_width="0dip"
+            android:layout_height="32dip"
+            android:layout_weight="1.0"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:textColor="@color/wt"
+            android:text="@string/car_product_4s_shop_title" />
+        
+        <TextView
+            android:id="@+id/car_product_washing_shop_title"
+             android:layout_width="0dip"
+            android:layout_height="32dip"
+            android:layout_weight="1.0"
+            android:layout_marginLeft="15dip"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:focusableInTouchMode="false"
+            android:focusable="false"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:textColor="@color/wt"
+            android:text="@string/car_product_washing_shop_title" />
+        
+        <TextView
+            android:id="@+id/car_product_weiixiu_shop_title"
+             android:layout_width="0dip"
+            android:layout_height="32dip"
+            android:layout_weight="1.0"
+            android:layout_marginLeft="15dip"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:textColor="@color/wt"
+            android:text="@string/car_product_weiixiu_shop_title" />
+        
+        <TextView
+            android:id="@+id/car_product_chuxian_shop_title"
+             android:layout_width="0dip"
+            android:layout_height="32dip"
+            android:layout_weight="1.0"
+            android:layout_marginLeft="15dip"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:background="@drawable/default_rounded_rectangle_blue_btn"
+            android:textColor="@color/wt"
+            android:text="@string/car_product_chuxian_shop_title" />
+     </com.actionbarsherlock.internal.widget.IcsLinearLayout>
+
+</LinearLayout>

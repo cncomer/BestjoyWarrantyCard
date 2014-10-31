@@ -70,18 +70,8 @@ public class AccountObject implements InfoInterface{
 	public int mAccountMyCardCount;
 	
 	
-	
-	/**登陆或注册的时候会用到，表示当前的状态，statuscode:状态 1:成功   0：失败*/
-	public int mStatusCode;
-	/**登陆时候服务器返回的数据*/
-	public String mStatusMessage;
-	
 	/**我的家信息*/
 	public List<HomeObject> mAccountHomes = new LinkedList<HomeObject>();
-	
-	public boolean isLogined() {
-		return mStatusCode != 0;
-	}
 	
 	public AccountObject clone() {
 		AccountObject newAccountObject = new AccountObject();

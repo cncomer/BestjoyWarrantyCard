@@ -316,7 +316,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 				}
 				//为了传值給发票下载
 				BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
-				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mFapiaoDownloadView, mBaoxiuCardObject.getFapiaoPhotoId(), null, PhotoManagerUtilsV2.TaskType.FaPiao, true);
+				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mFapiaoDownloadView, mBaoxiuCardObject.getFapiaoServicePath(), null, PhotoManagerUtilsV2.TaskType.FaPiao, true);
 			}
 			
 			break;

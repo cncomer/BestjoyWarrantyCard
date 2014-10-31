@@ -13,6 +13,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.InfoInterfaceImpl;
 import com.shwy.bestjoy.utils.NetworkUtils;
+import com.shwy.bestjoy.utils.ServiceResultObject;
 /**
  * 这个类用来解析登陆返回的json数据，生成AccountObject账户对象。<br/>
  * 登陆测试数据如下：<br/>
@@ -51,12 +52,7 @@ public class AccountParser extends InfoInterfaceImpl{
 	 * @return
 	 * @throws JSONException 
 	 */
-	public static AccountObject parseJson(InputStream is, final TextView view) throws JSONException {
-		 DebugUtils.logParser(TAG, "Start parse");
-		if (is == null ) {
-			return null;
-		}
-		JSONObject jsonObject = new JSONObject(NetworkUtils.getContentFromInput(is));
+	public static AccountObject parseJson(JSONObject jsonObject, final TextView view) throws JSONException {
 		if (view != null) {
 			MyApplication.getInstance().postAsync(new Runnable() {
 
@@ -66,13 +62,10 @@ public class AccountParser extends InfoInterfaceImpl{
 				}
 			});
 		}
+		
 		AccountObject accountObject = new AccountObject();
 		//解析userdata
 		parseUserData(jsonObject, accountObject);
-		if (accountObject.mStatusCode == 0) {
-			//如果是失败的，我们提前返回，不用解析其他数据了
-			return accountObject;
-		}
 		
 		if (view != null) {
 			MyApplication.getInstance().postAsync(new Runnable() {
@@ -108,16 +101,8 @@ public class AccountParser extends InfoInterfaceImpl{
 	 */
 	public static void parseUserData(JSONObject jsonObject, AccountObject accountObject) throws JSONException {
 		//解析userdata
-		JSONObject userData = jsonObject.getJSONObject("usersdata");
+		JSONObject userData = jsonObject.getJSONObject("account");
 		
-		accountObject.mStatusCode = Integer.valueOf(userData.getString("StatusCode"));
-		accountObject.mStatusMessage = userData.getString("StatusMessage");
-		if (accountObject.mStatusCode == 0) {
-			//如果是失败的，我们提前返回，不用解析其他数据了
-			return;
-		}
-		
-		userData = userData.getJSONObject("Data");
 		accountObject.mAccountTel = userData.getString("cell");
 		accountObject.mAccountPwd = userData.getString("pwd");
 		accountObject.mAccountName = userData.getString("userName");

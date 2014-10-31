@@ -36,6 +36,7 @@ public class BjnoteProvider extends ContentProvider{
 			HaierDBHelper.TABLE_IM_FRIEND_HISTORY,
 			HaierDBHelper.TABLE_ACCOUNT_RELATIONSHIP,
 			HaierDBHelper.TABLE_HOME_COMMUNITY_SERVICE,
+			HaierDBHelper.TABLE_CAR_CARD,
 //			HaierDBHelper.TABLE_HOME_COMMUNITY,
 //			ContactsDBHelper.TABLE_NAME_MYLIFE_CONSUME,
 	};
@@ -76,8 +77,8 @@ public class BjnoteProvider extends ContentProvider{
 	private static final int HOME_COMMUNITY_SERVICE = 0x0a00;
 	private static final int HOME_COMMUNITY_SERVICE_ID = 0x0a01;
 	
-	private static final int HOME_COMMUNITY = 0x0b00;
-	private static final int HOME_COMMUNITY_ID = 0x0b01;
+	private static final int CAR_CARD = 0x0b00;
+	private static final int CAR_CARD_ID = 0x0b01;
 	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	 static {
@@ -116,6 +117,9 @@ public class BjnoteProvider extends ContentProvider{
 	        
 	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/service", HOME_COMMUNITY_SERVICE);
 	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/service/#", HOME_COMMUNITY_SERVICE_ID);
+	        
+	        matcher.addURI(BjnoteContent.AUTHORITY, "car_card", CAR_CARD);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "car_card/#", CAR_CARD_ID);
 	        
 //	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community", HOME_COMMUNITY);
 //	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/#", HOME_COMMUNITY_ID);
@@ -199,13 +203,13 @@ public class BjnoteProvider extends ContentProvider{
 		case ACCOUNT_RELATIONSHIP_ID:
 			notify = BjnoteContent.RELATIONSHIP.CONTENT_URI;
 			break;
-		case HOME_COMMUNITY:
-		case HOME_COMMUNITY_ID:
-			notify = HomesCommunityManager.CONTENT_URI;
-			break;
 		case HOME_COMMUNITY_SERVICE:
 		case HOME_COMMUNITY_SERVICE_ID:
 			notify = HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI;
+			break;
+		case CAR_CARD:
+		case CAR_CARD_ID:
+			notify = BjnoteContent.MyCarCards.CONTENT_URI;
 			break;
 			
     	}
@@ -373,8 +377,8 @@ public class BjnoteProvider extends ContentProvider{
 			case IM_FRIEND_ID:
 			case IM_QUN_ID:
 			case ACCOUNT_RELATIONSHIP_ID:
-			case HOME_COMMUNITY_ID:
 			case HOME_COMMUNITY_SERVICE_ID:
+			case CAR_CARD_ID:
 			try {
 				id = ContentUris.parseId(uri);
 			} catch(java.lang.NumberFormatException e) {

@@ -1,11 +1,11 @@
 package com.bestjoy.app.warrantycard.ui;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.TextUtils;
@@ -17,8 +17,9 @@ import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
-import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.shwy.bestjoy.utils.Intents;
@@ -31,7 +32,7 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 	SlidingMenu.OnOpenedListener, SlidingMenu.OnClosedListener{
 	private static final String TAG = "NewCardActivity";
 	private ModleBaseFragment mContent;
-	private NewCardChooseFragment mMenu;
+	private Fragment mMenu;
 	private Bundle mBundles;
 	/**表示是否是第一次进入*/
 	private boolean mIsFirstOnResume = true;
@@ -51,7 +52,7 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 		
 		if (savedInstanceState != null) {
 			mContent = (ModleBaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mContent-wuyi");
-			mMenu = (NewCardChooseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mMenu-wuyi");
+			mMenu = getSupportFragmentManager().getFragment(savedInstanceState, "mMenu-wuyi");
 			DebugUtils.logW(TAG, "onCreate() savedInstanceState != null, we try to get Fragment from FragmentManager, mContent=" + mContent + ", mMenu=" + mMenu);
 			mBundles = savedInstanceState.getBundle(TAG);
 			DebugUtils.logW(TAG, "onCreate() savedInstanceState != null, we try to restore mBundles=" + mBundles);
@@ -61,6 +62,9 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 			switch(type) {
 			case R.id.model_my_card:
 				mContent = new NewWarrantyCardFragment();
+				break;
+			case R.id.model_my_car_card:
+				mContent = new NewCarWarrantyCardFragment();
 				break;
 			case R.id.model_repair:
 				mContent = new NewRepairCardFragment();
@@ -83,7 +87,19 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 		}
 		
 		if (mMenu == null) {
-			mMenu = new NewCardChooseFragment();
+			
+			Bundle bunlde = new Bundle();
+			StringBuilder sb = new StringBuilder();
+			if (type== R.id.model_my_card) {
+				mMenu = new NewCardChooseFragment();
+				sb.append(BjnoteContent.RECORD_ID).append("<>7");
+			} else if (type == R.id.model_my_car_card) {
+				mMenu = new NewCarCardChooseFragment();
+				sb.append(BjnoteContent.RECORD_ID).append("=7");
+			}
+			
+			bunlde.putString("filter", sb.toString());
+			mMenu.setArguments(bunlde);
 			// set the Behind View
 			setBehindContentView(R.layout.menu_frame);
 			getSupportFragmentManager()
@@ -131,13 +147,21 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 
 			@Override
             public boolean onQueryTextSubmit(String query) {
-				mMenu.filterXinghao(query);
+				if (mMenu instanceof NewCardChooseFragment) {
+					((NewCardChooseFragment)mMenu).filterXinghao(query);
+				} else if (mMenu instanceof NewCarCardChooseFragment) {
+					((NewCarCardChooseFragment)mMenu).filterXinghao(query);
+				}
 	            return true;
             }
 
 			@Override
             public boolean onQueryTextChange(String newText) {
-				mMenu.filterXinghao(newText);
+				if (mMenu instanceof NewCardChooseFragment) {
+					((NewCardChooseFragment)mMenu).filterXinghao(newText);
+				} else if (mMenu instanceof NewCarCardChooseFragment) {
+					((NewCarCardChooseFragment)mMenu).filterXinghao(newText);
+				}
 	            return true;
             }
 			
@@ -149,7 +173,14 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (getSlidingMenu().isMenuShowing()) {
 			menu.findItem(R.string.menu_done).setVisible(true);
-			menu.findItem(R.string.menu_search).setVisible(mMenu.enableFilterXinghao());
+			
+			boolean showSearch = false;
+			if (mMenu instanceof NewCardChooseFragment) {
+				showSearch = ((NewCardChooseFragment)mMenu).enableFilterXinghao();
+			} else if (mMenu instanceof NewCarCardChooseFragment) {
+				showSearch = ((NewCarCardChooseFragment)mMenu).enableFilterXinghao();
+			}
+			menu.findItem(R.string.menu_search).setVisible(showSearch);
 		} else {
 			menu.findItem(R.string.menu_search).setVisible(false);
 			menu.findItem(R.string.menu_done).setVisible(false);
@@ -202,11 +233,20 @@ public class NewCardActivity extends BaseSlidingFragmentActivity implements
 		case R.string.menu_search:
 			break;
 		case R.string.menu_done:
-			BaoxiuCardObject object = mMenu.getBaoxiuCardObject();
-			if (!TextUtils.isEmpty(object.mLeiXin)) {
-				//目前只要是选择了小类别，我们就允许更新数据
-				mContent.setBaoxiuObjectAfterSlideMenu(object);
+			if (mMenu instanceof NewCardChooseFragment) {
+				BaoxiuCardObject object = ((NewCardChooseFragment)mMenu).getBaoxiuCardObject();
+				if (!TextUtils.isEmpty(object.mLeiXin)) {
+					//目前只要是选择了小类别，我们就允许更新数据
+					mContent.setBaoxiuObjectAfterSlideMenu(object);
+				}
+			} else if (mMenu instanceof NewCarCardChooseFragment) {
+				CarBaoxiuCardObject object = ((NewCarCardChooseFragment)mMenu).getBaoxiuCardObject();
+				if (!TextUtils.isEmpty(object.mPinPai)) {
+					//目前只要是选择了小类别，我们就允许更新数据
+					mContent.setBaoxiuObjectAfterSlideMenu(object);
+				}
 			}
+			
 			getSlidingMenu().showContent(true);
 			break;
 			 // Respond to the action bar's Up/Home button

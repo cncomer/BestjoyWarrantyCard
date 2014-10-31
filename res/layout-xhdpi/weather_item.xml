@@ -18,9 +18,29 @@
         android:src="@drawable/weather_icon_demo"/>
     <Button 
         android:background="@drawable/weather_event_bg"
-        android:id="@+id/event"
+        android:id="@+id/eventlevel1"
         android:layout_width="40dip"
         android:layout_height="20dip"
         android:textSize="12sp"
+        android:textColor="@color/blk"
+        android:visibility="gone"
+        android:text="@string/view_weather_event_more"/>
+    
+    <ImageView 
+        android:id="@+id/eventlevel2"
+        android:scaleType="center"
+        android:layout_width="40dip"
+        android:layout_height="20dip"
+        android:visibility="gone"
+        android:src="@drawable/weather_quan"/>
+    
+    <TextView 
+        android:id="@+id/eventlevel3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:drawablePadding="1dip"
+        android:drawableLeft="@drawable/weather_quan"
         android:text="@string/view_weather_event_more"/>
 </LinearLayout>

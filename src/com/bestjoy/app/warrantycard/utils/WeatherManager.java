@@ -16,6 +16,7 @@ import android.content.Context;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.FilesUtils;
 
 public class WeatherManager {
@@ -45,6 +46,7 @@ public class WeatherManager {
 	
 	public static class WeatherEvent {
 		public String _eventName, _eventTip;
+		public int _eventLevel;
 	}
 	
 	public static class WeatherObject {
@@ -59,16 +61,19 @@ public class WeatherManager {
 		 */
 		public static WeatherObject parse(JSONObject jsonObject) throws JSONException {
 			WeatherObject weatherObject = new WeatherObject();
-			weatherObject._weekday = mWeekdayMap.get(jsonObject.getString("weekday"));
+			weatherObject._weekday = jsonObject.getString("weekday");//mWeekdayMap.get(jsonObject.getString("weekday"));
 			weatherObject._weatherIcon = jsonObject.getString("icon");
 			JSONArray events = jsonObject.optJSONArray("events");
 			if (events != null) {
 				//解析天气事件
 				int len = events.length();
+				JSONObject eventJsonObject = null;
 				for(int index=0; index<len; index++) {
 					WeatherEvent weatherEvent = new WeatherEvent();
-					weatherEvent._eventName = events.getJSONObject(index).getString("name");
-					weatherEvent._eventTip = events.getJSONObject(index).getString("desc");
+					eventJsonObject = events.getJSONObject(index);
+					weatherEvent._eventName = eventJsonObject.getString("name");
+					weatherEvent._eventTip = eventJsonObject.getString("desc");
+					weatherEvent._eventLevel = eventJsonObject.getInt("level");
 					weatherObject._weatherEventList.add(weatherEvent);
 				}
 			}
@@ -119,7 +124,7 @@ public class WeatherManager {
 		
 		Calendar last = Calendar.getInstance();
 		last.setTime(new Date(mLocalWeatherCachedFile.lastModified()));
-		return today.get(Calendar.DAY_OF_YEAR) != last.get(Calendar.DAY_OF_YEAR);
+		return today.get(Calendar.HOUR_OF_DAY) != last.get(Calendar.HOUR_OF_DAY);
 	}
 
 }

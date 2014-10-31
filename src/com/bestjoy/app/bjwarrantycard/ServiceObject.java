@@ -128,8 +128,8 @@ public class ServiceObject {
 	 * @param bid
 	 * @return
 	 */
-	public static String getBaoxiucardFapiao(String photoId) {
-		return BaoxiuCardObject.getBaoxiuCardObject().getFapiaoServicePath();
+	public static String getBaoxiucardFapiao(String photoPath) {
+		return photoPath;
 	}
 	//modify by chenkai, 修改发票后台同步修改新建更新和登录后台, 20140622 end
 	
@@ -377,9 +377,12 @@ public class ServiceObject {
 			  return sb.toString();
 		  }
 		  
-		  public static String getWeatherUrl(String adminCode) {
+		  public static String getWeatherUrl(String adminCode, String citykey, String uid, String token) {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
-			  sb.append("Weather/GetWeatherByAdminCode.ashx?admin_code=").append(adminCode);
+			  sb.append("Weather/GetWeatherByAdminCode.ashx?admin_code=").append(adminCode).append("&citykey=").append(citykey)
+			  .append("&uid=").append(uid == null?"":uid)
+			  .append("&token=").append(token == null?"":token)
+			  .append("&devicetype=").append("1");
 			  return sb.toString();
 		  }
 		  
@@ -447,6 +450,44 @@ public class ServiceObject {
 		  public static String getCommunityServices(String para, String jsonString) {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
 			  sb.append("Xiaoqu/GetXiaoQuAround.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  /**
+		   * 新建汽车卡
+		   * @return
+		   */
+		  public static String createCarBaoxiuCardUrl() {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Car/AddCar.ashx?");
+			  return sb.toString();
+		  }
+		  /**
+		   * 更新汽车卡
+		   * @return
+		   */
+		  public static String updateCarBaoxiuCardUrl() {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Car/updateCar.ashx?");
+			  return sb.toString();
+		  }
+		  /***
+		   * www.dzbxk.com/bestjoy/Car/GetCar.ashx?para={uid:"575401"}
+		   * @param para
+		   * @param jsonString
+		   * @return
+		   */
+		  public static String getAllCarBaoxiuCardsUrl(String uid) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Car/GetCar.ashx?").append("uid=").appendUrlEncodedString(uid);
+			  return sb.toString();
+		  }
+		  /**
+		   * 更新汽车卡中的电话
+		   * @return
+		   */
+		  public static String updateCarBaoxiuCardPhoneUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Car/updatecarphone.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
 		  

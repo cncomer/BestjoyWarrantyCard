@@ -37,6 +37,7 @@ import android.widget.ImageView;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.shwy.bestjoy.utils.Contents;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
@@ -646,7 +647,7 @@ public class PhotoManagerUtilsV2 {
 		case HOME_DEVICE_AVATOR:
 			return MyApplication.getInstance().getProductPreviewAvatorFile(photoId);
 		case FaPiao:
-			return MyApplication.getInstance().getProductFaPiaoFile(photoId);
+			return MyApplication.getInstance().getProductFaPiaoFile(BaoxiuCardObject.getFapiaoPhotoIdFromFpAddr(photoId));
 		case WeatherIcon:
 			return MyApplication.getInstance().getFile("weather", photoId);
 		case PREVIEW:

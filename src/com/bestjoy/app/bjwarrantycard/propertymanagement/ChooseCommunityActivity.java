@@ -366,6 +366,9 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 				JSONObject queryJsonObject = new JSONObject();
 				queryJsonObject.put("xiaoqu_name", params[0]);
 				queryJsonObject.put("aid", mHomeObject.mHomeAid);
+				if (mHomeObject.mHid > 0) {
+					queryJsonObject.put("xid", String.valueOf(mHomeObject.mHid));
+				}
 				is = NetworkUtils.openContectionLocked(ServiceObject.relatedHomeToCommunity("para", queryJsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
 				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 				if (serviceResultObject.isOpSuccessfully()) {
@@ -373,9 +376,12 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 					long hid = Long.parseLong(serviceResultObject.mStrData);
 					mBundles.putLong("hid", hid);
 					mHomeObject.mHid = hid;
+					mHomeObject.mHname = params[0]; 
+					mHomeObject.mCommunityServiceLoaded = 0;
 					ContentValues values = new ContentValues();
 					values.put(HaierDBHelper.HOME_COMMUNITY_HID, hid);
-					values.put(HaierDBHelper.HOME_COMMUNITY_NAME, params[0]);
+					values.put(HaierDBHelper.HOME_COMMUNITY_NAME, mHomeObject.mHname);
+					values.put(HaierDBHelper.HOME_COMMUNITY_SERVICE_LOADED, mHomeObject.mCommunityServiceLoaded);
 					int updated = BjnoteContent.update(getContentResolver(), BjnoteContent.Homes.CONTENT_URI, values, HomeObject.WHERE_UID_AND_AID, new String[]{String.valueOf(mHomeObject.mHomeUid), String.valueOf(mHomeObject.mHomeAid)});
 					DebugUtils.logD(TAG, "RelateCommunityTask update Home with hid " + hid + ", hname " + params[0] + ", updated rows " + updated);
 					if (updated > 0) {

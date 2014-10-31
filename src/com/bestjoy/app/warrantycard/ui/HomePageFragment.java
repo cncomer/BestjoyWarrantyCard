@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -67,6 +69,7 @@ import com.bestjoy.app.warrantycard.utils.JsonParser;
 import com.bestjoy.app.warrantycard.utils.MenuHandlerUtils;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.bestjoy.app.warrantycard.utils.WeatherManager;
+import com.bestjoy.app.warrantycard.utils.WeatherManager.WeatherEvent;
 import com.bestjoy.app.warrantycard.utils.WeatherManager.WeatherObject;
 import com.bestjoy.app.warrantycard.utils.WeatherManager.WeekWeather;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
@@ -780,6 +783,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.ic_module_baoxiucard:
+		case R.id.ic_module_car: //爱车卡
 		case R.id.ic_module_home://物业卡
 			//判断有没有登陆，没有的话提示登录
 			if (!MyAccountManager.getInstance().hasLoginned()) {
@@ -814,18 +818,18 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 					}
 				}
 			}
-			//判断是否有家，没有的话，就要去新建一个家
-			if (!MyAccountManager.getInstance().hasHomes()) {
-				Bundle bundles = ModleSettings.createHomeCommunityBundle(getActivity());
-				bundles.putLong("aid", -1);
-				bundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
-				MyApplication.getInstance().showNeedHomeMessage();
-				NewHomeActivity.startActivity(getActivity(), bundles);
-				return;
-			}
-			//判断是否有保修卡
+			
 			switch(v.getId()) {
 			case R.id.ic_module_home:
+				//判断是否有家，没有的话，就要去新建一个家
+				if (!MyAccountManager.getInstance().hasHomes()) {
+					Bundle bundles = ModleSettings.createHomeCommunityBundle(getActivity());
+					bundles.putLong("aid", -1);
+					bundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					MyApplication.getInstance().showNeedHomeMessage();
+					NewHomeActivity.startActivity(getActivity(), bundles);
+					return;
+				}
 				List<HomeObject> communities = HomeObject.getAllCommunities();
 				if (communities.size() == 1) {
 					//直接进入我得小区
@@ -842,6 +846,16 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 				}
 				break;
 			case R.id.ic_module_baoxiucard:
+				//判断是否有家，没有的话，就要去新建一个家
+				if (!MyAccountManager.getInstance().hasHomes()) {
+					Bundle bundles = ModleSettings.createHomeCommunityBundle(getActivity());
+					bundles.putLong("aid", -1);
+					bundles.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+					MyApplication.getInstance().showNeedHomeMessage();
+					NewHomeActivity.startActivity(getActivity(), bundles);
+					return;
+				}
+				//判断是否有保修卡
 				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 					Bundle bundle = ModleSettings.createMyCardDefaultBundle(getActivity());
 					bundle.putLong("aid", MyAccountManager.getInstance().getHomeAIdAtPosition(0));
@@ -853,6 +867,11 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 					bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 					NewCardActivity.startIntent(getActivity(), bundle);
 				}
+				break;
+			case R.id.ic_module_car:
+				Bundle bundle = ModleSettings.createMyCarCardDefaultBundle(getActivity());
+				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
+				MyChooseCarCardsActivity.startIntent(getActivity(), bundle);
 				break;
 			}
 			break;
@@ -991,6 +1010,16 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 
 		@Override
 		public boolean isLocationChanged(BDLocation location) {
+			if (getActivity() == null) {
+				return false;
+			}
+			DebugUtils.logD(TAG, "isLocationChanged location " + location);
+			if (location.getProvince() == null
+					|| location.getCity() == null
+					|| location.getDistrict() == null) {
+				DebugUtils.logD(TAG, "isLocationChanged getProvince() " + location.getProvince() + ", getCity() " +location.getCity() + ", getDistrict() " + location.getDistrict());
+				return false;
+			}
 			BaiduLocationManager.getInstance().setScanSpan(60*1000);//60秒请求一次定位数据
 			String adminCode = HomeObject.getDisID(getActivity().getContentResolver(), location.getProvince().replaceAll("[省市]", ""), location.getCity().replaceAll("[省市]", ""), location.getDistrict());
 			if (!TextUtils.isEmpty(adminCode)) {
@@ -1011,7 +1040,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 		}
 		
 	}
-	
+	private static final Pattern PATTERN_WEATHER_CITY_KEY = Pattern.compile(".*varid=(.*);if");
 	private UpdateWeatherTask mUpdateWeatherTask;
 	private void updateWeatherAsync(String adminCode) {
 		AsyncTaskUtils.cancelTask(mUpdateWeatherTask);
@@ -1020,15 +1049,27 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	}
 	//下载天气数据
 	private class UpdateWeatherTask extends AsyncTask<String, Void, ServiceResultObject> {
-
+		
 		@Override
 		protected ServiceResultObject doInBackground(String... params) {
 			ServiceResultObject result = new ServiceResultObject();
 			InputStream is = null;
 			try {
-				is = NetworkUtils.openContectionLocked(ServiceObject.getWeatherUrl(params[0]), MyApplication.getInstance().getSecurityKeyValuesObject());
-				boolean saved = WeatherManager.getInstance().saveWeather(is);
-				DebugUtils.logD(TAG, "UpdateWeatherTask saveWeather " + saved);
+				is = NetworkUtils.openContectionLocked("http://61.4.185.48:81/g/", MyApplication.getInstance().getSecurityKeyValuesObject());
+				if (is != null) {
+					String content = NetworkUtils.getContentFromInput(is);
+					NetworkUtils.closeInputStream(is);
+					Matcher matcher = PATTERN_WEATHER_CITY_KEY.matcher(content.replaceAll(" ", ""));
+					if (matcher.find()) {
+						DebugUtils.logD(TAG, "UpdateWeatherTask find citykey " + matcher.group(1));
+						//var ip="27.115.108.50";var id=101020100;if(typeof(id_callback)!="undefined"){id_callback();}
+						is = NetworkUtils.openContectionLocked(ServiceObject.getWeatherUrl(params[0], matcher.group(1), MyAccountManager.getInstance().getCurrentAccountUid(), YouMengMessageHelper.getInstance().getDeviceTotke()), MyApplication.getInstance().getSecurityKeyValuesObject());
+						boolean saved = WeatherManager.getInstance().saveWeather(is);
+						DebugUtils.logD(TAG, "UpdateWeatherTask saveWeather " + saved);
+						result.mStatusCode = saved?1:0;
+					}
+				}
+				
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 				result.mStatusMessage = e.getMessage();
@@ -1099,9 +1140,12 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 					PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TAG, icon, weatherObject._weatherIcon, null, TaskType.WeatherIcon);
 					//加载天气事件
 					
-					Button event = (Button) weatherItem.findViewById(R.id.event);
+					Button eventlevel1 = (Button) weatherItem.findViewById(R.id.eventlevel1);
+					ImageView eventlevel2 = (ImageView) weatherItem.findViewById(R.id.eventlevel2);
+					TextView eventlevel3 = (TextView) weatherItem.findViewById(R.id.eventlevel3);
+					eventlevel3.setCompoundDrawables(null, null, null, null);
 					if (weatherObject._weatherEventList.size() > 1) {
-						event.setText(R.string.view_weather_event_more);
+						eventlevel1.setText(R.string.view_weather_event_more);
 //						event.setOnClickListener(new View.OnClickListener() {
 //
 //							@Override
@@ -1118,9 +1162,25 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 //							
 //						});
 					} else if (weatherObject._weatherEventList.size() == 1) {
-						event.setText(weatherObject._weatherEventList.get(0)._eventName);
+						WeatherEvent weatherEventObject = weatherObject._weatherEventList.get(0);
+						if (weatherEventObject._eventLevel == 1) {
+							//1级事件
+							eventlevel1.setText(weatherEventObject._eventName);
+							eventlevel1.setVisibility(View.VISIBLE);
+						} else if (weatherEventObject._eventLevel == 2) {
+							//2级事件
+							eventlevel2.setVisibility(View.VISIBLE);
+						} else if (weatherEventObject._eventLevel == 3) {
+							//3级事件
+							eventlevel3.setVisibility(View.VISIBLE);
+							eventlevel3.setText(MyApplication.getInstance().getString(R.string.title_unit_day_format, weatherEventObject._eventName));
+						}
+						
+						
 					} else {
-						event.setVisibility(View.INVISIBLE);
+						eventlevel1.setVisibility(View.INVISIBLE);
+						eventlevel2.setVisibility(View.GONE);
+						eventlevel3.setVisibility(View.GONE);
 					}
 					
 					mWeatherLayout.addView(weatherItem);

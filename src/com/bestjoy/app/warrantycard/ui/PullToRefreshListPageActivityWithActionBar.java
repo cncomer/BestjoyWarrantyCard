@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -41,7 +42,7 @@ import com.shwy.bestjoy.utils.Query;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
-public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActivity implements AdapterView.OnItemClickListener{
+public abstract class PullToRefreshListPageActivityWithActionBar extends BaseActionbarActivity implements AdapterView.OnItemClickListener, RecyclerListener{
 
 	private static final String TAG ="PullToRefreshListPageActivity";
 	protected ListView mListView;
@@ -86,6 +87,12 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 	protected void onRefreshLoadEnd() {
 		
 	}
+	protected void onLoadLocalEnd() {
+		
+	}
+	 public void onMovedToScrapHeap(View view) {
+		 
+	 }
 	protected abstract int getContentLayout();
 	protected ListView getListView() {
 		return mListView;
@@ -179,6 +186,7 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 		updateFooterView(false, null);
 		mListView.setAdapter(mAdapterWrapper.getAdapter());
 		mListView.setEmptyView(mEmptyView);
+		mListView.setRecyclerListener(this);
 		removeFooterView();
 		mContext = this;
 		mIsFirstRefresh = true;
@@ -220,13 +228,14 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 		PushAgent.getInstance(mContext).onAppStart();
 		PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
 		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-		
 	}
+	
 	@Override
 	public void onStart() {
 		super.onStart();
 		loadLocalDataAsync();
 	}
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -340,6 +349,7 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 			}
 			mPageInfo.computePageSize(requestCount);
 			DebugUtils.logD(TAG, "LoadLocalTask load local data finish....localCount is " + requestCount);
+			onLoadLocalEnd();
 		}
 
 		@Override

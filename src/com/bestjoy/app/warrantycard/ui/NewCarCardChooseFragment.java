@@ -31,7 +31,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.XinghaoObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
@@ -40,37 +40,22 @@ import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
-import com.shwy.bestjoy.utils.InfoInterfaceImpl;
 import com.shwy.bestjoy.utils.NetworkUtils;
 
-public class NewCardChooseFragment extends SherlockFragment implements View.OnClickListener{
+public class NewCarCardChooseFragment extends SherlockFragment implements View.OnClickListener{
 	private static final String TAG = "NewCardChooseFragment";
-	private ListView mDaleiListViews, mXiaoleiListViews, mPinpaiListViews, mXinghaoListViews;
+	private ListView mPinpaiListViews, mXinghaoListViews;
 	
-	private TextView mDalei, mXiaolei, mPinpai, mXinghao;
+	private TextView mPinpai, mXinghao;
 	
-	private long mDaleiId = -1, mPinpaiId = -1, mXinghaoId = -1;
+	private long mPinpaiId = -1, mXinghaoId = -1;
 	/**当前选中的品牌的code码*/
 	private String mPinPaiCode = null;
 	/**选择的小类id,是字符型的，注意*/
-	private String mXiaoleiId = null;
+	private String mXiaoleiId = "701";
 	
-	private BaoxiuCardObject mBaoxiuCardObject;
+	private CarBaoxiuCardObject mBaoxiuCardObject;
 	
-	private static final String[] DALEI_PROJECTION = new String[]{
-		HaierDBHelper.ID,
-		DeviceDBHelper.DEVICE_DALEI_NAME,                //1
-		DeviceDBHelper.DEVICE_DALEI_ID,
-	};
-	
-	private static final String[] XIAOLEI_PROJECTION = new String[]{
-		HaierDBHelper.ID,
-		DeviceDBHelper.DEVICE_XIALEI_NAME,              //1
-		DeviceDBHelper.DEVICE_XIALEI_DID,
-		DeviceDBHelper.DEVICE_XIALEI_XID,
-		
-		
-	};
 	/**
 	 *  HaierDBHelper.ID,
 		DeviceDBHelper.DEVICE_PINPAI_NAME,            //1
@@ -97,8 +82,6 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 
 	private View mProgressBarLayout;
 	
-	/**品牌海尔名称，这个用来在用户选择品牌时候做判断，如果是，那么保修卡的电话是400699999*/
-	private String mPinpaiHaierDes = null;
 	
 	private List<InfoInterface> mXinghaoDataList;
 	
@@ -108,30 +91,19 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mBaoxiuCardObject = new BaoxiuCardObject();
-		mPinpaiHaierDes = getActivity().getString(R.string.pinpai_haier);
+		mBaoxiuCardObject = new CarBaoxiuCardObject();
+		mBaoxiuCardObject.mLeiXin = MyApplication.getInstance().getString(R.string.car_product_leixing);
 		mFilterSelection = this.getArguments().getString("filter");
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.new_card_choose_fragment, container, false);
+		View view = inflater.inflate(R.layout.new_car_card_choose_fragment, container, false);
 		mProgressBarLayout = view.findViewById(R.id.progressbarLayout);
-		
-		mDalei = (TextView) view.findViewById(R.id.title_dalei);
-		mDalei.setOnClickListener(this);
-		TextPaint tp = mDalei.getPaint();
-		tp.setFakeBoldText(true);
-		
-		
-		mXiaolei = (TextView) view.findViewById(R.id.title_xiaolei);
-		mXiaolei.setOnClickListener(this);
-		tp = mXiaolei.getPaint();
-		tp.setFakeBoldText(true);
 		
 		mPinpai = (TextView) view.findViewById(R.id.title_pinpai);
 		mPinpai.setOnClickListener(this);
-		tp = mPinpai.getPaint();
+		TextPaint tp = mPinpai.getPaint();
 		tp.setFakeBoldText(true);
 		
 		mXinghao = (TextView) view.findViewById(R.id.title_xinghao);
@@ -140,13 +112,9 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		tp.setFakeBoldText(true);
 		
 		
-		mDaleiListViews = (ListView) view.findViewById(R.id.dalei);
-		mXiaoleiListViews = (ListView) view.findViewById(R.id.xiaolei);
 		mPinpaiListViews = (ListView) view.findViewById(R.id.pinpai);
 		mXinghaoListViews = (ListView) view.findViewById(R.id.xinghao);
 		
-		initListView(mDaleiListViews);
-		initListView(mXiaoleiListViews);
 		initListView(mPinpaiListViews);
 		
 		//型号单独出来
@@ -158,7 +126,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		mXinghaoListViews.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		mXinghaoListViews.setOnItemClickListener(new ListViewItemSelectedListener(mXinghaoListViews.getId()));
 		
-		setListViewVisibility(View.GONE, View.GONE, View.GONE, View.GONE);
+		setListViewVisibility(View.GONE, View.GONE);
 		
 		return view;
 	}
@@ -178,8 +146,6 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 	public void onDestroyView() {
 		super.onDestroyView();
 		AsyncTaskUtils.cancelTask(mLoadDataAsyncTask);
-		releaseAdapter((CursorAdapter)mDaleiListViews.getAdapter());
-		releaseAdapter((CursorAdapter)mXiaoleiListViews.getAdapter());
 		releaseAdapter((CursorAdapter)mPinpaiListViews.getAdapter());
 		if (mXinghaoDataList != null) mXinghaoDataList.clear();
 	}
@@ -201,7 +167,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		super.onActivityCreated(savedInstanceState);
 	}
 	
-	public BaoxiuCardObject getBaoxiuCardObject() {
+	public CarBaoxiuCardObject getBaoxiuCardObject() {
 		return mBaoxiuCardObject;
 	}
 	
@@ -223,10 +189,6 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		@Override
 		protected Cursor doInBackground(Void... arg0) {
 			switch(_listView.getId()) {
-			case R.id.dalei:
-				return getActivity().getContentResolver().query(BjnoteContent.DaLei.CONTENT_URI, DALEI_PROJECTION, mFilterSelection, null, null);
-			case R.id.xiaolei:
-				return getActivity().getContentResolver().query(BjnoteContent.XiaoLei.CONTENT_URI, XIAOLEI_PROJECTION, XIAOLEI_SELECTION, new String[]{String.valueOf(mDaleiId)}, null);
 			case R.id.pinpai:
 				return getActivity().getContentResolver().query(BjnoteContent.PinPai.CONTENT_URI, PINPAI_PROJECTION, PINPAI_SELECTION, new String[]{mXiaoleiId}, PINPAI_ORDER_BY_SORTID);
 			case R.id.xinghao:
@@ -259,8 +221,6 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		protected void onPostExecute(Cursor result) {
 			super.onPostExecute(result);
 			switch(_listView.getId()) {
-			case R.id.dalei:
-			case R.id.xiaolei:
 			case R.id.pinpai:
 				if (result == null || result != null && result.getCount() == 0) {
 					MyApplication.getInstance().showMessageAsync(R.string.msg_no_local_data);
@@ -288,25 +248,9 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()) {
-		case R.id.title_dalei:
-			setListViewVisibility(mDaleiListViews.getVisibility() == View.VISIBLE ? View.GONE:View.VISIBLE, View.GONE, View.GONE, View.GONE);
-			if (mDaleiListViews.getTag() == null) {
-				//TAG对象表示的是ListView是否已经加载过数据了，否则我们还需要异步加载
-				loadDataAsync(mDaleiListViews);
-			}
-			break;
-		case R.id.title_xiaolei:
-			if (mDaleiId != -1) {
-				setListViewVisibility(View.GONE, mXiaoleiListViews.getVisibility() == View.VISIBLE ? View.GONE:View.VISIBLE, View.GONE, View.GONE);
-				if (mXiaoleiListViews.getTag() == null) {
-					loadDataAsync(mXiaoleiListViews);
-				}
-				
-			}
-			break;
 		case R.id.title_pinpai:
 			if (mXiaoleiId != null) {
-				setListViewVisibility(View.GONE, View.GONE, mPinpaiListViews.getVisibility() == View.VISIBLE ? View.GONE:View.VISIBLE, View.GONE);
+				setListViewVisibility( mPinpaiListViews.getVisibility() == View.VISIBLE ? View.GONE:View.VISIBLE, View.GONE);
 				if (mPinpaiListViews.getTag() == null) {
 					loadDataAsync(mPinpaiListViews);
 				}
@@ -314,7 +258,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 			break;
 		case R.id.title_xinghao:
 			if (mPinPaiCode != null) {
-				setListViewVisibility(View.GONE, View.GONE, View.GONE, mXinghaoListViews.getVisibility() == View.VISIBLE ? View.GONE:View.VISIBLE);
+				setListViewVisibility(View.GONE, mXinghaoListViews.getVisibility() == View.VISIBLE ? View.GONE:View.VISIBLE);
 				if (mXinghaoListViews.getTag() == null) {
 					loadDataAsync(mXinghaoListViews);
 				}
@@ -324,9 +268,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		
 	}
 	
-	private void setListViewVisibility(int showDalei, int showXiaolei, int showPinpai, int showXinghao) {
-		mDaleiListViews.setVisibility(showDalei);
-		mXiaoleiListViews.setVisibility(showXiaolei);
+	private void setListViewVisibility(int showPinpai, int showXinghao) {
 		mPinpaiListViews.setVisibility(showPinpai);
 		mXinghaoListViews.setVisibility(showXinghao);
 	}
@@ -411,60 +353,6 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			ViewHolder viewHolder = (ViewHolder) view.getTag();
 			switch(_listViewId) {
-			case R.id.dalei:
-				if (viewHolder._dId != mDaleiId) {
-					mDaleiId = viewHolder._dId;
-					mDalei.setText(getGroupTitle(R.string.title_dalei, viewHolder._title.getText().toString()));
-					
-					mXiaoleiId = null;
-					mBaoxiuCardObject.mLeiXin = "";
-					mXiaolei.setText(R.string.title_xiaolei);
-					
-					mPinpaiId = -1;
-					mPinPaiCode = null;
-					mBaoxiuCardObject.mPinPai = "";
-					mBaoxiuCardObject.mBXPhone = "";
-					mPinpai.setText(R.string.title_pinpai);
-					
-					mXinghaoId = -1;
-					if (mXinghaoDataList != null) mXinghaoDataList.clear();
-					mBaoxiuCardObject.mXingHao = "";
-					mBaoxiuCardObject.mWY = "1";
-					mBaoxiuCardObject.mKY = "";
-					mXinghao.setText(R.string.title_xinghao);
-					
-					mXiaoleiListViews.setTag(null);
-					mPinpaiListViews.setTag(null);
-					mXinghaoListViews.setTag(null);
-					parent.setVisibility(View.GONE);
-					mXiaolei.performClick();
-				}
-				break;
-			case R.id.xiaolei:
-				if (viewHolder._xId != mXiaoleiId) {
-					mXiaoleiId = viewHolder._xId;
-					mBaoxiuCardObject.mLeiXin = viewHolder._title.getText().toString();
-					mXiaolei.setText(getGroupTitle(R.string.title_xiaolei, mBaoxiuCardObject.mLeiXin));
-					
-					mPinpaiId = -1;
-					mPinPaiCode = null;
-					mBaoxiuCardObject.mPinPai = "";
-					mBaoxiuCardObject.mBXPhone = "";
-					mPinpai.setText(R.string.title_pinpai);
-					
-					mXinghaoId = -1;
-					if (mXinghaoDataList != null) mXinghaoDataList.clear();
-					mBaoxiuCardObject.mXingHao = "";
-					mBaoxiuCardObject.mWY = "1";
-					mBaoxiuCardObject.mKY = "";
-					mXinghao.setText(R.string.title_xinghao);
-					
-					mPinpaiListViews.setTag(null);
-					mXinghaoListViews.setTag(null);
-					parent.setVisibility(View.GONE);
-					mPinpai.performClick();
-				}
-				break;
 			case R.id.pinpai:
 				if (viewHolder._pId != mPinpaiId) {
 					mPinpaiId = viewHolder._pId;

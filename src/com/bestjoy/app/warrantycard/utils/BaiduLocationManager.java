@@ -42,7 +42,7 @@ public class BaiduLocationManager {
 	
 	public void setScanSpan(int timeInMiliSecond) {
 		LocationClientOption option = new LocationClientOption();
-		option.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);//设置定位模式
+		option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);//设置定位模式
 		option.setCoorType("bd09ll");//返回的定位结果是百度经纬度，默认值gcj02, 定位SDK可以返回bd09、bd09ll、gcj02三种类型坐标，若需要将定位点的位置通过百度Android地图 SDK进行地图展示，请返回bd09ll，将无偏差的叠加在百度地图上
 		
 		/**
@@ -131,13 +131,17 @@ public class BaiduLocationManager {
 				sb.append(_location.getOperators());
 			}
 			DebugUtils.logD(TAG, sb.toString());
-			if (_location != null) {
-				for(LocationChangeCallback callback : mLocationChangeCallbackList) {
-					if (callback.isLocationChanged(_location)) {
-						publishProgress(callback);
+			if (_location.getLocType() == BDLocation.TypeGpsLocation
+				 || _location.getLocType() == BDLocation.TypeNetWorkLocation){
+				if (_location != null) {
+					for(LocationChangeCallback callback : mLocationChangeCallbackList) {
+						if (callback.isLocationChanged(_location)) {
+							publishProgress(callback);
+						}
 					}
 				}
 			}
+			
 			return null;
 		}
 

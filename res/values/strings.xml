@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">电子保修卡</string>
+    <string name="app_name">小易管家(电子保修卡)</string>
     <string name="app_name_2014">电子保修卡 2014</string>
     <string name="app_id">540fbabe</string>
     <string name="button_register">新用户注册</string>
@@ -69,7 +69,7 @@
         <string name="title_my_product_deadline">距离质保结束</string>
         <string name="product_deadline">距离质保结束</string>
     	<string name="title_my_product_repair">报修</string>
-    	<string name="title_unit_day_format">"%s 天"</string>
+    	<string name="title_unit_day_format">"%s天"</string>
     	<string name="title_more_message">更多信息</string>
     	<string name="button_qa">常见问题</string>
     	<string name="button_call_repair">拨打维修电话</string>
@@ -201,6 +201,7 @@
     <string name="menu_new_repair">预约维修</string>
     <string name="menu_new_install">预约安装</string>
      <string name="menu_manage_home">管理家</string>
+     <string name="menu_new_car_card">新建</string>
      <string name="activity_title_new_home">新建家</string>
      <string name="activity_title_update_home">更新家</string>
      
@@ -639,6 +640,7 @@
        
         <string name="format_button_enter_community">进入小区【%s】</string>
          <string name="button_relate_community">关联小区</string>
+         <string name="button_reset_relate_community">重设小区</string>
         <string name="hint_community_keyword">请输入您的小区名称</string>
         <string name="msg_load_communities_wait">正在检索 %s 周边小区,请稍等...</string>
         <string name="title_unit_m_format">"%s 米"</string>
@@ -678,5 +680,27 @@
 		
 		<string name="format_empty_nearby_community_service_data">%s 没有提供联系方式，不过你可以查看地图显示</string>
 		<string name="button_view_map">打开地图</string>
-     
+		
+		
+		<string name="activity_title_choose_car_general">我的爱车</string>
+		<string name="car_product_leixing">汽车</string>
+		<string name="car_product_pinpai">品牌</string>
+		<string name="car_product_xinghao">汽车型号</string>
+       <string name="car_product_chepai">车牌号码</string>
+       <string name="car_product_chejia">车架编号</string>
+       <string name="car_product_fadongji">发动机号</string>
+       <string name="car_product_tel">厂家电话</string>
+		<string name="car_product_baoyan">上次保养</string>
+		<string name="car_product_yanche">上次验车</string>
+        <string name="car_product_baoxian">保险到期</string>
+        
+        <string name="car_product_baoyan_title">保养</string>
+		<string name="car_product_nianjian_title">年检</string>
+        <string name="car_product_baoxian_title">保险</string>
+        <string name="progress_unit_day">天</string>
+        
+         <string name="car_product_4s_shop_title">4S店</string>
+         <string name="car_product_washing_shop_title">洗车</string>
+         <string name="car_product_weiixiu_shop_title">维修</string>
+         <string name="car_product_chuxian_shop_title">出险</string>
 </resources>

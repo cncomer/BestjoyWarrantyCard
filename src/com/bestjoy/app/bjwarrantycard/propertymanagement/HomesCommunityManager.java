@@ -180,17 +180,17 @@ public class HomesCommunityManager extends BjnoteContent {
 	public static final int INDEX_AID = 2;
 	/**小区id*/
 	public static final int INDEX_HID = 3;
-	/**DATA6, 服务项目名称*/
+	/**DATA1, 服务项目名称*/
 	public static final int INDEX_SERVICE_TITLE = 4;
-	/**DATA5, 服务项目数据*/
+	/**DATA2, 服务项目数据*/
 	public static final int INDEX_SERVICE_DATA = 5;
-	/**DATA6, 服务项目sid*/
+	/**DATA3, 服务项目sid*/
 	public static final int INDEX_SERVICE_SID = 6;
 	/**DATA7, 类型*/
-	public static final int INDEX_SERVICE_TYPE = 7;
-	/**DATA8, 日期*/
+	public static final int INDEX_SERVICE_TYPE = 10;
+	/**DATA5, 日期*/
 	public static final int INDEX_DATE = 8;
-	/**DATA9, 3表示的是用户编辑过，0为系统推送的值*/
+	/**DATA6, 3表示的是用户编辑过，0为系统推送的值*/
 	public static final int INDEX_EDITABLE = 9;
 	
 	/**返回全部小区*/
@@ -203,12 +203,12 @@ public class HomesCommunityManager extends BjnoteContent {
 	}
 	/**返回小区的全部固定服务项目*/
 	public static Cursor getCommunityMainServices(ContentResolver cr, String uid, String aid, String hid) {
-		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA8 + "=0 and " + HaierDBHelper.DATA7 + " <?", new String[]{uid, hid, aid, String.valueOf(TYPE_KUAIDI)}, HaierDBHelper.DATA7 + " asc");
+		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION + " and " +  HaierDBHelper.DATA7 + " <?", new String[]{uid, hid, aid, String.valueOf(TYPE_KUAIDI)}, HaierDBHelper.DATA7 + " asc");
 	}
 	
 	/**返回小区的快捷服务项目*/
 	public static Cursor getCommunityKuaijieServices(ContentResolver cr, String uid, String aid, String hid) {
-		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA8 + "=0 and " + HaierDBHelper.DATA7 + ">? and " + HaierDBHelper.DATA7 + "<?", new String[]{uid, hid, aid, String.valueOf(TYPE_KUANDAI), String.valueOf(TYPE_TONGZHI)}, HaierDBHelper.DATA7 + " asc");
+		return cr.query(COMMUNITY_SERVICE_CONTENT_URI, COMMUNITY_PROJECTION, UID_AND_HID_AND_AID_SELECTION + " and " + HaierDBHelper.DATA7 + ">? and " + HaierDBHelper.DATA7 + "<?", new String[]{uid, hid, aid, String.valueOf(TYPE_KUANDAI), String.valueOf(TYPE_TONGZHI)}, HaierDBHelper.DATA7 + " asc");
 	}
 	
 	public static class CommunityServiceObject implements InfoInterface{

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+        <ImageView style="@style/ProductStarIcon"
+            android:src="@drawable/ic_red_star" />
+	    <TextView style="@style/ProductInfo"
+	        android:text="@string/car_product_pinpai"/>
+	    <EditText android:id="@+id/car_product_pinpai_input"
+	        style="@style/ProductInfoInput"/>
+	</LinearLayout>
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+        <ImageView style="@style/ProductStarIcon"
+            android:src="@drawable/ic_red_star" />
+	    <TextView style="@style/ProductInfo"
+	        android:text="@string/car_product_xinghao"/>
+	    <EditText android:id="@+id/car_product_xinghao_input"
+	        style="@style/ProductInfoInput"/>
+	    <Button android:id="@+id/menu_choose"
+	        android:layout_width="45dip"
+	        android:text="@string/menu_choose"
+	        style="@style/DefaultShapeButton"
+	        android:textSize="12sp"
+	        android:textColor="@color/wt"
+	        android:background="@drawable/default_blue_btn"
+	        android:layout_height="25dip"/>
+	</LinearLayout>
+	
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+        <ImageView style="@style/ProductStarIcon"
+            android:visibility="invisible"
+            android:src="@drawable/ic_red_star" />
+	    <TextView style="@style/ProductInfo"
+	        android:text="@string/car_product_chepai"/>
+	    <EditText android:id="@+id/car_product_chepai_input"
+	        style="@style/ProductInfoInput"/>
+	</LinearLayout>
+	
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+        <ImageView style="@style/ProductStarIcon"
+            android:src="@drawable/ic_red_star" />
+	    <TextView style="@style/ProductInfo"
+	        android:text="@string/car_product_chejia"/>
+	    <EditText android:id="@+id/car_product_chejia_input"
+	        style="@style/ProductInfoInput"/>
+	</LinearLayout>
+
+    
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+        <ImageView style="@style/ProductStarIcon"
+            android:src="@drawable/ic_red_star"
+            android:layout_width="4dip" />
+	    <TextView style="@style/ProductInfo"
+	        android:text="@string/car_product_fadongji"/>
+	    <EditText android:id="@+id/car_product_fadongji_input"
+	        style="@style/ProductInfoInput"/>
+	</LinearLayout>
+	
+	
+	
+    <!--  LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+        <ImageView style="@style/ProductStarIcon"
+            android:layout_width="4dip" />
+	    <TextView style="@style/ProductInfo"
+	        android:text="@string/product_beizhu"/>
+	    <EditText android:id="@+id/product_beizhu_tag"
+	        style="@style/ProductInfoInput"/>
+	</LinearLayout-->
+	
+	<LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:gravity="center_vertical"
+         android:orientation="horizontal" >
+		<ImageView style="@style/ProductStarIcon"
+            android:visibility="invisible"
+            android:src="@drawable/ic_red_star" />
+         <TextView
+             style="@style/ProductInfo"
+             android:text="@string/product_buy_date" />
+         <TextView
+             android:id="@+id/product_buy_date"
+             style="@style/ProductInfoInput"
+             android:clickable="true" />
+     </LinearLayout>
+     
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+        <ImageView style="@style/ProductStarIcon"
+            android:visibility="invisible"
+            android:src="@drawable/ic_red_star" />
+	    <TextView style="@style/ProductInfo"
+	        android:text="@string/car_product_tel"/>
+	    <EditText android:id="@+id/car_product_tel_input"
+	        android:autoLink="all"
+	        style="@style/ProductInfoInput"/>
+	</LinearLayout>
+</LinearLayout>

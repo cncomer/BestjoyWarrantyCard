@@ -80,7 +80,7 @@
                 android:layout_marginRight="@dimen/title_my_product_left_margin"
                 android:orientation="vertical" >
 
-                <include layout="@layout/product_create_info_star" />
+                <include layout="@layout/car_product_create_info_star" />
 
                 <View
                     android:layout_width="fill_parent"
@@ -139,12 +139,53 @@
                     android:layout_marginTop="10dip"
                     android:orientation="horizontal" >
 
+                    <ImageView style="@style/ProductStarIcon"
+			            android:visibility="invisible"
+			            android:src="@drawable/ic_red_star" />
                     <TextView
                         style="@style/ProductInfo"
-                        android:text="@string/product_beizhu" />
+                        android:text="@string/car_product_baoyan" />
 
-                    <EditText
-                        android:id="@+id/product_beizhu_tag"
+                    <TextView
+                        android:id="@+id/car_product_baoyan_input"
+                        style="@style/ProductInfoInput"
+                        android:clickable="true" />
+                </LinearLayout>
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <ImageView style="@style/ProductStarIcon"
+			            android:visibility="invisible"
+			            android:src="@drawable/ic_red_star" />
+                    <TextView
+                        style="@style/ProductInfo"
+                        android:text="@string/car_product_yanche" />
+
+                    <TextView
+                        android:id="@+id/car_product_yanche_input"
+                        style="@style/ProductInfoInput"
+                        android:clickable="true" />
+                </LinearLayout>
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <ImageView style="@style/ProductStarIcon"
+			            android:visibility="invisible"
+			            android:src="@drawable/ic_red_star" />
+                    <TextView
+                        style="@style/ProductInfo"
+                        android:text="@string/car_product_baoxian" />
+
+                    <TextView
+                        android:id="@+id/car_product_baoxian"
                         style="@style/ProductInfoInput"
                         android:clickable="true" />
                 </LinearLayout>
@@ -153,45 +194,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone" >
-
-                    <TextView
-                        style="@style/ProductInfo"
-                        android:text="@string/product_buy_cost" />
-
-                    <EditText
-                        android:id="@+id/product_buy_cost"
-                        style="@style/ProductInfoInput" />
-                </LinearLayout>
-
-                <!--
-            <LinearLayout
-			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content"
-			    android:gravity="center_vertical"
-			    android:orientation="horizontal" >
-			    <TextView style="@style/ProductInfo"
-			        android:text="@string/product_buy_entry"/>
-			    <EditText android:id="@+id/product_buy_entry"
-			        style="@style/ProductInfoInput"/>
-			</LinearLayout>
-                -->
-
-                <include layout="@layout/pop_win_edit_layout" android:visibility="gone"/>
-
-                <View android:visibility="gone"
-                    android:layout_width="fill_parent"
-                    android:layout_height="1dip"
-                    android:layout_marginTop="10dip"
-                    android:background="@color/light_gray" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:orientation="horizontal" >
 
+                    <ImageView style="@style/ProductStarIcon"
+			            android:visibility="invisible"
+			            android:src="@drawable/ic_red_star" />
                     <TextView
                         style="@style/ProductInfo"
                         android:text="@string/product_buy_delay_time" />
@@ -218,6 +225,9 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal" >
 
+                    <ImageView style="@style/ProductStarIcon"
+				            android:visibility="invisible"
+				            android:src="@drawable/ic_red_star" />
                     <TextView
                         style="@style/ProductInfo"
                         android:text="@string/product_buy_delay_componey" />
@@ -226,13 +236,14 @@
                         android:id="@+id/product_buy_delay_componey"
                         style="@style/ProductInfoInput" />
                 </LinearLayout>
-
-                <LinearLayout
+                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal" >
-
+					<ImageView style="@style/ProductStarIcon"
+				            android:visibility="invisible"
+				            android:src="@drawable/ic_red_star" />
                     <TextView
                         style="@style/ProductInfo"
                         android:text="@string/product_buy_delay_componey_tel" />
