@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint.FontMetrics;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
@@ -14,6 +15,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
 public class RightPercentProgressBar extends ProgressBar{
 	private static final String TAG = "RightPercentProgressBar";
 	private String mProgressUnit = "";
+	private String mProgressText = "";
 	private TextPaint mTextPaint;
 
 	public RightPercentProgressBar(Context context, AttributeSet attrs) {
@@ -52,13 +54,20 @@ public class RightPercentProgressBar extends ProgressBar{
 		mProgressUnit = unit;
 	}
 	
+	public void setProgressText(String text) {
+		mProgressText = text;
+	}
+	
 	
 	public void drawText(Canvas canvas) {
 		
 		int progress = this.getProgress();
+		if (TextUtils.isEmpty(mProgressText)) {
+			mProgressText = String.valueOf(progress);
+		}
 		float progressWidth = 0;
-		String progressText = String.valueOf(progress) + mProgressUnit;
-		float progressTextWidth = mTextPaint.measureText(progressText);
+		String progressText = String.valueOf(mProgressText) + mProgressUnit;
+		float progressTextWidth = mTextPaint.measureText(mProgressText);
 		if (progress >= getMax()) {
 			//已经达到最大值了,进度条要填满
 			progressWidth = getWidth();

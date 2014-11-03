@@ -202,7 +202,7 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 			ContentResolver cr = mContext.getContentResolver();
 			long uid = MyAccountManager.getInstance().getAccountObject().mAccountUid;
 			for(long bid : deleteHomeIDList.keySet()) {
-				deleted = deleteFromService(uid, bid);
+				deleted = deleteFromService(uid, bid, deleteHomeIDList.size() == 1);
 				if (deleted) {
 					//还要删除本地的家数据
 					CarBaoxiuCardObject.deleteBaoxiuCardInDatabaseForAccount(cr, uid, bid);
@@ -217,14 +217,16 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 		 * @param AID
 		 * @return
 		 */
-		private synchronized boolean deleteFromService(long uid, long bid) {
+		private synchronized boolean deleteFromService(long uid, long bid, boolean showTip) {
 			InputStream is = null;
 			try {
 				is = NetworkUtils.openContectionLocked(ServiceObject.getCarBaoxiuCardDeleteUrl(String.valueOf(bid), String.valueOf(uid)), MyApplication.getInstance().getSecurityKeyValuesObject());
 				if (is != null) {
 					String content = NetworkUtils.getContentFromInput(is);
 					ServiceResultObject resultObject = ServiceResultObject.parse(content);
-					MyApplication.getInstance().showMessageAsync(resultObject.mStatusMessage);
+					if (showTip) {
+						MyApplication.getInstance().showMessageAsync(resultObject.mStatusMessage);
+					}
 					return resultObject.isOpSuccessfully();
 				}
 			} catch (ClientProtocolException e) {
@@ -478,10 +480,13 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 				viewHolder._baoxiuqiView.setVisibility(View.GONE);
 				viewHolder._guobaoView.setVisibility(View.VISIBLE);
 			}
-			
-			viewHolder._baoyanProgress.setProgress(CarBaoxiuCardObject.getValidityDay(90, card.mLastBaoYanTime));
+			int day = CarBaoxiuCardObject.getValidityDay(90, card.mLastBaoYanTime);
+			viewHolder._baoyanProgress.setProgress(day);
+			viewHolder._baoyanProgress.setProgressText(String.valueOf(day));
 			viewHolder._baoxianProgress.setProgress(CarBaoxiuCardObject.getValidityDay(365, card.mBaoXianDeadline));
+			viewHolder._baoyanProgress.setProgressText(String.valueOf(day));
 			viewHolder._nianjianProgress.setProgress(CarBaoxiuCardObject.getValidityDay(365, card.mLastYanCheTime));
+			viewHolder._baoyanProgress.setProgressText(String.valueOf(day));
 			
 			if (mIsEditMode) {
 				viewHolder._4sShopTel.setOnClickListener(null);

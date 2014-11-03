@@ -534,9 +534,6 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 			haveTimeLong = 0;
 		}
 		int haveDay = (int) (haveTimeLong / BaoxiuCardObject.DAY_IN_MILLISECONDS);
-		if (haveDay > 365) {
-			haveDay = 365;
-		}
 		return haveDay;
 	}
 	
