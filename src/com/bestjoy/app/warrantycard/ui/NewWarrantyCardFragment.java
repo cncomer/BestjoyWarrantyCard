@@ -45,6 +45,7 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -554,7 +555,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				getActivity().finish();
 				mBaoxiuCardObject.clear();
-				mBundle.putBundle("BaoxiuCardObject", null);
+				mBundle.putBundle(IBaoxiuCardObject.TAG, null);
 				MyChooseDevicesActivity.startIntent(getActivity(), mBundle);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
@@ -703,7 +704,7 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 				MyApplication.getInstance().showMessage(R.string.update_success);
 				getActivity().finish();
 				mBaoxiuCardObject.clear();
-				mBundle.putBundle("BaoxiuCardObject", null);
+				mBundle.putBundle(IBaoxiuCardObject.TAG, null);
 				MyChooseDevicesActivity.startIntent(getActivity(), getArguments());
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);

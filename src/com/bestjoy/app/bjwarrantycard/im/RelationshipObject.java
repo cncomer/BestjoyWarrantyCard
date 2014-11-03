@@ -74,25 +74,29 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 		return list;
 	}
 	
-	public static RelationshipObject parse(JSONObject row) throws JSONException {
-		RelationshipObject relastionship = new RelationshipObject();
-		relastionship.mUID = row.getString("uid");
-		relastionship.mTarget = row.getString("suid");
-		relastionship.mMM = row.getString("mm");
-		relastionship.mTargetName = row.getString("sname");
-		relastionship.mTargetTitle = row.getString("title");
-		relastionship.mTargetOrg = row.getString("org");
-		relastionship.mTargetBrief = row.getString("brief");
-		relastionship.mTargetCell = row.getString("scell");
-		relastionship.mTargetAvator = row.optString("simg", "");
-		relastionship.mTargetWorkplace = row.getString("workaddress");
-		
-		relastionship.mLeiXin = row.optString("LeiXin", "");
-		relastionship.mXinghao = row.getString("XingHao");
-		
-		relastionship.mRelationshipServiceId = row.getString("id");
-		
-		return relastionship;
+	public static RelationshipObject parse(JSONObject row) {
+		try {
+			RelationshipObject relastionship = new RelationshipObject();
+			relastionship.mUID = row.getString("uid");
+			relastionship.mTarget = row.getString("suid");
+			relastionship.mMM = row.getString("mm");
+			relastionship.mTargetName = row.getString("sname");
+			relastionship.mTargetTitle = row.getString("title");
+			relastionship.mTargetOrg = row.getString("org");
+			relastionship.mTargetBrief = row.getString("brief");
+			relastionship.mTargetCell = row.getString("scell");
+			relastionship.mTargetAvator = row.optString("simg", "");
+			relastionship.mTargetWorkplace = row.getString("workaddress");
+			
+			relastionship.mLeiXin = row.optString("LeiXin", "");
+			relastionship.mXinghao = row.getString("XingHao");
+			
+			relastionship.mRelationshipServiceId = row.getString("id");
+			return relastionship;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static RelationshipObject getFromCursor(Cursor cursor) {

@@ -43,6 +43,7 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
@@ -272,7 +273,7 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 	}
 	
 	public boolean isEditable() {
-		return mBaoxiuCardObject != null && mBaoxiuCardObject.mSID > 0;
+		return mBaoxiuCardObject != null && mBaoxiuCardObject.mBID > 0;
 	}
 	
 	private void populateBaoxiuInfoView() {
@@ -446,7 +447,7 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 		protected ServiceResultObject doInBackground(String... params) {
 			//更新保修卡信息
 			CarBaoxiuCardObject baoxiuCardObject = getBaoxiuCardObject();
-			DebugUtils.logD(TAG, "CreateNewWarrantyCardAsyncTask for SID " + baoxiuCardObject.mSID);
+			DebugUtils.logD(TAG, "CreateNewWarrantyCardAsyncTask for SID " + baoxiuCardObject.mBID);
 			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			InputStream is = null;
 			
@@ -482,8 +483,8 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 						if (serviceResultObject.mJsonData != null) {
 							baoxiuCardObject = CarBaoxiuCardObject.parseBaoxiuCards(serviceResultObject.mJsonData, accountObject);
 							//如果后台返回了保修卡数据,我们解析它保存在本地
-							DebugUtils.logE(TAG, "new SID=" + baoxiuCardObject.mSID);
-							if (baoxiuCardObject.mSID > 0) {
+							DebugUtils.logE(TAG, "new SID=" + baoxiuCardObject.mBID);
+							if (baoxiuCardObject.mBID > 0) {
 								//正常情况
 								boolean savedOk = baoxiuCardObject.saveInDatebase(getActivity().getContentResolver(), null);
 								if (!savedOk) {
@@ -524,7 +525,7 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				getActivity().finish();
 				mBaoxiuCardObject.clear();
-				mBundle.putBundle(CarBaoxiuCardObject.TAG, null);
+				mBundle.putBundle(IBaoxiuCardObject.TAG, null);
 				MyChooseCarCardsActivity.startIntent(getActivity(), mBundle);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
@@ -581,7 +582,7 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 		protected ServiceResultObject doInBackground(Void... params) {
 			//更新保修卡信息
 			CarBaoxiuCardObject baoxiuCardObject = getBaoxiuCardObject();
-			DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask SID " + baoxiuCardObject.mSID+", ky=" + baoxiuCardObject.mKY);
+			DebugUtils.logD(TAG, "UpdateWarrantyCardAsyncTask SID " + baoxiuCardObject.mBID+", ky=" + baoxiuCardObject.mKY);
 			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			InputStream is = null;
 			AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
@@ -595,7 +596,7 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 				.put("changjia_phone", baoxiuCardObject.mBXPhone)
 				.put("shangcibaoyang", baoxiuCardObject.mLastBaoYanTime)
 				.put("uid", baoxiuCardObject.mUID)
-				.put("cid", baoxiuCardObject.mSID)
+				.put("cid", baoxiuCardObject.mBID)
 				.put("shangciyanche", baoxiuCardObject.mLastYanCheTime)
 				.put("baoyangdaoqi", baoxiuCardObject.mBaoXianDeadline)
 				.put("yanbaodanwei", baoxiuCardObject.mYanBaoDanWei)
@@ -609,15 +610,15 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 				.put("imgstr", baoxiuCardObject.getBase64StringFromBillAvator());
 				
 				DebugUtils.logD(TAG, "para=" + jsonObject.toString());
-				is = NetworkUtils.openPostContectionLocked(ServiceObject.createCarBaoxiuCardUrl(), "para", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+				is = NetworkUtils.openPostContectionLocked(ServiceObject.updateCarBaoxiuCardUrl(), "para", jsonObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				try {
 					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 					if (serviceResultObject.isOpSuccessfully()) {
 						if (serviceResultObject.mJsonData != null) {
 							baoxiuCardObject = CarBaoxiuCardObject.parseBaoxiuCards(serviceResultObject.mJsonData, accountObject);
 							//如果后台返回了保修卡数据,我们解析它保存在本地
-							DebugUtils.logE(TAG, "new SID=" + baoxiuCardObject.mSID);
-							if (baoxiuCardObject.mSID > 0) {
+							DebugUtils.logE(TAG, "new SID=" + baoxiuCardObject.mBID);
+							if (baoxiuCardObject.mBID > 0) {
 								//正常情况
 								boolean savedOk = baoxiuCardObject.saveInDatebase(getActivity().getContentResolver(), null);
 								if (!savedOk) {
@@ -856,7 +857,7 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 	@Override
 	public void updateArguments(Bundle bundle) {
 		mBundle = bundle;
-		mBaoxiuCardObject.mSID = mBundle.getLong("sid", -1);
+		mBaoxiuCardObject.mBID = mBundle.getLong("sid", -1);
 		mBaoxiuCardObject.mUID = mBundle.getLong("uid", -1);
 	}
 	

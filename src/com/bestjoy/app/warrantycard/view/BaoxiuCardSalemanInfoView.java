@@ -44,7 +44,7 @@ import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
 
-public class BaoxiuCardViewSalemanInfoView extends RelativeLayout implements View.OnClickListener, OnLongClickListener{
+public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.OnClickListener, OnLongClickListener{
 
 	private static final String TAG = "BaoxiuCardViewSalemanInfoView";
 	private View mActionsLayout;
@@ -78,7 +78,7 @@ public class BaoxiuCardViewSalemanInfoView extends RelativeLayout implements Vie
 		mFragment = fragment;
 	}
 	
-	public BaoxiuCardViewSalemanInfoView(Context context, AttributeSet attrs) {
+	public BaoxiuCardSalemanInfoView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		if (isInEditMode()) {
 			return;

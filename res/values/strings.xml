@@ -336,7 +336,7 @@
          <string name="button_im">留言互动</string>
          
          <string name="button_maintenance_componnet">购买维修配件</string>
-         <string name="button_maintenance_point">最近维修点</string>
+         <string name="button_maintenance_point">附近维修点</string>
          <string name="text_baoxiu_validate">还剩</string>
          <string name="text_baoxiu_day_remain">距离质保结束</string>
          <string name="unit_day">天</string>
@@ -703,4 +703,10 @@
          <string name="car_product_washing_shop_title">洗车</string>
          <string name="car_product_weiixiu_shop_title">维修</string>
          <string name="car_product_chuxian_shop_title">出险</string>
+         
+         <string name="pull_to_refresh_locationing_label">正在定位当前位置...</string>
+         <string name="weixiu_nearby_points">汽车维修</string>
+         
+         <string name="format_car_product_chepai">"车牌: %s"</string>
+         
 </resources>

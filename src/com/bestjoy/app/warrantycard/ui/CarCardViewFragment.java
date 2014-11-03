@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.Date;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -37,10 +38,9 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
-import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.HomeObject;
-import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
 import com.bestjoy.app.warrantycard.view.BaoxiuCardViewSalemanInfoView;
 import com.bestjoy.app.warrantycard.view.CircleProgressView;
@@ -54,16 +54,16 @@ import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.NotifyRegistrant;
 
-public class CardViewFragment extends ModleBaseFragment implements View.OnClickListener{
-	private static final String TOKEN = CardViewFragment.class.getName();
-	private static final String TAG = "CardViewFragment";
+public class CarCardViewFragment extends ModleBaseFragment implements View.OnClickListener{
+	private static final String TOKEN = CarCardViewFragment.class.getName();
+	private static final String TAG = "CarCardViewFragment";
 	//商品信息
-	private TextView  mPinpaiInput, mModelInput, mBaoxiuTelInput, mYanbaoTelInput, mYanbaoCompanyInput, mYanbaoTimeInput, mFapiaoDateInput, mLeixingInput;
+	private TextView  mPinpaiInput, mModelInput, mBaoxiuTelInput, mYanbaoTelInput, mYanbaoCompanyInput, mYanbaoTimeInput, mFapiaoDateInput;
+	
+	private TextView  mChePaiInput, mChejiaInput, mFaDongJiInput, mBaoxianDateInput, mBaoYangDateInput, mYanCheDateInput;
 	private ImageView mAvatorView;
 	private Button mBillView, mUsageView, mBuyYanbaoView;
-	private BaoxiuCardObject mBaoxiuCardObject;
-	
-	private HomeObject mHomeObject;
+	private CarBaoxiuCardObject mBaoxiuCardObject;
 	
 	private Handler mHandler;
 	
@@ -102,7 +102,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		        				mBillView.setEnabled(false);
 		        				mHandler.sendEmptyMessageDelayed(WHAT_SHOW_FAPIAO_WAIT, 6000);
 		        				DebugUtils.logD(TAG, "FapiaoTask downloaded " + fapiao.getAbsolutePath());
-		        				BaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
+		        				CarBaoxiuCardObject.showBill(getActivity(), mBaoxiuCardObject);
 		        			}
 	            		} else {
 	            			MyApplication.getInstance().showMessage(bundle.getString(PhotoManagerUtilsV2.EXTRA_DOWNLOAD_STATUS_MESSAGE));
@@ -118,7 +118,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
             }
 			
 		};
-		BaoxiuCardObject.showBill(getActivity(), null);
+		CarBaoxiuCardObject.showBill(getActivity(), null);
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
 		if (savedInstanceState != null) {
 			mBundles = savedInstanceState.getBundle(TAG);
@@ -127,19 +127,25 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			mBundles = getArguments();
 		}
 		
-		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundles);
-		mHomeObject = HomeObject.getHomeObject(mBundles);
+		mBaoxiuCardObject = CarBaoxiuCardObject.getBaoxiuCardObject(mBundles);
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-			View view = inflater.inflate(R.layout.activity_card_view, container, false);
+			View view = inflater.inflate(R.layout.activity_car_card_view_fragment, container, false);
 
 			//商品信息
 			 mPinpaiInput = (TextView) view.findViewById(R.id.product_brand_input);
 			 mModelInput = (TextView) view.findViewById(R.id.product_model_input);
-			 mLeixingInput = (TextView) view.findViewById(R.id.product_leixing_input);
+			 mChePaiInput = (TextView) view.findViewById(R.id.product_chepai_input);
+			 
+			 mChejiaInput = (TextView) view.findViewById(R.id.product_chejia_input);
+			 mFaDongJiInput = (TextView) view.findViewById(R.id.car_product_fadongji_input);
+			 
+			 mBaoxianDateInput = (TextView) view.findViewById(R.id.car_product_baoxian_input);
+			 mBaoYangDateInput = (TextView) view.findViewById(R.id.car_product_baoyan_input);
+			 mYanCheDateInput = (TextView) view.findViewById(R.id.car_product_yanche_input);
 			 
 			 mBaoxiuTelInput = (TextView) view.findViewById(R.id.baoxiu_tel_input);
 			 mYanbaoCompanyInput = (TextView) view.findViewById(R.id.product_buy_delay_componey); 
@@ -213,16 +219,21 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			 mBillView.setVisibility(View.VISIBLE);
 		 }
 		 
-		 try {
-			 mFapiaoDateInput.setText(BaoxiuCardObject.DATE_FORMAT_FAPIAO_TIME.format(BaoxiuCardObject.BUY_DATE_TIME_FORMAT.parse(mBaoxiuCardObject.mBuyDate)));
-		 } catch (ParseException e) {
-			 mFapiaoDateInput.setText(mBaoxiuCardObject.mBuyDate);
-		 }
+		 mFapiaoDateInput.setText(BaoxiuCardObject.FORMAT_DATE.format(new Date(Long.valueOf(mBaoxiuCardObject.mBuyDate))));
 		 
 //		 mPinpaiInput.setText(BaoxiuCardObject.getTagName(mBaoxiuCardObject.mCardName, mBaoxiuCardObject.mPinPai, mBaoxiuCardObject.mLeiXin));
 		 mPinpaiInput.setText(mBaoxiuCardObject.mPinPai);
-		 mLeixingInput.setText(mBaoxiuCardObject.mLeiXin);
 		 mModelInput.setText(mBaoxiuCardObject.mXingHao);
+		 
+		 mChePaiInput.setText(getString(R.string.format_car_product_chepai, mBaoxiuCardObject.mChePai));
+		 
+		 mChejiaInput.setText(mBaoxiuCardObject.mBXPhone);
+		 mFaDongJiInput.setText(mBaoxiuCardObject.mFaDongJi);
+		 
+		 mBaoxianDateInput.setText(IBaoxiuCardObject.FORMAT_DATE.format(new Date(Long.valueOf(mBaoxiuCardObject.mBaoXianDeadline))));
+		 mBaoYangDateInput.setText(IBaoxiuCardObject.FORMAT_DATE.format(new Date(Long.valueOf(mBaoxiuCardObject.mLastBaoYanTime))));
+		 mYanCheDateInput.setText(IBaoxiuCardObject.FORMAT_DATE.format(new Date(Long.valueOf(mBaoxiuCardObject.mLastYanCheTime))));
+		 
 		 
 		 mBaoxiuTelInput.setText(mBaoxiuCardObject.mBXPhone);
 		 mYanbaoTelInput.setText(mBaoxiuCardObject.mYBPhone);
@@ -262,7 +273,6 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		 switch(menuItem.getItemId()) {
 		 case R.string.menu_edit:
 			 BaoxiuCardObject.setBaoxiuCardObject(mBaoxiuCardObject);
-			 HomeObject.setHomeObject(mHomeObject);
 			 NewCardActivity.startIntent(getActivity(), mBundles);
 			 getActivity().finish();
 			 break;
@@ -375,17 +385,13 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 			InputStream is = null;
 			ServiceResultObject resultObject = new ServiceResultObject();
 			try {
-				is = NetworkUtils.openContectionLocked(ServiceObject.getBaoxiuCardDeleteUrl(String.valueOf(mBaoxiuCardObject.mBID), String.valueOf(mBaoxiuCardObject.mUID)), MyApplication.getInstance().getSecurityKeyValuesObject());
+				is = NetworkUtils.openContectionLocked(ServiceObject.getCarBaoxiuCardDeleteUrl(String.valueOf(mBaoxiuCardObject.mBID), String.valueOf(mBaoxiuCardObject.mUID)), MyApplication.getInstance().getSecurityKeyValuesObject());
 				if (is != null) {
 					String content = NetworkUtils.getContentFromInput(is);
 					resultObject = ServiceResultObject.parse(content);
 					if (resultObject.isOpSuccessfully()) {
 						//删除服务器成功后还要删除本地的数据
-						int deleted = BaoxiuCardObject.deleteBaoxiuCardInDatabaseForAccount(getActivity().getContentResolver(), mBaoxiuCardObject.mUID, mBaoxiuCardObject.mAID, mBaoxiuCardObject.mBID);
-						if (deleted > 0) {
-							//本地删除成功后我们还要刷新对应HomeObject对象的保修卡数据
-							MyAccountManager.getInstance().updateHomeObject(mBaoxiuCardObject.mAID);
-						}
+						CarBaoxiuCardObject.deleteBaoxiuCardInDatabaseForAccount(getActivity().getContentResolver(), mBaoxiuCardObject.mUID, mBaoxiuCardObject.mBID);
 					}
 				}
 			} catch (ClientProtocolException e) {
@@ -421,7 +427,7 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 	 * @param context
 	 */
 	public static void startActivit(Context context, Bundle bundle) {
-		Intent intent = new Intent(context, CardViewFragment.class);
+		Intent intent = new Intent(context, CarCardViewFragment.class);
 		if (bundle != null) {
 			intent.putExtras(bundle);
 		}
@@ -430,19 +436,15 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 
 	@Override
 	public void updateInfoInterface(InfoInterface infoInterface) {
-		if (infoInterface instanceof BaoxiuCardObject) {
-			if (infoInterface != null) {
-				mBaoxiuCardObject = (BaoxiuCardObject)infoInterface;
-			}
-		} else if (infoInterface instanceof HomeObject) {
-			if (infoInterface != null) {
-				mHomeObject = (HomeObject)infoInterface;
-			}
-		} else if (infoInterface instanceof AccountObject) {
-			if (infoInterface != null) {
-				long uid = ((AccountObject)infoInterface).mAccountUid;
-			}
-		}		
+//		if (infoInterface instanceof BaoxiuCardObject) {
+//			if (infoInterface != null) {
+//				mBaoxiuCardObject = (CarBaoxiuCardObject)infoInterface;
+//			}
+//		} else if (infoInterface instanceof AccountObject) {
+//			if (infoInterface != null) {
+//				long uid = ((AccountObject)infoInterface).mAccountUid;
+//			}
+//		}		
 	}
 
 	@Override

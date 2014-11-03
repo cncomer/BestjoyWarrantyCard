@@ -22,6 +22,7 @@ import android.text.TextUtils;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.im.RelationshipObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.DebugUtils;
@@ -58,81 +59,27 @@ import com.shwy.bestjoy.utils.InfoInterfaceImpl;
     ]
  *
  */
-public class CarBaoxiuCardObject extends InfoInterfaceImpl {
-	public static final String JSONOBJECT_NAME = "carbaoxiu";
+public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 	public static final String TAG = "CarBaoxiuCardObject";
-	public String mLeiXin;
-	public String mPinPai;
-	public String mXingHao;
-	public String mChePai;
-	public String mCheJia;
-	public String mFaDongJi;
-	/**厂家电话*/
-	public String mBXPhone;
-	/**发票地址*/
-	public String mFPaddr = "";
-	/**购买日期*/
-	public String mBuyDate;
+	public String mChePai="";
+	public String mCheJia="";
+	public String mFaDongJi="";
 	/**上次保养*/
-	public String mLastBaoYanTime;
+	public String mLastBaoYanTime="";
 	/**上次验车*/
-	public String mLastYanCheTime;
+	public String mLastYanCheTime="";
 	/**保险到期*/
-	public String mBaoXianDeadline;
-	/**保修时间，浮点型，默认是1年*/
-	public String mWY = "1";
-	public String mYanBaoTime = "0";
-	public String mYanBaoDanWei="";
-	/**延保电话*/
-	public String mYBPhone;
-	public String mKY;
-	/**用来构建保修卡设备预览图，如mPKY.jpg*/
-	public String mPKY;
-	/**本地id*/
-	public long mId = -1;
-	public long mUID = -1, mSID = -1;
+	public String mBaoXianDeadline="";
 	
 	public String m4SShopTel = "",m4SWashingShopTel = "",mWeixiuShopTel = "",mChuxianShopTel = "";
 	
 	private int mZhengjiValidity = -1;
-	private long mModifiedTime = new Date().getTime();
-	
 	
 	/**这个值用作不同Activity之间的传递，如选择设备的时候*/
 	private static CarBaoxiuCardObject mBaoxiuCardObject = null;
 	/**如果服务器返回的保修卡数据中pky字段是000,则表示该保修卡没有设备预览图，直接显示本地的ky_default.jpg*/
 	public static final String DEFAULT_BAOXIUCARD_IMAGE_KEY = "000";
 	
-	public static final String UID_SELECTION = HaierDBHelper.ACCOUNT_UID + "=?";
-	public static final String UID_SID_SELECTION = UID_SELECTION + " and " + HaierDBHelper.DATA14 + "=?";
-	public static final String[] PROJECTION = new String[]{
-		HaierDBHelper.ID,              //0
-		HaierDBHelper.ACCOUNT_UID,   //1  account id
-		HaierDBHelper.DATA1,         //2  汽车型号
-		HaierDBHelper.DATA2,         //3  车牌号码
-		HaierDBHelper.DATA3,         //4  车架编号
-		HaierDBHelper.DATA4,         //5  发动机号
-		HaierDBHelper.DATA5,         //6  购买日期
-		HaierDBHelper.DATA6,         //7  厂家电话
-		HaierDBHelper.DATA7,         //8  发票地址
-		HaierDBHelper.DATA8,         //9  上次保养
-		HaierDBHelper.DATA9,         //10 上次验车
-		HaierDBHelper.DATA10,        //11 保险到期
-		HaierDBHelper.DATA11,        //12 延保时间
-		HaierDBHelper.DATA12,        //13 延保单位
-		HaierDBHelper.DATA13,        //14 延保电话
-		HaierDBHelper.DATA14,        //15 保修卡服务器id
-		HaierDBHelper.DATA15,        //16 保修期
-		HaierDBHelper.DATA16,        //17 4S店
-		HaierDBHelper.DATA17,        //18 洗车
-		HaierDBHelper.DATA18,        //19 维修
-		HaierDBHelper.DATA19,        //20 出险
-		HaierDBHelper.DATA20,        //21 修改时间
-		HaierDBHelper.DATA21,        //22 品牌
-		HaierDBHelper.CARD_KY,       //23
-		HaierDBHelper.CARD_PKY,      //24
-		HaierDBHelper.DATA22,        //
-	};
 	public static final int INDEX_ID = 0;
 	public static final int INDEX_UID = 1;
 	/**DATA1, 汽车型号*/
@@ -183,8 +130,15 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 	/**CARD_PKY, pky*/
 	public static final int INDEX_PKY = 24;
 	
+	/**DATA22, 修改时间*/
+	public static final int KEY_CARD_MMONE = 25;
+	/**DATA23, PinPai*/
+	public static final int KEY_CARD_MMTWO = 26;
+	
+	public static final String UID_SID_SELECTION = WHERE_UID + " and " + PROJECTION[INDEX_SID] + "=?";
+	
 	public static Cursor getAlCarCards(ContentResolver cr, String uid) {
-		return cr.query(BjnoteContent.MyCarCards.CONTENT_URI, PROJECTION, UID_SELECTION, new String[]{uid}, HaierDBHelper.DATA14 + " desc");
+		return cr.query(BjnoteContent.MyCarCards.CONTENT_URI, PROJECTION, WHERE_UID, new String[]{uid}, HaierDBHelper.DATA14 + " desc");
 	}
 	
 	public static CarBaoxiuCardObject parseBaoxiuCards(JSONObject jsonObject, AccountObject accountObject) throws JSONException {
@@ -196,13 +150,6 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		cardObject.mCheJia = jsonObject.getString("che_jiahao");
 		
 		cardObject.mBuyDate = jsonObject.getString("buydate");
-//		if(buyDate != null) {
-//			//2010-01-01
-//			cardObject.mBuyDate = buyDate.replaceAll("[ -]", "");
-//			DebugUtils.logD(TAG, "reset BuyDate from " + buyDate + " to " + cardObject.mBuyDate);
-//		} else {
-//			cardObject.mBuyDate = "";
-//		}
 		cardObject.mFaDongJi = jsonObject.getString("fadongjihao");
 		
 		cardObject.mBXPhone = jsonObject.getString("changjia_phone");
@@ -219,14 +166,14 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		
 		
 		cardObject.mYanBaoTime = jsonObject.getString("yanbaotime");
-		if ("null".equals(cardObject.mYanBaoTime)) {
+		if ("null".equals(cardObject.mYanBaoTime) || "".equals(cardObject.mYanBaoTime)) {
 			cardObject.mYanBaoTime = "0";
 		}
 		cardObject.mYanBaoDanWei = jsonObject.getString("yanbaodanwei");
 		cardObject.mYBPhone = jsonObject.getString("yanbaophone");
 		
 		cardObject.mUID = jsonObject.getLong("uid");
-		cardObject.mSID = jsonObject.getLong("cid");
+		cardObject.mBID = jsonObject.getLong("cid");
 		
 		cardObject.mKY = jsonObject.getString("ky");
 		if ("null".equalsIgnoreCase(cardObject.mKY)) {
@@ -245,6 +192,16 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		
 		cardObject.mModifiedTime = Long.valueOf(jsonObject.getString("rtime"));
 		
+		JSONObject mmone = jsonObject.optJSONObject("MMOne");
+		if (mmone != null) {
+			cardObject.mMMOneRelationshipObject = RelationshipObject.parse(mmone);
+		}
+		
+		mmone = jsonObject.optJSONObject("MMTwo");
+		if (mmone != null) {
+			cardObject.mMMTwoRelationshipObject = RelationshipObject.parse(mmone);
+		}
+		
 		return cardObject;
 	}
 	
@@ -261,35 +218,20 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 	
 	public CarBaoxiuCardObject clone() {
 		CarBaoxiuCardObject newBaoxiuCardObject = new CarBaoxiuCardObject();
-		newBaoxiuCardObject.mUID = mUID;
-		newBaoxiuCardObject.mSID = mSID;
-		newBaoxiuCardObject.mId = mId;
-		newBaoxiuCardObject.mWY = mWY;
-		newBaoxiuCardObject.mPinPai = mPinPai;
-		newBaoxiuCardObject.mXingHao = mXingHao;
+		super.clone(newBaoxiuCardObject);
 		newBaoxiuCardObject.mChePai = mChePai;
 		
 		newBaoxiuCardObject.mCheJia = mCheJia;
 		newBaoxiuCardObject.mFaDongJi = mFaDongJi;
-		newBaoxiuCardObject.mXingHao = mXingHao;
-		newBaoxiuCardObject.mBXPhone = mBXPhone;
 		
-		newBaoxiuCardObject.mFPaddr = mFPaddr;
-		newBaoxiuCardObject.mBuyDate = mBuyDate;
 		newBaoxiuCardObject.mLastBaoYanTime = mLastBaoYanTime;
 		newBaoxiuCardObject.mLastYanCheTime = mLastYanCheTime;
 		newBaoxiuCardObject.mBaoXianDeadline = mBaoXianDeadline;
-		newBaoxiuCardObject.mYanBaoTime = mYanBaoTime;
-		newBaoxiuCardObject.mYanBaoDanWei = mYanBaoDanWei;
-		newBaoxiuCardObject.mYBPhone = mYBPhone;
-		newBaoxiuCardObject.mKY = mKY;
-		newBaoxiuCardObject.mPKY = mPKY;
 		
 		newBaoxiuCardObject.m4SShopTel = m4SShopTel;
 		newBaoxiuCardObject.m4SWashingShopTel = m4SWashingShopTel;
 		newBaoxiuCardObject.mWeixiuShopTel = mWeixiuShopTel;
 		newBaoxiuCardObject.mChuxianShopTel = mChuxianShopTel;
-		newBaoxiuCardObject.mModifiedTime = mModifiedTime;
 		
 		return newBaoxiuCardObject;
 	}
@@ -299,31 +241,15 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 	 */
 	public Bundle getBaoxiuCardObjectBundle() {
 		Bundle bundle = new Bundle();
-		bundle.putLong("id", mId);
-		bundle.putLong("uid", mUID);
-		bundle.putLong("mSID", mSID);
-		bundle.putString("wy", mWY);
-		bundle.putString("mPinPai", mPinPai);
-		bundle.putString("mXingHao", mXingHao);
+		super.populateBaoxiuCardObjectBundle(bundle);
 		bundle.putString("mChePai", mChePai);
 		
 		bundle.putString("mCheJia", mCheJia);
 		bundle.putString("mFaDongJi", mFaDongJi);
-		bundle.putString("mBXPhone", mBXPhone);
 		
-		bundle.putString("mFPaddr", mFPaddr);
-		bundle.putString("mBuyDate", mBuyDate);
 		bundle.putString("mLastBaoYanTime", mLastBaoYanTime);
-		
 		bundle.putString("mLastYanCheTime", mLastYanCheTime);
 		bundle.putString("mBaoXianDeadline", mBaoXianDeadline);
-		
-		bundle.putString("mYanBaoTime", mYanBaoTime);
-		bundle.putString("mYanBaoDanWei", mYanBaoDanWei);
-		bundle.putString("mYBPhone", mYBPhone);
-		
-		bundle.putString("mKY", mKY);
-		bundle.putString("mPKY", mPKY);
 		
 		bundle.putString("m4SShopTel", m4SShopTel);
 		bundle.putString("m4SWashingShopTel", m4SWashingShopTel);
@@ -336,40 +262,21 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 	
 	public static CarBaoxiuCardObject getBaoxiuCardObjectFromBundle(Bundle bundle) {
 		CarBaoxiuCardObject baoxiuCardObject = new CarBaoxiuCardObject();
-		bundle = bundle.getBundle(TAG);
-		if (bundle == null) {
-			return baoxiuCardObject;
-		}
-		baoxiuCardObject.mId = bundle.getLong("id", -1);
-		baoxiuCardObject.mUID = bundle.getLong("uid", -1);
-		baoxiuCardObject.mSID = bundle.getLong("mSID", -1);
-		baoxiuCardObject.mPinPai = bundle.getString("mPinPai", "");
-		baoxiuCardObject.mXingHao = bundle.getString("mXingHao", "");
-		
-		baoxiuCardObject.mWY = bundle.getString("wy");
+		populateBaoxiuCardObjectFromBundle(bundle, baoxiuCardObject);
 		baoxiuCardObject.mChePai = bundle.getString("mChePai", "");
 		baoxiuCardObject.mCheJia = bundle.getString("mZhuBx", "");
 		baoxiuCardObject.mFaDongJi = bundle.getString("mFaDongJi", "");
-		baoxiuCardObject.mBXPhone = bundle.getString("mBXPhone", "");
-		baoxiuCardObject.mFPaddr = bundle.getString("mFPaddr", "");
 		
-		baoxiuCardObject.mBuyDate = bundle.getString("mBuyDate", "");
 		baoxiuCardObject.mLastBaoYanTime = bundle.getString("mLastBaoYanTime", "");
 		baoxiuCardObject.mLastYanCheTime = bundle.getString("mLastYanCheTime", "");
 		baoxiuCardObject.mBaoXianDeadline = bundle.getString("mBaoXianDeadline", "");
-		
-		baoxiuCardObject.mYanBaoTime = bundle.getString("mYanBaoTime", "");
-		baoxiuCardObject.mYanBaoDanWei = bundle.getString("mYanBaoDanWei");
-		baoxiuCardObject.mYBPhone = bundle.getString("mYBPhone");
-		
-		baoxiuCardObject.mKY = bundle.getString("mKY");
-		baoxiuCardObject.mPKY = bundle.getString("mPKY");
 		
 		baoxiuCardObject.m4SShopTel = bundle.getString("m4SShopTel", "");
 		baoxiuCardObject.m4SWashingShopTel = bundle.getString("m4SWashingShopTel", "");
 		baoxiuCardObject.mWeixiuShopTel = bundle.getString("mWeixiuShopTel", "");
 		baoxiuCardObject.mChuxianShopTel = bundle.getString("mChuxianShopTel", "");
 		baoxiuCardObject.mModifiedTime = bundle.getLong("mModifiedTime", new Date().getTime());
+		
 		return baoxiuCardObject;
 	}
 	
@@ -380,12 +287,6 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		return sb.toString();
 	}
 	
-	public static int deleteBaoxiuCardInDatabaseForAccount(ContentResolver cr, long uid, long bid) {
-		int deleted = cr.delete(BjnoteContent.MyCarCards.CONTENT_URI, UID_SID_SELECTION, new String[]{String.valueOf(uid), String.valueOf(bid)});
-		DebugUtils.logD(TAG, "deleteBaoxiuCardInDatabaseForAccount sid#" + bid + ", delete " + deleted);
-		return deleted;
-	}
-	
 	/**
 	 * 删除某个account的全部保修卡
 	 * @param cr
@@ -393,8 +294,19 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 	 * @return
 	 */
 	public static int deleteAllBaoxiuCardsInDatabaseForAccount(ContentResolver cr, long uid) {
-		int deleted = cr.delete(BjnoteContent.MyCarCards.CONTENT_URI, UID_SELECTION, new String[]{String.valueOf(uid)});
+		int deleted = cr.delete(BjnoteContent.MyCarCards.CONTENT_URI, WHERE_UID, new String[]{String.valueOf(uid)});
 		DebugUtils.logD(TAG, "deleteAllBaoxiuCardsInDatabaseForAccount uid#" + uid + ", delete " + deleted);
+		return deleted;
+	}
+	/**
+	 * 删除某个account的全部保修卡
+	 * @param cr
+	 * @param uid
+	 * @return
+	 */
+	public static int deleteBaoxiuCardInDatabaseForAccount(ContentResolver cr, long uid, long bid) {
+		int deleted = cr.delete(BjnoteContent.MyCarCards.CONTENT_URI, UID_SID_SELECTION, new String[]{String.valueOf(uid), String.valueOf(bid)});
+		DebugUtils.logD(TAG, "deleteBaoxiuCardInDatabaseForAccount bid#" + bid + ", delete " + deleted);
 		return deleted;
 	}
 	 public static int getAllBaoxiuCardsCount(ContentResolver cr, long uid) {
@@ -414,7 +326,7 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 	 * @return
 	 */
     public static Cursor getAllBaoxiuCardsCursor(ContentResolver cr, long uid) {
-		return cr.query(BjnoteContent.MyCarCards.CONTENT_URI, PROJECTION, UID_SELECTION, new String[]{String.valueOf(uid)}, PROJECTION[INDEX_SID]+" DESC");
+		return cr.query(BjnoteContent.MyCarCards.CONTENT_URI, PROJECTION, WHERE_UID, new String[]{String.valueOf(uid)}, PROJECTION[INDEX_SID]+" DESC");
 	}
     
     public static CarBaoxiuCardObject getBaoxiuCardObject(ContentResolver cr, long uid, long bid) {
@@ -444,7 +356,7 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 			
 			CarBaoxiuCardObject newBaoxiuCardObject = CarBaoxiuCardObject.getBaoxiuCardObjectFromBundle(bundle);
 			newBaoxiuCardObject.mUID = uid;
-			newBaoxiuCardObject.mSID = bid;
+			newBaoxiuCardObject.mBID = bid;
 			DebugUtils.logD(TAG, "getBaoxiuCardObject() new BaoxiuCardObject=" + newBaoxiuCardObject);
 			return newBaoxiuCardObject;
 		}
@@ -466,7 +378,7 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
     	CarBaoxiuCardObject baoxiuCardObject = new CarBaoxiuCardObject();
     	baoxiuCardObject.mId = c.getLong(INDEX_ID);
     	baoxiuCardObject.mUID = c.getLong(INDEX_UID);
-    	baoxiuCardObject.mSID = c.getLong(INDEX_SID);
+    	baoxiuCardObject.mBID = c.getLong(INDEX_SID);
     	baoxiuCardObject.mPinPai =c.getString(INDEX_PINPAI);
     	baoxiuCardObject.mXingHao = c.getString(INDEX_XINGHAO);
     	baoxiuCardObject.mChePai = c.getString(INDEX_CHEPAI);
@@ -490,6 +402,10 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
     	baoxiuCardObject.m4SWashingShopTel = c.getString(INDEX_WASHING_SHOP);
     	baoxiuCardObject.mWeixiuShopTel =c.getString(INDEX_WEIXIU_SHOP);
     	baoxiuCardObject.mChuxianShopTel =c.getString(INDEX_CHUXIAN_SHOP);
+    	
+    	baoxiuCardObject.mMMOne =c.getString(KEY_CARD_MMONE);
+    	baoxiuCardObject.mMMTwo =c.getString(KEY_CARD_MMTWO);
+    	
     	baoxiuCardObject.mModifiedTime = c.getLong(INDEX_MODIFIED);
     	
 		return baoxiuCardObject;
@@ -501,7 +417,7 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		if (addtion != null) {
 			values.putAll(addtion);
 		}
-		String[] selectionArgs =  new String[]{String.valueOf(mUID), String.valueOf(mSID)};
+		String[] selectionArgs =  new String[]{String.valueOf(mUID), String.valueOf(mBID)};
 		long id = isExsited(cr,selectionArgs);
 		
 		values.put(PROJECTION[INDEX_UID], mUID);
@@ -520,7 +436,7 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		values.put(PROJECTION[INDEX_YANBAO], mYanBaoTime);
 		values.put(PROJECTION[INDEX_YANBAO_COMPANY], mYanBaoDanWei);
 		values.put(PROJECTION[INDEX_YANBAO_TEL], mYBPhone);
-		values.put(PROJECTION[INDEX_SID], mSID);
+		values.put(PROJECTION[INDEX_SID], mBID);
 		values.put(PROJECTION[INDEX_WY], mWY);
 		
 		values.put(PROJECTION[INDEX_4S_SHOP], m4SShopTel);
@@ -531,26 +447,38 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		values.put(PROJECTION[INDEX_PKY], mPKY);
 		values.put(PROJECTION[INDEX_MODIFIED], mModifiedTime);
 		
+		values.put(PROJECTION[KEY_CARD_MMONE], mMMOne);
+		values.put(PROJECTION[KEY_CARD_MMTWO], mMMTwo);
 		
+		boolean op = false;
 		if (id > 0) {
 			int update = cr.update(BjnoteContent.MyCarCards.CONTENT_URI, values,  UID_SID_SELECTION, selectionArgs);
 			if (update > 0) {
-				DebugUtils.logD(TAG, "saveInDatebase update exsited bid#" + mSID);
-				return true;
+				DebugUtils.logD(TAG, "saveInDatebase update exsited bid#" + mBID);
+				op = true;
 			} else {
-				DebugUtils.logD(TAG, "saveInDatebase failly update exsited bid#" + mSID);
+				DebugUtils.logD(TAG, "saveInDatebase failly update exsited bid#" + mBID);
 			}
 		} else {
 			Uri uri = cr.insert(BjnoteContent.MyCarCards.CONTENT_URI, values);
 			if (uri != null) {
-				DebugUtils.logD(TAG, "saveInDatebase insert bid#" + mSID);
+				DebugUtils.logD(TAG, "saveInDatebase insert bid#" + mBID);
 				mId = ContentUris.parseId(uri);
-				return true;
+				op = true;
 			} else {
-				DebugUtils.logD(TAG, "saveInDatebase failly insert bid#" + mSID);
+				DebugUtils.logD(TAG, "saveInDatebase failly insert bid#" + mBID);
 			}
 		}
-		return false;
+		if (op) {
+			DebugUtils.logD(TAG, "saveInDatebase save RelationshipObject");
+			if (mMMOneRelationshipObject != null) {
+				mMMOneRelationshipObject.saveInDatebase(cr, null);
+			}
+			if (mMMTwoRelationshipObject != null) {
+				mMMTwoRelationshipObject.saveInDatebase(cr, null);
+			}
+		}
+		return op;
 	}
 	
 	private long isExsited(ContentResolver cr, String[] selectionArgs) {
@@ -618,199 +546,4 @@ public class CarBaoxiuCardObject extends InfoInterfaceImpl {
 		}
 		return getValidityDay(rangeDay, Long.valueOf(timeStamp));
 	}
-	
-	
-	
-	/**
-	 * 当我们设置过mBaoxiuCardObject值后，需要使用这个方法来获取，这会重置mBaoxiuCardObject对象为null.
-	 * @return
-	 */
-	public static CarBaoxiuCardObject getBaoxiuCardObject() {
-		CarBaoxiuCardObject object = null;
-		if (mBaoxiuCardObject != null) {
-			object = mBaoxiuCardObject;
-			mBaoxiuCardObject = null;
-		}
-		return object;
-	}
-	/**
-	 * 需要在Activity之间传递保修卡对象的时候，需要调用该方法来设置，之后使用getBaoxiuCardObject()来获得.
-	 * @param baoxiucardObject
-	 */
-	public static void setBaoxiuCardObject(CarBaoxiuCardObject baoxiucardObject) {
-		mBaoxiuCardObject = baoxiucardObject;
-	}
-	
-	/**
-	 * 标签的内容应该是“备注标签+类型”如“客厅空调”
-	 * @param cardName   备注标签
-	 * @param cardType   类型
-	 * @return
-	 */
-	public static String getTagName(String cardName, String cardType) {
-		StringBuilder sb = new StringBuilder();
-		if (!TextUtils.isEmpty(cardName)) {
-			sb.append(cardName);
-		}
-		sb.append(cardType);
-		return sb.toString();
-	}
-	
-	/**
-	 * 标签的内容应该是“备注标签+品牌+类型”如“客厅海尔空调”
-	 * @param cardName   备注标签
-	 * @param pinpai     品牌
-	 * @param cardType   类型
-	 * @return
-	 */
-	public static String getTagName(String cardName, String pinpai, String cardType) {
-		StringBuilder sb = new StringBuilder();
-		if (!TextUtils.isEmpty(cardName)) {
-			sb.append(cardName).append('-');
-		}
-		if (!TextUtils.isEmpty(pinpai)) {
-			sb.append(pinpai);
-		}
-		sb.append(cardType);
-		return sb.toString();
-	}
-	private static final int mAvatorWidth = 1200, mAvatorHeight =1200;
-	public static final String PHOTOID_SEPERATOR = "_";
-	/**占位符号*/
-	public static final String PHOTOID_PLASEHOLDER = "00_00_00";
-	/**临时拍摄的照片路径，当保存成功的时候会将该文件路径重命名为mBillAvator*/
-	public Bitmap mBillTempBitmap;
-	/**本地发票图片路径*/
-	public File mBillFile;
-	/**临时拍摄的照片路径，当保存成功的时候会将该文件路径重命名为mBillAvator*/
-	public File mBillTempFile;
-	
-	public static CarBaoxiuCardObject objectUseForbill = null;
-	/**是否有发票,如果有发票文件或是有发票的拍摄获得的临时文件,我们认为是有发票的*/
-	public boolean hasLocalBill() {
-		if (mBillFile == null) {
-			mBillFile = MyApplication.getInstance().getProductFaPiaoFile(getFapiaoPhotoId());
-		}
-		return mBillFile.exists() || mBillTempFile != null;
-	}
-	/**
-	 * 是否有发票
-	 * @return
-	 */
-	public boolean hasBillAvator() {
-		//modify by chenkai, 20140701, 将发票地址存进数据库（不再拼接），增加海尔奖励延保时间 begin
-		return !TextUtils.isEmpty(mFPaddr) && mFPaddr.startsWith("http");
-		//modify by chenkai, 20140701, 将发票地址存进数据库（不再拼接），增加海尔奖励延保时间 end
-	}
-	/**
-	 * 添加发票时候使用，用来表示是否有临时的拍摄发票文件，有的话，我们认为是要上传的
-	 * @return
-	 */
-	public boolean hasTempBill() {
-		return mBillTempFile != null && mBillTempFile.exists() ;
-	}
-	
-	/**
-	 * http://115.29.231.29/Fapiao/20140421/01324df60b0734de0f973c7907af55fc.jpg
-	 * 返回 20140421_01324df60b0734de0f973c7907af55fc
-	 * @return
-	 */
-	public String getFapiaoPhotoId() {
-//		if (!TextUtils.isEmpty(mFPaddr) && mFPaddr.startsWith(HaierServiceObject.FAPIAO_PREFIX)) {
-//			String photoId = mFPaddr.substring(HaierServiceObject.FAPIAO_PREFIX.length());
-//			photoId = photoId.replaceAll("/", "_");
-//			return photoId;
-//		}
-		if (hasBillAvator()) {
-			return BaoxiuCardObject.getFapiaoPhotoIdFromFpAddr(mFPaddr);
-		}
-		DebugUtils.logD(TAG, "getFapiaoPhotoId() " + PHOTOID_PLASEHOLDER);
-		return PHOTOID_PLASEHOLDER;
-	}
-	
-	
-	/**保存临时的发票拍摄作为该商品的使用发票预览图*/
-	public boolean saveBillAvatorTempFileLocked() {
-		if (mBillTempBitmap != null) {
-			File newPath = MyApplication.getInstance().getProductFaPiaoFile(getFapiaoPhotoId());
-			boolean result = ImageHelper.bitmapToFile(mBillTempBitmap, newPath, 100);
-			if (result) {
-				mBillFile = newPath;
-				if (mBillTempFile != null && mBillTempFile.exists()) {
-					mBillTempFile.delete();
-					mBillTempFile = null;
-				}
-			}
-			return result;
-		} else {
-			return false;
-		}
-	}
-	
-	 /**
-     * 返回商品发票预览图的Base64编码字符串
-     * @return
-     */
-    public String getBase64StringFromBillAvator(){
-    	//默认返回""
-    	String result = "";
-    	//如果此时还没有临时商品预览图，我们从文件中构建
-        if (mBillTempBitmap == null) {
-        	if (mBillFile == null) {
-    			mBillFile = MyApplication.getInstance().getProductFaPiaoFile(getFapiaoPhotoId());
-    		}
-        	if (mBillFile != null && mBillFile.exists()) {
-        		Bitmap billTempBitmap = ImageHelper.getSmallBitmap(mBillFile.getAbsolutePath(), mAvatorWidth, mAvatorHeight);
-        		if (billTempBitmap != null) {
-        			result = ImageHelper.bitmapToString(billTempBitmap, 100);
-        		} else{
-        			new Exception("getBase64StringFromBillAvator() getSmallBitmap return null").printStackTrace();
-        		}
-        	}
-        } else {
-        	 result = ImageHelper.bitmapToString(mBillTempBitmap, 100);
-        }
-        
-       return result == null ? "":result;
-    }
-    
-    public void updateBillAvatorTempLocked(File file) {
-    	mBillTempFile = file;
-    	mBillTempBitmap = ImageHelper.getSmallBitmap(file.getAbsolutePath(), mAvatorWidth, mAvatorHeight);
-//    	mBillTempBitmap = ImageHelper.rotateBitmap(mBillTempBitmap, 90);
-    	mBillTempBitmap = ImageHelper.scaleBitmapFile(mBillTempBitmap, mAvatorWidth, mAvatorHeight);
-		ImageHelper.bitmapToFile(mBillTempBitmap, mBillTempFile, 65);
-		mBillTempBitmap.recycle();
-		mBillTempBitmap = ImageHelper.getSmallBitmap(file.getAbsolutePath(), mAvatorWidth, mAvatorHeight);
-    }
-	
-	public void clear() {
-		if (mBillTempBitmap != null) {
-			mBillTempBitmap.recycle();
-			mBillTempBitmap = null;
-		}
-		if (mBillTempFile != null && mBillTempFile.exists()) {
-			mBillTempFile.delete();
-			mBillTempFile = null;
-		}
-	}
-	
-	public static void showBill(Context context, CarBaoxiuCardObject baociuCardObject) {
-		objectUseForbill = baociuCardObject;
-		if (baociuCardObject != null) {
-			MyApplication.getInstance().showMessage(R.string.msg_wait_for_fapiao_show);
-			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setDataAndType(BjnoteContent.BaoxiuCard.BILL_CONTENT_URI, "image/png");
-			context.startActivity(intent);
-		}
-	}
-	
-	/***
-	 * 返回远程发票的绝对路径
-	 * @return
-	 */
-	public String getFapiaoServicePath() {
-		return mFPaddr;
-	}
-
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -15,24 +14,22 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
-import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
 
-public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
+public class CarCardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 
 	private static final String TAG = "CardViewActivity";
-	private Fragment mContent;
+	private CardViewFragment mContent;
 	public Bundle mBundle;
 	
 	private TextView mMalfunctionBtn, mMaintenancePointBtn;
-	private IBaoxiuCardObject mBaoxiuCardObject;
+	private BaoxiuCardObject mBaoxiuCardObject;
+	private HomeObject mHomeObject;
 	
 	//
 	private View mBottomContentLayout, mBottomContentTop, mContentLayout;
-	
-	private int mBundleType = -1;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,20 +51,10 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
         mMalfunctionBtn.setOnClickListener(this);
         mMaintenancePointBtn.setOnClickListener(this);
 		
+		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
+		mHomeObject = HomeObject.getHomeObject(mBundle);
 		
-		
-		mBundleType = mBundle.getInt(Intents.EXTRA_TYPE);
-		switch(mBundleType) {
-		case R.id.model_my_card:
-			mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
-			mContent = new CardViewFragment();
-			break;
-		case R.id.model_my_car_card:
-			mBaoxiuCardObject = CarBaoxiuCardObject.getBaoxiuCardObject(mBundle);
-			mContent = new CarCardViewFragment();
-			break;
-		}
-		
+		mContent = new CardViewFragment();
 		mContent.setArguments(mBundle);
 
 //		NewRepairCardFragment newRepairCardFragment = new NewRepairCardFragment();
@@ -126,7 +113,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	 * @param context
 	 */
 	public static void startActivit(Context context, Bundle bundle) {
-		Intent intent = new Intent(context, CardViewActivity.class);
+		Intent intent = new Intent(context, CarCardViewActivity.class);
 		if (bundle != null) {
 			intent.putExtras(bundle);
 		}
@@ -140,32 +127,26 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	    	showContent(true);
 	    	break;
 	    case R.id.button_malfunction:
-	    	switch(mBundleType) {
-			case R.id.model_my_card:
-				if (ServiceObject.isHaierPinpaiGenaral(mBaoxiuCardObject.mPinPai)) {
-					showNewRepairCardFragment();
-		    	} else {
-		    		new AlertDialog.Builder(this)
-			    	.setMessage(R.string.must_haier_confirm_yuyue)
-			    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
-								Intents.callPhone(mContext, mBaoxiuCardObject.mBXPhone);
-							} else {
-								MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
-							}
-							
+			if (ServiceObject.isHaierPinpaiGenaral(mBaoxiuCardObject.mPinPai)) {
+				showNewRepairCardFragment();
+	    	} else {
+	    		new AlertDialog.Builder(this)
+		    	.setMessage(R.string.must_haier_confirm_yuyue)
+		    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
+							Intents.callPhone(mContext, mBaoxiuCardObject.mBXPhone);
+						} else {
+							MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
 						}
-					})
-					.setNegativeButton(android.R.string.cancel, null)
-					.show();
-		    	}
-				break;
-			case R.id.model_my_car_card:
-				break;
-			}
+						
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	    	}
 			break;
 		case R.id.button_maintenance_point:
 			showMaintenancePointFragment();

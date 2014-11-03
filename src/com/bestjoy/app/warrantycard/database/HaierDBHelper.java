@@ -16,12 +16,41 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 17;
+  private static final int DB_VERSION = 18;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
   public static final String FLAG_DELETED = "deleted";
   public static final String DATE = "date";
+  
+  public static final String DATA1 = "data1";
+  public static final String DATA2 = "data2";
+  public static final String DATA3 = "data3";
+  public static final String DATA4 = "data4";
+  public static final String DATA5 = "data5";
+  public static final String DATA6 = "data6";
+  public static final String DATA7 = "data7";
+  public static final String DATA8 = "data8";
+  public static final String DATA9 = "data9";
+  public static final String DATA10 = "data10";
+  public static final String DATA11 = "data11";
+  public static final String DATA12 = "data12";
+  public static final String DATA13 = "data13";
+  public static final String DATA14 = "data14";
+  public static final String DATA15 = "data15";
+  
+  public static final String DATA16 = "data16";
+  public static final String DATA17 = "data17";
+  public static final String DATA18 = "data18";
+  public static final String DATA19 = "data19";
+  public static final String DATA20 = "data20";
+  public static final String DATA21 = "data21";
+  public static final String DATA22 = "data22";
+  public static final String DATA23 = "data23";
+  public static final String DATA24 = "data24";
+  public static final String DATA25 = "data25";
+  public static final String DATA26 = "data26";
+  
   //account table
   public static final String TABLE_NAME_ACCOUNTS = "accounts";
   /**用户唯一识别码*/
@@ -52,57 +81,53 @@ private static final String TAG = "HaierDBHelper";
   
   //cards table
   public static final String TABLE_NAME_CARDS = "cards";
-  /**所属家*/
-  public static final String CARD_AID = "aid";
   /**所属账户*/
-  public static final String CARD_UID = "uid";
+  public static final String CARD_UID = ACCOUNT_UID;
+  /**所属家*/
+  public static final String CARD_AID = DATA1;
   /**保修卡服务器id*/
-  public static final String CARD_BID = "bid";
+  public static final String CARD_BID = DATA2;
+  /**本地修改时间*/
+  public static final String CARD_DATE = DATA3;
   /**名称*/
-  public static final String CARD_NAME = "name";
+  public static final String CARD_NAME = DATA4;
   /**设备类别，比如大类是电视剧*/
-  public static final String CARD_TYPE = "LeiXin";
+  public static final String CARD_TYPE = DATA5;
   /**品牌*/
-  public static final String CARD_PINPAI = "PinPai";
+  public static final String CARD_PINPAI = DATA6;
   /**商品编号*/
-  public static final String CARD_SERIAL = "SHBianHao";
+  public static final String CARD_SERIAL = DATA7;
   /**型号*/
-  public static final String CARD_MODEL = "XingHao";
+  public static final String CARD_MODEL = DATA8;
   /**保修电话*/
-  public static final String CARD_BXPhone = "BXPhone";
+  public static final String CARD_BXPhone = DATA9;
   /**发票文件名*/
-  public static final String CARD_FPname = "FPname";
+  public static final String CARD_FPname = DATA10;
   /**发票绝对路径*/
-  public static final String CARD_FPaddr = "FPaddr";
+  public static final String CARD_FPaddr = DATA11;
   /**购买价格*/
-  public static final String CARD_PRICE = "BuyPrice";
+  public static final String CARD_PRICE = DATA12;
   /**购买日期*/
-  public static final String CARD_BUT_DATE = "BuyDate";
+  public static final String CARD_BUT_DATE = DATA13;
   /**购买途径*/
-  public static final String CARD_BUY_TUJING = "BuyTuJing";
+  public static final String CARD_BUY_TUJING = DATA14;
   /**延保时间*/
-  public static final String CARD_YANBAO_TIME = "YanBaoTime";
+  public static final String CARD_YANBAO_TIME = DATA15;
   /**延保单位*/
-  public static final String CARD_YANBAO_TIME_COMPANY = "YanBaoDanWei";
+  public static final String CARD_YANBAO_TIME_COMPANY = DATA16;
   /**整机保修时间*/
-  public static final String CARD_WY = "wy";
+  public static final String CARD_WY = DATA17;
   /**延保电话*/
-  public static final String CARD_YBPhone = "YBPhone";
+  public static final String CARD_YBPhone = DATA18;
   /**KY编码*/
-  public static final String CARD_KY = "ky";
+  public static final String CARD_KY = DATA19;
   
   /**用来构建保修卡设备预览图*/
-  public static final String CARD_PKY = "pky";
-  /**延保单位电话*/
-  public static final String CARD_YANBAO_TIME_COPMANY_TEL = "YanBaoDanWeiCommanyTel";
-  /**整机保修，目前不定义*/
-  public static final String DEVICE_WARRANTY_PERIOD = "warranty_period";
-  /**配件保修*/
-  public static final String CARD_COMPONENT_VALIDITY = "component_validity";
+  public static final String CARD_PKY = DATA20;
   /**对应TABLE_ACCOUNT_RELATIONSHIP表的RELATIONSHIP_SERVICE_ID*/
-  public static final String CARD_MM_ONE = "mmone";
+  public static final String CARD_MM_ONE = DATA21;
   /**对应TABLE_ACCOUNT_RELATIONSHIP表的RELATIONSHIP_SERVICE_ID*/
-  public static final String CARD_MM_TWO = "mmtwo";
+  public static final String CARD_MM_TWO = DATA22;
   //这里是设备表的扩展，如遥控器
   
   
@@ -233,7 +258,7 @@ private static final String TAG = "HaierDBHelper";
   
  //好友关系 begin
   public static final String TABLE_ACCOUNT_RELATIONSHIP = "account_relationship";
-  public static final String RELATIONSHIP_BID = CARD_BID;
+  public static final String RELATIONSHIP_BID = "bid";
   public static final String RELATIONSHIP_BID_MM_TYPE = "mmtype";
   public static final String RELATIONSHIP_TYPE = IM_TARGET_TYPE;
   public static final String RELATIONSHIP_TARGET = IM_TARGET;
@@ -241,30 +266,6 @@ private static final String TAG = "HaierDBHelper";
   public static final String RELATIONSHIP_UID = IM_UID;
   /**对应于服务器上的id*/
   public static final String RELATIONSHIP_SERVICE_ID = IM_SERVICE_ID;
-  /**消息对象，根据IM_TARGET_TYPE的值来区分对象*/
-  public static final String DATA1 = "data1";
-  public static final String DATA2 = "data2";
-  public static final String DATA3 = "data3";
-  public static final String DATA4 = "data4";
-  public static final String DATA5 = "data5";
-  public static final String DATA6 = "data6";
-  public static final String DATA7 = "data7";
-  public static final String DATA8 = "data8";
-  public static final String DATA9 = "data9";
-  public static final String DATA10 = "data10";
-  public static final String DATA11 = "data11";
-  public static final String DATA12 = "data12";
-  public static final String DATA13 = "data13";
-  public static final String DATA14 = "data14";
-  public static final String DATA15 = "data15";
-  
-  public static final String DATA16 = "data16";
-  public static final String DATA17 = "data17";
-  public static final String DATA18 = "data18";
-  public static final String DATA19 = "data19";
-  public static final String DATA20 = "data20";
-  public static final String DATA21 = "data21";
-  public static final String DATA22 = "data22";
   //好友关系 end
   /**社区服务表*/
   public static final String TABLE_HOME_COMMUNITY_SERVICE = "home_community_service";
@@ -380,11 +381,11 @@ private static final String TAG = "HaierDBHelper";
   
   private void createTriggerForBaoxiuCardsTable(SQLiteDatabase sqLiteDatabase) {
 	  String sql = "CREATE TRIGGER insert_cards_update_home" + " AFTER INSERT " + " ON " + TABLE_NAME_CARDS + 
-			  " BEGIN UPDATE " + TABLE_NAME_HOMES + " SET baoxiucard_count = baoxiucard_count+1 WHERE aid = new.aid; END;";
+			  " BEGIN UPDATE " + TABLE_NAME_HOMES + " SET baoxiucard_count = baoxiucard_count+1 WHERE aid = new.DATA1; END;";
 	  sqLiteDatabase.execSQL(sql);
 	  
 	  sql = "CREATE TRIGGER delete_card_update_home" + " AFTER DELETE " + " ON " + TABLE_NAME_CARDS + 
-			  " BEGIN UPDATE " + TABLE_NAME_HOMES + " SET baoxiucard_count = baoxiucard_count-1 WHERE aid = old.aid; END;";
+			  " BEGIN UPDATE " + TABLE_NAME_HOMES + " SET baoxiucard_count = baoxiucard_count-1 WHERE aid = old.DATA1; END;";
 	  sqLiteDatabase.execSQL(sql);
 	  
 	  sql = "CREATE TRIGGER insert_cards_update_account" + " AFTER INSERT " + " ON " + TABLE_NAME_CARDS + 
@@ -437,40 +438,6 @@ private static final String TAG = "HaierDBHelper";
 	            DATE + " TEXT" +
 	            ");");
 	  createTriggerForHomeTable(sqLiteDatabase);
-  }
-  
-  private void createBaoxiuCardsTable(SQLiteDatabase sqLiteDatabase) {
-	  sqLiteDatabase.execSQL(
-	            "CREATE TABLE " + TABLE_NAME_CARDS + " (" +
-	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-	            CARD_UID + " INTEGER NOT NULL DEFAULT 0, " +  //账户id
-	            CARD_AID + " INTEGER, " +     //家id
-	            CARD_BID + " INTEGER, " +     //保修卡服务器id
-	            CARD_TYPE + " TEXT, " +
-	            CARD_NAME + " TEXT, " +
-	            CARD_PINPAI + " TEXT, " +
-	            CARD_MODEL + " TEXT, " +
-	            CARD_SERIAL + " TEXT, " +
-	            CARD_BXPhone + " TEXT, " +
-	            CARD_FPname + " TEXT, " +
-	            CARD_FPaddr + " TEXT, " +
-	            CARD_BUT_DATE + " TEXT, " +
-	            CARD_PRICE + " TEXT, " +
-	            CARD_BUY_TUJING + " TEXT, " +
-	            CARD_WY + " TEXT, " +
-	            CARD_YBPhone + " TEXT, " +
-	            CARD_KY + " TEXT, " +
-	            CARD_PKY + " TEXT, " +
-	            CARD_MM_ONE + " TEXT, " +
-	            CARD_MM_TWO + " TEXT, " +
-	            CARD_YANBAO_TIME + " TEXT, " +
-	            CARD_YANBAO_TIME_COMPANY + " TEXT, " +
-	            CARD_YANBAO_TIME_COPMANY_TEL + " TEXT, " +
-	            DEVICE_WARRANTY_PERIOD + " TEXT, " +
-	            CARD_COMPONENT_VALIDITY + " TEXT, " +
-	            DATE + " TEXT" +
-	            ");");
-	  createTriggerForBaoxiuCardsTable(sqLiteDatabase);
   }
   
   private void createScanHistory(SQLiteDatabase sqLiteDatabase) {
@@ -602,8 +569,6 @@ private static final String TAG = "HaierDBHelper";
 	            "CREATE TABLE " + TABLE_CAR_CARD + " (" +
 	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +
-	            CARD_PKY + " TEXT, " +
-	            CARD_KY + " TEXT, " +
 	            DATA1 + " TEXT, " +
 	            DATA2 + " TEXT, " +
 	            DATA3 + " TEXT, " +
@@ -625,8 +590,47 @@ private static final String TAG = "HaierDBHelper";
 	            DATA19 + " TEXT, " +
 	            DATA20 + " TEXT, " +
 	            DATA21 + " TEXT, " +
-	            DATA22 + " TEXT" +
+	            DATA22 + " TEXT, " +
+	            DATA23 + " TEXT, " +
+	            DATA24 + " TEXT, " +
+	            DATA25 + " TEXT, " +
+	            DATA26 + " TEXT" +
 	            ");");
+  }
+  
+  private void createBaoxiuCardsTable(SQLiteDatabase sqLiteDatabase) {
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_NAME_CARDS + " (" +
+	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+	            CARD_UID + " INTEGER NOT NULL DEFAULT 0, " +  //账户id
+	            CARD_AID + " INTEGER, " +     //家id
+	            CARD_BID + " INTEGER, " +     //保修卡服务器id
+	            CARD_DATE + " TEXT, " +
+	            CARD_NAME + " TEXT, " +
+	            CARD_TYPE + " TEXT, " +
+	            CARD_PINPAI + " TEXT, " +
+	            CARD_SERIAL + " TEXT, " +
+	            CARD_MODEL + " TEXT, " +
+	            CARD_BXPhone + " TEXT, " +
+	            CARD_FPname + " TEXT, " +
+	            CARD_FPaddr + " TEXT, " +
+	            CARD_PRICE + " TEXT, " +
+	            CARD_BUT_DATE + " TEXT, " +
+	            CARD_BUY_TUJING + " TEXT, " +
+	            CARD_YANBAO_TIME + " TEXT, " +
+	            CARD_YANBAO_TIME_COMPANY + " TEXT, " +
+	            CARD_WY + " TEXT, " +
+	            CARD_YBPhone + " TEXT, " +
+	            CARD_KY + " TEXT, " +
+	            CARD_PKY + " TEXT, " +
+	            CARD_MM_ONE + " TEXT, " +
+	            CARD_MM_TWO + " TEXT, " +
+	            DATA23 + " TEXT, " +
+	            DATA24 + " TEXT, " +
+	            DATA25 + " TEXT, " +
+	            DATA26 + " TEXT" +
+	            ");");
+	  createTriggerForBaoxiuCardsTable(sqLiteDatabase);
   }
   
   private void createDemoAccountAndHomeData(SQLiteDatabase sqLiteDatabase) {
@@ -730,7 +734,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 16) {
+	  if (oldVersion <= 17) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);

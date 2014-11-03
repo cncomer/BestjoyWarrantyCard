@@ -52,7 +52,7 @@ public abstract class PullToRefreshListPageForFragment extends BaseFragment impl
 	private AdapterWrapper<? extends BaseAdapter> mAdapterWrapper;
 	private ContentResolver mContentResolver;
 	
-	private PullToRefreshListView mPullRefreshListView;
+	protected PullToRefreshListView mPullRefreshListView;
 	/**第一次刷新*/
 	private boolean mIsFirstRefresh= false;
 	private boolean mDestroyed = false;
@@ -211,6 +211,7 @@ public abstract class PullToRefreshListPageForFragment extends BaseFragment impl
 	
 	public void forceRefresh() {
 		//手动刷新一次
+		mPullRefreshListView.getLoadingLayoutProxy().setRefreshingLabel(getString(R.string.pull_to_refresh_refreshing_label));
 		mPullRefreshListView.setRefreshing();
 		mPageInfo.reset();
 		int count = mAdapterWrapper.getCount();

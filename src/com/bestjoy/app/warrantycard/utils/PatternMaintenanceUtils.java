@@ -14,7 +14,7 @@ import android.database.Cursor;
 
 public class PatternMaintenanceUtils {
 
-	public static List<MaintenancePointBean> getMaintenancePoint(JSONArray addresses, ContentResolver cr, long aid, long bid) throws JSONException {
+	public static List<MaintenancePointBean> getMaintenancePoint(JSONArray addresses) throws JSONException {
 		List<MaintenancePointBean> result = new ArrayList<MaintenancePointBean>();
 		if(addresses == null) return result;
 		for(int i = 0; i < addresses.length(); i++) {
@@ -26,19 +26,12 @@ public class PatternMaintenanceUtils {
 			maintenancePointBean.setMaintenancePointTel(obj.has(MaintenancePointBean.MAINTENANCE_POINT_TELEPHONE)?obj.getString(MaintenancePointBean.MAINTENANCE_POINT_TELEPHONE):"");
 			maintenancePointBean.setMaintenancePointDistance(detailObj.has(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE)?detailObj.getString(MaintenancePointBean.MAINTENANCE_POINT_DISTANCE):"");
 			maintenancePointBean.setMaintenancePointUrl(detailObj.has(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_URL)?detailObj.getString(MaintenancePointBean.MAINTENANCE_POINT_DETAIL_URL):"");
-			maintenancePointBean.saveDatabase(cr, null, String.valueOf(aid), String.valueOf(bid));
 
 			result.add(maintenancePointBean);
 		}
 		return result;
 	}
 
-	public static List<MaintenancePointBean> getMaintenancePointClean(JSONArray addresses, ContentResolver cr, long aid, long bid) throws JSONException {
-		deleteCachedData(cr, String.valueOf(aid), String.valueOf(bid));
-		
-		return getMaintenancePoint(addresses, cr, aid, bid);
-	}
-	
 	public static MaintenancePointBean getMaintenancePointFromCursor(Cursor c) {
 		MaintenancePointBean maintenancePointBean = new MaintenancePointBean();
 		maintenancePointBean.setMaintenancePointName(c.getString(c.getColumnIndex(MaintenancePointBean.MAINTENANCE_POINT_NAME)));
@@ -64,6 +57,10 @@ public class PatternMaintenanceUtils {
 
 	public static int deleteCachedData(ContentResolver cr, String aid, String bid) {
 		return cr.delete(BjnoteContent.MaintencePoint.CONTENT_URI, MaintenancePointBean.MAINTENCE_PROJECTION_AID_BID_SELECTION, new String[]{aid, bid});
+	}
+	
+	public static int deleteCachedData(ContentResolver cr, String pointType) {
+		return cr.delete(BjnoteContent.MaintencePoint.CONTENT_URI, MaintenancePointBean.MAINTENCE_PROJECTION_POINT_TYPE_SELECTION, new String[]{pointType});
 	}
 	
 	public static long isExsited(ContentResolver cr, String aid, String bid) {

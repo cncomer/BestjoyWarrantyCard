@@ -21,8 +21,6 @@ public class ServiceObject {
 	/**发票路径的前缀*/
 	public static final String FAPIAO_URL = "http://www.dzbxk.com/fapiao/";
 	
-	public static final String CARD_DELETE_URL = SERVICE_URL + "DeleteBaoXiuByBIDUID.ashx?";
-	
 	public static final String HOME_DELETE_URL = SERVICE_URL + "DeleteAddressByAID.ashx?";
 	
 	private static String mHaierPinpaiName;
@@ -140,7 +138,8 @@ public class ServiceObject {
 	 * @return
 	 */
 	public static String getBaoxiuCardDeleteUrl(String bid, String uid) {
-		StringBuilder sb = new StringBuilder(CARD_DELETE_URL);
+		StringBuilder sb = new StringBuilder(SERVICE_URL);
+		sb.append("DeleteBaoXiuByBIDUID.ashx?");
 		sb.append("BID=").append(bid)
 		.append("&UID=").append(uid);
 		return sb.toString();
@@ -220,6 +219,7 @@ public class ServiceObject {
 		public String mStrData;
 		public JSONArray mAddresses;
 		public JSONArray mJsonArray;
+		public int mTotal = 0;
 		
 		public static ServiceResultObject parse(String content) {
 			ServiceResultObject resultObject = new ServiceResultObject();
@@ -257,6 +257,7 @@ public class ServiceObject {
 				DebugUtils.logD("HaierResultObject", "mAddresses = " + resultObject.mAddresses);
 				DebugUtils.logD("HaierResultObject", "StatusCode = " + resultObject.mStatusCode);
 				DebugUtils.logD("HaierResultObject", "StatusMessage = " +resultObject.mStatusMessage);
+				resultObject.mTotal = jsonObject.getInt("total");
 				try {
 					resultObject.mJsonData = jsonObject.getJSONObject("results");
 				} catch (JSONException e) {
@@ -490,5 +491,13 @@ public class ServiceObject {
 			  sb.append("Car/updatecarphone.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
+		  
+		  public static String getCarBaoxiuCardDeleteUrl(String bid, String uid) {
+				StringBuilder sb = new StringBuilder(SERVICE_URL);
+				sb.append("Car/DeleteBaoXiuByCIDUID.ashx?");
+				sb.append("cid=").append(bid)
+				.append("&uid=").append(uid);
+				return sb.toString();
+			}
 		  
 }

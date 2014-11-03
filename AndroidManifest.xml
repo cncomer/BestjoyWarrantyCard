@@ -272,6 +272,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:label="@string/activity_title_choose_car_general"
+            android:launchMode="singleTop"
             android:name="com.bestjoy.app.warrantycard.ui.MyChooseCarCardsActivity" />
         <!-- 爱车卡选择界面 end -->
          <!-- 爱车卡详细界面 begin -->

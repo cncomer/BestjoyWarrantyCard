@@ -31,7 +31,7 @@
                     android:paddingTop="4dip"
                     android:paddingBottom="4dip"
                     android:background="#ff1f68ba"/>
-                <TextView android:id="@+id/product_leixing_input"
+                <TextView android:id="@+id/product_model_input"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="17sp"
@@ -64,6 +64,13 @@
                     android:layout_below="@+id/avator"
                     android:visibility="gone"
                     android:layout_marginTop="10dip"/>
+                <TextView android:id="@+id/product_chepai_input"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_below="@+id/avator"
+                    android:textSize="15sp"
+                    android:text="dsadsadsadsa"
+                    android:layout_marginTop="5dip"/>
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -109,10 +116,35 @@
                     style="@style/ProductInfo"
                     android:textColor="#ff5a5a5a"
                     android:textSize="15sp"
-                    android:text="@string/product_model_biaodian" />
+                    android:text="@string/car_product_chejia" />
 
                 <TextView
-                    android:id="@+id/product_model_input"
+                    android:id="@+id/product_chejia_input"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:layout_weight="1.0"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dip"
+                    android:layout_marginRight="6dip"
+                    style="@style/ProductInfo" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/detail_card_view_padding"
+            	android:layout_marginRight="@dimen/detail_card_view_padding"
+            	android:layout_marginTop="6dip"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <TextView
+                    style="@style/ProductInfo"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:text="@string/car_product_fadongji" />
+
+                <TextView
+                    android:id="@+id/car_product_fadongji_input"
                     android:textColor="#ff5a5a5a"
                     android:textSize="15sp"
                     android:layout_weight="1.0"
@@ -127,12 +159,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/detail_card_view_padding"
             	android:layout_marginRight="@dimen/detail_card_view_padding"
-            	android:layout_marginTop="5dip"
+            	android:layout_marginTop="6dip"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
                 
                  <TextView style="@style/ProductInfo"
-	                android:text="@string/text_fapiao_date_biaodian"
+	                android:text="@string/product_buy_date"
 	                android:textColor="#ff5a5a5a"
                     android:textSize="15sp" />
 
@@ -162,14 +194,14 @@
                 android:layout_marginLeft="@dimen/detail_card_view_padding"
             	android:layout_marginRight="@dimen/detail_card_view_padding"
                 android:gravity="center_vertical"
-                android:layout_marginTop="5dip"
+                android:layout_marginTop="6dip"
                 android:orientation="horizontal" >
 
                 <TextView
                     style="@style/ProductInfo"
                     android:textColor="#ff5a5a5a"
                     android:textSize="15sp"
-                    android:text="@string/text_baoxiu_tel_biaodian" />
+                    android:text="@string/car_product_tel" />
 
                 <TextView
                     android:id="@+id/baoxiu_tel_input"
@@ -181,7 +213,102 @@
                     android:layout_marginRight="6dip"
                     android:autoLink="all"
                     style="@style/ProductInfo" />
+                
+                <Button
+                    android:id="@+id/button_usage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dip"
+                    android:text="@string/button_usage"
+                    android:textSize="13sp"
+                    android:textColor="@color/wt"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="8dip"
+                    android:layout_marginLeft="6dip"
+                    android:background="@drawable/default_blue_btn"/>
             </LinearLayout>
+            
+              <View android:background="@color/light_gray"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="13dip"
+                android:layout_height="1dip"/>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/detail_card_view_padding"
+            	android:layout_marginRight="@dimen/detail_card_view_padding"
+            	android:layout_marginTop="13dip"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <TextView
+                    style="@style/ProductInfo"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:text="@string/car_product_baoyan" />
+
+                <TextView
+                    android:id="@+id/car_product_baoyan_input"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:layout_weight="1.0"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dip"
+                    android:layout_marginRight="6dip"
+                    style="@style/ProductInfo" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/detail_card_view_padding"
+            	android:layout_marginRight="@dimen/detail_card_view_padding"
+            	android:layout_marginTop="6dip"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <TextView
+                    style="@style/ProductInfo"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:text="@string/car_product_yanche" />
+
+                <TextView
+                    android:id="@+id/car_product_yanche_input"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:layout_weight="1.0"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dip"
+                    android:layout_marginRight="6dip"
+                    style="@style/ProductInfo" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/detail_card_view_padding"
+            	android:layout_marginRight="@dimen/detail_card_view_padding"
+            	android:layout_marginTop="6dip"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <TextView
+                    style="@style/ProductInfo"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:text="@string/car_product_baoxian" />
+
+                <TextView
+                    android:id="@+id/car_product_baoxian_input"
+                    android:textColor="#ff5a5a5a"
+                    android:textSize="15sp"
+                    android:layout_weight="1.0"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dip"
+                    android:layout_marginRight="6dip"
+                    style="@style/ProductInfo" />
+            </LinearLayout>       
 
             <View android:background="@color/light_gray"
                 android:layout_width="wrap_content"
@@ -231,7 +358,7 @@
                 android:layout_marginLeft="@dimen/detail_card_view_padding"
             	android:layout_marginRight="@dimen/detail_card_view_padding"
                 android:gravity="center_vertical"
-                android:layout_marginTop="5dip"
+                android:layout_marginTop="6dip"
                 android:orientation="horizontal" >
 
                 <TextView
@@ -258,7 +385,7 @@
                 android:layout_marginLeft="@dimen/detail_card_view_padding"
             	android:layout_marginRight="@dimen/detail_card_view_padding"
                 android:gravity="center_vertical"
-                android:layout_marginTop="5dip"
+                android:layout_marginTop="6dip"
                 android:orientation="horizontal" >
 
                 <TextView
@@ -282,18 +409,6 @@
                     android:textSize="15sp"
                     android:layout_marginRight="6dip"
 			        android:text="@string/year"/>
-                
-                <Button
-                    android:id="@+id/button_usage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dip"
-                    android:text="@string/button_usage"
-                    android:textSize="13sp"
-                    android:textColor="@color/wt"
-                    android:paddingLeft="8dip"
-                    android:paddingRight="8dip"
-                    android:layout_marginLeft="6dip"
-                    android:background="@drawable/default_blue_btn"/>
                 
             </LinearLayout>
             <!-- saleman info -->

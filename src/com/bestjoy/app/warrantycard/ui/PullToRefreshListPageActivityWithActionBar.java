@@ -326,7 +326,7 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 	}
 	
 	private LoadLocalTask mLoadLocalTask;
-	private void loadLocalDataAsync() {
+	public void loadLocalDataAsync() {
 		AsyncTaskUtils.cancelTask(mLoadLocalTask);
 		mLoadLocalTask = new LoadLocalTask();
 		mLoadLocalTask.execute();

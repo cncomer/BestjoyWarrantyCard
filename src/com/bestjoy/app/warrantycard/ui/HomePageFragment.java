@@ -1143,7 +1143,6 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 					Button eventlevel1 = (Button) weatherItem.findViewById(R.id.eventlevel1);
 					ImageView eventlevel2 = (ImageView) weatherItem.findViewById(R.id.eventlevel2);
 					TextView eventlevel3 = (TextView) weatherItem.findViewById(R.id.eventlevel3);
-					eventlevel3.setCompoundDrawables(null, null, null, null);
 					if (weatherObject._weatherEventList.size() > 1) {
 						eventlevel1.setText(R.string.view_weather_event_more);
 //						event.setOnClickListener(new View.OnClickListener() {
@@ -1172,6 +1171,11 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 							eventlevel2.setVisibility(View.VISIBLE);
 						} else if (weatherEventObject._eventLevel == 3) {
 							//3级事件
+							eventlevel3.setCompoundDrawables(null, null, null, null);
+							eventlevel3.setVisibility(View.VISIBLE);
+							eventlevel3.setText(MyApplication.getInstance().getString(R.string.title_unit_day_format, weatherEventObject._eventName));
+						} else if (weatherEventObject._eventLevel == 4) {
+							//适合洗车、距离下一次加油还有多少一天
 							eventlevel3.setVisibility(View.VISIBLE);
 							eventlevel3.setText(MyApplication.getInstance().getString(R.string.title_unit_day_format, weatherEventObject._eventName));
 						}

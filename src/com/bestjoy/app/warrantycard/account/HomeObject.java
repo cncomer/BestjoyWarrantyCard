@@ -36,6 +36,7 @@ public class HomeObject implements InfoInterface{
 
 	private static final String TAG = "HomeObject";
 	public String mHomeName;
+	public String mAdminCode = "";
 	//住址信息
 	public String mHomeProvince, mHomeCity, mHomeDis, mHomePlaceDetail;
 	/**家所属账户uid*/

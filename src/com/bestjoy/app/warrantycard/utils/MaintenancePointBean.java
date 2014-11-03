@@ -35,11 +35,11 @@ public class MaintenancePointBean implements InfoInterface{
 		HaierDBHelper.MAINTENCE_POINT_DISTANCE,
 		HaierDBHelper.MAINTENCE_POINT_DETAIL_URL,
 	};
-
+	public static final String MAINTENCE_PROJECTION_POINT_TYPE_SELECTION = HaierDBHelper.MAINTENCE_POINT_TYPE + "=?";
 	public static final String MAINTENCE_PROJECTION_AID_SELECTION = HaierDBHelper.MAINTENCE_POINT_AID + "=?";
 	public static final String MAINTENCE_PROJECTION_BID_SELECTION = HaierDBHelper.MAINTENCE_POINT_BID + "=?";
 	public static final String MAINTENCE_PROJECTION_AID_BID_SELECTION = MAINTENCE_PROJECTION_AID_SELECTION + " and " + MAINTENCE_PROJECTION_BID_SELECTION;
-	
+	public static final String MAINTENCE_PROJECTION_AID_BID_TYPE_SELECTION = MAINTENCE_PROJECTION_AID_BID_SELECTION + " and " + MAINTENCE_PROJECTION_POINT_TYPE_SELECTION;
 	public static final String MAINTENANCE_POINT_NAME = "name";
 	public static final String MAINTENANCE_POINT_ADDRESS = "address";
 	public static final String MAINTENANCE_POINT_TELEPHONE = "telephone";

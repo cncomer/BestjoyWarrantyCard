@@ -168,7 +168,6 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 			onMenuDoneClick();
 			break;
 		default:
-			//当选择了一个Home时候，我们要设置HomeObject对象
 			Bundle newBundle = new Bundle();
 		    newBundle.putAll(mBundle);
 		    newBundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
@@ -196,24 +195,21 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 		
 	}
 	
-	private class DeleteHomeAsyncTask extends AsyncTask<Integer, Void, Boolean> {
+	private class DeleteHomeAsyncTask extends AsyncTask<Integer, Void, Cursor> {
 		@Override
-		protected Boolean doInBackground(Integer... param) {
+		protected Cursor doInBackground(Integer... param) {
 			boolean deleted = false;
 			ContentResolver cr = mContext.getContentResolver();
 			long uid = MyAccountManager.getInstance().getAccountObject().mAccountUid;
-			for(long aid : deleteHomeIDList.keySet()) {
-				deleted = deleteFromService(aid);
+			for(long bid : deleteHomeIDList.keySet()) {
+				deleted = deleteFromService(uid, bid);
 				if (deleted) {
 					//还要删除本地的家数据
-					HomeObject.deleteHomeInDatabaseForAccount(cr, uid, aid);
+					CarBaoxiuCardObject.deleteBaoxiuCardInDatabaseForAccount(cr, uid, bid);
 				}
 			}
 			deleteHomeIDList.clear();
-			//刷新本地家
-			MyAccountManager.getInstance().initAccountHomes();
-			MyAccountManager.getInstance().updateHomeObject(-1);
-			return false;
+			return loadLocal(cr);
 		}
 
 		/**
@@ -221,19 +217,10 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 		 * @param AID
 		 * @return
 		 */
-		private synchronized boolean deleteFromService(long aid) {
+		private synchronized boolean deleteFromService(long uid, long bid) {
 			InputStream is = null;
-			final int LENGTH = 2;
-			String[] urls = new String[LENGTH];
-			String[] paths = new String[LENGTH];
-			urls[0] = ServiceObject.HOME_DELETE_URL + "AID=";
-			paths[0] = String.valueOf(aid);
-			urls[1] = "&key=";
-			paths[1] = SecurityUtils.MD5.md5(MyAccountManager.getInstance().getAccountObject().mAccountTel + MyAccountManager.getInstance().getAccountObject().mAccountPwd);
-			DebugUtils.logD(TAG, "urls = " + Arrays.toString(urls));
-			DebugUtils.logD(TAG, "paths = " + Arrays.toString(paths));
 			try {
-				is = NetworkUtils.openContectionLocked(urls, paths, MyApplication.getInstance().getSecurityKeyValuesObject());
+				is = NetworkUtils.openContectionLocked(ServiceObject.getCarBaoxiuCardDeleteUrl(String.valueOf(bid), String.valueOf(uid)), MyApplication.getInstance().getSecurityKeyValuesObject());
 				if (is != null) {
 					String content = NetworkUtils.getContentFromInput(is);
 					ServiceResultObject resultObject = ServiceResultObject.parse(content);
@@ -251,14 +238,20 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(Cursor result) {
 			dismissDialog(DIALOG_PROGRESS);
 			super.onPostExecute(result);
-			if (mCarsCursorAdapter.getCount() == 0) {
+			if (result != null && result.getCount() == 0) {
 				MainActivity20141010.startActivityForTop(mContext);
 			} else {
-				mCarsCursorAdapter.notifyDataSetChanged();
+				mCarsCursorAdapter.changeCursor(result);
 			}
+			onMenuDoneClick();
+//			if (mCarsCursorAdapter.getCount() == 0) {
+//				MainActivity20141010.startActivityForTop(mContext);
+//			} else {
+//				mCarsCursorAdapter.notifyDataSetChanged();
+//			}
 		}
 
 		@Override
@@ -287,13 +280,18 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 			CarViewHolder viewHolder = (CarViewHolder) view.getTag();
 			viewHolder._checkbox.setChecked(!viewHolder._checkbox.isChecked());
 			if (viewHolder._checkbox.isChecked()) {
-				deleteHomeIDList.put(viewHolder._carBaoxiuCardObject.mSID, viewHolder._checkbox.isChecked());
+				deleteHomeIDList.put(viewHolder._carBaoxiuCardObject.mBID, viewHolder._checkbox.isChecked());
 			} else {
-				deleteHomeIDList.remove(viewHolder._carBaoxiuCardObject.mSID);
+				deleteHomeIDList.remove(viewHolder._carBaoxiuCardObject.mBID);
 			}
 			invalidateOptionsMenu();
 		} else {
-			
+			CarViewHolder viewHolder = (CarViewHolder) view.getTag();
+		    Bundle newBundle = new Bundle();
+		    newBundle.putAll(mBundle);
+		    newBundle.putLong("uid", viewHolder._carBaoxiuCardObject.mUID);
+		    newBundle.putLong("bid", viewHolder._carBaoxiuCardObject.mBID);
+		    CardViewActivity.startActivit(mContext, newBundle);
 		}
 	}
 	
@@ -339,7 +337,6 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 						for(int index=0; index<len; index++) {
 							list.add(CarBaoxiuCardObject.parseBaoxiuCards(jsonArray.getJSONObject(index), null));
 						}
-						return list;
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -405,11 +402,11 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 			mProgressUnitText = context.getString(R.string.progress_unit_day);
 		}
 
-//		@Override
-//		protected void onContentChanged() {
-//			DebugUtils.logD(TAG, "CarsCursorAdapter onContentChanged mIsOnResume " + mIsOnResume);
-//			if (!mIsOnResume) super.onContentChanged();
-//		}
+		@Override
+		protected void onContentChanged() {
+			DebugUtils.logD(TAG, "CarsCursorAdapter onContentChanged mIsOnResume " + mIsOnResume);
+			if (!mIsOnResume) super.onContentChanged();
+		}
 
 
 
@@ -450,7 +447,7 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 			} else {
 				viewHolder._checkbox.setVisibility(View.GONE);
 			}
-			Boolean checked = deleteHomeIDList.get(viewHolder._carBaoxiuCardObject.mSID);
+			Boolean checked = deleteHomeIDList.get(viewHolder._carBaoxiuCardObject.mBID);
 			if(checked != null && checked) {
 				viewHolder._checkbox.setChecked(true);
 			} else {
@@ -465,7 +462,7 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 				viewHolder._iconView.setImageResource(R.drawable.ky_default);
 			}
 			
-			viewHolder._titleView.setText(card.mPinPai + card.mXingHao);
+			viewHolder._titleView.setText(card.mPinPai + "-" + card.mXingHao);
 			
 			//整机保修
 			int validity = card.getBaoxiuValidity();
@@ -693,7 +690,7 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 				queryJsonObject.put("phone", _newValue);
 				queryJsonObject.put("stvalue", CarViewHolder.getPhoneType(_view, _viewHolder));
 				queryJsonObject.put("uid", _viewHolder._carBaoxiuCardObject.mUID);
-				queryJsonObject.put("cid", _viewHolder._carBaoxiuCardObject.mSID);
+				queryJsonObject.put("cid", _viewHolder._carBaoxiuCardObject.mBID);
 				is = NetworkUtils.openContectionLocked(ServiceObject.updateCarBaoxiuCardPhoneUrl("para", queryJsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
 				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 				if (serviceResultObject.isOpSuccessfully()) {
