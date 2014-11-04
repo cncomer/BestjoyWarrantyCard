@@ -67,7 +67,7 @@ public class RightPercentProgressBar extends ProgressBar{
 		}
 		float progressWidth = 0;
 		String progressText = String.valueOf(mProgressText) + mProgressUnit;
-		float progressTextWidth = mTextPaint.measureText(mProgressText);
+		float progressTextWidth = mTextPaint.measureText(progressText);
 		if (progress >= getMax()) {
 			//已经达到最大值了,进度条要填满
 			progressWidth = getWidth();

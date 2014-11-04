@@ -12,6 +12,7 @@ import com.bestjoy.app.bjwarrantycard.im.RelationshipActivity;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
+import com.shwy.bestjoy.utils.Intents;
 import com.umeng.message.PushAgent;
 
 public class MainActivity20141010 extends BaseActionbarActivity implements View.OnClickListener {
@@ -43,7 +44,7 @@ public class MainActivity20141010 extends BaseActionbarActivity implements View.
 	
 	public void initButtons() {
 		findViewById(R.id.button_im).setOnClickListener(this);
-		findViewById(R.id.button_new_card).setOnClickListener(this);
+		findViewById(R.id.button_broadcast).setOnClickListener(this);
 		findViewById(R.id.button_maintenance).setOnClickListener(this);
 		findViewById(R.id.button_scan).setOnClickListener(this);
 		findViewById(R.id.button_remote).setOnClickListener(this);
@@ -69,6 +70,11 @@ public class MainActivity20141010 extends BaseActionbarActivity implements View.
 				showContent(R.id.button_home);
 			}
 			break;
+		case R.id.button_broadcast:
+			Bundle bundle = new Bundle();
+			bundle.putInt(Intents.EXTRA_TYPE, -1);
+			YMessageListActivity.startActivity(mContext, bundle);
+			break;
 		case R.id.button_scan:
 			Intent scanIntent = new Intent(mContext, CaptureActivity.class);
 			startActivity(scanIntent);
@@ -91,7 +97,6 @@ public class MainActivity20141010 extends BaseActionbarActivity implements View.
 			ft.replace(R.id.content_frame, new HomePageFragment(), HomePageFragment.TAG);
 			ft.commit();
 			break;
-		case R.id.button_new_card:
 		case R.id.button_maintenance:
 		case R.id.button_remote:
 			MyApplication.getInstance().showUnsupportMessage();

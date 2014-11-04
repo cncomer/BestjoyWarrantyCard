@@ -64,8 +64,6 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 	private TextView mFooterViewStatusText;
 	private boolean mIsUpdate = false;
 	
-	private PageInfo mPageInfo;
-	
 	private boolean isNeedRequestAgain = true;
 	/**如果当前在列表底部了*/
 	private boolean mIsAtListBottom = false;
@@ -108,16 +106,6 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 		
 		mEmptyView = (TextView) findViewById(android.R.id.empty);
 		
-		
-		mQuery = getQuery();
-		if (mQuery == null) {
-			DebugUtils.logD(TAG, "getQuery() return null");
-		}
-		mPageInfo = mQuery.mPageInfo;
-		if (mPageInfo == null) {
-			mPageInfo = new PageInfo();
-		}
-		
 		// Set a listener to be invoked when the list should be refreshed.
 		mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
 			@Override
@@ -129,12 +117,12 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 				refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
 				//重设为0，这样我们可以从头开始更新数据
 //				mCurrentPageIndex = DEFAULT_PAGEINDEX;
-				mPageInfo.reset();
+				mQuery.mPageInfo.reset();
 				isNeedRequestAgain = true;
 //				addFooterView();
 //				updateFooterView(false, null);
 				int count = mAdapterWrapper.getCount();
-				mPageInfo.computePageSize(count);
+				mQuery.mPageInfo.computePageSize(count);
 				// Do work to refresh the list here.
 				loadServerDataAsync();
 			}
@@ -234,6 +222,9 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 		if (!mWakeLock.isHeld()) {
 			mWakeLock.acquire();
 		}
+		if (isNeedLoadLocalOnResume()) {
+			loadLocalDataAsync();
+		}
 		if (isNeedForceRefreshOnResume()) {
 			//手动刷新一次
 			forceRefresh();
@@ -247,13 +238,23 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 		long resumTime = System.currentTimeMillis();
 		return resumTime - mLastRefreshTime > MAX_REFRESH_TIME;
 	}
+	protected boolean isNeedLoadLocalOnResume() {
+		return true;
+	}
 	
 	public void forceRefresh() {
+		if (mQuery == null) {
+			mQuery = getQuery();
+			if (mQuery.mPageInfo == null) {
+				mQuery.mPageInfo = new PageInfo();
+			}
+		}
+		mPullRefreshListView.getLoadingLayoutProxy().setRefreshingLabel(getString(R.string.pull_to_refresh_refreshing_label));
 		//手动刷新一次
 		mPullRefreshListView.setRefreshing();
-		mPageInfo.reset();
+		mQuery.mPageInfo.reset();
 		int count = mAdapterWrapper.getCount();
-		mPageInfo.computePageSize(count);
+		mQuery.mPageInfo.computePageSize(count);
 		 //Do work to refresh the list here.
 		isNeedRequestAgain = true;
 		loadServerDataAsync();
@@ -338,7 +339,6 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 			if (result != null) {
 				requestCount = result.getCount();
 			}
-			mPageInfo.computePageSize(requestCount);
 			DebugUtils.logD(TAG, "LoadLocalTask load local data finish....localCount is " + requestCount);
 		}
 
@@ -351,6 +351,7 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 	
 	private QueryServiceTask mQueryServiceTask;
 	private void loadServerDataAsync() {
+		mListView.setEmptyView(null);
 		AsyncTaskUtils.cancelTask(mQueryServiceTask);
 		mQueryServiceTask = new QueryServiceTask();
 		mQueryServiceTask.execute();
@@ -364,9 +365,17 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 			mIsUpdate = true;
 			int insertOrUpdateCount = 0;
 			try {
-				if (mPageInfo.mPageIndex == PageInfo.DEFAULT_PAGEINDEX) {
+				if (mQuery.mPageInfo.mPageIndex == PageInfo.DEFAULT_PAGEINDEX) {
 					//开始刷新
 					onRefreshStart();
+					if (mIsFirstRefresh) {
+						mIsFirstRefresh = false;
+						final Cursor cursor = loadLocal(mContentResolver);
+						if (cursor != null) {
+							mQuery.mPageInfo.computePageSize(cursor.getCount());
+							cursor.close();
+						}
+					}
 				}
 //				if (mIsFirstRefresh) {
 //					mIsFirstRefresh = false;
@@ -390,24 +399,24 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 				
 //				while (isNeedRequestAgain) {
 					DebugUtils.logD(TAG, "openConnection....");
-					DebugUtils.logD(TAG, "start pageIndex " + mPageInfo.mPageIndex + " pageSize = " + mPageInfo.mPageSize);
-					InputStream is = NetworkUtils.openContectionLocked(ServiceObject.buildPageQuery(mQuery.qServiceUrl, mPageInfo.mPageIndex, mPageInfo.mPageSize), MyApplication.getInstance().getSecurityKeyValuesObject());
+					DebugUtils.logD(TAG, "start pageIndex " + mQuery.mPageInfo.mPageIndex + " pageSize = " + mQuery.mPageInfo.mPageSize);
+					InputStream is = NetworkUtils.openContectionLocked(ServiceObject.buildPageQuery(mQuery.qServiceUrl, mQuery.mPageInfo.mPageIndex, mQuery.mPageInfo.mPageSize), MyApplication.getInstance().getSecurityKeyValuesObject());
 					if (is == null) {
 						DebugUtils.logD(TAG, "finish task due to openContectionLocked return null InputStream");
 						isNeedRequestAgain = false;
 						return 0;
 					}
 					DebugUtils.logD(TAG, "begin parseList....");
-					List<? extends InfoInterface> serviceInfoList = getServiceInfoList(is, mPageInfo);
+					List<? extends InfoInterface> serviceInfoList = getServiceInfoList(is, mQuery.mPageInfo);
 					int newCount = serviceInfoList.size();
-					DebugUtils.logD(TAG, "find new date #count = " + newCount + " totalSize = " + mPageInfo.mTotalCount);
+					DebugUtils.logD(TAG, "find new date #count = " + newCount + " totalSize = " + mQuery.mPageInfo.mTotalCount);
 					onRefreshLoadEnd();
 					if (newCount == 0) {
 						DebugUtils.logD(TAG, "no more date");
 						isNeedRequestAgain = false;
 						return 0;
 					}
-					if (mPageInfo.mTotalCount <= mPageInfo.mPageIndex * mPageInfo.mPageSize) {
+					if (mQuery.mPageInfo.mTotalCount <= mQuery.mPageInfo.mPageIndex * mQuery.mPageInfo.mPageSize) {
 						DebugUtils.logD(TAG, "returned data count is less than that we requested, so not need to pull data again");
 						isNeedRequestAgain = false;
 					}
@@ -466,9 +475,10 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 //		    mLoadMoreFootView.setVisibility(View.GONE);
 		    mIsUpdate = false;
 		    onRefreshEnd();
+		    mListView.setEmptyView(mEmptyView);
 		    loadLocalDataAsync();
 		    if (isNeedRequestAgain) {
-				mPageInfo.mPageIndex+=1;
+		    	mQuery.mPageInfo.mPageIndex+=1;
 			}
 		}
 

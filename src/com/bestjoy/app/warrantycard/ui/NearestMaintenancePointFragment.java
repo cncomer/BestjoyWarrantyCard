@@ -61,6 +61,7 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 	private HomeObject mHomeObject;
 	private Query mQuery;
 	private int mBundleType = -1;
+	private boolean mIsFirstResume = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -97,10 +98,13 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 		case R.id.model_my_card:
 			break;
 		case R.id.model_my_car_card:
-			mPullRefreshListView.setRefreshing();
-			mPullRefreshListView.getLoadingLayoutProxy().setRefreshingLabel(getString(R.string.pull_to_refresh_locationing_label));
-			mPullRefreshListView.getLoadingLayoutProxy().setLastUpdatedLabel("");
-			BaiduLocationManager.getInstance().mLocationClient.requestLocation();
+			if (mIsFirstResume) {
+				mPullRefreshListView.getLoadingLayoutProxy().setRefreshingLabel(getString(R.string.pull_to_refresh_locationing_label));
+				mPullRefreshListView.getLoadingLayoutProxy().setLastUpdatedLabel("");
+				mPullRefreshListView.setRefreshing();
+				BaiduLocationManager.getInstance().mLocationClient.requestLocation();
+				mIsFirstResume = false;
+			}
 			break;
 		}
 	}
@@ -116,13 +120,17 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 		case R.id.model_my_card:
 			break;
 		case R.id.model_my_car_card:
-			BaiduLocationManager.getInstance().removeLocationChangeCallback(mLocationChangeCallback);
 			break;
 		}
 		
 	}
 
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		BaiduLocationManager.getInstance().removeLocationChangeCallback(mLocationChangeCallback);
+	}
 
 	@Override
 	protected boolean isNeedForceRefreshOnResume() {
@@ -134,6 +142,11 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 		}
 		return true;
 	}
+	
+	@Override
+	protected boolean isNeedLoadLocalOnResume() {
+		return false;
+	}
 
 
 
@@ -142,7 +155,7 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 		ViewHolder holder = (ViewHolder) view.getTag();
 		String url = holder._maintenancePoint.getMaintenancePointUrl();
 		if(!TextUtils.isEmpty(url)) {				
-			BrowserActivity.startActivity(mGlobalContext, url, mGlobalContext.getString(R.string.repair_point_detail));
+			BrowserActivity.startActivity(getActivity(), url, getActivity().getString(R.string.repair_point_detail));
 		} else {
 			MyApplication.getInstance().showMessage(R.string.repair_point_detail_no_uri_tips);
 		}
@@ -157,6 +170,7 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 		private Context _context;
 		private MalPointAdapter (Context context, Cursor cursor, boolean autoRefresh) {
 			super(context, cursor, autoRefresh);
+			_context = context;
 		}
 
 		@Override
@@ -241,8 +255,7 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 
 	@Override
 	protected List<? extends InfoInterface> getServiceInfoList(InputStream is, PageInfo pageInfo) {
-		int type = mBundle.getInt(Intents.EXTRA_TYPE);
-		switch(type) {
+		switch(mBundleType) {
 		case R.id.model_my_car_card:{
 			List <MaintenancePointBean> maintenancePoint = new ArrayList<MaintenancePointBean>();
 			try {
@@ -373,11 +386,12 @@ public class NearestMaintenancePointFragment extends PullToRefreshListPageForFra
 			mHomeObject.mHomePlaceDetail = location.getAddrStr();
 			mHomeObject.mAdminCode = HomeObject.getDisID(getActivity().getContentResolver(), mHomeObject.mHomeProvince, mHomeObject.mHomeCity, mHomeObject.mHomeDis);
 			DebugUtils.logD(TAG, "isLocationChanged getAdminCode " + mHomeObject.mAdminCode + ",  getAddrStr() " + location.getAddrStr());
-			return true;
+			return !TextUtils.isEmpty(mHomeObject.mHomePlaceDetail);
 		}
 
 		@Override
 		public boolean onLocationChanged(BDLocation location) {
+			BaiduLocationManager.getInstance().removeLocationChangeCallback(mLocationChangeCallback);
 			forceRefresh();
 			return true;
 		}

@@ -23,7 +23,7 @@ import com.shwy.bestjoy.utils.Intents;
 public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 
 	private static final String TAG = "CardViewActivity";
-	private Fragment mContent;
+	private ModleBaseFragment mContent;
 	public Bundle mBundle;
 	
 	private TextView mMalfunctionBtn, mMaintenancePointBtn;
@@ -55,16 +55,23 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
         mMaintenancePointBtn.setOnClickListener(this);
 		
 		
-		
+        View price_guide = findViewById(R.id.button_baoxiucard_price_guide);
+		price_guide.setOnClickListener(this);
+		View zhengduan = findViewById(R.id.button_zhengduan);
+		zhengduan.setOnClickListener(this);
 		mBundleType = mBundle.getInt(Intents.EXTRA_TYPE);
 		switch(mBundleType) {
 		case R.id.model_my_card:
 			mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
 			mContent = new CardViewFragment();
+			price_guide.setVisibility(View.VISIBLE);
+			zhengduan.setVisibility(View.GONE);
 			break;
 		case R.id.model_my_car_card:
 			mBaoxiuCardObject = CarBaoxiuCardObject.getBaoxiuCardObject(mBundle);
 			mContent = new CarCardViewFragment();
+			price_guide.setVisibility(View.GONE);
+			zhengduan.setVisibility(View.VISIBLE);
 			break;
 		}
 		
@@ -103,12 +110,19 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		mContentLayout.setVisibility(View.GONE);
 		mBottomContentLayout.setVisibility(View.VISIBLE);
 		mBottomContentTop.setVisibility(View.VISIBLE);
+		updateActionBarOptionMenu();
 	}
 	
 	private void showContent(boolean anim) {
 		mContentLayout.setVisibility(View.VISIBLE);
 		mBottomContentLayout.setVisibility(View.GONE);
 		mBottomContentTop.setVisibility(View.GONE);
+		updateActionBarOptionMenu();
+	}
+	
+	private void updateActionBarOptionMenu() {
+		mContent.setShowOptionMenu(mBottomContentTop.getVisibility() != View.VISIBLE);
+		invalidateOptionsMenu();
 	}
 	
 	@Override
@@ -167,6 +181,15 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 				break;
 			}
 			break;
+	    case R.id.button_zhengduan:
+			switch(mBundleType) {
+			case R.id.model_my_card:
+				break;
+			case R.id.model_my_car_card:
+				BrowserActivity.startActivity(mContext, "file:///android_asset/car_html/selfcheck_car.html",  mContext.getString(R.string.button_zhenduan));
+				break;
+			}
+	    	break;
 		case R.id.button_maintenance_point:
 			showMaintenancePointFragment();
 			break;

@@ -573,7 +573,7 @@
            <string name="ic_button_home">首页</string>
            <string name="ic_button_im">互动</string>
            <string name="ic_button_new_card">建卡</string>
-           <string name="ic_button_notification">通知</string>
+           <string name="ic_button_notification">广播</string>
            <string name="ic_button_maintenance">维修</string>
            <string name="ic_button_scan">扫码</string>
            <string name="ic_button_remote">遥控</string>
@@ -594,7 +594,7 @@
            <string name="view_weather_event">查看</string>
            <string name="view_weather_event_more">洗/油</string>
            
-     <string name="title_business">互动</string>
+     <string name="title_business">咨询</string>
      <string name="new_msg_comming">下面有新的消息</string>
      <string name="msg_sending">发送中....</string>
      <string name="msg_offline_confirm">你现在处于离线中，是否重新连接通讯服务器</string>
@@ -709,4 +709,11 @@
          
          <string name="format_car_product_chepai">"车牌: %s"</string>
          
+         <string name="button_baoxiucard_price_guide">"参考价格"</string>
+         
+         <string name="title_ymeng_category1">"小区通告"</string>
+         <string name="title_ymeng_category2">"保修"</string>
+         <string name="title_ymeng_category3">"汽车"</string>
+         <string name="title_ymeng_category4">"促销活动"</string>
+         <string name="title_ymeng_category5">"洗车加油"</string>
 </resources>

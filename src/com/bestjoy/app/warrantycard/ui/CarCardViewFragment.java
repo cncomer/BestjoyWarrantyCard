@@ -267,6 +267,11 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		 inflater.inflate(R.menu.card_view_activity_menu, menu);
      }
+	 @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.string.menu_edit).setVisible(mShowOptionMenu);
+    	menu.findItem(R.string.menu_delete).setVisible(mShowOptionMenu);
+    }
 	 
 	 @Override
 	 public boolean onOptionsItemSelected(MenuItem menuItem) {

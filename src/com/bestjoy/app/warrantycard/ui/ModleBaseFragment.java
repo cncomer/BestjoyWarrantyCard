@@ -1,14 +1,17 @@
 package com.bestjoy.app.warrantycard.ui;
 
-import com.shwy.bestjoy.utils.InfoInterface;
-
 import android.os.Bundle;
+
+import com.shwy.bestjoy.utils.InfoInterface;
 
 public abstract class ModleBaseFragment extends BaseFragment{
 
 	/**请求扫描条码*/
 	public static final int REQUEST_SCAN = 1;
-	
+	public boolean mShowOptionMenu = true;
+	public void setShowOptionMenu(boolean showOptionMenu) {
+		mShowOptionMenu = showOptionMenu;
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="7dip"
+    android:paddingRight="7dip"
+    android:paddingTop="13dip"
+    android:paddingBottom="13dip" >
+
+     <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dip"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/time"
+            android:layout_marginLeft="10dip"
+            android:text="停水通知"
+            android:textColor="#ff1f68ba"
+            android:textSize="16sp"/>
+     <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:layout_alignParentRight="true"
+            android:text="停水通知"
+            android:textColor="#ff9e9d9d"
+            android:textSize="12sp"/>
+     
+     <TextView
+           android:id="@+id/content"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginLeft="10dip"
+           android:layout_below="@+id/title"
+           android:layout_marginTop="5dip"
+           android:text="停水通知"
+           android:textColor="#ff5a5a5a"
+           android:textSize="12sp"/>
+</RelativeLayout>

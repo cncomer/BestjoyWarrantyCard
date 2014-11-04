@@ -252,6 +252,11 @@ public class CardViewFragment extends ModleBaseFragment implements View.OnClickL
 		 
 	}
 	
+	@Override
+    public void onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.string.menu_edit).setVisible(mShowOptionMenu);
+    	menu.findItem(R.string.menu_delete).setVisible(mShowOptionMenu);
+    }
 	 @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		 inflater.inflate(R.menu.card_view_activity_menu, menu);

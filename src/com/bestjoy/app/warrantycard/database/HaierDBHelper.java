@@ -16,7 +16,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 18;
+  private static final int DB_VERSION = 19;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -236,6 +236,10 @@ private static final String TAG = "HaierDBHelper";
   public static final String YOUMENG_MESSAGE_URL = "url";
   public static final String YOUMENG_MESSAGE_CUSTOM = "custom";
   public static final String YOUMENG_MESSAGE_RAW = "raw_json";
+  /**信息分类*/
+  public static final String YOUMENG_MESSAGE_CATEGORY = "category";
+  /**服务器推送时间*/
+  public static final String YOUMENG_MESSAGE_SERVER_TIME = "service_time";
   
 //IM模块 begin
   public static final String TABLE_IM_QUN_HISTORY = "im_message_qun_history";
@@ -659,13 +663,15 @@ private static final String TAG = "HaierDBHelper";
 	  sqLiteDatabase.execSQL(
 	            "CREATE TABLE " + TABLE_YOUMENG_PUSHMESSAGE_HISTORY + " (" +
 	            ID + " INTEGER PRIMARY KEY, " +
-	            YOUMENG_MESSAGE_ID + " TEXT, " +
+	            YOUMENG_MESSAGE_ID + " INTEGER, " +
 	            YOUMENG_TITLE + " TEXT, " +
 	            YOUMENG_TEXT + " TEXT, " +
 	            YOUMENG_MESSAGE_ACTIVITY + " TEXT, " +
 	            YOUMENG_MESSAGE_URL + " TEXT, " +
 	            YOUMENG_MESSAGE_CUSTOM + " TEXT, " +
 	            YOUMENG_MESSAGE_RAW + " TEXT, " +
+	            YOUMENG_MESSAGE_CATEGORY + " INTEGER, " +
+	            YOUMENG_MESSAGE_SERVER_TIME + " TEXT, " +
 	            DATE + " TEXT);");
   }
   
@@ -734,7 +740,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 17) {
+	  if (oldVersion <= 18) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);

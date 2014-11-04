@@ -113,6 +113,7 @@ public class BjnoteContent {
     	public static final int INDEX_DATE = 8;
     	
     	public static final String WHERE_YMESSAGE_ID = HaierDBHelper.YOUMENG_MESSAGE_ID + "=?";
+    	public static final String WHERE_YMESSAGE_CATEGORY = HaierDBHelper.YOUMENG_MESSAGE_CATEGORY + "=?";
     }
     /**调用该类的CONTENT_URI来关闭设备数据库*/
     public static class CloseDeviceDatabase extends BjnoteContent{

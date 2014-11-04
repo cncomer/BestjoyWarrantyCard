@@ -125,9 +125,14 @@ public class YouMengMessageHelper {
 				values.put(HaierDBHelper.YOUMENG_MESSAGE_URL, params[0].url);
 				values.put(HaierDBHelper.YOUMENG_MESSAGE_CUSTOM, params[0].custom);
 				values.put(HaierDBHelper.YOUMENG_MESSAGE_RAW, params[0].getRaw().toString());
-				values.put(HaierDBHelper.DATE, new Date().getTime());
-				Uri uri = cr.insert(BjnoteContent.YMESSAGE.CONTENT_URI, values);
-				DebugUtils.logD(TAG, "SaveYmengMessageAsyncTask UMessage need to save with msg_id = " + params[0].msg_id + ", uri = " + uri);
+				String type = params[0].extra.get("type");
+				if (!TextUtils.isEmpty(type)) {
+					values.put(HaierDBHelper.YOUMENG_MESSAGE_CATEGORY, params[0].extra.get("type"));
+					values.put(HaierDBHelper.YOUMENG_MESSAGE_SERVER_TIME, params[0].extra.get("servertime"));
+					values.put(HaierDBHelper.DATE, new Date().getTime());
+					Uri uri = cr.insert(BjnoteContent.YMESSAGE.CONTENT_URI, values);
+					DebugUtils.logD(TAG, "SaveYmengMessageAsyncTask UMessage need to save with msg_id = " + params[0].msg_id + ", uri = " + uri);
+				}
 			}
 			return null;
 		}

@@ -100,8 +100,6 @@ public class LoginOrUpdateAccountDialog extends Activity{
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.FRIEND effected rows#" + deleted);
 						BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_QUN, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.QUN effected rows#" + deleted);
-						BjnoteContent.delete(cr, BjnoteContent.YMESSAGE.CONTENT_URI, null, null);
-						DebugUtils.logD(TAG, "LoginAsyncTask start to delete YMESSAGE effected rows#" + deleted);
 						BjnoteContent.delete(cr, HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete COMMUNITY_SERVICES effected rows#" + deleted);
 						//标识下次不用拉取演示数据了
