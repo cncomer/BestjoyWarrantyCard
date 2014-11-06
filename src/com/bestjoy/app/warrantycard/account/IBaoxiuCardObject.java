@@ -62,6 +62,8 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 	public long mId = -1;
 	public long mUID = -1;
 	public long mBID = -1;
+	/**使用说明书路径*/
+	public String mPdfPath = "";
 	
 	/**对应关系表中的service_id*/
 	public String mMMOne="", mMMTwo="";
@@ -134,6 +136,8 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 		newBaoxiuCardObject.mKY = mKY;
 		newBaoxiuCardObject.mPKY = mPKY;
 		newBaoxiuCardObject.mModifiedTime = mModifiedTime;
+		
+		newBaoxiuCardObject.mPdfPath = mPdfPath;
 	}
 	/**
 	 * 获取保修卡对象的Bundle对象
@@ -167,6 +171,10 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 		
 		bundle.putString("mMMOne", mMMOne);
 		bundle.putString("mMMTwo", mMMTwo);
+		
+		bundle.putString("mPdfPath", mPdfPath);
+		
+		bundle.putLong("mModifiedTime", mModifiedTime);
 		return bundle;
 	}
 	
@@ -198,6 +206,8 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 			
 			baoxiuCardObject.mMMOne = bundle.getString("mMMOne");
 			baoxiuCardObject.mMMTwo = bundle.getString("mMMTwo");
+			baoxiuCardObject.mModifiedTime = bundle.getLong("mModifiedTime", new Date().getTime());
+			baoxiuCardObject.mPdfPath = bundle.getString("mPdfPath", "");
 		}
 	}
 	
@@ -425,4 +435,12 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 		return mFPaddr;
 	}
 
+	/**使用说明书绝对路劲*/
+	public String getPdfServicePath() {
+		return mPdfPath;
+	}
+	/**是否有使用说明书*/
+	public boolean hasPdf() {
+		return !TextUtils.isEmpty(mPdfPath);
+	}
 }

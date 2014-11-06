@@ -8,6 +8,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +18,10 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -29,7 +34,6 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.bjwarrantycard.im.ConversationListActivity;
 import com.bestjoy.app.bjwarrantycard.im.RelationshipObject;
-import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
@@ -47,7 +51,6 @@ import com.shwy.bestjoy.utils.SecurityUtils;
 public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.OnClickListener, OnLongClickListener{
 
 	private static final String TAG = "BaoxiuCardViewSalemanInfoView";
-	private View mActionsLayout;
 	private ImageView mAvator;
 	private TextView mName, mTitle;
 	
@@ -62,6 +65,8 @@ public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.On
 	private String mToken = TAG;
 	
 	private boolean mIsDownload = false;
+	
+	private Dialog mActionsDialog; 
 	
 	private VcfAsyncDownloadHandler mVcfAsyncDownloadAndUpdateSalesInfoHandler;
 	
@@ -119,7 +124,9 @@ public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.On
 
 		@Override
 		public void run() {
-			mActionsLayout.setVisibility(View.INVISIBLE);
+			if (mActionsDialog.isShowing()) {
+				mActionsDialog.dismiss();
+			}
 		}
 		
 	};
@@ -129,8 +136,6 @@ public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.On
 		if (isInEditMode()) {
 			return;
 		}
-		mActionsLayout = findViewById(R.id.actions_layout);
-		mActionsLayout.setVisibility(View.INVISIBLE);
 		
 		mAvator = (ImageView) findViewById(R.id.avator);
 		mAvator.setOnClickListener(this);
@@ -140,10 +145,7 @@ public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.On
 		mTitle = (TextView) findViewById(R.id.title); 
 		mHandler = new Handler();
 		
-		findViewById(R.id.button_call).setOnClickListener(this);
-		findViewById(R.id.button_info).setOnClickListener(this);
 		
-		findViewById(R.id.button_sms).setOnClickListener(this);
 	}
 	
 	public void updateView() {
@@ -223,14 +225,31 @@ public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.On
 				mFragment.startActivityForResult(scanIntent, mMMType);
 			} else {
 				//pop actions
-				mActionsLayout.setVisibility(View.VISIBLE);
+				if (mActionsDialog == null) {
+					View view = LayoutInflater.from(getContext()).inflate(R.layout.saleman_info_actions, null);
+					view.findViewById(R.id.button_call).setOnClickListener(this);
+					view.findViewById(R.id.button_info).setOnClickListener(this);
+					view.findViewById(R.id.button_shop).setOnClickListener(this);
+					view.findViewById(R.id.button_sms).setOnClickListener(this);
+					mActionsDialog = new AlertDialog.Builder(getContext()).show();
+					mActionsDialog.getWindow().setContentView(view);
+//					WindowManager.LayoutParams pl = mActionsDialog.getWindow().getAttributes();
+//					pl.width = WindowManager.LayoutParams.WRAP_CONTENT;
+//					pl.height = WindowManager.LayoutParams.WRAP_CONTENT;
+//					pl.gravity = Gravity.CENTER;
+//					mActionsDialog.getWindow().setBackgroundDrawable(null);
+				}
+				if (!mActionsDialog.isShowing()) {
+					mActionsDialog.show();
+				}
+				
 				mHandler.removeCallbacks(mHideActionRunnable);
 				mHandler.postDelayed(mHideActionRunnable, 2000);
 				
 			}
 			break;
 		case R.id.button_call:
-			if (mSalesPerson._relationshipObject != null && TextUtils.isEmpty(mSalesPerson._relationshipObject.mTargetCell)) {
+			if (mSalesPerson._relationshipObject != null && !TextUtils.isEmpty(mSalesPerson._relationshipObject.mTargetCell)) {
 				Intents.callPhone(mFragment.getActivity(), mSalesPerson._relationshipObject.mTargetCell);
 			}
 			break;
@@ -291,24 +310,20 @@ public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.On
 					if (serviceResultObject.mJsonData != null) {
 						mSalesPerson._relationshipObject =  RelationshipObject.parse(serviceResultObject.mJsonData);
 						
-						ContentValues values = new ContentValues();
 						if (mMMType == TYPE_MM_ONE) {
-							values.put(HaierDBHelper.CARD_MM_ONE, mSalesPerson._relationshipObject.mRelationshipServiceId);
+							mSalesPerson._baoxiuCardObject.mMMOne = mSalesPerson._relationshipObject.mRelationshipServiceId;
 						} else if (mMMType == TYPE_MM_TWO) {
-							values.put(HaierDBHelper.CARD_MM_TWO, mSalesPerson._relationshipObject.mRelationshipServiceId);
+							mSalesPerson._baoxiuCardObject.mMMTwo = mSalesPerson._relationshipObject.mRelationshipServiceId;
 						}
-						values.put(HaierDBHelper.DATE, new Date().getTime());
-						int updated = BjnoteContent.update(mFragment.getActivity().getContentResolver(), BjnoteContent.BaoxiuCard.CONTENT_URI, values, BjnoteContent.ID_SELECTION, new String[]{String.valueOf(mSalesPerson._baoxiuCardObject.mId)});
+						boolean updated = mSalesPerson._baoxiuCardObject.saveInDatebase(MyApplication.getInstance().getContentResolver(), null);
 						DebugUtils.logD(TAG, "UpdateSalesInfoAsyncTask update BaoxiuCardObject#updated " +updated);
-						if (updated > 0) {
+						if (updated) {
 							//保存关系数据
 							mSalesPerson._relationshipObject.saveInDatebase(mFragment.getActivity().getContentResolver(), null);
 							//本地更新成功，我们增加这几个值
 							if (mMMType == TYPE_MM_ONE) {
-								mSalesPerson._baoxiuCardObject.mMMOne = mSalesPerson._relationshipObject.mRelationshipServiceId;
 								mSalesPerson._mm = mSalesPerson._relationshipObject.mMM;
 							} else if (mMMType == TYPE_MM_TWO) {
-								mSalesPerson._baoxiuCardObject.mMMTwo = mSalesPerson._relationshipObject.mRelationshipServiceId;
 								mSalesPerson._mm = mSalesPerson._relationshipObject.mMM;
 							}
 						}

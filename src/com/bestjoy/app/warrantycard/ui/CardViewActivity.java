@@ -93,6 +93,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		
 		
 		findViewById(R.id.button_im).setOnClickListener(this);
+		
 	}
 	
 	  @Override
@@ -192,6 +193,9 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	    	break;
 		case R.id.button_maintenance_point:
 			showMaintenancePointFragment();
+			break;
+		case R.id.button_im:
+			ViewConversationListActivity.startActivity(mContext, mBundle);
 			break;
 	    }
 	    

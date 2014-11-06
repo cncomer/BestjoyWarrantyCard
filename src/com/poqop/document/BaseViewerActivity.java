@@ -175,7 +175,6 @@ public abstract class BaseViewerActivity extends BaseActionbarActivity implement
     	MenuItem subMenu1Item = subMenu1.getItem();
     	 subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_dark);
          subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-    	getSupportMenuInflater().inflate(R.menu.pdfviewer_activity_menu, menu);
         return true;
     }
     

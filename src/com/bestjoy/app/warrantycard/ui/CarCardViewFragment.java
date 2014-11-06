@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.Date;
 
 import org.apache.http.HttpResponse;
@@ -42,6 +41,7 @@ import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
+import com.bestjoy.app.warrantycard.view.BaoxiuCardSalemanInfoView;
 import com.bestjoy.app.warrantycard.view.BaoxiuCardViewSalemanInfoView;
 import com.bestjoy.app.warrantycard.view.CircleProgressView;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
@@ -62,7 +62,7 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 	
 	private TextView  mChePaiInput, mChejiaInput, mFaDongJiInput, mBaoxianDateInput, mBaoYangDateInput, mYanCheDateInput;
 	private ImageView mAvatorView;
-	private Button mBillView, mUsageView, mBuyYanbaoView;
+	private Button mBillView, mUsageView, mBuyYanbaoView, mShowSaleManInfoBtn, mHideSaleManInfoBtn;
 	private CarBaoxiuCardObject mBaoxiuCardObject;
 	
 	private Handler mHandler;
@@ -75,8 +75,10 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 	
 	/**是否显示销售人员信息*/
 	private static final boolean SHOW_SALES_INFO = true;
-	private BaoxiuCardViewSalemanInfoView mMMOne, mMMTwo;
+	private BaoxiuCardSalemanInfoView mMMOne, mMMTwo;
 	private static final int WHAT_SHOW_FAPIAO_WAIT = 12;
+	private View mSalesLayout;
+	private boolean mIsShowSaleManInfoLayout = false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -122,7 +124,8 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 		PhotoManagerUtilsV2.getInstance().requestToken(TOKEN);
 		if (savedInstanceState != null) {
 			mBundles = savedInstanceState.getBundle(TAG);
-			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundles);
+			mIsShowSaleManInfoLayout = savedInstanceState.getBoolean("SalesLayout");
+			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundles + ", mIsShowSaleManInfoLayout=" + mIsShowSaleManInfoLayout);
 		} else {
 			mBundles = getArguments();
 		}
@@ -174,30 +177,36 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 	         populateView();
 	         
 	       //根据SHOW_SALES_INFO的值来决定是否要显示销售员信息布局
-			 View salesLayout = view.findViewById(R.id.sales_layout);
-			 if (salesLayout != null) {
-				 salesLayout.setVisibility(SHOW_SALES_INFO?View.VISIBLE:View.GONE);
-			 }
+	         mSalesLayout = view.findViewById(R.id.sales_layout);
 			 if (SHOW_SALES_INFO) {
-				 mMMOne = (BaoxiuCardViewSalemanInfoView) view.findViewById(R.id.mmone);
+				 mSalesLayout.setVisibility(mIsShowSaleManInfoLayout?View.VISIBLE:View.GONE);
+				 mMMOne = (BaoxiuCardSalemanInfoView) view.findViewById(R.id.mmone);
 				 mMMOne.setParantFragment(this);
 				//销售员
 				 mMMOne.setTitle(R.string.salesman_title);
-				 mMMOne.setMmType(BaoxiuCardViewSalemanInfoView.TYPE_MM_ONE);
+				 mMMOne.setMmType(BaoxiuCardSalemanInfoView.TYPE_MM_ONE);
 				 
 				 //服务员
-				 mMMTwo = (BaoxiuCardViewSalemanInfoView) view.findViewById(R.id.mmtwo);
+				 mMMTwo = (BaoxiuCardSalemanInfoView) view.findViewById(R.id.mmtwo);
 				 mMMTwo.setParantFragment(this);
 				 mMMTwo.setTitle(R.string.serverman_title);
-				 mMMTwo.setMmType(BaoxiuCardViewSalemanInfoView.TYPE_MM_TWO);
+				 mMMTwo.setMmType(BaoxiuCardSalemanInfoView.TYPE_MM_TWO);
 				 
 				 if (!TextUtils.isEmpty(mBaoxiuCardObject.mMMOne)) {
+					 mSalesLayout.setVisibility(View.VISIBLE);
 					 mMMOne.setSalesPersonInfo(mBaoxiuCardObject, TOKEN);
 				 }
 				 
 				 if (!TextUtils.isEmpty(mBaoxiuCardObject.mMMTwo)) {
 					 mMMTwo.setSalesPersonInfo(mBaoxiuCardObject, TOKEN);
 				 }
+				 
+				 mShowSaleManInfoBtn = (Button) view.findViewById(R.id.button_show_salemaninfo_layout);
+				 mShowSaleManInfoBtn.setOnClickListener(this);
+				 
+				 mHideSaleManInfoBtn = (Button) view.findViewById(R.id.button_hide_salemaninfo_layout);
+				 mHideSaleManInfoBtn.setOnClickListener(this);
+				 updateShowOrHideSaleManInfoButton();
 			 }
 			 
 		return view;
@@ -206,13 +215,12 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 	private void populateView() {
 		
 		if (!TextUtils.isEmpty(mBaoxiuCardObject.mPKY) && !mBaoxiuCardObject.mPKY.equals(BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY)) {
-			mUsageView.setVisibility(View.VISIBLE);
 			 PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TOKEN, mAvatorView, mBaoxiuCardObject.mPKY, null, PhotoManagerUtilsV2.TaskType.HOME_DEVICE_AVATOR);
 		} else {
 			//设置默认的ky图片
 			mAvatorView.setImageResource(R.drawable.ky_default);
-			 mUsageView.setVisibility(View.GONE);
 		}
+		mUsageView.setVisibility(mBaoxiuCardObject.hasPdf()?View.VISIBLE:View.GONE);
 		 if (!mBaoxiuCardObject.hasBillAvator()) {
 			 mBillView.setVisibility(View.INVISIBLE);
 		 } else {
@@ -261,6 +269,12 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 		 int endDegree = (int) (1.0 * validity / validityTotal * 360 + 0.5f);
 		 mCircleProgressView.setOutterDegree(startDegree, endDegree, true);
 		 
+	}
+	
+	private void updateShowOrHideSaleManInfoButton() {
+		mIsShowSaleManInfoLayout = mSalesLayout.getVisibility() == View.VISIBLE;
+		mShowSaleManInfoBtn.setVisibility(mIsShowSaleManInfoLayout?View.GONE:View.VISIBLE);
+		mHideSaleManInfoBtn.setVisibility(mIsShowSaleManInfoLayout?View.VISIBLE:View.GONE);
 	}
 	
 	 @Override
@@ -338,8 +352,7 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 			break;
 		case R.id.button_usage:
 			//add by chenkai, for Usage, 2014.05.31 begin
-			if (TextUtils.isEmpty(mBaoxiuCardObject.mKY)) {
-				DebugUtils.logE(TAG, "ky is null, so ignore guild button");
+			if (!mBaoxiuCardObject.hasPdf()) {
 				return;
 			}
 			if (!MyApplication.getInstance().hasExternalStorage()) {
@@ -357,6 +370,14 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 				downloadProductUsagePdfAsync();
 			}
 			//add by chenkai, for Usage, 2014.05.31 end
+			break;
+		case R.id.button_show_salemaninfo_layout:
+			mSalesLayout.setVisibility(View.VISIBLE);
+			updateShowOrHideSaleManInfoButton();
+			break;
+		case R.id.button_hide_salemaninfo_layout:
+			mSalesLayout.setVisibility(View.GONE);
+			updateShowOrHideSaleManInfoButton();
 			break;
 		}
 		
@@ -476,44 +497,31 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 				InputStream is = null;
 				FileOutputStream fos = null;
 				try {
-					is = NetworkUtils.openContectionLocked(ServiceObject.getProductPdfUrlForQuery(mBaoxiuCardObject.mKY), MyApplication.getInstance().getSecurityKeyValuesObject());
-					if (is != null) {
-						haierResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
-						if (haierResultObject.isOpSuccessfully()) {
-							if (TextUtils.isEmpty(haierResultObject.mStrData)) {
-								//没有说明书
-								haierResultObject.mStatusCode = 0;
-								haierResultObject.mStatusMessage = getString(R.string.msg_no_product_usage);
-								return haierResultObject;
-							}
-							//成功，表示有使用说明书
-							NetworkUtils.closeInputStream(is);
-							HttpResponse response = NetworkUtils.openContectionLockedV2(ServiceObject.getProductUsageUrl(haierResultObject.mStrData), MyApplication.getInstance().getSecurityKeyValuesObject());
-							int code = response.getStatusLine().getStatusCode();
-							DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return StatusCode is " + code);
-							if (code == HttpStatus.SC_OK) {
-								mPdfLength = response.getEntity().getContentLength();
-								DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return length of pdf file is " + mPdfLength);
-								mPdfLengthStr = FilesUtils.computeLengthToString(mPdfLength);
-								is = response.getEntity().getContent();
-								
-								fos = new FileOutputStream(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY));
-								byte[] buffer = new byte[4096];
-								int read = is.read(buffer);
-								long readAll  = read;
-								int percent = 0;
-								while(read != -1) {
-									percent = Math.round((100.0f * readAll/mPdfLength)) ;
-									publishProgress(percent);
-									fos.write(buffer, 0, read);
-									read = is.read(buffer);
-									readAll += read;
-								}
-								fos.flush();
-							} else if (code == HttpStatus.SC_NOT_FOUND) {
-								haierResultObject.mStatusMessage = getString(R.string.msg_no_product_usage);
-							}
+					HttpResponse response = NetworkUtils.openContectionLockedV2(mBaoxiuCardObject.getPdfServicePath(), MyApplication.getInstance().getSecurityKeyValuesObject());
+					int code = response.getStatusLine().getStatusCode();
+					DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return StatusCode is " + code);
+					if (code == HttpStatus.SC_OK) {
+						mPdfLength = response.getEntity().getContentLength();
+						DebugUtils.logD(TAG, "DownloadProductUsagePdfTask return length of pdf file is " + mPdfLength);
+						mPdfLengthStr = FilesUtils.computeLengthToString(mPdfLength);
+						is = response.getEntity().getContent();
+						
+						fos = new FileOutputStream(MyApplication.getInstance().getProductUsagePdf(mBaoxiuCardObject.mKY));
+						byte[] buffer = new byte[4096];
+						int read = is.read(buffer);
+						long readAll  = read;
+						int percent = 0;
+						while(read != -1) {
+							percent = Math.round((100.0f * readAll/mPdfLength)) ;
+							publishProgress(percent);
+							fos.write(buffer, 0, read);
+							read = is.read(buffer);
+							readAll += read;
 						}
+						fos.flush();
+						haierResultObject.mStatusCode = 1;
+					} else if (code == HttpStatus.SC_NOT_FOUND) {
+						haierResultObject.mStatusMessage = getString(R.string.msg_no_product_usage);
 					}
 				} catch (ClientProtocolException e) {
 					e.printStackTrace();
@@ -569,7 +577,9 @@ public class CarCardViewFragment extends ModleBaseFragment implements View.OnCli
 		public void onSaveInstanceState(Bundle outState) {
 			super.onSaveInstanceState(outState);
 			outState.putBundle(TAG, mBundles);
-			DebugUtils.logD(TAG, "onSaveInstanceState(), we try to save mBundles=" + mBundles);
+			outState.putBoolean("SalesLayout", mIsShowSaleManInfoLayout);
+			
+			DebugUtils.logD(TAG, "onSaveInstanceState(), we try to save mBundles=" + mBundles + ", mIsShowSaleManInfoLayout = " + mIsShowSaleManInfoLayout);
 		}
 		
 		@Override

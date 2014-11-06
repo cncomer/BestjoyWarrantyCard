@@ -226,7 +226,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 				is = NetworkUtils.openContectionLocked(ServiceObject.getCommunityServices("para", queryJsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
 				serviceResultObject = ServiceResultObject.parseArray(NetworkUtils.getContentFromInput(is));
 				if (serviceResultObject.isOpSuccessfully()) {
-					List<CommunityServiceObject> communityServiceObjectList = HomesCommunityManager.getAllCommunityServiceObject(serviceResultObject.mJsonArray);
+					List<CommunityServiceObject> communityServiceObjectList = HomesCommunityManager.getAllCommunityServiceObject(serviceResultObject.mJsonArray, mHomeObject);
 					int loadItemCount = 0;
 					for(CommunityServiceObject communityServiceObject : communityServiceObjectList) {
 						if (communityServiceObject.saveInDatebase(mContentResolver, null)) {

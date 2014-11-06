@@ -38,7 +38,7 @@ import com.shwy.bestjoy.utils.Query;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
-public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity implements AdapterView.OnItemClickListener{
+public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarActivity implements AdapterView.OnItemClickListener{
 
 	private static final String TAG ="LoadMoreWithPageActivity";
 	protected ListView mListView;
@@ -84,9 +84,10 @@ public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity i
 	protected abstract int savedIntoDatabase(ContentResolver contentResolver, List<? extends InfoInterface> infoObjects);
 	protected abstract List<? extends InfoInterface> getServiceInfoList(InputStream is, PageInfo pageInfo);
 	protected abstract Query getQuery();
-	protected abstract void onLoadMoreStart();
-	protected abstract void onLoadMoreEnd();
-	protected abstract void onPostLoadMoreEnd();
+	protected abstract void onLoadMoreStartLocked(boolean first);
+	/**载入更多的数据已经保存完成*/
+	protected abstract void onLoadSaveNewDataFinishLocked(int count);
+	protected abstract void onLoadMoreEnd(boolean first);
 	protected abstract int getContentLayout();
 	/***
 	 * 设置加载更多的位置，默认是底部，可以通过传值LOAD_MORE_TOP或者LOAD_MORE_BOTTOM来修改
@@ -146,7 +147,7 @@ public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity i
 				DebugUtils.logD(TAG, "onScrollStateChanged() needLoadMore()=" + needLoadMore() + ",  mIsUpdate=" + mIsLoadingMore + ", isNeedRequestAgain="+isNeedRequestAgain);
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE && needLoadMore() && !mIsLoadingMore && isNeedRequestAgain) {
 					DebugUtils.logD(TAG, "we go to load more.");
-					loadMoreAsync();
+					loadMoreMessagesAsync();
 				}
 			}
 
@@ -185,41 +186,13 @@ public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity i
 		if (!mWakeLock.isHeld()) {
 			mWakeLock.acquire();
 		}
-		
-		if (mQuery == null) {
-			mQuery = getQuery();
-			if (mQuery.mPageInfo == null) {
-				mQuery.mPageInfo = new PageInfo();
-			}
-		}
-		
-		if (isNeedLoadLocalOnResume()) {
-			loadLocalDataAsync();
-		}
-		if (isNeedForceRefreshOnResume()) {
-			//手动刷新一次
-			loadMoreAsync();
-		}
 	}
 	
-	private QueryServiceTask mQueryServiceTask;
-	public void loadMoreAsync() {
-		updateLoadMoreStatusView(true, null);
-		AsyncTaskUtils.cancelTask(mQueryServiceTask);
-		mQueryServiceTask = new QueryServiceTask();
-		mQueryServiceTask.execute();
-	}
-	
-	/**
-	 * 当Activity onResume时候是否要做一次强制刷新，默认实现是 如果导航回该界面，从上次刷新以来已经10分钟了，那么自动开始刷新
-	 * @return
-	 */
-	protected boolean isNeedForceRefreshOnResume() {
-		long resumTime = System.currentTimeMillis();
-		return resumTime - mLastRefreshTime > MAX_REFRESH_TIME;
-	}
-	protected boolean isNeedLoadLocalOnResume() {
-		return true;
+	private LoadMoreFromServiceTask mLoadMoreFromServiceTask;
+	public void loadMoreMessagesAsync() {
+		AsyncTaskUtils.cancelTask(mLoadMoreFromServiceTask);
+		mLoadMoreFromServiceTask = new LoadMoreFromServiceTask();
+		mLoadMoreFromServiceTask.execute();
 	}
 	
 	@Override
@@ -242,6 +215,7 @@ public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity i
 		super.onDestroy();
 		mDestroyed = true;
 		AsyncTaskUtils.cancelTask(mLoadLocalTask);
+		AsyncTaskUtils.cancelTask(mLoadMoreFromServiceTask);
 		if (mAdapterWrapper != null) mAdapterWrapper.releaseAdapter();
 	}
 	
@@ -330,32 +304,23 @@ public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity i
 	
 
 	/**更新或是新增的总数 >0表示有更新数据，需要刷新，=-1网络问题， =-2 已是最新数据 =0 没有更多数据*/
-	private class QueryServiceTask extends AsyncTask<Void, Void, Integer> {
+	private class LoadMoreFromServiceTask extends AsyncTask<Void, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(Void... arg0) {
 			mIsLoadingMore = true;
+			isNeedRequestAgain = true;
 			int insertOrUpdateCount = 0;
 			try {
-				
-				if (mFirstinit) {
-					mFirstinit = false;
-//					final Cursor cursor = loadLocal(mContentResolver);
-//					if (cursor != null && cursor.getCount() > 0) {
-//						mQuery.mPageInfo.computePageSize(cursor.getCount());
-//						MyApplication.getInstance().postAsync(new Runnable() {
-//
-//							@Override
-//							public void run() {
-//								mAdapterWrapper.changeCursor(cursor);
-//								mListView.setSelection(cursor.getCount()-1);
-//							}
-//							
-//						});
-//						
-//					}
+				if (mQuery == null) {
+					mQuery = getQuery();
+					if (mQuery.mPageInfo == null) {
+						mQuery.mPageInfo = new PageInfo();
+						mQuery.mPageInfo.reset();
+					}
 				}
-				onLoadMoreStart();
+				 //Do work to refresh the list here.
+				onLoadMoreStartLocked(mFirstinit);
 //				while (isNeedRequestAgain) {
 					DebugUtils.logD(TAG, "openConnection....");
 					DebugUtils.logD(TAG, "start pageIndex " + mQuery.mPageInfo.mPageIndex + " pageSize = " + mQuery.mPageInfo.mPageSize);
@@ -382,7 +347,7 @@ public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity i
 					
 					DebugUtils.logD(TAG, "begin insert or update local database");
 					insertOrUpdateCount = savedIntoDatabase(mContentResolver, serviceInfoList);
-					onLoadMoreEnd();
+					onLoadSaveNewDataFinishLocked(insertOrUpdateCount);
 					return insertOrUpdateCount;
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -414,7 +379,10 @@ public abstract class LoadMoreWithPageActivity extends BaseNoActionBarActivity i
 			}
 			mLastRefreshTime = System.currentTimeMillis();
 			mIsLoadingMore = false;
-			onPostLoadMoreEnd();
+		    onLoadMoreEnd(mFirstinit);
+		    if (mFirstinit) {
+				mFirstinit = false;
+			}
 		}
 	}
 	

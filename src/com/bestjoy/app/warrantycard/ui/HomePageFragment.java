@@ -132,7 +132,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		initVoiceLayout(mContent);
-		if (!WeatherManager.getInstance().isOldCahcedWeatherFile()) {
+		if (WeatherManager.getInstance().isExsitedCahcedWeatherFile()) {
 			DebugUtils.logD(TAG, "onActivityCreated loadCachedWeatherFile");
 			loadWeatherAsync();
 		}
@@ -785,38 +785,33 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 		case R.id.ic_module_baoxiucard:
 		case R.id.ic_module_car: //爱车卡
 		case R.id.ic_module_home://物业卡
+			boolean needLoadDemo = MyApplication.getInstance().mPreferManager.getBoolean("need_load_demo_home", true);
+			if (needLoadDemo) {
+				//如果是第一次，我们需要拉取演示家数据
+				if (!ComConnectivityManager.getInstance().isConnected()) {
+					//没有联网，这里提示用户
+					ComConnectivityManager.getInstance().onCreateNoNetworkDialog(getActivity()).show();
+				} else {
+					new AlertDialog.Builder(getActivity())
+					.setMessage(R.string.msg_need_to_get_demo_data)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							LoginOrUpdateAccountDialog.startActivity(getActivity(), true, "13816881688", "888999");
+//							loadDemoCardDataAsync();
+						}
+					})
+					.setNegativeButton(android.R.string.cancel, null)
+					.show();
+				}
+				return;
+			}
 			//判断有没有登陆，没有的话提示登录
 			if (!MyAccountManager.getInstance().hasLoginned()) {
 				 LoginActivity.startIntent(getActivity(), null);
 				 MyApplication.getInstance().showNeedLoginMessage();
 				 return;
-			} else {
-				//如果已经登录，判断是否是演示账户，是的话显示演示家
-				if (MyAccountManager.getInstance().getAccountObject().isDemoAccountObject()) {
-					//LoginActivity.startIntent(this, null);
-					//MyApplication.getInstance().showNeedLoginMessage();
-					boolean needLoadDemo = MyApplication.getInstance().mPreferManager.getBoolean("need_load_demo_home", true);
-					if (needLoadDemo) {
-						//如果是第一次，我们需要拉取演示家数据
-						if (!ComConnectivityManager.getInstance().isConnected()) {
-							//没有联网，这里提示用户
-							ComConnectivityManager.getInstance().onCreateNoNetworkDialog(getActivity()).show();
-						} else {
-							new AlertDialog.Builder(getActivity())
-							.setMessage(R.string.msg_need_to_get_demo_data)
-							.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-								
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									loadDemoCardDataAsync();
-								}
-							})
-							.setNegativeButton(android.R.string.cancel, null)
-							.show();
-						}
-						return;
-					}
-				}
 			}
 			
 			switch(v.getId()) {
@@ -1112,6 +1107,9 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 				ServiceResultObject result = ServiceResultObject.parseArray(content);
 				if (result.isOpSuccessfully() && result.mJsonArray != null) {
 					return WeatherManager.getInstance().getWeekWeather(result.mJsonArray);
+				} else {
+					DebugUtils.logD(TAG, "delete CachedWeatherFile");
+					WeatherManager.getInstance().getCachedWeatherFile().delete();
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();

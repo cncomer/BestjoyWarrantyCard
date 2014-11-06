@@ -18,6 +18,7 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
+import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.ui.NewCardActivity;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
@@ -162,12 +163,12 @@ public final class HaierResultHandler extends ResultHandler {
 	    	  } else {//新建我的保修卡
 	    		  Bundle bundle = ModleSettings.createMyCardDefaultBundle(activity);
 	    		  long uid = MyAccountManager.getInstance().getCurrentAccountId();
-	    		  _baoxiuCardObject.mUID = uid == AccountObject.DEMO_ACCOUNT_UID ? -1:uid;  //对于演示账户，我们在新建保修卡的时候需要提示请先登录
+	    		  _baoxiuCardObject.mUID = uid;  //对于演示账户，我们在新建保修卡的时候需要提示请先登录
 	    		  bundle.putLong("uid", _baoxiuCardObject.mUID);
 	    		  long aid = MyAccountManager.getInstance().getHomeAIdAtPosition(0);
-	    		  _baoxiuCardObject.mAID = aid == HomeObject.DEMO_HOME_AID ? -1 : aid;
+	    		  _baoxiuCardObject.mAID = aid;
 	    		  bundle.putLong("aid", _baoxiuCardObject.mAID);
-	    		  bundle.putBundle("BaoxiuCardObject",_baoxiuCardObject.getBaoxiuCardObjectBundle());
+	    		  bundle.putBundle(IBaoxiuCardObject.TAG,_baoxiuCardObject.getBaoxiuCardObjectBundle());
 	    		  //扫描结果
 	    		  NewCardActivity.startIntent(activity, bundle);
 	    		  activity.finish();

@@ -203,6 +203,15 @@ public class BaseFragment extends SherlockFragment{
    	}
 
     protected ProgressDialog getProgressDialog() {
+    	Activity activity = getActivity();
+    	if (activity != null) {
+    		if (activity instanceof BaseActionbarActivity) {
+    			return ((BaseActionbarActivity)activity).getProgressDialog();
+    		} else if (activity instanceof BaseNoActionBarActivity) {
+    			return ((BaseNoActionBarActivity)activity).getProgressDialog();
+    		}
+    		
+    	}
  	   return mProgressDialog;
     }
     

@@ -211,6 +211,10 @@ public class BjnoteContent {
     	
     }
     
+    public static class VIEW_CONVERSATION_HISTORY extends BjnoteContent{
+    	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "view_conversation_history");
+    }
+    
     public static class MyCarCards extends BjnoteContent{
     	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "car_card");
     }

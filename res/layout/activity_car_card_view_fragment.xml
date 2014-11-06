@@ -349,6 +349,7 @@
                     android:textColor="@color/wt"
                     android:paddingLeft="8dip"
                     android:paddingRight="8dip"
+                    android:visibility="invisible"
                     android:background="@drawable/default_blue_btn"/>
             </LinearLayout>
 
@@ -412,21 +413,95 @@
                 
             </LinearLayout>
             <!-- saleman info -->
+            <Button
+                 android:id="@+id/button_show_salemaninfo_layout"
+                 android:layout_width="wrap_content"
+                 android:layout_height="24dip"
+                 android:layout_marginTop="30dip"
+                 android:visibility="gone"
+                 android:text="@string/button_show_salemaninfo_layout"
+                 android:textSize="13sp"
+                 android:layout_gravity="center_horizontal"
+                 android:paddingLeft="8dip"
+                 android:paddingRight="8dip"
+                 android:textColor="@color/wt"
+                 android:background="@drawable/default_black_btn"/>
+            <Button
+                 android:id="@+id/button_hide_salemaninfo_layout"
+                 android:layout_width="wrap_content"
+                 android:layout_height="24dip"
+                 android:layout_marginTop="30dip"
+                 android:visibility="gone"
+                 android:text="@string/button_hide_salemaninfo_layout"
+                 android:textSize="13sp"
+                 android:layout_gravity="center_horizontal"
+                 android:paddingLeft="8dip"
+                 android:paddingRight="8dip"
+                 android:textColor="@color/wt"
+                 android:background="@drawable/default_black_btn"/>
             <LinearLayout 
                 android:id="@+id/sales_layout"
                 android:gravity="center"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dip"
+                android:visibility="gone"
                 android:layout_marginBottom="10dip"
                 android:orientation="horizontal">
-                <include android:id="@+id/mmone" layout="@layout/sale_man_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <include android:id="@+id/mmtwo" layout="@layout/sale_man_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="30dip"/>
+                <com.bestjoy.app.warrantycard.view.BaoxiuCardSalemanInfoView 
+                    android:id="@+id/mmone" 
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content">
+				    <TextView android:id="@+id/title"
+				        android:layout_height="wrap_content"
+				        android:layout_width="78dip"
+				        android:gravity="center"
+				        android:textColor="@color/blk"/>
+				
+				    <ImageView android:id="@+id/avator"
+				        android:layout_marginTop="3dp"
+				        android:layout_marginBottom="3dp"
+				        android:src="@drawable/baoxiuka_avator_default_scan"
+				        android:layout_height="98dip"
+				        android:layout_width="78dip"
+				        android:layout_below="@+id/title"/>
+				    
+				    <TextView android:id="@+id/name"
+				        android:layout_height="wrap_content"
+				        android:layout_width="78dip"
+				        android:gravity="center"
+				        android:text="No name"
+				        android:layout_below="@+id/avator"
+				        android:textColor="@color/blk"/>
+				</com.bestjoy.app.warrantycard.view.BaoxiuCardSalemanInfoView>
+				
+                <com.bestjoy.app.warrantycard.view.BaoxiuCardSalemanInfoView 
+                    android:id="@+id/mmtwo" 
+                    android:layout_marginLeft="30dip"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content">
+				    <TextView android:id="@+id/title"
+				        android:layout_height="wrap_content"
+				        android:layout_width="78dip"
+				        android:gravity="center"
+				        android:textColor="@color/blk"/>
+				
+				    <ImageView android:id="@+id/avator"
+				        android:layout_marginTop="3dp"
+				        android:layout_marginBottom="3dp"
+				        android:src="@drawable/baoxiuka_avator_default_scan"
+				        android:layout_height="98dip"
+				        android:layout_width="78dip"
+				        android:layout_below="@+id/title"/>
+				    
+				    <TextView android:id="@+id/name"
+				        android:layout_height="wrap_content"
+				        android:layout_width="78dip"
+				        android:gravity="center"
+				        android:text="No name"
+				        android:layout_below="@+id/avator"
+				        android:textColor="@color/blk"/>
+				</com.bestjoy.app.warrantycard.view.BaoxiuCardSalemanInfoView>
             </LinearLayout>
             <View android:layout_height="20dip"
                 android:layout_width="fill_parent"/>

@@ -16,7 +16,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 19;
+  private static final int DB_VERSION = 21;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -50,6 +50,7 @@ private static final String TAG = "HaierDBHelper";
   public static final String DATA24 = "data24";
   public static final String DATA25 = "data25";
   public static final String DATA26 = "data26";
+  
   
   //account table
   public static final String TABLE_NAME_ACCOUNTS = "accounts";
@@ -284,6 +285,16 @@ private static final String TAG = "HaierDBHelper";
   //汽车保修卡
   public static final String TABLE_CAR_CARD = "car_card";
   
+//汽车保修卡
+  public static final String TABLE_VIEW_CONVERSATION = "view_conversation_history";
+  public static final String VIEW_CONVERSATION_SENDER_UID = "sender";
+  public static final String VIEW_CONVERSATION_SENDER_UNAME = "sender_name";
+  public static final String VIEW_CONVERSATION_KY = DATA1;
+  public static final String VIEW_CONVERSATION_MESSAGE = DATA2;
+  public static final String VIEW_CONVERSATION_MID = DATA3;
+  public static final String VIEW_CONVERSATION_SERVICE_TIME = DATA4;
+  public static final String VIEW_CONVERSATION_LOCAL_TIME = DATA5;
+  
   public HaierDBHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
   }
@@ -348,7 +359,7 @@ private static final String TAG = "HaierDBHelper";
   	    //增加生活圈
   		createMyLifeTable(sqLiteDatabase);
   		//创建演示账户
-  		createDemoAccountAndHomeData(sqLiteDatabase);
+//  		createDemoAccountAndHomeData(sqLiteDatabase);
   		
   		createYoumengMessageTable(sqLiteDatabase);
   		
@@ -358,7 +369,7 @@ private static final String TAG = "HaierDBHelper";
   		createHomeCommunityTable(sqLiteDatabase);
   		
   		createCarCardTable(sqLiteDatabase);
-  		
+  		createViewConversationHistoryTable(sqLiteDatabase);
   }
   
   private void createTriggerForAccountTable(SQLiteDatabase sqLiteDatabase) {
@@ -602,6 +613,21 @@ private static final String TAG = "HaierDBHelper";
 	            ");");
   }
   
+  private void createViewConversationHistoryTable(SQLiteDatabase sqLiteDatabase) {
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_VIEW_CONVERSATION + " (" +
+	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +
+	            VIEW_CONVERSATION_SENDER_UID + " TEXT, " +
+	            VIEW_CONVERSATION_SENDER_UNAME + " TEXT, " +
+	            VIEW_CONVERSATION_KY + " TEXT, " +
+	            VIEW_CONVERSATION_MESSAGE + " TEXT, " +
+	            VIEW_CONVERSATION_MID + " INTEGER, " +
+	            VIEW_CONVERSATION_SERVICE_TIME + " TEXT, " +
+	            VIEW_CONVERSATION_LOCAL_TIME + " TEXT" +
+	            ");");
+  }
+  
   private void createBaoxiuCardsTable(SQLiteDatabase sqLiteDatabase) {
 	  sqLiteDatabase.execSQL(
 	            "CREATE TABLE " + TABLE_NAME_CARDS + " (" +
@@ -740,7 +766,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 18) {
+	  if (oldVersion <= 20) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
@@ -772,6 +798,7 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "delete_contact_mycard");
 		    
 		    onCreate(sqLiteDatabase);
+		    ComPreferencesManager.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", true).commit();
 		    return;
 		}
   }

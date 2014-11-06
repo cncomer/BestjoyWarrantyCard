@@ -484,11 +484,11 @@ public class MyChooseCarCardsActivity extends PullToRefreshListPageActivityWithA
 			viewHolder._baoyanProgress.setProgress(day);
 			viewHolder._baoyanProgress.setProgressText(String.valueOf(day));
 			
-			day = CarBaoxiuCardObject.getValidityDay(90, card.mBaoXianDeadline);
+			day = CarBaoxiuCardObject.getValidityDay(0, card.mBaoXianDeadline);
 			viewHolder._baoxianProgress.setProgress(day);
 			viewHolder._baoxianProgress.setProgressText(String.valueOf(day));
 			
-			day = CarBaoxiuCardObject.getValidityDay(90, card.mLastYanCheTime);
+			day = CarBaoxiuCardObject.getValidityDay(365, card.mLastYanCheTime);
 			viewHolder._nianjianProgress.setProgress(day);
 			viewHolder._nianjianProgress.setProgressText(String.valueOf(day));
 			

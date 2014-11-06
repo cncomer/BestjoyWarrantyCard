@@ -500,4 +500,21 @@ public class ServiceObject {
 				return sb.toString();
 			}
 		  
+		  public static String getViewConversationUrl(String KY, String currentid, String fangxiang) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("GetKYMessage.ashx?KY=").append(KY).append("&currentid=").append(currentid).append("&fangxiang=").append(fangxiang);
+			  return sb.toString();
+		  }
+		  
+		  public static String postViewConversationUrl(String KY, String uid, String message) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("LeaveMessage/AddKeyMessage.ashx?KY=").append(KY).append("&UID=").append(uid).append("&Message=").append(message);
+			  return sb.toString();
+		  }
+		  public static String postViewConversationUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("LeaveMessage/AddKeyMessage.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  
 }

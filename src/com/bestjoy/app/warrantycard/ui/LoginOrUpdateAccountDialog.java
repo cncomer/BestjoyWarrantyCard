@@ -185,6 +185,7 @@ public class LoginOrUpdateAccountDialog extends Activity{
 				UpdateService.startCheckDeviceTokenToService(LoginOrUpdateAccountDialog.this);
 				//每次登录我们都重新设置需要重新拉好友列表
 				ComPreferencesManager.getInstance().setFirstLaunch(RelationshipActivity.FIRST, true);
+				MyApplication.getInstance().showMessage(R.string.msg_login_confirm_success);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				setResult(Activity.RESULT_CANCELED);
@@ -225,6 +226,14 @@ public class LoginOrUpdateAccountDialog extends Activity{
 		intent.putExtra(Intents.EXTRA_TEL, tel);
 		intent.putExtra(Intents.EXTRA_PASSWORD, pwd);
 		return intent;
+	}
+	
+	public static void startActivity(Context context, boolean login, String tel, String pwd) {
+		Intent intent = new Intent(context, LoginOrUpdateAccountDialog.class);
+		intent.putExtra(Intents.EXTRA_TYPE, login);
+		intent.putExtra(Intents.EXTRA_TEL, tel);
+		intent.putExtra(Intents.EXTRA_PASSWORD, pwd);
+		context.startActivity(intent);
 	}
 	
 }

@@ -126,5 +126,9 @@ public class WeatherManager {
 		last.setTime(new Date(mLocalWeatherCachedFile.lastModified()));
 		return today.get(Calendar.HOUR_OF_DAY) != last.get(Calendar.HOUR_OF_DAY);
 	}
+	
+	public boolean isExsitedCahcedWeatherFile() {
+		return mLocalWeatherCachedFile.exists();
+	}
 
 }

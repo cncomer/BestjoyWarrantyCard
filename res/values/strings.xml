@@ -571,7 +571,7 @@
            <string name="title_feedback">意见反馈</string>
            
            <string name="ic_button_home">首页</string>
-           <string name="ic_button_im">互动</string>
+           <string name="ic_button_im">咨询</string>
            <string name="ic_button_new_card">建卡</string>
            <string name="ic_button_notification">广播</string>
            <string name="ic_button_maintenance">维修</string>
@@ -675,6 +675,7 @@
 		<string name="community_service_type16">开锁</string>
 		<string name="community_service_type17">小区通知</string>
 		<string name="community_service_type18">物业缴费</string>
+		<string name="community_service_type19">社区医疗</string>
 		
 		<string name="format_title_modify_community_service_data">输入%s电话</string>
 		
@@ -716,4 +717,9 @@
          <string name="title_ymeng_category3">"汽车"</string>
          <string name="title_ymeng_category4">"促销活动"</string>
          <string name="title_ymeng_category5">"洗车加油"</string>
+         
+          <string name="button_show_salemaninfo_layout">显示促销员、服务员</string>
+          <string name="button_hide_salemaninfo_layout">隐藏促销员、服务员</string>
+          
+          <string name="msg_too_long_text_for_conversation">"内容长度过长，请不要超过512个文字"</string>
 </resources>

@@ -147,7 +147,6 @@ public class LoginActivity extends BaseActionbarActivity implements View.OnClick
 		if (requestCode == REQUEST_LOGIN) {
 			if (resultCode == Activity.RESULT_OK) {
 				// login successfully
-				MyApplication.getInstance().showMessage(R.string.msg_login_confirm_success);
 				switch(mModelId) {
 				case R.id.model_my_card:
 				case R.id.model_install:

@@ -1,20 +1,21 @@
-package com.bestjoy.app.bjwarrantycard.im;
+package com.bestjoy.app.warrantycard.ui;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
-import android.app.AlertDialog;
-import android.content.ComponentName;
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -37,40 +38,72 @@ import com.actionbarsherlock.view.Menu;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
-import com.bestjoy.app.warrantycard.service.IMService;
-import com.bestjoy.app.warrantycard.ui.LoadMoreWithPageActivity;
+import com.bestjoy.app.warrantycard.account.ViewConversationObject;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.utils.JsonParser;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechError;
 import com.shwy.bestjoy.utils.AdapterWrapper;
+import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.DateUtils;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
-import com.shwy.bestjoy.utils.NotifyRegistrant;
+import com.shwy.bestjoy.utils.Intents;
+import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.PageInfo;
 import com.shwy.bestjoy.utils.Query;
+import com.shwy.bestjoy.utils.ServiceResultObject;
 
-public class ConversationListActivity extends LoadMoreWithPageActivity implements View.OnClickListener{
+public class ViewConversationListActivity extends LoadMoreWithPageActivity implements View.OnClickListener{
 
-	private static final String TAG = "ConversationListActivity";
+	private static final String TAG = "ViewConversationListActivity";
 	private static final int WHAT_REQUEST_REFRESH_LIST = 11000;
+	private static final int WHAT_REQUEST_NEW_DATA = 12000;
 	private EditText mInputEdit;
 	private ImageView mTextIcon, mVoiceIcon;
 	private TextView mConnectedStatusView;
 	private Button mVoiceBtn;
 	private Handler mUiHandler;
 	
-	private IMService mImService;
-	private ServiceConnection mServiceConnection;
-	
 	private ConversationAdapter mConversationAdapter;
-	private RelationshipObject mRelationshipObject;
 	private long mCurrentMessageId = -1;
 	private int mCurrentPosition = -1;
-	private boolean mIsRefreshing = false;
+	private Query mQuery;
+	private IBaoxiuCardObject mIBaoxiuCardObject;
+	private Bundle mBundles;
+	private int mBundleType = -1;
+	/**当前的最小mid*/
+	private long mCurrentMinId = Integer.MAX_VALUE;
+	/**当前的最大mid*/
+	private long mCurrentMaxId = 0;
+	
+	private boolean mIsConnected = false;
+	
+	private String[] mSelectionArgs;
+	private boolean mIsLoadingServiceData = false;
+	
+	ComConnectivityManager.ConnCallback ConnCallback = new ComConnectivityManager.ConnCallback() {
+		
+		@Override
+		public void onConnChanged(ComConnectivityManager cm) {
+			if (cm.isConnected() && !mIsConnected) {
+				mIsConnected = true;
+				mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
+				loadNewMessagesAsync();
+				mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 10000);
+			} else {
+				mIsConnected = false;
+			}
+			
+		}
+	};
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -79,28 +112,6 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		}
 		setShowHomeUp(true);
 		setLoadMorePosition(LOAD_MORE_TOP);
-		mServiceConnection = new ServiceConnection() {
-
-			@Override
-			public void onServiceConnected(ComponentName name, IBinder service) {
-				mImService = ((IMService.MyBinder)service).getService();
-				mImService.setIsInConversationSession(true, mRelationshipObject.mTarget);
-				if (mImService != null && mImService.isConnected()) {
-					mConnectedStatusView.setVisibility(View.GONE);
-				} else {
-					mConnectedStatusView.setVisibility(View.VISIBLE);
-					mConnectedStatusView.setText(R.string.msg_offline_confirm_click);
-				}
-				
-			}
-
-			@Override
-			public void onServiceDisconnected(ComponentName name) {
-				mImService.setIsInConversationSession(false, mRelationshipObject.mTarget);
-			}
-		};
-		Intent intent = new Intent(mContext, IMService.class);
-		mContext.bindService(intent,mServiceConnection, Context.BIND_AUTO_CREATE);
 		mListView = getListView();
 		addOnScrollListenerList(mOnScrollListener);
 		
@@ -109,47 +120,66 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				switch(msg.what){
-				case IMService.WHAT_SEND_MESSAGE_LOGIN:
-					if (mImService != null && mImService.isConnected()) {
-						mConnectedStatusView.setVisibility(View.GONE);
-						mImService.setIsInConversationSession(true, mRelationshipObject.mTarget);
-					} else {
-						mConnectedStatusView.setVisibility(View.VISIBLE);
-						mConnectedStatusView.setText(R.string.msg_im_status_logining);
-						if (mImService != null) mImService.setIsInConversationSession(false, mRelationshipObject.mTarget);
-					}
-					break;
-				case IMService.WHAT_SEND_MESSAGE_OFFLINE:
-					mConnectedStatusView.setVisibility(View.VISIBLE);
-					mConnectedStatusView.setText(R.string.msg_im_status_offline);
-					if (mImService != null) mImService.setIsInConversationSession(false, mRelationshipObject.mTarget);
-					break;
-				case IMService.WHAT_SEND_MESSAGE_EXIT:
-				case IMService.WHAT_SEND_MESSAGE_INVALID_USER:
-					mConnectedStatusView.setVisibility(View.VISIBLE);
-					mConnectedStatusView.setText(R.string.msg_im_status_offline);
-					if (mImService != null) mImService.setIsInConversationSession(false, mRelationshipObject.mTarget);
-					break;
 				case WHAT_REQUEST_REFRESH_LIST:
-					mConversationAdapter.callSuperOnContentChanged();
 					if (mIsAtListBottom) {
-						mListView.setSelection(mConversationAdapter.getCount());
-					} else {
+						mListView.setSelection(mConversationAdapter.getCount()-1);
+					} else if (mConversationAdapter.getCount() > 0){
 						MyApplication.getInstance().showMessage(R.string.new_msg_comming);
 					}
+					break;
+				case WHAT_REQUEST_NEW_DATA:
+					//定时去查看是否有新数据
+					
+					if (!mIsLoadingMore && !mIsLoadingServiceData) {
+						loadNewMessagesAsync();
+					}
+					mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
+					mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 10000);
 					break;
 				}
 			}
 		};
-		NotifyRegistrant.getInstance().register(mUiHandler);
-		IMService.connectIMService(this);
 		
 		initEditLayout();
+		
+		mBundleType = mBundles.getInt(Intents.EXTRA_TYPE);
+		switch(mBundleType) {
+		case R.id.model_my_card:
+			mIBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundles);
+			break;
+		case R.id.model_my_car_card:
+			mIBaoxiuCardObject = CarBaoxiuCardObject.getBaoxiuCardObject(mBundles);
+			break;
+		}
+		if (true) {
+			mIBaoxiuCardObject.mKY = "2020004CJ";
+		}
+		mSelectionArgs = new String[]{MyAccountManager.getInstance().getCurrentAccountMd(), mIBaoxiuCardObject.mKY};
+		mIsConnected = ComConnectivityManager.getInstance().isConnected();
+		ComConnectivityManager.getInstance().addConnCallback(ConnCallback);
+		
+		if (!mIsConnected) {
+			ComConnectivityManager.getInstance().onCreateNoNetworkDialog(mContext).show();
+		}
+		
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (mIsConnected) {
+			loadMoreAsync();
+			mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
+			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 10000);
+		}
+		
+	}
+	
+	protected boolean isNeedForceRefreshOnResume() {
+		return false;
+	}
+	protected boolean isNeedLoadLocalOnResume() {
+		return false;
 	}
 	
 	private OnScrollListener mOnScrollListener = new OnScrollListener() {
@@ -159,7 +189,7 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			if (!mIsRefreshing) {
+			if (!mIsLoadingMore) {
 				mCurrentPosition = firstVisibleItem;
 				DebugUtils.logD(TAG, "onScroll() current item position=" + mCurrentPosition);
 			}
@@ -374,10 +404,9 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 	public void onDestroy() {
 		super.onDestroy();
 		removeOnScrollListenerList(mOnScrollListener);
-		if (mImService != null) mImService.setIsInConversationSession(false, mRelationshipObject.mTarget);
-		mContext.unbindService(mServiceConnection);
-		NotifyRegistrant.getInstance().unRegister(mUiHandler);
-		mConversationAdapter.changeCursor(null);
+		ComConnectivityManager.getInstance().removeConnCallback(ConnCallback);
+		mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
+		AsyncTaskUtils.cancelTask(mLoadNewMessageAsyncTask);
 	}
 	
 	@Override
@@ -391,12 +420,6 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		case R.id.button_voice_icon:
 			updateEditLayout(false);
 			break;
-		case R.id.button_add_icon:
-			MyApplication.getInstance().showUnsupportMessage();
-			break;
-		case R.id.status_view:
-			IMService.connectIMService(this);
-			break;
 		}
 	}
 	
@@ -405,56 +428,90 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 			MyApplication.getInstance().showMessage(MyApplication.getInstance().getGernalNetworkError());
 			return;
 		}
-		if (!mImService.isConnected()) {
-			MyApplication.getInstance().showMessage(R.string.msg_im_status_logining);
-			return;
-		}
 		String text = mInputEdit.getText().toString().trim();
 		if (!TextUtils.isEmpty(text)) {
-			mInputEdit.getText().clear();
-			//不允许只输入空白字符，这样的内容是无意义的
-			ConversationItemObject message = new ConversationItemObject();
-			message.mUid = MyAccountManager.getInstance().getCurrentAccountUid();
-			message.mPwd = MyAccountManager.getInstance().getAccountObject().mAccountPwd;
-			message.mUName = MyAccountManager.getInstance().getAccountObject().mAccountName;
-			message.mTargetType = mRelationshipObject.mTargetType;
-			message.mTarget = mRelationshipObject.mTarget;
-			//由于按照服务器时间排序的，所以我们这里先假定服务器时间为手机当前时间
-			message.mServiceDate = new Date().getTime();
-			message.mMessage = text;
-			message.mMessageStatus = 0;
-			message.mSeen = ConversationItemObject.SEEN;
-			mImService.sendMessageAsync(message);
+			if (text.length() > 512) {
+				MyApplication.getInstance().showMessage(R.string.msg_too_long_text_for_conversation);
+			} else {
+				sendMessageAsync(text);
+			}
 		}
 	}
 	
-	private void sendMessageLocked(ConversationItemObject message) {
-		if (!ComConnectivityManager.getInstance().isConnected()) {
-			MyApplication.getInstance().showMessage(MyApplication.getInstance().getGernalNetworkError());
-			return;
+	private SendMessageTask mSendMessageTask;
+	private void sendMessageAsync(String text) {
+		AsyncTaskUtils.cancelTask(mSendMessageTask);
+		showDialog(DIALOG_PROGRESS);
+		mSendMessageTask = new SendMessageTask();
+		mSendMessageTask.execute(text);
+	}
+	private class SendMessageTask extends AsyncTask<String, Void, ServiceResultObject> {
+
+		@Override
+		protected ServiceResultObject doInBackground(String... params) {
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			InputStream is = null;
+			try {
+				JSONObject queryJSONObject = new JSONObject();
+				queryJSONObject.put("KY", mIBaoxiuCardObject.mKY);
+				queryJSONObject.put("UID", MyAccountManager.getInstance().getCurrentAccountUid());
+				queryJSONObject.put("Message", params[0]);
+				DebugUtils.logD(TAG, "SendMessageTask queryJSONObject " + queryJSONObject.toString());
+				is = NetworkUtils.openContectionLocked(ServiceObject.postViewConversationUrl("para", queryJSONObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				if (serviceResultObject.isOpSuccessfully()) {
+					//发送成功，我们将信息保存在本地
+					ViewConversationObject viewConversationObject = ViewConversationObject.parse(serviceResultObject.mJsonData);
+					if (viewConversationObject.saveInDatebase(getContentResolver(), null)) {
+					}
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (JSONException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
 		}
-		if (!mImService.isConnected()) {
-			MyApplication.getInstance().showMessage(R.string.msg_im_status_logining);
-			return;
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			dismissDialog(DIALOG_PROGRESS);
+			if (result.isOpSuccessfully()) {
+				mInputEdit.getText().clear();
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			}
 		}
-		//由于按照服务器时间排序的，所以我们这里先假定服务器时间为手机当前时间
-		message.mServiceDate = new Date().getTime();
-		mImService.sendMessageAsync(message);
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			dismissDialog(DIALOG_PROGRESS);
+		}
+		
 	}
 	
 	@Override
 	protected boolean checkIntent(Intent intent) {
-		mRelationshipObject = intent.getParcelableExtra("relationship");
-		if (mRelationshipObject == null) {
-			DebugUtils.logE(TAG, "checkIntent failed, you must supply RelationshipObject");
+		mBundles = intent.getExtras();
+		if (mBundles == null) {
+			DebugUtils.logE(TAG, "checkIntent failed, you must supply Bundles");
 			return false;
 		}
 		return true;
 	}
 	
-	public static void startActivity(Context context, RelationshipObject relationshipObject) {
-		Intent intent = new Intent(context, ConversationListActivity.class);
-		intent.putExtra("relationship", relationshipObject);
+	public static void startActivity(Context context, Bundle bundle) {
+		Intent intent = new Intent(context, ViewConversationListActivity.class);
+		if (bundle != null) intent.putExtras(bundle);
 		context.startActivity(intent);
 	}
 	
@@ -474,10 +531,10 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		@Override
 		protected void onContentChanged() {
 			//如果用户正在下拉刷新，我们不要刷新列表数据，因为框架会帮我们查询，changeCursor()
-			if (mIsRefreshing) return;
 			//一秒内延迟刷新，提高性能
-			mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST);
-			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST, 250);
+//			mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST);
+//			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST, 250);
+			super.onContentChanged();
 		}
 		
 		private void callSuperOnContentChanged() {
@@ -496,10 +553,11 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 				view = LayoutInflater.from(context).inflate(R.layout.conversation_item_right, parent, false);
 			}
 			viewHolder._avator = (ImageView) view.findViewById(R.id.avator);
-			viewHolder._error = (ImageView) view.findViewById(R.id.error);
+//			viewHolder._avator.setVisibility(View.VISIBLE);
 			viewHolder._name = (TextView) view.findViewById(R.id.name);
 			viewHolder._content = (TextView) view.findViewById(R.id.content);
 			viewHolder._time = (TextView) view.findViewById(R.id.date);
+			viewHolder._error = (ImageView) view.findViewById(R.id.error);
 			view.setTag(viewHolder);
 			return view;
 		}
@@ -507,31 +565,18 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder viewHolder = (ViewHolder) view.getTag();
-			viewHolder._name.setText(cursor.getString(IMHelper.INDEX_UNAME));
-			viewHolder._content.setText(cursor.getString(IMHelper.INDEX_TEXT));
+			viewHolder._ViewConversationObject = ViewConversationObject.getConversationItemObjectFromCursor(cursor);
+			viewHolder._name.setText(viewHolder._ViewConversationObject.mSenderName + "#" + viewHolder._ViewConversationObject.mMID);
+			viewHolder._content.setText(viewHolder._ViewConversationObject.mMessage);
+			viewHolder._time.setText(DateUtils.DATE_FULL_TIME_FORMAT.format(viewHolder._ViewConversationObject.mServerTime));
 			viewHolder._error.setVisibility(View.GONE);
-			viewHolder._conversationItemObject = ConversationItemObject.getConversationItemObjectFromCursor(cursor);
-			if (cursor.getInt(IMHelper.INDEX_STATUS) == 0) {
-				viewHolder._time.setText(R.string.msg_sending);
-			} else if (cursor.getInt(IMHelper.INDEX_STATUS) == 2) {
-				//发送失败
-				viewHolder._time.setText(R.string.msg_sending_failed);
-				//显示发送失败icon
-				viewHolder._error.setVisibility(View.VISIBLE);
-				viewHolder._error.setTag(viewHolder);
-				viewHolder._error.setOnClickListener(mErrorOnclickListener);
-			} else {
-				viewHolder._time.setText(IMHelper.LOCAL_DATE_TIME_FORMAT.format(new Date(Long.valueOf(cursor.getString(IMHelper.INDEX_SERVICE_TIME)))));
-			}
-			
-			
 		}
 		
 
 		@Override
 		public int getItemViewType(int position) {
 			Cursor c = (Cursor) getItem(position);
-			String sender = c.getString(IMHelper.INDEX_UID);
+			String sender = c.getString(ViewConversationObject.INDEX_SID);
 			if (sender.equals(MyAccountManager.getInstance().getCurrentAccountUid())) {
 				//用户自己的消息显示在右边
 				return TYPE_RIGHT;
@@ -549,39 +594,73 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 	private static class ViewHolder {
 		private ImageView _avator, _error;
 		private TextView _name, _content, _time;
-		private ConversationItemObject _conversationItemObject;
+		private ViewConversationObject _ViewConversationObject;
 	}
 	
-//	private LocalMessageAsyncTask mLocalMessageAsyncTask;
-//	private void loadLocalMessageAsync() {
-//		AsyncTaskUtils.cancelTask(mLocalMessageAsyncTask);
-//		mLocalMessageAsyncTask = new LocalMessageAsyncTask();
-//		mLocalMessageAsyncTask.execute();
-//	}
-//	
-//	private class LocalMessageAsyncTask extends AsyncTask<Void, Void, Cursor> {
-//
-//		@Override
-//		protected Cursor doInBackground(Void... params) {
-//			return IMHelper.getAllLocalMessage(mContext.getContentResolver(), MyAccountManager.getInstance().getCurrentAccountUid(), mRelationshipObject.mTargetType, mRelationshipObject.mTarget);
-//		}
-//
-//		@Override
-//		protected void onPostExecute(Cursor result) {
-//			super.onPostExecute(result);
-//			mConversationAdapter.changeCursor(result);
-//			if (mConversationAdapter.getCount() > 0) {
-//				mListView.setSelection(mConversationAdapter.getCount());
-//			}
-//			
-//		}
-//
-//		@Override
-//		protected void onCancelled() {
-//			super.onCancelled();
-//		}
-//		
-//	}
+	private LoadNewMessageAsyncTask mLoadNewMessageAsyncTask;
+	private void loadNewMessagesAsync() {
+		DebugUtils.logD(TAG, "start loadNewMessagesAsync.....");
+		AsyncTaskUtils.cancelTask(mLoadNewMessageAsyncTask);
+		mLoadNewMessageAsyncTask = new LoadNewMessageAsyncTask();
+		mLoadNewMessageAsyncTask.execute();
+		mIsLoadingServiceData = true;
+	}
+	private class LoadNewMessageAsyncTask extends AsyncTask<Void, Void, ServiceResultObject> {
+
+		@Override
+		protected ServiceResultObject doInBackground(Void... params) {
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			InputStream is = null;
+			try {
+				is = NetworkUtils.openContectionLocked(ServiceObject.buildPageQuery(ServiceObject.getViewConversationUrl(mIBaoxiuCardObject.mKY, String.valueOf(mCurrentMaxId), String.valueOf(ViewConversationObject.DIRECTION_UP)), 1, 20), MyApplication.getInstance().getSecurityKeyValuesObject());
+				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				if (serviceResultObject.isOpSuccessfully()) {
+					if (serviceResultObject.mJsonData != null && serviceResultObject.mJsonData.getInt("total") > 0 && serviceResultObject.mJsonData.getJSONArray("message") != null) {
+						//有新数据，我们解析并保存
+						List<ViewConversationObject> list = ViewConversationObject.parse(serviceResultObject.mJsonData.getJSONArray("message"));
+						long maxMid = mCurrentMaxId;
+						DebugUtils.logD(TAG, "LoadNewMessageAsyncTask save new messages.....");
+						for (ViewConversationObject viewConversationObject : list) {
+							viewConversationObject.saveInDatebase(getContentResolver(), null);
+							maxMid = Math.max(maxMid, viewConversationObject.mMID);
+						}
+						mCurrentMaxId = maxMid;
+						DebugUtils.logD(TAG, "LoadNewMessageAsyncTask reset mCurrentMaxId=" + mCurrentMaxId + ", mCurrentMinId=" + mCurrentMinId);
+					}
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (JSONException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			if (!result.isOpSuccessfully()) {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			}
+			mIsLoadingServiceData = false;
+			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST, 250);
+			
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			mIsLoadingServiceData = false;
+		}
+		
+	}
 
 	@Override
 	protected AdapterWrapper<? extends BaseAdapter> getAdapterWrapper() {
@@ -591,103 +670,120 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
     
 	@Override
 	protected Cursor loadLocal(ContentResolver contentResolver) {
-		Cursor cursor = IMHelper.getAllLocalMessage(mContext.getContentResolver(), MyAccountManager.getInstance().getCurrentAccountUid(), mRelationshipObject.mTargetType, mRelationshipObject.mTarget);
-		if (cursor != null) {
-			if (mCurrentMessageId == -1) {
-				//第一次查询
-				if (cursor.moveToLast()) {
-					mCurrentMessageId =  cursor.getLong(IMHelper.INDEX_ID);
-					mCurrentPosition = cursor.getCount() - 1;
-				}
-			} else {
-				long id = -1;
-				while(cursor.moveToNext()) {
-					id = cursor.getLong(IMHelper.INDEX_ID);
-					if (mCurrentMessageId == id) {
-						mCurrentPosition = cursor.getPosition();
-						break;
-					}
-				}
-			}
-		}
-		DebugUtils.logD(TAG, "loadLocal() current item position=" + mCurrentPosition + ", id=" + mCurrentMessageId);
-		return cursor;
+		return contentResolver.query(BjnoteContent.VIEW_CONVERSATION_HISTORY.CONTENT_URI, ViewConversationObject.PROJECTION, ViewConversationObject.UID_KY_SELECTION, mSelectionArgs, ViewConversationObject.SORT_BY_MID);
 	}
 
 	@Override
 	protected int savedIntoDatabase(ContentResolver cr, List<? extends InfoInterface> infoObjects) {
-		return IMHelper.saveList(cr, infoObjects);
+		int result = 0;
+		for (InfoInterface viewConversationObject : infoObjects) {
+			if (viewConversationObject.saveInDatebase(getContentResolver(), null)) {
+			}
+		}
+		return result;
 	}
 
 	@Override
 	protected List<? extends InfoInterface> getServiceInfoList(InputStream is, PageInfo pageInfo) {
-		return IMHelper.parseList(is, pageInfo, mRelationshipObject.mTargetType);
+		ServiceResultObject serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+		List<ViewConversationObject> list = new ArrayList<ViewConversationObject>();
+		try {
+			if (serviceResultObject.isOpSuccessfully()) {
+				pageInfo.mTotalCount = serviceResultObject.mJsonData.getInt("total");
+				if (serviceResultObject.mJsonData != null && pageInfo.mTotalCount > 0 && serviceResultObject.mJsonData.getJSONArray("message") != null) {
+					list = ViewConversationObject.parse(serviceResultObject.mJsonData.getJSONArray("message"));
+				}
+			}
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 
 	@Override
 	protected Query getQuery() {
-		Query query = new Query();
-		query.qServiceUrl = ServiceObject.getMessagesUrlByUidByTid(MyAccountManager.getInstance().getCurrentAccountUid(), mRelationshipObject.mTarget, "p2p");
-		return query;
-	}
-
-	@Override
-	protected void onLoadMoreStart() {
-		mIsRefreshing = true;
-//		mCurrentMessageId = -1;
-		if (mConversationAdapter != null && mCurrentPosition != -1 && mCurrentPosition < mConversationAdapter.getCount()) {
-			Cursor c = mConversationAdapter.getCursor();
-			if (c != null && c.moveToPosition(mCurrentPosition)) {
-				mCurrentMessageId = c.getLong(IMHelper.INDEX_ID);
-			}
-			
+		if (mQuery == null) {
+			mQuery =  new Query();
+			mQuery.mPageInfo = new PageInfo();
+			mQuery.qServiceUrl = ServiceObject.getViewConversationUrl(mIBaoxiuCardObject.mKY, String.valueOf(mCurrentMinId), String.valueOf(ViewConversationObject.DIRECTION_DOWN));
 		}
-		DebugUtils.logD(TAG, "onRefreshStart() current item position=" + mCurrentPosition + ", id=" + mCurrentMessageId);
-	}
-
-	@Override
-	protected void onLoadMoreEnd() {
-	}
-
-	@Override
-	protected void onPostLoadMoreEnd() {
-		mIsRefreshing = false;
-		mListView.setSelection(mCurrentPosition);
-		DebugUtils.logD(TAG, "onPostLoadMoreEnd() current item position=" + mCurrentPosition + ", id=" + mCurrentMessageId);
+		return mQuery;
 	}
 
 	@Override
 	protected int getContentLayout() {
-		return R.layout.activity_im_conversation;
+		return R.layout.activity_view_conversation;
 	}
-	
-	private View.OnClickListener mErrorOnclickListener = new View.OnClickListener() {
 
-		@Override
-		public void onClick(View v) {
-			final ViewHolder viewHolder = (ViewHolder) v.getTag();
-			
-			new AlertDialog.Builder(mContext)
-			.setPositiveButton(android.R.string.cancel, null)
-			.setItems(R.array.im_resend_items, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					switch(which) {
-					case 0:  //重新发送
-						viewHolder._conversationItemObject.deleteMessage(getContentResolver());
-						sendMessageLocked(viewHolder._conversationItemObject);
-						break;
-					case 1: //删除
-						viewHolder._conversationItemObject.deleteMessage(getContentResolver());
-						break;
-					}
-					
+	private boolean mIsFirstLoadMore = true;
+	@Override
+	protected void onLoadMoreStart() {
+		//每次载入更多的时候，我们先要记录下当前的位置
+		final Cursor cursor = loadLocal(mContentResolver);
+		if (cursor != null) {
+			if (mCurrentMessageId == -1) {
+				if (cursor.moveToLast()) {
+					mCurrentMessageId =  cursor.getLong(ViewConversationObject.INDEX_ID);
 				}
-			})
-			.show();
+			} else {
+				if(cursor.moveToPosition(mCurrentPosition)) {
+					mCurrentMessageId = cursor.getLong(ViewConversationObject.INDEX_ID);
+				} 
+			}
+			if (cursor.moveToFirst()) {
+				mCurrentMinId = cursor.getLong(ViewConversationObject.INDEX_MID);
+			}
+			//第一次加载，我们会先显示本地的数据
+			if (mIsFirstLoadMore) {
+				if (cursor.getCount() > 0) {
+					mQuery.mPageInfo.computePageSize(cursor.getCount());
+					MyApplication.getInstance().postAsync(new Runnable() {
+
+						@Override
+						public void run() {
+							mConversationAdapter.changeCursor(cursor);
+							mListView.setSelection(cursor.getCount()-1);
+						}
+						
+					});
+				}
+				mIsFirstLoadMore = false;
+			} else {
+				cursor.close();
+			}
 		}
 		
-	};
+		mQuery.qServiceUrl = ServiceObject.getViewConversationUrl(mIBaoxiuCardObject.mKY, String.valueOf(mCurrentMinId), String.valueOf(ViewConversationObject.DIRECTION_DOWN));
+		mQuery.mPageInfo.mPageIndex=1;
+	}
+
+	@Override
+	protected void onLoadMoreEnd() {
+		//我们需要找到上一次的位置映射到现在的新的位置上
+		Cursor cursor = loadLocal(mContentResolver);
+		if (cursor != null && cursor.moveToPosition(-1)) {
+			if (mCurrentMessageId != -1) {
+//				long id = 0;
+//				while (cursor.moveToNext()) {
+//					id =  cursor.getLong(ViewConversationObject.INDEX_ID);
+//					if (mCurrentMessageId == id) {
+//						mCurrentPosition = cursor.getPosition();
+//					}
+//				}
+			} else {
+				if (cursor.moveToLast()) {
+					mCurrentMessageId = cursor.getLong(ViewConversationObject.INDEX_ID);
+					mCurrentPosition = cursor.getPosition();
+				}
+				
+			}
+		}
+		
+	}
+	@Override
+	protected void onPostLoadMoreEnd() {
+		mListView.setSelection(mCurrentPosition);
+	}
 
 }

@@ -125,15 +125,18 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 	public static final int INDEX_MODIFIED = 21;
 	/**DATA21, PinPai*/
 	public static final int INDEX_PINPAI = 22;
-	/**CARD_KY, ky*/
+	/**DATA22, ky*/
 	public static final int INDEX_KY = 23;
-	/**CARD_PKY, pky*/
+	/**DATA23, pky*/
 	public static final int INDEX_PKY = 24;
 	
-	/**DATA22, 修改时间*/
+	/**DATA24, 修改时间*/
 	public static final int KEY_CARD_MMONE = 25;
-	/**DATA23, PinPai*/
+	/**DATA25, PinPai*/
 	public static final int KEY_CARD_MMTWO = 26;
+	
+	/**DATA26, pdfpath*/
+	public static final int KEY_CARD_PDF_PATH = 27;
 	
 	public static final String UID_SID_SELECTION = WHERE_UID + " and " + PROJECTION[INDEX_SID] + "=?";
 	
@@ -201,7 +204,11 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 		if (mmone != null) {
 			cardObject.mMMTwoRelationshipObject = RelationshipObject.parse(mmone);
 		}
-		
+		cardObject.mPdfPath = jsonObject.optString("pdfpath", "");
+		cardObject.mFPaddr = jsonObject.optString("imgaddr", "");
+		if ("null".equalsIgnoreCase(cardObject.mFPaddr)) {
+			cardObject.mFPaddr = "";
+		}
 		return cardObject;
 	}
 	
@@ -255,7 +262,6 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 		bundle.putString("m4SWashingShopTel", m4SWashingShopTel);
 		bundle.putString("mWeixiuShopTel", mWeixiuShopTel);
 		bundle.putString("mChuxianShopTel", mChuxianShopTel);
-		bundle.putLong("mModifiedTime", mModifiedTime);
 		
 		return bundle;
 	}
@@ -275,8 +281,6 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 		baoxiuCardObject.m4SWashingShopTel = bundle.getString("m4SWashingShopTel", "");
 		baoxiuCardObject.mWeixiuShopTel = bundle.getString("mWeixiuShopTel", "");
 		baoxiuCardObject.mChuxianShopTel = bundle.getString("mChuxianShopTel", "");
-		baoxiuCardObject.mModifiedTime = bundle.getLong("mModifiedTime", new Date().getTime());
-		
 		return baoxiuCardObject;
 	}
 	
@@ -407,6 +411,7 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
     	baoxiuCardObject.mMMTwo =c.getString(KEY_CARD_MMTWO);
     	
     	baoxiuCardObject.mModifiedTime = c.getLong(INDEX_MODIFIED);
+    	baoxiuCardObject.mPdfPath = c.getString(KEY_CARD_PDF_PATH);
     	
 		return baoxiuCardObject;
 	}

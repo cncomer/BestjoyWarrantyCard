@@ -89,6 +89,8 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
 	public static final int KEY_CARD_MMONE = 22;
 	public static final int KEY_CARD_MMTWO = 23;
 	
+	public static final int KEY_CARD_PDF_PATH = 24;
+	
 	
 	public static final String WHERE_AID = HaierDBHelper.CARD_AID + "=?";
 	public static final String WHERE_BID = HaierDBHelper.CARD_BID + "=?";
@@ -150,6 +152,9 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
 		cardObject.mFPaddr = hasimg ? "1" : "0";
 		//delete by chenkai, 现在FPaddr不再返回数据了，而是使用hasimg来表示是否存在发票图片 end
 		cardObject.mFPaddr = jsonObject.optString("imgaddr", "");
+		if ("null".equalsIgnoreCase(cardObject.mFPaddr)) {
+			cardObject.mFPaddr = "";
+		}
 		cardObject.mFPName = jsonObject.optString("imgstr", "");
 		cardObject.mPKY = jsonObject.optString("pky", BaoxiuCardObject.DEFAULT_BAOXIUCARD_IMAGE_KEY);
 		if ("null".equalsIgnoreCase(cardObject.mPKY)) {
@@ -165,6 +170,8 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
 		if (mmone != null) {
 			cardObject.mMMTwoRelationshipObject = RelationshipObject.parse(mmone);
 		}
+		
+		cardObject.mPdfPath = jsonObject.optString("pdfpath", "");
 		return cardObject;
 	}
 	
@@ -320,6 +327,8 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
     	baoxiuCardObject.mMMTwo =c.getString(KEY_CARD_MMTWO);
     	
     	baoxiuCardObject.mModifiedTime = c.getLong(KEY_CARD_DATE);
+    	
+    	baoxiuCardObject.mPdfPath = c.getString(KEY_CARD_PDF_PATH);
 		return baoxiuCardObject;
 	}
 
@@ -353,6 +362,7 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
 		values.put(PROJECTION[KEY_CARD_PKY], mPKY);
 		values.put(PROJECTION[KEY_CARD_MMONE], mMMOne);
 		values.put(PROJECTION[KEY_CARD_MMTWO], mMMTwo);
+		values.put(PROJECTION[KEY_CARD_PDF_PATH], mPdfPath);
 		values.put(PROJECTION[KEY_CARD_DATE], new Date().getTime());
 		
 		if (id > 0) {
