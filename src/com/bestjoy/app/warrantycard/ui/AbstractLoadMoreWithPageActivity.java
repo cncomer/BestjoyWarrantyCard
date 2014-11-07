@@ -12,6 +12,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.text.TextUtils;
@@ -73,6 +74,8 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 	
 	private List<OnScrollListener> mOnScrollListenerList = new ArrayList<OnScrollListener>();
 	private WakeLock mWakeLock;
+	protected int mFirstVisibleItem = -1;
+	private Handler mUiHandler;
 	
 	//子类必须实现的方法
 	/**提供一个CursorAdapter类的包装对象*/
@@ -84,10 +87,9 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 	protected abstract int savedIntoDatabase(ContentResolver contentResolver, List<? extends InfoInterface> infoObjects);
 	protected abstract List<? extends InfoInterface> getServiceInfoList(InputStream is, PageInfo pageInfo);
 	protected abstract Query getQuery();
-	protected abstract void onLoadMoreStartLocked(boolean first);
-	/**载入更多的数据已经保存完成*/
-	protected abstract void onLoadSaveNewDataFinishLocked(int count);
-	protected abstract void onLoadMoreEnd(boolean first);
+	protected abstract void onLoadMoreStart();
+	protected abstract void onLoadMoreEnd();
+	protected abstract void onPostLoadMoreEnd();
 	protected abstract int getContentLayout();
 	/***
 	 * 设置加载更多的位置，默认是底部，可以通过传值LOAD_MORE_TOP或者LOAD_MORE_BOTTOM来修改
@@ -121,7 +123,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 		}
 		DebugUtils.logD(TAG, "setContentView()");
 		setContentView(getContentLayout());
-		
+		mUiHandler = new Handler();
 		mContentResolver = getContentResolver();
 		
 		mEmptyView = (TextView) findViewById(android.R.id.empty);
@@ -147,7 +149,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 				DebugUtils.logD(TAG, "onScrollStateChanged() needLoadMore()=" + needLoadMore() + ",  mIsUpdate=" + mIsLoadingMore + ", isNeedRequestAgain="+isNeedRequestAgain);
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE && needLoadMore() && !mIsLoadingMore && isNeedRequestAgain) {
 					DebugUtils.logD(TAG, "we go to load more.");
-					loadMoreMessagesAsync();
+					loadMoreAsync();
 				}
 			}
 
@@ -156,6 +158,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 				for(OnScrollListener list :mOnScrollListenerList) {
 					list.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
 				}
+				mFirstVisibleItem = firstVisibleItem;
 				if (totalItemCount > 0) {
 					if (firstVisibleItem == 0 && firstVisibleItem + visibleItemCount == totalItemCount) {
 						mIsAtListBottom = true;
@@ -186,13 +189,23 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 		if (!mWakeLock.isHeld()) {
 			mWakeLock.acquire();
 		}
+		
+		if (mQuery == null) {
+			mQuery = getQuery();
+			if (mQuery.mPageInfo == null) {
+				mQuery.mPageInfo = new PageInfo();
+			}
+		}
+		
+		loadLocalDataAsync();
 	}
 	
-	private LoadMoreFromServiceTask mLoadMoreFromServiceTask;
-	public void loadMoreMessagesAsync() {
-		AsyncTaskUtils.cancelTask(mLoadMoreFromServiceTask);
-		mLoadMoreFromServiceTask = new LoadMoreFromServiceTask();
-		mLoadMoreFromServiceTask.execute();
+	private QueryServiceTask mQueryServiceTask;
+	public void loadMoreAsync() {
+		updateLoadMoreStatusView(true, null);
+		AsyncTaskUtils.cancelTask(mQueryServiceTask);
+		mQueryServiceTask = new QueryServiceTask();
+		mQueryServiceTask.execute();
 	}
 	
 	@Override
@@ -215,7 +228,6 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 		super.onDestroy();
 		mDestroyed = true;
 		AsyncTaskUtils.cancelTask(mLoadLocalTask);
-		AsyncTaskUtils.cancelTask(mLoadMoreFromServiceTask);
 		if (mAdapterWrapper != null) mAdapterWrapper.releaseAdapter();
 	}
 	
@@ -292,6 +304,14 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 			if (result != null) {
 				requestCount = result.getCount();
 			}
+			
+			if (requestCount == 0) {
+				loadMoreAsync();
+				
+			} else if (mFirstinit){
+				mFirstinit = false;
+				mListView.setSelection(requestCount-1);
+			}
 			DebugUtils.logD(TAG, "LoadLocalTask load local data finish....localCount is " + requestCount);
 		}
 
@@ -304,24 +324,15 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 	
 
 	/**更新或是新增的总数 >0表示有更新数据，需要刷新，=-1网络问题， =-2 已是最新数据 =0 没有更多数据*/
-	private class LoadMoreFromServiceTask extends AsyncTask<Void, Void, Integer> {
+	private class QueryServiceTask extends AsyncTask<Void, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(Void... arg0) {
 			mIsLoadingMore = true;
-			isNeedRequestAgain = true;
 			int insertOrUpdateCount = 0;
 			try {
-				if (mQuery == null) {
-					mQuery = getQuery();
-					if (mQuery.mPageInfo == null) {
-						mQuery.mPageInfo = new PageInfo();
-						mQuery.mPageInfo.reset();
-					}
-				}
-				 //Do work to refresh the list here.
-				onLoadMoreStartLocked(mFirstinit);
-//				while (isNeedRequestAgain) {
+				
+				    onLoadMoreStart();
 					DebugUtils.logD(TAG, "openConnection....");
 					DebugUtils.logD(TAG, "start pageIndex " + mQuery.mPageInfo.mPageIndex + " pageSize = " + mQuery.mPageInfo.mPageSize);
 					InputStream is = NetworkUtils.openContectionLocked(ServiceObject.buildPageQuery(mQuery.qServiceUrl, mQuery.mPageInfo.mPageIndex, mQuery.mPageInfo.mPageSize), MyApplication.getInstance().getSecurityKeyValuesObject());
@@ -347,7 +358,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 					
 					DebugUtils.logD(TAG, "begin insert or update local database");
 					insertOrUpdateCount = savedIntoDatabase(mContentResolver, serviceInfoList);
-					onLoadSaveNewDataFinishLocked(insertOrUpdateCount);
+					onLoadMoreEnd();
 					return insertOrUpdateCount;
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -379,10 +390,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 			}
 			mLastRefreshTime = System.currentTimeMillis();
 			mIsLoadingMore = false;
-		    onLoadMoreEnd(mFirstinit);
-		    if (mFirstinit) {
-				mFirstinit = false;
-			}
+			onPostLoadMoreEnd();
 		}
 	}
 	

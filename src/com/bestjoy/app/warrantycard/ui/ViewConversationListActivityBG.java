@@ -61,11 +61,10 @@ import com.shwy.bestjoy.utils.PageInfo;
 import com.shwy.bestjoy.utils.Query;
 import com.shwy.bestjoy.utils.ServiceResultObject;
 
-public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivity implements View.OnClickListener{
+public class ViewConversationListActivityBG extends LoadMoreWithPageActivity implements View.OnClickListener{
 
 	private static final String TAG = "ViewConversationListActivity";
 	private static final int WHAT_REQUEST_REFRESH_LIST = 11000;
-	private static final int WHAT_REQUEST_REFRESH_LIST_BY_MYSELF = 11001;
 	private static final int WHAT_REQUEST_NEW_DATA = 12000;
 	private EditText mInputEdit;
 	private ImageView mTextIcon, mVoiceIcon;
@@ -75,6 +74,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 	
 	private ConversationAdapter mConversationAdapter;
 	private long mCurrentMessageId = -1;
+	private int mCurrentPosition = -1;
 	private Query mQuery;
 	private IBaoxiuCardObject mIBaoxiuCardObject;
 	private Bundle mBundles;
@@ -97,7 +97,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 				mIsConnected = true;
 				mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
 				loadNewMessagesAsync();
-				mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 5000);
+				mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 10000);
 			} else {
 				mIsConnected = false;
 			}
@@ -113,6 +113,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 		setShowHomeUp(true);
 		setLoadMorePosition(LOAD_MORE_TOP);
 		mListView = getListView();
+		addOnScrollListenerList(mOnScrollListener);
 		
 		mUiHandler = new Handler() {
 			@Override
@@ -127,10 +128,6 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 						MyApplication.getInstance().showMessage(R.string.new_msg_comming);
 					}
 					break;
-				case WHAT_REQUEST_REFRESH_LIST_BY_MYSELF:
-					mConversationAdapter.callSuperOnContentChanged();
-					mListView.setSelection(mConversationAdapter.getCount()-1);
-					break;
 				case WHAT_REQUEST_NEW_DATA:
 					//定时去查看是否有新数据
 					
@@ -138,7 +135,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 						loadNewMessagesAsync();
 					}
 					mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
-					mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 5000);
+					mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 10000);
 					break;
 				}
 			}
@@ -155,7 +152,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 			mIBaoxiuCardObject = CarBaoxiuCardObject.getBaoxiuCardObject(mBundles);
 			break;
 		}
-		if (false) {
+		if (true) {
 			mIBaoxiuCardObject.mKY = "2020004CJ";
 		}
 		mSelectionArgs = new String[]{MyAccountManager.getInstance().getCurrentAccountMd(), mIBaoxiuCardObject.mKY};
@@ -172,11 +169,31 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 	public void onResume() {
 		super.onResume();
 		if (mIsConnected) {
-			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 5000);
+			loadMoreAsync();
+			mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
+			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_NEW_DATA, 10000);
 		}
 		
 	}
 	
+	protected boolean isNeedForceRefreshOnResume() {
+		return false;
+	}
+	protected boolean isNeedLoadLocalOnResume() {
+		return false;
+	}
+	
+	private OnScrollListener mOnScrollListener = new OnScrollListener() {
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+		}
+
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+			mCurrentPosition = firstVisibleItem;
+			DebugUtils.logD(TAG, "onScroll() current item position=" + mCurrentPosition);
+		}
+	};
 	
 	 @Override
      public boolean onCreateOptionsMenu(Menu menu) {
@@ -385,6 +402,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		removeOnScrollListenerList(mOnScrollListener);
 		ComConnectivityManager.getInstance().removeConnCallback(ConnCallback);
 		mUiHandler.removeMessages(WHAT_REQUEST_NEW_DATA);
 		AsyncTaskUtils.cancelTask(mLoadNewMessageAsyncTask);
@@ -467,8 +485,6 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 			dismissDialog(DIALOG_PROGRESS);
 			if (result.isOpSuccessfully()) {
 				mInputEdit.getText().clear();
-				mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST_BY_MYSELF);
-				mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST_BY_MYSELF, 250);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
@@ -493,7 +509,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 	}
 	
 	public static void startActivity(Context context, Bundle bundle) {
-		Intent intent = new Intent(context, ViewConversationListActivity.class);
+		Intent intent = new Intent(context, ViewConversationListActivityBG.class);
 		if (bundle != null) intent.putExtras(bundle);
 		context.startActivity(intent);
 	}
@@ -515,9 +531,8 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 		protected void onContentChanged() {
 			//如果用户正在下拉刷新，我们不要刷新列表数据，因为框架会帮我们查询，changeCursor()
 			//一秒内延迟刷新，提高性能
-//			mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST);
-//			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST, 250);
-			return;
+			mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST);
+			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST, 250);
 		}
 		
 		private void callSuperOnContentChanged() {
@@ -635,10 +650,6 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 			if (!result.isOpSuccessfully()) {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
-			if (_newCount > 0) {
-				mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST);
-				mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST, 250);
-			}
 			mIsLoadingServiceData = false;
 			
 		}
@@ -659,8 +670,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
     
 	@Override
 	protected Cursor loadLocal(ContentResolver contentResolver) {
-		Cursor cursor = contentResolver.query(BjnoteContent.VIEW_CONVERSATION_HISTORY.CONTENT_URI, ViewConversationObject.PROJECTION, ViewConversationObject.UID_KY_SELECTION, mSelectionArgs, ViewConversationObject.SORT_BY_MID);
-		return cursor;
+		return contentResolver.query(BjnoteContent.VIEW_CONVERSATION_HISTORY.CONTENT_URI, ViewConversationObject.PROJECTION, ViewConversationObject.UID_KY_SELECTION, mSelectionArgs, ViewConversationObject.SORT_BY_MID);
 	}
 
 	@Override
@@ -706,56 +716,74 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 		return R.layout.activity_view_conversation;
 	}
 
+	private boolean mIsFirstLoadMore = true;
 	@Override
 	protected void onLoadMoreStart() {
 		//每次载入更多的时候，我们先要记录下当前的位置
-		final Cursor cursor = mConversationAdapter.getCursor();
-		if (cursor != null && cursor.getCount() > 0) {
-			if (cursor.moveToPosition(mFirstVisibleItem)) {
+		final Cursor cursor = loadLocal(mContentResolver);
+		if (cursor != null) {
+			
+			mCurrentPosition = mListView.getFirstVisiblePosition();
+			if (cursor.moveToPosition(mCurrentPosition)) {
 				mCurrentMessageId =  cursor.getLong(ViewConversationObject.INDEX_ID);
 			} 
+			
 			if (cursor.moveToFirst()) {
 				mCurrentMinId = cursor.getLong(ViewConversationObject.INDEX_MID);
 			}
-			if (cursor.moveToLast()) {
-				mCurrentMaxId =  cursor.getLong(ViewConversationObject.INDEX_MID);
-			} 
+			//第一次加载，我们会先显示本地的数据
+			if (mIsFirstLoadMore) {
+				mQuery.mPageInfo.computePageSize(cursor.getCount());
+				MyApplication.getInstance().postAsync(new Runnable() {
+
+					@Override
+					public void run() {
+						mConversationAdapter.changeCursor(cursor);
+						if (cursor.getCount() > 0) {
+							
+						}
+						mListView.setSelection(cursor.getCount()-1);
+					}
+					
+				});
+				mIsFirstLoadMore = false;
+			} else {
+				cursor.close();
+			}
 		}
-	    DebugUtils.logD(TAG, "onLoadMoreStart mCurrentMinId=" + mCurrentMinId + ", mCurrentMaxId=" + mCurrentMaxId + ", mCurrentMessageId="+mCurrentMessageId + ", mFirstVisibleItem="+mFirstVisibleItem);
-		
+		DebugUtils.logD(TAG, "onLoadMoreStart current item position=" + mCurrentPosition + ", mCurrentId=" + mCurrentMessageId);
 		mQuery.qServiceUrl = ServiceObject.getViewConversationUrl(mIBaoxiuCardObject.mKY, String.valueOf(mCurrentMinId), String.valueOf(ViewConversationObject.DIRECTION_DOWN));
 		mQuery.mPageInfo.mPageIndex=1;
 	}
 
 	@Override
 	protected void onLoadMoreEnd() {
-		final Cursor cursor = loadLocal(mContentResolver);
-		
-		mUiHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				mConversationAdapter.changeCursor(cursor);
-				if (mCurrentMessageId == -1) {
-					mListView.setSelection(cursor.getCount()-1);
+		//我们需要找到上一次的位置映射到现在的新的位置上
+		Cursor cursor = loadLocal(mContentResolver);
+		if (cursor != null && cursor.moveToPosition(-1)) {
+			if (mCurrentMessageId != -1) {
+				long id = 0;
+				while (cursor.moveToNext()) {
+					id =  cursor.getLong(ViewConversationObject.INDEX_ID);
+					if (mCurrentMessageId == id) {
+						mCurrentPosition = cursor.getPosition();
+					}
 				}
+			} else {
+				int position = mListView.getFirstVisiblePosition();
+				if (cursor.moveToPosition(position)) {
+					mCurrentMessageId = cursor.getLong(ViewConversationObject.INDEX_ID);
+					mCurrentPosition = position;
+				}
+				
 			}
-			
-		});
+		}
+		DebugUtils.logD(TAG, "onLoadMoreEnd current item position=" + mCurrentPosition + ", mCurrentId=" + mCurrentMessageId);
 	}
 	@Override
 	protected void onPostLoadMoreEnd() {
-		final Cursor cursor = mConversationAdapter.getCursor();
-		int position = mFirstVisibleItem;
-		long id = 0;
-		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()) {
-			id =  cursor.getLong(ViewConversationObject.INDEX_ID);
-			if (mCurrentMessageId == id) {
-				position = cursor.getPosition();
-			}
-		}
-		if (mCurrentMessageId != -1) mListView.setSelection(position);
-		DebugUtils.logD(TAG, "onPostLoadMoreEnd current item position=" + position + ", mCurrentMessageId=" + mCurrentMessageId);
+		DebugUtils.logD(TAG, "onPostLoadMoreEnd set position=" + mCurrentPosition + ", mCurrentId=" + mCurrentMessageId);
+		mListView.setSelection(mCurrentPosition);
 	}
 
 }

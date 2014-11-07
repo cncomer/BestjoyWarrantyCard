@@ -138,7 +138,7 @@
             android:launchMode="singleTop"
             android:label="@string/title_new_user_register" />
         <activity
-            android:name="com.bestjoy.app.warrantycard.ui.RegisterActivity"
+            android:name="com.bestjoy.app.warrantycard.ui.RegisterActivity20141107"
             android:configChanges="orientation|keyboardHidden"
              android:screenOrientation="portrait"
             android:excludeFromRecents="true"

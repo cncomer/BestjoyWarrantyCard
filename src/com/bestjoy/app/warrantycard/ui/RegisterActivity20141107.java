@@ -17,7 +17,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 
 import com.actionbarsherlock.view.Menu;
@@ -38,12 +40,12 @@ import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
 
-public class RegisterActivity extends BaseActionbarActivity implements View.OnClickListener{
+public class RegisterActivity20141107 extends BaseActionbarActivity implements View.OnClickListener{
 	private static final String TAG = "RegisterActivity";
 	
 	private static final int REQUEST_LOGIN = 1;
 	
-	private Button mNextButton;
+//	private Button mNextButton;
 	private EditText mTelInput, mNameInput, mPasswordInput, mConfirmPasswordInput;
 	
 	private AccountObject mAccountObject;
@@ -52,6 +54,11 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 	private HaierProCityDisEditPopView mProCityDisEditPopView;
 	private EditText mHomeEditText;
 	private HomeObject mHomeObject ;
+	
+	private View mPanel1, mPanel2;
+	private Animation mFadeInFromRight, mFadeInFromLeft, mFadeOutFromLeft, mFadeOutFromRight;
+	
+	private boolean mAnimRunning = false;
 
 	@Override
 	protected boolean checkIntent(Intent intent) {
@@ -73,8 +80,37 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 	}
 
 	private void initViews() {
-		mNextButton = (Button) findViewById(R.id.button_next);
-		mNextButton.setOnClickListener(this);
+		mPanel1 = findViewById(R.id.panel1);
+		mPanel2 = findViewById(R.id.panel2);
+		showPanel1(false);
+		
+		AnimationListener mAnimationListener = new AnimationListener() {
+
+			@Override
+			public void onAnimationStart(Animation animation) {
+				mAnimRunning = true;
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				mAnimRunning = false;
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				
+			}
+		};
+		mFadeInFromLeft = AnimationUtils.loadAnimation(mContext, R.anim.fade_in_from_left);
+		mFadeInFromRight = AnimationUtils.loadAnimation(mContext, R.anim.fade_in_from_right);
+		mFadeOutFromLeft = AnimationUtils.loadAnimation(mContext, R.anim.fade_out_from_left);
+		mFadeOutFromRight = AnimationUtils.loadAnimation(mContext, R.anim.fade_out_from_right);
+		mFadeInFromRight.setAnimationListener(mAnimationListener);
+		mFadeInFromLeft.setAnimationListener(mAnimationListener);
+		
+		findViewById(R.id.button_next).setOnClickListener(this);
+		findViewById(R.id.button_back).setOnClickListener(this);
+		findViewById(R.id.button_commit).setOnClickListener(this);
 		
 		mNameInput = (EditText) findViewById(R.id.name_input);
 		mPasswordInput = (EditText) findViewById(R.id.password_input);
@@ -114,9 +150,30 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
+	 
+	 @Override
+	 public void onDestroy() {
+		 super.onDestroy();
+		 AsyncTaskUtils.cancelTask(mRegisterAsyncTask);
+		 AsyncTaskUtils.cancelTask(mmValiTelAsyncTask);
+	 }
+	 
+	 @Override
+	 public void onBackPressed() {
+		 if (mPanel2.getVisibility() == View.VISIBLE) {
+			 showPanel1(true);
+		 } else {
+			 super.onBackPressed();
+		 }
+	 }
 
 	public static void startIntent(Context context, Bundle modelBundel) {
-		RegisterActivity20141107.startIntent(context, modelBundel);
+		Intent intent = new Intent(context, RegisterActivity20141107.class);
+		if (modelBundel == null) {
+			modelBundel = new Bundle();
+		}
+		intent.putExtras(modelBundel);
+		context.startActivity(intent);
 	}
 
 	@Override
@@ -126,24 +183,57 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			ComConnectivityManager.getInstance().onCreateNoNetworkDialog(this);
 			return;
 		}
+		if (mAnimRunning) {
+			DebugUtils.logD(TAG, "onClick ignore due to anim is running.");
+			return;
+		}
 		// add by chekai, 开始前先检查网络 end
 		switch (v.getId()) {
 			case R.id.button_next:
-				mAccountObject.mAccountName = mNameInput.getText().toString().trim();
-				mAccountObject.mAccountPwd = mPasswordInput.getText().toString().trim();
-				//modify by chenkai, 2014.06.04，去掉号码之间的空白符号 begin
-				//mAccountObject.mAccountTel = mTelInput.getText().toString().trim();
-				mAccountObject.mAccountTel = mTelInput.getText().toString().trim().replaceAll("[- +]", "");
-				//modify by chenkai, 2014.06.04，去掉号码之间的空白符号 end
-				
 				if(valiInput()) {
+					valiTelAsync();
+				}
+//				showPanel2(true);
+				break;
+			case R.id.button_back:
+				showPanel1(true);
+				break;
+			case R.id.button_commit:
+				if(valiHomeInput()) {
 					registerAsync();
 				}
 				break;
 		}
 	}
 	
+	private void showPanel1(boolean anim) {
+		mPanel1.clearAnimation();
+		mPanel2.clearAnimation();
+		if (anim) {
+			mPanel1.startAnimation(mFadeInFromLeft);
+			mPanel2.startAnimation(mFadeOutFromRight);
+		}
+		mPanel1.setVisibility(View.VISIBLE);
+		mPanel2.setVisibility(View.GONE);
+		setTitle(R.string.title_new_user_register);
+	}
+	
+	private void showPanel2(boolean anim) {
+		setTitle(R.string.msg_need_home_operation);
+		mPanel1.clearAnimation();
+		mPanel2.clearAnimation();
+		if (anim) {
+			mPanel1.startAnimation(mFadeOutFromLeft);
+			mPanel2.startAnimation(mFadeInFromRight);
+		}
+		mPanel1.setVisibility(View.GONE);
+		mPanel2.setVisibility(View.VISIBLE);
+	}
+	
 	private boolean valiInput() {
+		mAccountObject.mAccountName = mNameInput.getText().toString().trim();
+		mAccountObject.mAccountPwd = mPasswordInput.getText().toString().trim();
+		mAccountObject.mAccountTel = mTelInput.getText().toString().trim().replaceAll("[- +]", "");
 		if (TextUtils.isEmpty(mAccountObject.mAccountName)) {
 			MyApplication.getInstance().showMessage(R.string.msg_input_usr_name);
 			return false;
@@ -171,7 +261,7 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 			return false;
 		}
 		//add by chenkai, 对手机号码非11位的排除注册, 2014.06.04 end
-		return valiHomeInput();
+		return true;
 	}
 	
 	private boolean valiHomeInput() {
@@ -192,11 +282,61 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 		return true;
 	}
 	
+	private ValiTelAsyncTask mmValiTelAsyncTask;
+	private void valiTelAsync() {
+		AsyncTaskUtils.cancelTask(mmValiTelAsyncTask);
+		showDialog(DIALOG_PROGRESS);
+		mmValiTelAsyncTask = new ValiTelAsyncTask();
+		mmValiTelAsyncTask.execute();
+	}
+	
+	private class ValiTelAsyncTask extends AsyncTask<Void, Void, ServiceResultObject> {
+		@Override
+		protected ServiceResultObject doInBackground(Void... params) {
+			InputStream is = null;
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			try {
+				is = NetworkUtils.openContectionLocked(ServiceObject.getRegisterValidateTelUrl(mAccountObject.mAccountTel), MyApplication.getInstance().getSecurityKeyValuesObject());
+				if (is != null) {
+					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch(UnknownHostException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = MyApplication.getInstance().getGernalNetworkError();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			dismissDialog(DIALOG_PROGRESS);
+			if (result.isOpSuccessfully()) {
+				showPanel2(true);
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			dismissDialog(DIALOG_PROGRESS);
+		}
+	}
+	
 	private RegisterAsyncTask mRegisterAsyncTask;
 	private void registerAsync() {
 		AsyncTaskUtils.cancelTask(mRegisterAsyncTask);
 		showDialog(DIALOG_PROGRESS);
-		mNextButton.setEnabled(false);
 		mRegisterAsyncTask = new RegisterAsyncTask();
 		mRegisterAsyncTask.execute();
 	}
@@ -230,9 +370,7 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 					DebugUtils.logD(TAG, "RegisterAsyncTask doInBackground() desJsonObject " + desJsonObject);
 					
 					is = NetworkUtils.openContectionLocked(ServiceObject.getRegisterUrl("para", desJsonObject), MyApplication.getInstance().getSecurityKeyValuesObject());
-					if (is != null) {
-						serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
-					}
+					serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -256,7 +394,6 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 		protected void onPostExecute(ServiceResultObject result) {
 			super.onPostExecute(result);
 			dismissDialog(DIALOG_PROGRESS);
-			mNextButton.setEnabled(true);
 			if (result.isOpSuccessfully()) {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				//注册后，我们要做一次登陆
@@ -287,7 +424,6 @@ public class RegisterActivity extends BaseActionbarActivity implements View.OnCl
 		protected void onCancelled() {
 			super.onCancelled();
 			dismissDialog(DIALOG_PROGRESS);
-			mNextButton.setEnabled(true);
 		}
 	}
 	

@@ -119,7 +119,7 @@ public class ViewConversationObject extends InfoInterfaceImpl {
 //			DebugUtils.logD(TAG, "saveInDatebase update " + mMessage + ", effect rows#" + updated);
 //			return updated > 0;
 			//不错更新
-			return true;
+			return false;
 		} else {
 			Uri uri = cr.insert(BjnoteContent.VIEW_CONVERSATION_HISTORY.CONTENT_URI, values);
 			DebugUtils.logD(TAG, "saveInDatebase insert " + mMessage + ", uri=" + uri);

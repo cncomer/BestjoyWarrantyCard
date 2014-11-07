@@ -157,6 +157,15 @@ public class ServiceObject {
 		return sb.toString();
 	}
 	/**
+	 * 注册验证手机号步骤
+	 * @return
+	 */
+	public static String getRegisterValidateTelUrl(String tel) {
+		UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(ServiceObject.SERVICE_URL);
+		sb.append("ValidateUserTel.ashx?tel=").append(tel);
+		return sb.toString();
+	}
+	/**
 	 * http://www.dzbxk.com/bestjoy/20140718/GetToken.ashx?data=wangkun&key=8f76e86c54da27e0abb1a3605fb5d440
 	 * @param data 加密前的数据
 	 * @param key key是 md5(data) 
