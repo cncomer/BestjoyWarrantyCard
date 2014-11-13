@@ -389,7 +389,7 @@ public class ServiceObject {
 		  
 		  public static String getWeatherUrl(String adminCode, String citykey, String uid, String token) {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
-			  sb.append("Weather/GetWeatherByAdminCode.ashx?admin_code=").append(adminCode).append("&citykey=").append(citykey)
+			  sb.append("Weather/GetWeatherByAdminCode.ashx?city_code=").append(adminCode)/*.append("&citykey=").append(citykey)*/
 			  .append("&uid=").append(uid == null?"":uid)
 			  .append("&token=").append(token == null?"":token)
 			  .append("&devicetype=").append("1");
@@ -525,5 +525,61 @@ public class ServiceObject {
 			  sb.append("LeaveMessage/AddKeyMessage.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
+		  /***
+		   * 根据监控到得商铺电话查询商铺信息
+		   * http://www.dzbxk.com/bestjoy/GetShopinfo.ashx?para={admin_code:%22110102%22,cell:%2284260017%22}
+		   * @param para
+		   * @param jsonString
+		   * @return
+		   */
+		  public static String getShopCellJianKongUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("GetShopinfo.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  /***
+		   * 关联店铺到用户会员卡
+		   * @param para
+		   * @param jsonString
+		   * @return
+		   */
+		  public static String relatedShopAndUserUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("huiyuan/relateUserShop.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  /**
+		   * 返回用户相关的全部会员卡店铺
+		   * http://www.dzbxk.com/bestjoy/huiyuan/GetRelateUserShop.ashx?para={uid:1}
+		   * @param para
+		   * @param jsonString
+		   * @return
+		   */
+		  public static String getAllRelatedShops(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("huiyuan/GetRelateUserShop.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  /**
+		   * 检查保修政策页面是否存在
+		   * @param ky
+		   * @return
+		   */
+		  public static String checkPolicyPageUrl(String ky) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("checkaddress.ashx?ky=").append(ky);
+			  return sb.toString();
+		  }
+		  /**
+		   * 
+		   * @param ky
+		   * @return
+		   */
+		  public static String getPostUpdateMemberCardImageUrl() {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("huiyuan/updateCard.ashx?");
+			  return sb.toString();
+		  }
+		  
 		  
 }

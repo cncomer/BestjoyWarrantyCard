@@ -19,7 +19,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.warrantycard.ui.PreferencesActivity;
+import com.bestjoy.app.warrantycard.ui.SettingsPreferenceActivity;
 import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.google.zxing.client.result.AddressBookParsedResult;
 
@@ -146,7 +146,7 @@ public class AddrBookAddManagerEarly {
         } else {
         	
         	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        	if(prefs.getBoolean(PreferencesActivity.KEY_AUTO_REDIRECT, true)) {
+        	if(prefs.getBoolean(SettingsPreferenceActivity.KEY_AUTO_REDIRECT, true)) {
         		launchAddedContact(contactUri);
         	}else {
         		Toast.makeText(mContext, R.string.result_create_contact, Toast.LENGTH_LONG).show();

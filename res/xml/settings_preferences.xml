@@ -18,7 +18,7 @@
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
+    <PreferenceCategory android:key="preferences_account_category"
             android:title="@string/preference_key_account_title">
 
          <EditTextPreference
@@ -29,6 +29,58 @@
                 android:key="preference_key_account_password"
                 android:persistent="false"
                 android:title="@string/preference_key_account_password_title" />
+
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="@string/preferences_barcode_general_title">
+    <CheckBoxPreference
+        android:key="preferences_decode_1D"
+        android:defaultValue="true"
+        android:summary="@string/preferences_decode_1D_summary"
+        android:title="@string/preferences_decode_1D_title"/>
+    <CheckBoxPreference
+        android:key="preferences_decode_QR"
+        android:defaultValue="true"
+        android:summary="@string/preferences_decode_QR_summary"
+        android:title="@string/preferences_decode_QR_title"/>
+    <CheckBoxPreference
+        android:key="preferences_decode_Data_Matrix"
+        android:defaultValue="true"
+        android:summary="@string/preferences_decode_Data_Matrix_summary"
+        android:title="@string/preferences_decode_Data_Matrix_title"/>
+  </PreferenceCategory>
+    <!-- 隐私设置 -->
+   <PreferenceCategory android:key="preferences_privacy_category"
+       android:summary="@string/preferences_privacy_category_summary"
+       android:title="@string/preferences_privacy_category_title">
+  	<CheckBoxPreference
+        android:key="preferences_privacy_incoming_call"
+        android:defaultValue="true"
+        android:title="@string/preferences_privacy_incoming_call_title"
+        android:summary="@string/preferences_privacy_incoming_call_summary"/>
+  	<CheckBoxPreference
+        android:key="preferences_privacy_outgoing_call"
+        android:defaultValue="true"
+        android:title="@string/preferences_privacy_outgoing_call_title"
+        android:summary="@string/preferences_privacy_outgoing_call_summary"/>
+        <!-- SMS监听暂不支持 -->
+    <!--CheckBoxPreference
+        android:key="preferences_privacy_mms"
+        android:defaultValue="false"
+        android:title="@string/preferences_privacy_mms_title"
+        android:summary="@string/preferences_privacy_mms_summary"/-->
+  </PreferenceCategory>
+  
+   <PreferenceCategory android:key="preferences_general_category"
+            android:title="@string/preferences_general_category_title">
+         <Preference
+                android:key="preference_key_about_app"
+                android:persistent="false"
+                android:title="@string/preferences_about_app_title" />
+         <Preference
+                android:key="preference_key_clear_cache"
+                android:persistent="false"
+                android:title="@string/preferences_clear_cache_title" />
 
     </PreferenceCategory>
 </PreferenceScreen>

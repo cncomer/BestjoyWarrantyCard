@@ -27,6 +27,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -458,6 +459,7 @@ public class PropertyManagementActivity extends BaseActionbarActivity implements
 	private void showModifyDialog(final ViewHolder viewHolder) {
 		final EditText input = new EditText(mContext);
 		input.setMinLines(2);
+		input.setInputType(EditorInfo.TYPE_CLASS_PHONE);
 		input.setText(viewHolder._communityServiceObject.mServiceContent);
 		input.setSelection(viewHolder._communityServiceObject.mServiceContent.length());
 		final AlertDialog dialog = new AlertDialog.Builder(mContext)

@@ -76,6 +76,8 @@ public class RightPercentProgressBar extends ProgressBar{
 		} else {
 			progressWidth = 0;
 		}
+		DebugUtils.logD(TAG, "drawText getWidth() " + getWidth());
+		DebugUtils.logD(TAG, "drawText getMeasuredWidth() " + getMeasuredWidth());
 		DebugUtils.logD(TAG, "drawText progressWidth " + progressWidth);
 		DebugUtils.logD(TAG, "drawText progressTextWidth " + progressTextWidth);
 		

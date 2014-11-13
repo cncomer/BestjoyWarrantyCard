@@ -187,7 +187,7 @@ public class ModleSettings {
 		case R.id.model_my_card:{
 			MenuItem item = menu.add(0, type, 0, R.string.menu_new_card);
 			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-			item.setIcon(R.drawable.flag_plus);
+//			item.setIcon(R.drawable.flag_plus);
 			break;
 		}
 		case R.id.model_install:{
@@ -203,7 +203,13 @@ public class ModleSettings {
 		case R.id.model_my_car_card:{
 			MenuItem item = menu.add(0, type, 0, R.string.menu_new_car_card);
 			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-			item.setIcon(R.drawable.flag_plus);
+//			item.setIcon(R.drawable.flag_plus);
+			break;
+		}
+		case R.id.model_my_member_card:{
+			MenuItem item = menu.add(0, type, 0, R.string.menu_new_car_card);
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+//			item.setIcon(R.drawable.flag_plus);
 			break;
 		}
 		}
@@ -304,6 +310,20 @@ public class ModleSettings {
 			bundle.putString(Intents.EXTRA_NAME, context.getString(R.string.activity_title_choose_car_general));
 			return bundle;
 		}
+		
+		//add by chenkai, 2014.11.13, 增加我得会员卡Bundle begin
+		/**
+		 * 可以使用这个来创建会员卡的Bundle数据
+		 * @param context
+		 * @return
+		 */
+		public static Bundle createMyMemberCardDefaultBundle(Context context) {
+			Bundle bundle = new Bundle();
+			bundle.putInt(Intents.EXTRA_TYPE, R.id.model_my_member_card);
+			bundle.putString(Intents.EXTRA_NAME, context.getString(R.string.activity_title_member_card));
+			return bundle;
+		}
+		//add by chenkai, 2014.11.13, 增加我得会员卡Bundle end
 
 	
 	public static int getModelIdFromBundle(Bundle modelBundle) {

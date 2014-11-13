@@ -83,7 +83,7 @@
             android:textSize="18sp"
             android:layout_height="wrap_content"
             android:textColor="#ffd9d9d9"
-            android:text="@string/cling_relate_community_to_home"/>
+            android:text="@string/cling_choose_devices_done"/>
         
     </LinearLayout>
     

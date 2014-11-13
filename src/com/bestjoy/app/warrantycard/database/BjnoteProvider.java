@@ -38,6 +38,7 @@ public class BjnoteProvider extends ContentProvider{
 			HaierDBHelper.TABLE_HOME_COMMUNITY_SERVICE,
 			HaierDBHelper.TABLE_CAR_CARD,
 			HaierDBHelper.TABLE_VIEW_CONVERSATION,
+			HaierDBHelper.TABLE_NAME_MYLIFE,
 //			HaierDBHelper.TABLE_HOME_COMMUNITY,
 //			ContactsDBHelper.TABLE_NAME_MYLIFE_CONSUME,
 	};
@@ -84,6 +85,9 @@ public class BjnoteProvider extends ContentProvider{
 	private static final int VIEW_CONVERSATION_HISTORY = 0x0c00;
 	private static final int VIEW_CONVERSATION_HISTORY_ID = 0x0c01;
 	
+	private static final int MY_LIFE = 0x0d00;
+	private static final int MY_LIFE_ID = 0x0d01;
+	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	 static {
 	        // URI matching table
@@ -128,6 +132,9 @@ public class BjnoteProvider extends ContentProvider{
 	        matcher.addURI(BjnoteContent.AUTHORITY, "view_conversation_history", VIEW_CONVERSATION_HISTORY);
 	        matcher.addURI(BjnoteContent.AUTHORITY, "view_conversation_history/#", VIEW_CONVERSATION_HISTORY_ID);
 	        
+	        
+	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife", MY_LIFE);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife/#", MY_LIFE_ID);
 	        
 //	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community", HOME_COMMUNITY);
 //	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/#", HOME_COMMUNITY_ID);
@@ -223,7 +230,10 @@ public class BjnoteProvider extends ContentProvider{
 		case VIEW_CONVERSATION_HISTORY_ID:
 			notify = BjnoteContent.VIEW_CONVERSATION_HISTORY.CONTENT_URI;
 			break;
-
+		case MY_LIFE:
+		case MY_LIFE_ID:
+			notify = BjnoteContent.MyLife.CONTENT_URI;
+			break;
 			
 			
     	}
@@ -394,6 +404,7 @@ public class BjnoteProvider extends ContentProvider{
 			case HOME_COMMUNITY_SERVICE_ID:
 			case CAR_CARD_ID:
 			case VIEW_CONVERSATION_HISTORY_ID:
+			case MY_LIFE_ID:
 			try {
 				id = ContentUris.parseId(uri);
 			} catch(java.lang.NumberFormatException e) {

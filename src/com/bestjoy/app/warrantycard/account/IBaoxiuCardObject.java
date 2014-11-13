@@ -443,4 +443,5 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 	public boolean hasPdf() {
 		return !TextUtils.isEmpty(mPdfPath);
 	}
+	
 }

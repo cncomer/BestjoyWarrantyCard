@@ -27,7 +27,7 @@ import android.util.Log;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
-import com.bestjoy.app.warrantycard.ui.PreferencesActivity;
+import com.bestjoy.app.warrantycard.ui.SettingsPreferenceActivity;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DateUtils;
@@ -242,7 +242,7 @@ public class UpdateService extends Service implements ComConnectivityManager.Con
 		boolean needUpdate = false;
 		if (mServiceAppInfo.getServiceAppInfoLocked()) {
 			SharedPreferences prefs = MyApplication.getInstance().mPreferManager;
-			int currentVersion = prefs.getInt(PreferencesActivity.KEY_LATEST_VERSION, 0);
+			int currentVersion = prefs.getInt(SettingsPreferenceActivity.KEY_LATEST_VERSION, 0);
 			DebugUtils.logD(TAG, "updateCheckTime = " + DateUtils.TOPIC_SUBJECT_DATE_TIME_FORMAT.format(new Date(mServiceAppInfo.mCheckTime)));
 			DebugUtils.logD(TAG, "currentVersionCode = " + currentVersion);
 			DebugUtils.logD(TAG, "newVersionCode = " + mServiceAppInfo.mVersionCode);

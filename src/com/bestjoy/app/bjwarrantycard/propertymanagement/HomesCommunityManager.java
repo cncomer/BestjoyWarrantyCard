@@ -24,8 +24,6 @@ import com.shwy.bestjoy.utils.InfoInterface;
 
 public class HomesCommunityManager extends BjnoteContent {
 	private static final String TAG = "HomesCommunityManager";
-	/**查询小区*/
-	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "homes_community");
 	/**查询小区服务*/
 	public static final Uri COMMUNITY_SERVICE_CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "homes_community/service");
 	/**物业*/
@@ -332,18 +330,18 @@ public class HomesCommunityManager extends BjnoteContent {
 		DebugUtils.logD(TAG, "getAllCommunityServiceObject communityServiceObjectList.size() " + communityServiceObjectList.size());
 		List<CommunityServiceObject> communityDefaultServiceObjectList = getAllDefaultCommunityServiceObject(homeObject);
 		CommunityServiceObject serviceObject = null;
+		int index = 0;
 		for(CommunityServiceObject defaultServiceObject :communityDefaultServiceObjectList) {
 			Iterator<CommunityServiceObject> iterator = communityServiceObjectList.iterator();
-			
 			while(iterator.hasNext()) {
 				serviceObject = iterator.next();
 				if (defaultServiceObject.mServiceType == serviceObject.mServiceType) {
-					serviceObject.mOrder = defaultServiceObject.mOrder;
-					defaultServiceObject = serviceObject;
+					defaultServiceObject.mServiceContent = serviceObject.mServiceContent;
 					iterator.remove();
 					break;
 				}
 			}
+			index++;
 		}
 		return communityDefaultServiceObjectList;
 	}

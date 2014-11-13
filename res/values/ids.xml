@@ -7,6 +7,7 @@
     <item type="id" name="model_property_manager" />
     <item type="id" name="model_pick_community" />
     <item type="id" name="model_my_car_card" />
+    <item type="id" name="model_my_member_card" />
     
    <item type="id" name="auto_focus"/>
   <item type="id" name="decode"/>

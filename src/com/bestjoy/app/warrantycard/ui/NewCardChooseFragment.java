@@ -31,11 +31,13 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.propertymanagement.ChooseCommunityActivity;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.XinghaoObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
+import com.bestjoy.app.warrantycard.utils.ClingHelper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DebugUtils;
@@ -275,6 +277,7 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 				//((BaseAdapter)_listView.getAdapter()).notifyDataSetChanged();
 				mMyAdapter.changeData(mXinghaoDataList);
 				((NewCardActivity)getActivity()).invalidateOptionsMenu();
+				ClingHelper.showGuide("NewCardChooseFragment.cling", getActivity());
 				//modify by chenkai, 增加型号模糊查询, 2014.06.15 end
 				break;
 			}

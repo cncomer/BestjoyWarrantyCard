@@ -1,23 +1,11 @@
-/*
- * Copyright (C) 2011 Jake Wharton
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.bestjoy.app.warrantycard.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -26,14 +14,18 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.TextUtils;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -41,20 +33,28 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
+import com.bestjoy.app.bjwarrantycard.privacy.IncomingCallCallbackImp;
+import com.bestjoy.app.bjwarrantycard.privacy.IncomingSmsCallbackImp;
+import com.bestjoy.app.bjwarrantycard.privacy.MonitorSandbox;
+import com.bestjoy.app.bjwarrantycard.privacy.OutgoingCallCallbackImp;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
+import com.bestjoy.app.warrantycard.update.AppAboutActivity;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.SecurityUtils;
 
-public class SettingsPreferenceActivity extends SherlockPreferenceActivity implements OnPreferenceChangeListener{
+public class SettingsPreferenceActivity extends SherlockPreferenceActivity implements OnPreferenceChangeListener, OnSharedPreferenceChangeListener{
 
 	private static final String TAG = "SettingsPreferenceActivity";
+	private static final String KEY_ACCOUNT_CATEGORY = "preferences_account_category";
 	private static final String KEY_ACCOUNT_NAME = "preference_key_account_name";
 	private static final String KEY_ACCOUNT_PASSWORD = "preference_key_account_password";
+	
 	public static final int DIALOG_DATA_NOT_CONNECTED = 10006;//数据连接不可用
 	public static final int DIALOG_MOBILE_TYPE_CONFIRM = 10007;//
 	public static final int DIALOG_PROGRESS = 10008;
@@ -64,32 +64,91 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 	private String mOldName, mOldPassword;
 	private Context mContext;
 	
+	/**程序第一次启动*/
+	public static final String KEY_FIRST_STARTUP = "preferences_first_startup";
+	
+	public static final String KEY_DECODE_1D = "preferences_decode_1D";
+	public static final String KEY_DECODE_QR = "preferences_decode_QR";
+	public static final String KEY_DECODE_DATA_MATRIX = "preferences_decode_Data_Matrix";
+
+	public static final String KEY_AUTO_REDIRECT = "preferences_auto_redirect";
+	static final String KEY_VCF_SAVE = "preferences_vcf_save";
+	public static final String KEY_CUSTOM_PRODUCT_SEARCH = "preferences_custom_product_search";
+
+	static final String KEY_PLAY_BEEP = "preferences_play_beep";
+	static final String KEY_VIBRATE = "preferences_vibrate";
+
+	public static final String KEY_NOT_OUR_RESULTS_SHOWN = "preferences_not_out_results_shown";
+
+	public static final String KEY_COLOR_INDEX = "preferences_color_index";
+	public static final String KEY_FONT_SIZE = "preferences_font_size";
+
+	public static final String KEY_LATEST_VERSION = "preferences_latest_version";
+	public static final String KEY_LATEST_VERSION_CODE_NAME = "preferences_latest_version_code_name";
+	public static final String KEY_LATEST_VERSION_INSTALL = "preferences_latest_version_install";
+	public static final String KEY_LATEST_VERSION_LEVEL = "preferences_latest_version_level";
+	
+	// privacy module
+	public static final String KEY_PRIVACY_CATEGORY = "preferences_privacy_category";
+	public static final String KEY_PRIVACY_OUTGOING_CALL = "preferences_privacy_outgoing_call";
+	public static final String KEY_PRIVACY_SMS = "preferences_privacy_mms";
+	public static final String KEY_PRIVACY_INCOMING_CALL = "preferences_privacy_incoming_call";
+
+	public static final String KEY_PRIVACY_AREA_CODE = "preferences_privacy_area_code";
+	public static final String KEY_PRIVACY_PHONE_NUMBER = "preferences_privacy_phone_number";
+
+	public static final String KEY_ACCOUNT_SETTING = "preference_account_setting";
+	public static final String KEY_CARD_SETTING = "preference_card_setting";
+
+	public static final String KEY_MOBILE_CONFIRM_IGNORE = "preferences_mobile_confirm_ignore";
+	
+	private CheckBoxPreference decode1D;
+	private CheckBoxPreference decodeQR;
+	private CheckBoxPreference decodeDataMatrix;
+	
+	
+	public static final String KEY_ABOUT_APP = "preference_key_about_app";
+	public static final String KEY_CLEAR_CACHE = "preference_key_clear_cache";
+	private Preference mAboutApp, mClearCache;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!MyAccountManager.getInstance().hasLoginned()) {
-        	DebugUtils.logD(TAG, "finish Actvitiy due to hasLoginned() return false, you must login in firstlly.");
-        	finish();
-        	return;
-        }
-        mContext = this;
         addPreferencesFromResource(R.xml.settings_preferences);
-        
+        mContext = this;
+        PreferenceScreen preferences = getPreferenceScreen();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		
-		mAccountName = (EditTextPreference) getPreferenceScreen().findPreference(KEY_ACCOUNT_NAME);
-		mAccountPassword = (Preference) getPreferenceScreen().findPreference(KEY_ACCOUNT_PASSWORD);
+		if (!MyAccountManager.getInstance().hasLoginned()) {
+			//如果没有登录，我们移除账户相关的设置项
+			preferences.removePreference(preferences.findPreference(KEY_ACCOUNT_CATEGORY));
+		} else {
+			mAccountName = (EditTextPreference) preferences.findPreference(KEY_ACCOUNT_NAME);
+			mAccountPassword = (Preference) preferences.findPreference(KEY_ACCOUNT_PASSWORD);
+			updateAccountName(MyAccountManager.getInstance().getAccountObject().mAccountName);
+			mAccountName.setOnPreferenceChangeListener(this);
+		}
 		
-		updateAccountName(MyAccountManager.getInstance().getAccountObject().mAccountName);
-		mAccountName.setOnPreferenceChangeListener(this);
+		preferences.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+	    decode1D = (CheckBoxPreference) preferences.findPreference(KEY_DECODE_1D);
+	    decodeQR = (CheckBoxPreference) preferences.findPreference(KEY_DECODE_QR);
+	    decodeDataMatrix = (CheckBoxPreference) preferences.findPreference(KEY_DECODE_DATA_MATRIX);
+	   
+	    disableLastCheckedPref();
+	    
+	    mAboutApp = (Preference) preferences.findPreference(KEY_ABOUT_APP);
+	    mClearCache = (Preference) preferences.findPreference(KEY_CLEAR_CACHE);
     }
     
     @Override
 	public void onResume() {
 		super.onResume();
-		//重新获取一次账户密码，有可能之前呗改变了
-		mOldPassword = MyAccountManager.getInstance().getAccountObject().mAccountPwd;
+		//重新获取一次账户密码，有可能之前被改变了
+		if (MyAccountManager.getInstance().getAccountObject() != null) {
+			mOldPassword = MyAccountManager.getInstance().getAccountObject().mAccountPwd;
+		}
+		
 		
 	}
     
@@ -134,7 +193,13 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
     	if (preference == mAccountPassword) {
     		ModifyPasswordActivity.startActivity(this, mOldPassword);
     		return true;
-    	}
+    	} else if (preference == mAboutApp) {
+			AppAboutActivity.startActivity(mContext);
+			return true;
+		} else if (preference == mClearCache) {
+			clearCacheAsync();
+			return true;
+		}
 		return super.onPreferenceTreeClick(preferenceScreen, preference);
 	}
 
@@ -146,10 +211,45 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 				//用户名发生变化了，我们需要更新
 				updateAccountNameAsync(newName.trim());
 			}
-			return true;
+			return false;
 		}
 		return false;
 	}
+	
+	// Prevent the user from turning off both decode options
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	    if(key.equals(KEY_DECODE_1D) || key.equals(KEY_DECODE_QR) || key.equals(KEY_DECODE_DATA_MATRIX)) {
+	    	disableLastCheckedPref();
+	    } else if (key.equals(KEY_PRIVACY_INCOMING_CALL)) {
+	    	MonitorSandbox.getInstance().toggleListen(IncomingCallCallbackImp.getInstance());
+	    } else if (key.equals(KEY_PRIVACY_SMS)) {
+	    	MonitorSandbox.getInstance().toggleListen(IncomingSmsCallbackImp.getInstance());
+	    } else if (key.equals(KEY_PRIVACY_OUTGOING_CALL)) {
+	    	MonitorSandbox.getInstance().toggleListen(OutgoingCallCallbackImp.getInstance());
+	    }
+	    
+	  }
+
+	    private boolean check(String text) {
+		    return TextUtils.isDigitsOnly(text)&&text.charAt(0)!='0';
+	    }
+
+	    private void disableLastCheckedPref() {
+		    Collection<CheckBoxPreference> checked = new ArrayList<CheckBoxPreference>(3);
+		    if (decode1D.isChecked()) {
+		      checked.add(decode1D);
+		    }
+		    if (decodeQR.isChecked()) {
+		      checked.add(decodeQR);
+		    }
+		    if (decodeDataMatrix.isChecked()) {
+		      checked.add(decodeDataMatrix);
+		    }
+		    boolean disable = checked.size() < 2;
+		    for (CheckBoxPreference pref : new CheckBoxPreference[] {decode1D, decodeQR, decodeDataMatrix}) {
+		      pref.setEnabled(!(disable && checked.contains(pref)));
+		    }
+		  }
 	
 	  @Override
 	   	public Dialog onCreateDialog(int id) {
@@ -247,6 +347,42 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 		}
 		
 	}
+	
+	private DeleteCacheTask mDeleteCacheTask;
+	private void clearCacheAsync() {
+		AsyncTaskUtils.cancelTask(mDeleteCacheTask);
+		showDialog(DIALOG_PROGRESS);
+		mDeleteCacheTask = new DeleteCacheTask();
+		mDeleteCacheTask.execute();
+	}
+	private class DeleteCacheTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			//删除files/accounts目录
+			FilesUtils.deleteFile("DeleteCacheTask ", MyApplication.getInstance().getAccountsRoot());
+			//删除cache目录
+			FilesUtils.deleteFile("DeleteCacheTask ", MyApplication.getInstance().getCacheDir());
+			//删除SD卡cache目录
+			FilesUtils.deleteFile("DeleteCacheTask ", MyApplication.getInstance().getExternalCacheDir());
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			dismissDialog(DIALOG_PROGRESS);
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			dismissDialog(DIALOG_PROGRESS);
+			MyApplication.getInstance().showMessage(R.string.msg_op_canceled);
+		}
+		
+	}
+	
 	
 	public static void startActivity(Context context) {
     	Intent intent = new Intent(context, SettingsPreferenceActivity.class);

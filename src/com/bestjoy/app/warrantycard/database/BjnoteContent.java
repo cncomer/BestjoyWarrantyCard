@@ -133,7 +133,7 @@ public class BjnoteContent {
     	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "mycard");
     }
     
-    /**生活圈*/
+    /**生活圈-会员卡*/
     public static class MyLife extends BjnoteContent {
     	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "mylife");
     	public static final Uri CONSUME_CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "mylife/consume");

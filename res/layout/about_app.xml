@@ -97,4 +97,16 @@
 	    android:textColor="@color/blk"
         android:textSize="20sp"
         android:text="@string/button_home"/>
+    
+    <Button android:id="@+id/button_feedback"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center_vertical"
+	    android:layout_marginTop="4dip"
+	    android:layout_marginLeft="10dip"
+	    android:layout_marginRight="10dip"
+	    android:textColor="@color/blk"
+        android:textSize="20sp"
+        android:enabled="true"
+        android:text="@string/title_feedback"/>
 </LinearLayout>

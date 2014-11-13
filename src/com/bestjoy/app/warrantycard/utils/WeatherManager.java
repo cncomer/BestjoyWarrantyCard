@@ -26,7 +26,7 @@ public class WeatherManager {
 	
 	private static final HashMap<String, String> mWeekdayMap = new HashMap<String, String>();
 	
-	private static final File mLocalWeatherCachedFile = MyApplication.getInstance().getCachedFile("weather", "weather.xml");
+	private static final File mLocalWeatherCachedFile = MyApplication.getInstance().getFile("weather", "weather.xml");
 	private WeatherManager(){}
 	
 	public void setContext(Context context) {
@@ -104,6 +104,9 @@ public class WeatherManager {
 	 * @return
 	 */
 	public boolean saveWeather(InputStream is) {
+		if (!mLocalWeatherCachedFile.getParentFile().exists()) {
+			mLocalWeatherCachedFile.getParentFile().mkdirs();
+		}
 		return FilesUtils.saveFile(is, mLocalWeatherCachedFile);
 	}
 	/**

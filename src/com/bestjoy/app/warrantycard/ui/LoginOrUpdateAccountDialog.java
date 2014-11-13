@@ -107,6 +107,8 @@ public class LoginOrUpdateAccountDialog extends Activity{
 			        	//标识下次需要拉取数据了
 			        	ComPreferencesManager.getInstance().setFirstLaunch(MyChooseCarCardsActivity.TAG, true);
 			        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
+			        	//删除会员卡数据
+			        	BjnoteContent.delete(cr, BjnoteContent.MyLife.CONTENT_URI, null, null);
 			        	
 			        	if (mAccountObject.mAccountHomes.size() == 0) {
 							//Setp2 家数据为空，我们需要创建演示家

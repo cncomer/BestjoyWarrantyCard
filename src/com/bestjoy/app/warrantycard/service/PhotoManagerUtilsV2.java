@@ -38,6 +38,7 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.shwy.bestjoy.bjnote.mylife.MyLifeObject;
 import com.shwy.bestjoy.utils.Contents;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
@@ -52,6 +53,7 @@ public class PhotoManagerUtilsV2 {
 	private static Bitmap mDefaultCirclePhotoBitmap;
 	private static Bitmap mDefaultLoadBitmap;
 	private static Bitmap mDefaultKyBitmap;
+	private static Bitmap mDefaultShopAvatorBitmap;
 	private static Bitmap mDefaultFaPiaoBitmap;
 	public static Bitmap mDefaultAvatorBitmap;
 	private Context mContext;
@@ -158,6 +160,7 @@ public class PhotoManagerUtilsV2 {
 			mDefaultKyBitmap = BitmapFactory.decodeResource(mResources, R.drawable.ky_default);
 			mDefaultFaPiaoBitmap = BitmapFactory.decodeResource(mResources, R.drawable.ic_camera);
 			mDefaultAvatorBitmap = BitmapFactory.decodeResource(mResources, R.drawable.baoxiuka_avator_default);
+			mDefaultShopAvatorBitmap = BitmapFactory.decodeResource(mResources, R.drawable.default_shop_avator);
 		}
 		
 //		initCache();
@@ -308,7 +311,7 @@ public class PhotoManagerUtilsV2 {
 		
 	}
 	
-	public static void createCachedBitmapFile(InputStream is, File bitmapFileToCache) {
+	public static boolean createCachedBitmapFile(InputStream is, File bitmapFileToCache) {
 		byte[] buffer = new byte[4096];
 		int read = 0;
 		FileOutputStream fos = null;
@@ -320,11 +323,13 @@ public class PhotoManagerUtilsV2 {
 				read = is.read(buffer);
 			}
 			fos.flush();
+			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			NetworkUtils.closeOutStream(fos);
 		}
+		return false;
 	}
 	
 	/*public*/ Bitmap scaleBitmap(Bitmap srcBitmap, TaskType type) {
@@ -362,6 +367,8 @@ public class PhotoManagerUtilsV2 {
 			return mDefaultFaPiaoBitmap;
 		case PREVIEW:
 			return mDefaultAvatorBitmap;
+		case ShopImage:
+			return mDefaultShopAvatorBitmap;
 			default:
 				return mDefaultBitmap; 
 		}
@@ -652,6 +659,10 @@ public class PhotoManagerUtilsV2 {
 			return MyApplication.getInstance().getFile("weather", photoId);
 		case PREVIEW:
 			return MyApplication.getInstance().getCachedPreviewAvatorFile(photoId);
+		case ShopImage:
+			return MyLifeObject.getImageCachedFile(MyLifeObject.getShopImagePhotoIdFromAddr(photoId));
+		case MemberCardImage:
+			return MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(photoId));
 		}
 		return null;
 	}
@@ -666,6 +677,9 @@ public class PhotoManagerUtilsV2 {
 			return ServiceObject.getBaoxiucardFapiao(photoId);
 		case WeatherIcon:
 			return ServiceObject.getWeatherIcon(photoId);
+		case ShopImage:
+		case MemberCardImage:
+			return photoId;
 		}
 		return null;
 	}
@@ -806,6 +820,8 @@ public class PhotoManagerUtilsV2 {
 		MYPREVIEW("MyPreviewVcfType"),    //我的名片预览
 		FaPiao("FaPiao"),
 		WeatherIcon("WeatherIcon"),
+		ShopImage("ShopImage"),    //会员卡店铺头像
+		MemberCardImage("MemberCardImage"),    //会员卡预览
 		HOME_DEVICE_AVATOR("HomeDeviceAvatorType");  //设备avator
 		private String mTypeName;
 		TaskType(String typeName) {

@@ -16,7 +16,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 21;
+  private static final int DB_VERSION = 22;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -179,6 +179,8 @@ private static final String TAG = "HaierDBHelper";
   public static final String TABLE_NAME_MYLIFE_CONSUME = "mylife_consume";
   /**商家电话*/
   public static final String MYLIFE_COM_CELL = "comCell";
+  /**商家原始电话数据*/
+  public static final String MYLIFE_COM_CELL_RAW = "comCellRaw";
   /**商家网址*/
   public static final String MYLIFE_COM_WEBSITE = "website";
   /**商家最新优惠活动*/
@@ -194,6 +196,24 @@ private static final String TAG = "HaierDBHelper";
   public static final String MYLIFE_FREE_JF = "free_jf";
   /**广告*/
   public static final String MYLIFE_GUANGGAO = "guanggao";
+  /**经度*/
+  public static final String MYLIFE_LANG = "longitude";
+  /**维度*/
+  public static final String MYLIFE_LAT = "latitude";
+  /**店家id*/
+  public static final String MYLIFE_SHOP_ID = "shopid";
+  /**店家预览图*/
+  public static final String MYLIFE_SHOP_IMAGE_ADDR = "shop_image";
+  
+  /**会员卡快照*/
+  public static final String MYLIFE_MEMBER_CARD_IMAGE_ADDR = "member_card_image";
+  /**店铺所在省*/
+  public static final String MYLIFE_COM_PROVINCE = "province";
+  /**店铺所在市*/
+  public static final String MYLIFE_COM_CITY = "city";
+  /**店铺所在区*/
+  public static final String MYLIFE_COM_DIST = "dist";
+  
   //生活圈结束
   
   //维修点开始
@@ -501,19 +521,24 @@ private static final String TAG = "HaierDBHelper";
 	  sqLiteDatabase.execSQL(
 	            "CREATE TABLE " + TABLE_NAME_MYLIFE + " (" +
 	            "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +  //账号id
+	            MYLIFE_SHOP_ID + " INTEGER NOT NULL DEFAULT 0, " +
+	            CONTACT_NAME + " TEXT, " +     //商家名称
 	            MYLIFE_COM_CELL + " TEXT, " +     //商家电话
-	            CONTACT_BID + " TEXT, " +         //商家MM
+	            MYLIFE_COM_CELL_RAW + " TEXT, " + 
 	            MYLIFE_GUANGGAO + " TEXT, " +     //商家广告
 	            MYLIFE_COM_WEBSITE + " TEXT, " + //商家网址
+	            MYLIFE_COM_PROVINCE + " TEXT, " +  
+	            MYLIFE_COM_CITY + " TEXT, " + 
+	            MYLIFE_COM_DIST + " TEXT, " + 
 	            CONTACT_ADDRESS + " TEXT, " +  //商家地址
-	            CONTACT_NAME + " TEXT, " +     //商家名称
+	            MYLIFE_LANG + " TEXT, " +  //商家经度
+	            MYLIFE_LAT + " TEXT, " +  //商家纬度
 	            MYLIFE_COM_NEWS + " TEXT, " +  //商家最新优惠信息
-	            CONTACT_TEL + " TEXT, " +  //消费者默认手机号码
-	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +  //账号id
-	            MYLIFE_COM_XIAOFEI_NOTES + " TEXT, " +  //消费者消费备注
-	            MYLIFE_COM_XF + " TEXT, " +  //消费者消费记录
 	            MYLIFE_TOTAL_JF + " TEXT, " +  
 	            MYLIFE_FREE_JF + " TEXT, " + 
+	            MYLIFE_SHOP_IMAGE_ADDR + " TEXT, " + 
+	            MYLIFE_MEMBER_CARD_IMAGE_ADDR + " TEXT, " + 
 	            CONTACT_DATE + " TEXT" +
 	            ");");
   }
@@ -766,7 +791,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 20) {
+	  if (oldVersion <= 21) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
@@ -783,6 +808,8 @@ private static final String TAG = "HaierDBHelper";
 //		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_HOME_COMMUNITY);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_HOME_COMMUNITY_SERVICE);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_CAR_CARD);
+		    
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_VIEW_CONVERSATION);
 		    
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "insert_account");
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "update_default_account");

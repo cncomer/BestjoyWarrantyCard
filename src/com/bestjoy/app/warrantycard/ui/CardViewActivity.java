@@ -1,5 +1,12 @@
 package com.bestjoy.app.warrantycard.ui;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,8 +24,11 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
+import com.shwy.bestjoy.utils.NetworkUtils;
+import com.shwy.bestjoy.utils.ServiceResultObject;
 
 public class CardViewActivity extends BaseActionbarActivity implements View.OnClickListener{
 
@@ -93,6 +103,7 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 		
 		
 		findViewById(R.id.button_im).setOnClickListener(this);
+		findViewById(R.id.button_baoxiu_policy).setOnClickListener(this);
 		
 	}
 	
@@ -196,6 +207,105 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 			break;
 		case R.id.button_im:
 			ViewConversationListActivity.startActivity(mContext, mBundle);
+			break;
+		case R.id.button_baoxiucard_price_guide:
+			if (TextUtils.isEmpty(mBaoxiuCardObject.mKY)) {
+				DebugUtils.logD(TAG, "no find ky when click policy");
+			} else {
+//				StringBuilder sb = new StringBuilder("http://www.dzbxk.com/policy/");
+//				sb.append(mBaoxiuCardObject.mKY.substring(0, 5)).append(".html");
+////				DebugUtils.logD(TAG, "open url " + sb.toString());
+				showDialog(DIALOG_PROGRESS);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						ServiceResultObject serviceResultObject = new ServiceResultObject();
+						InputStream is = null;
+						try {
+							is = NetworkUtils.openContectionLocked(ServiceObject.checkPolicyPageUrl(mBaoxiuCardObject.mKY.substring(0, 3)), MyApplication.getInstance().getSecurityKeyValuesObject());
+							serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+							if (serviceResultObject.isOpSuccessfully()) {
+								
+							}
+						} catch (ClientProtocolException e) {
+							e.printStackTrace();
+							serviceResultObject.mStatusMessage = e.getMessage();
+						} catch (IOException e) {
+							e.printStackTrace();
+							serviceResultObject.mStatusMessage = e.getMessage();
+						} finally {
+							NetworkUtils.closeInputStream(is);
+						}
+						if (serviceResultObject.isOpSuccessfully()) {
+							DebugUtils.logD(TAG, "open url " + serviceResultObject.mStrData);
+							Intents.openURL(mContext, serviceResultObject.mStrData);
+						} else {
+							MyApplication.getInstance().showMessageAsync(serviceResultObject.mStatusMessage);
+						}
+						MyApplication.getInstance().postAsync(new Runnable() {
+
+							@Override
+							public void run() {
+								dismissDialog(DIALOG_PROGRESS);
+							}
+							
+						});
+						
+					}
+					
+				}).start();
+//				Intents.openURL(mContext, sb.toString());
+			}
+			break;
+		case R.id.button_baoxiu_policy:
+			if (TextUtils.isEmpty(mBaoxiuCardObject.mKY)) {
+				DebugUtils.logD(TAG, "no find ky when click policy");
+			} else {
+//				StringBuilder sb = new StringBuilder("http://www.dzbxk.com/policy/");
+//				sb.append(mBaoxiuCardObject.mKY.substring(0, 5)).append(".html");
+////				DebugUtils.logD(TAG, "open url " + sb.toString());
+				showDialog(DIALOG_PROGRESS);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						ServiceResultObject serviceResultObject = new ServiceResultObject();
+						InputStream is = null;
+						try {
+							is = NetworkUtils.openContectionLocked(ServiceObject.checkPolicyPageUrl(mBaoxiuCardObject.mKY), MyApplication.getInstance().getSecurityKeyValuesObject());
+							serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+							if (serviceResultObject.isOpSuccessfully()) {
+								
+							}
+						} catch (ClientProtocolException e) {
+							e.printStackTrace();
+							serviceResultObject.mStatusMessage = e.getMessage();
+						} catch (IOException e) {
+							e.printStackTrace();
+							serviceResultObject.mStatusMessage = e.getMessage();
+						} finally {
+							NetworkUtils.closeInputStream(is);
+						}
+						if (serviceResultObject.isOpSuccessfully()) {
+							DebugUtils.logD(TAG, "open url " + serviceResultObject.mStrData);
+							Intents.openURL(mContext, serviceResultObject.mStrData);
+						} else {
+							MyApplication.getInstance().showMessageAsync(serviceResultObject.mStatusMessage);
+						}
+						MyApplication.getInstance().postAsync(new Runnable() {
+
+							@Override
+							public void run() {
+								dismissDialog(DIALOG_PROGRESS);
+							}
+							
+						});
+						
+					}
+					
+				}).start();
+//				Intents.openURL(mContext, sb.toString());
+			}
+			
 			break;
 	    }
 	    

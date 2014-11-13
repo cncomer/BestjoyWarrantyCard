@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.IMService;
 import com.shwy.bestjoy.utils.DebugUtils;
@@ -16,6 +17,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 		if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
 			UpdateService.startUpdateServiceOnBootCompleted(context);
+			MyApplication.getInstance().initMonitorService();
 			if (MyAccountManager.getInstance().hasLoginned()) {
 				IMService.connectIMService(context);
 			} else {

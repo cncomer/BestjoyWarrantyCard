@@ -36,6 +36,7 @@ import com.bestjoy.app.warrantycard.account.XinghaoObject;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
+import com.bestjoy.app.warrantycard.utils.ClingHelper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.DebugUtils;
@@ -235,6 +236,7 @@ public class NewCarCardChooseFragment extends SherlockFragment implements View.O
 				//((BaseAdapter)_listView.getAdapter()).notifyDataSetChanged();
 				mMyAdapter.changeData(mXinghaoDataList);
 				((NewCardActivity)getActivity()).invalidateOptionsMenu();
+				ClingHelper.showGuide("NewCarCardChooseFragment.cling", getActivity());
 				//modify by chenkai, 增加型号模糊查询, 2014.06.15 end
 				break;
 			}

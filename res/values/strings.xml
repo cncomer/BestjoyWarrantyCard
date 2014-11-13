@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="urn:oasis:name:tc:xliff:document:1.2">
 
     <string name="app_name">小易管家(电子保修卡)</string>
     <string name="app_name_2014">电子保修卡 2014</string>
@@ -194,7 +194,7 @@
     <string name="baoxiucard_validity">%s天</string>
     <string name="baoxiucard_validity_toomuch">"9999天"</string>
     <string name="baoxiucard_outdate">过保</string>
-    <string name="menu_new_card">新建保修卡</string>
+    <string name="menu_new_card">新建</string>
      <string name="button_rescan">重新扫描</string>
      <string name="button_scan_exit">退出扫描</string>
      <string name="button_scan_finish_return_result">下一步</string>
@@ -444,12 +444,12 @@
     <string name="msg_vcf_read_error">"返回的VCF文件预览时读取错误，请检查"</string>
      <string name="msg_vcf_format_error">"抱歉，暂时无法获取名号对应的vcf文件，稍后重试或是换个名号试试~"</string>
    
-   <string name="msg_privacy_multiunknowncall_download_tip">有以下多个未知号码联系人可从名档网获取信息</string>
-   <string name="msg_privacy_unknowncall_download_tip">未知号码联系人可从名档网获取信息</string>
+   <string name="msg_privacy_multiunknowncall_download_tip">有以下多个商铺可以添加会员卡</string>
+   <string name="msg_privacy_unknowncall_download_tip">是否需要添加商铺到会员卡</string>
+   <string name="msg_privacy_unknowncall_download_contact_tip">是否需要添加商铺到通讯录</string>
    <string name="msg_privacy_sms_download_tip">短信中含有名档网联系人信息</string>
-   <string name="msg_privacy_unknowncall_download_confirm">下载</string>
+   <string name="msg_privacy_unknowncall_download_confirm">添加</string>
    <string name="msg_privacy_unknowncall_download_cancel">忽略</string>
-   
     <string name="wifi_changing_network">不断变化的网络</string>
   <string name="wifi_connect_failed">网络连接失败</string>
   <string name="wifi_connected">连接的</string>
@@ -518,7 +518,7 @@
         <string name="maintennace_desc">保养描述</string>
          <string name="maintenance_yuyue">保养预约</string>
         <!-- add by chenkai, 增加一键保养, 2014.05.31 end -->
-
+		<string name="activity_title_member_card">会员卡</string>
          <string name="year">年</string>
          <string name="one_year">1</string>
          <string name="two_year">2</string>
@@ -723,4 +723,46 @@
           <string name="button_hide_salemaninfo_layout">隐藏促销员、服务员</string>
           
           <string name="msg_too_long_text_for_conversation">"内容长度过长，请不要超过512个文字"</string>
+          
+           <!-- 隐私设置 -->
+  <string name="preferences_privacy_category_title">隐私设置</string>
+  <string name="preferences_privacy_category_summary">注册用户可以将商家添加至会员卡，非注册用户可以快速保存商家到通讯录</string>
+  <string name="preferences_privacy_incoming_call_title">来电提醒</string>
+  <string name="preferences_privacy_incoming_call_summary">当有未保存商铺号码呼入时，该功能将显示商铺信息并可添加至会员卡。</string>
+  <string name="preferences_privacy_outgoing_call_title">去电提醒</string>
+  <string name="preferences_privacy_outgoing_call_summary">当呼叫未保存的商铺号码时，该功能将显示商铺信息并可添加至会员卡。</string>
+  <string name="preferences_privacy_mms_title">短信提醒</string>
+  <string name="preferences_privacy_mms_summary">当接收到含名档网数字名号的短信时，该功能将显示名档网联系人信息。</string>
+  <string name="preferences_privacy_area_code_summary">拨打同城座机号码时使用，能更加准确获取云端数据</string>
+  <string name="preferences_privacy_area_code_title">座机区号</string>
+  <string name="preferences_privacy_area_code_default_value">021</string>
+  
+  <string name="preferences_privacy_mynumber_summary">发送名片以及一些其他服务可能会用到本机号码，如果未设置，用到的时候需要人为输入</string>
+  <string name="preferences_privacy_mynumber_title">本机号码</string>
+  
+  <string name="call_contact_info">"<xliff:g id="info">%s</xliff:g>  [来自小易管家]"</string>
+  
+  <!-- 条码设置 -->
+  <string name="preferences_barcode_general_title">条码识别类型</string>
+  <string name="preferences_decode_1D_title">解码一维条码</string>
+  <string name="preferences_decode_1D_summary">主要用于物流信息系统，大多数商品也都采用这种编码</string>
+  <string name="preferences_decode_QR_title">解码QR条码</string>
+  <string name="preferences_decode_QR_summary">一种二维码，使用的越来越普遍，相对传统的一维码有很多优势</string>
+  <string name="preferences_decode_Data_Matrix_title">数据矩阵码解码</string>
+  <string name="preferences_decode_Data_Matrix_summary">矩阵式二维条码，尺寸最小，适用于小零件的标识</string>
+  
+  <!-- 通用设置 -->
+  <string name="preferences_general_category_title">通用设置</string>
+  <string name="preferences_about_app_title">关于</string>
+  <string name="preferences_clear_cache_title">清空缓存</string>
+  
+  <string name="format_xiaofei_jf">累计消费 :%s元</string>
+  <string name="format_free_jf">会员积分 :%s点</string>
+  
+  <string name="msg_choose_phone_title">请选择一个号码</string>
+  <string name="msg_input_phone_title">请输入商家电话</string>
+  <string name="msg_input_phone_cant_find_shopinfo">没有找到您输入电话的商家信息</string>
+  <string name="format_msg_input_phone_find_shopinfo_need_confirm">找到【%s】，您确定要添加到会员卡中？</string>
+  <string name="cling_choose_devices_done">"点击右上角的完成按钮，可以将选择结果回填至新建卡中。\n\n点击搜索图标快速查找你所需要的型号。"</string>
+  
 </resources>

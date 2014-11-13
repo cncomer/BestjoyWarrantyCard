@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.client.ClientProtocolException;
@@ -76,6 +75,7 @@ import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechError;
+import com.shwy.bestjoy.bjnote.mylife.MyLifeMainActivity;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
@@ -87,7 +87,6 @@ import com.shwy.bestjoy.utils.NetworkUtils;
 public class HomePageFragment extends BaseFragment implements View.OnClickListener {
 	public static final String TAG = "HomeFragment";
 	private LinearLayout mDotsLayout;
-	private IcsLinearLayout mWeatherLayout;
 	private ViewPager mAdsViewPager;
 	private boolean mAdsViewPagerIsScrolling = false;
 	
@@ -110,6 +109,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	private Handler mHandler;
 	
 	private View mContent;
+	private IcsLinearLayout mWeatherLayout;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -124,6 +124,16 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 		super.onResume();
 		getActivity().invalidateOptionsMenu();
 		changeAdsDelay();
+		if (mWeatherLayout != null) {
+			if (WeatherManager.getInstance().isExsitedCahcedWeatherFile()) {
+				DebugUtils.logD(TAG, "onActivityCreated loadCachedWeatherFile");
+				loadWeatherAsync();
+			} else {
+				BaiduLocationManager.getInstance().setScanSpan(1000);
+				BaiduLocationManager.getInstance().mLocationClient.requestLocation();
+			}
+		}
+		
 	}
 	
 	
@@ -132,10 +142,6 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		initVoiceLayout(mContent);
-		if (WeatherManager.getInstance().isExsitedCahcedWeatherFile()) {
-			DebugUtils.logD(TAG, "onActivityCreated loadCachedWeatherFile");
-			loadWeatherAsync();
-		}
 	}
 
 	@Override
@@ -168,17 +174,12 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 				
 			}
 		});
-		
-		 View weatherLayout = mContent.findViewById(R.id.weather_layout);
-		if (weatherLayout != null) {
-			mWeatherLayout = (IcsLinearLayout) weatherLayout;
-			mWeatherLayout.removeAllViews();
+		mWeatherLayout = (IcsLinearLayout) mContent.findViewById(R.id.weather_layout);
+		if (mWeatherLayout != null) {
 			mLocationChangeCallback = new MyLocationChangeCallback();
 			BaiduLocationManager.getInstance().addLocationChangeCallback(mLocationChangeCallback);
 			BaiduLocationManager.getInstance().mLocationClient.start();
-			BaiduLocationManager.getInstance().mLocationClient.requestLocation();
 		}
-		
 		mContent.findViewById(R.id.ic_module_baoxiucard).setOnClickListener(this);
 		mContent.findViewById(R.id.ic_module_home).setOnClickListener(this);
 		mContent.findViewById(R.id.ic_module_car).setOnClickListener(this);
@@ -599,14 +600,14 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
   	     super.onCreateOptionsMenu(menu, inflater);
   	     MenuHandlerUtils.onCreateOptionsMenu(menu);
   	     MenuItem subMenu1Item = menu.findItem(R.string.menu_more);
-  	     subMenu1Item.getSubMenu().add(1000, R.string.menu_refresh, 2005, R.string.menu_refresh);
+//  	     subMenu1Item.getSubMenu().add(1000, R.string.menu_refresh, 2005, R.string.menu_refresh);
   	     subMenu1Item.getSubMenu().add(1000, R.string.menu_exit, 2006, R.string.menu_exit);
      }
 	 
 	 public void onPrepareOptionsMenu(Menu menu) {
 		 MenuHandlerUtils.onPrepareOptionsMenu(menu, getActivity());
 		 menu.findItem(R.string.menu_exit).setVisible(MyAccountManager.getInstance().hasLoginned());
-		 menu.findItem(R.string.menu_refresh).setVisible(MyAccountManager.getInstance().hasLoginned());
+//		 menu.findItem(R.string.menu_refresh).setVisible(MyAccountManager.getInstance().hasLoginned());
 	 }
 	 
 	 @Override
@@ -785,6 +786,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 		case R.id.ic_module_baoxiucard:
 		case R.id.ic_module_car: //爱车卡
 		case R.id.ic_module_home://物业卡
+		case R.id.ic_module_vip: //会员卡
 			boolean needLoadDemo = MyApplication.getInstance().mPreferManager.getBoolean("need_load_demo_home", true);
 			if (needLoadDemo) {
 				//如果是第一次，我们需要拉取演示家数据
@@ -867,6 +869,9 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 				Bundle bundle = ModleSettings.createMyCarCardDefaultBundle(getActivity());
 				bundle.putLong("uid", MyAccountManager.getInstance().getCurrentAccountId());
 				MyChooseCarCardsActivity.startIntent(getActivity(), bundle);
+				break;
+			case R.id.ic_module_vip:
+				MyLifeMainActivity.startActivity(getActivity(), ModleSettings.createMyMemberCardDefaultBundle(getActivity()));
 				break;
 			}
 			break;
@@ -1050,20 +1055,24 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 			ServiceResultObject result = new ServiceResultObject();
 			InputStream is = null;
 			try {
-				is = NetworkUtils.openContectionLocked("http://61.4.185.48:81/g/", MyApplication.getInstance().getSecurityKeyValuesObject());
-				if (is != null) {
-					String content = NetworkUtils.getContentFromInput(is);
-					NetworkUtils.closeInputStream(is);
-					Matcher matcher = PATTERN_WEATHER_CITY_KEY.matcher(content.replaceAll(" ", ""));
-					if (matcher.find()) {
-						DebugUtils.logD(TAG, "UpdateWeatherTask find citykey " + matcher.group(1));
-						//var ip="27.115.108.50";var id=101020100;if(typeof(id_callback)!="undefined"){id_callback();}
-						is = NetworkUtils.openContectionLocked(ServiceObject.getWeatherUrl(params[0], matcher.group(1), MyAccountManager.getInstance().getCurrentAccountUid(), YouMengMessageHelper.getInstance().getDeviceTotke()), MyApplication.getInstance().getSecurityKeyValuesObject());
-						boolean saved = WeatherManager.getInstance().saveWeather(is);
-						DebugUtils.logD(TAG, "UpdateWeatherTask saveWeather " + saved);
-						result.mStatusCode = saved?1:0;
-					}
-				}
+//				is = NetworkUtils.openContectionLocked("http://61.4.185.48:81/g/", MyApplication.getInstance().getSecurityKeyValuesObject());
+//				if (is != null) {
+//					String content = NetworkUtils.getContentFromInput(is);
+//					NetworkUtils.closeInputStream(is);
+//					Matcher matcher = PATTERN_WEATHER_CITY_KEY.matcher(content.replaceAll(" ", ""));
+//					if (matcher.find()) {
+//						DebugUtils.logD(TAG, "UpdateWeatherTask find citykey " + matcher.group(1));
+//						//var ip="27.115.108.50";var id=101020100;if(typeof(id_callback)!="undefined"){id_callback();}
+//						is = NetworkUtils.openContectionLocked(ServiceObject.getWeatherUrl(params[0], matcher.group(1), MyAccountManager.getInstance().getCurrentAccountUid(), YouMengMessageHelper.getInstance().getDeviceTotke()), MyApplication.getInstance().getSecurityKeyValuesObject());
+//						boolean saved = WeatherManager.getInstance().saveWeather(is);
+//						DebugUtils.logD(TAG, "UpdateWeatherTask saveWeather " + saved);
+//						result.mStatusCode = saved?1:0;
+//					}
+//				}
+				is = NetworkUtils.openContectionLocked(ServiceObject.getWeatherUrl(params[0], "", MyAccountManager.getInstance().getCurrentAccountUid(), YouMengMessageHelper.getInstance().getDeviceTotke()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				boolean saved = WeatherManager.getInstance().saveWeather(is);
+				DebugUtils.logD(TAG, "UpdateWeatherTask saveWeather " + saved);
+				result.mStatusCode = saved?1:0;
 				
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -1189,6 +1198,8 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 				}
 				mWeatherLayout.setVisibility(View.VISIBLE);
 			}
+			//载入本地的完成后，我们额外请求一次定位
+			BaiduLocationManager.getInstance().mLocationClient.requestLocation();
 			
 		}
 

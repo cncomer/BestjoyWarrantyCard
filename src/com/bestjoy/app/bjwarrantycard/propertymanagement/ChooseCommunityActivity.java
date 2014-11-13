@@ -341,7 +341,7 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 			public void onClick(DialogInterface dialog, int which) {
 				switch(which) {
 				case DialogInterface.BUTTON_POSITIVE:
-					relateCommunityAsync(homesCommunityObject.mName);
+					relateCommunityAsync(homesCommunityObject.mName, homesCommunityObject.mQid);
 					break;
 				}
 			}
@@ -350,10 +350,10 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 	}
 	
 	private RelateCommunityTask mRelateCommunityTask;
-	private void relateCommunityAsync(String communityName) {
+	private void relateCommunityAsync(String communityName, String communityUid) {
 		AsyncTaskUtils.cancelTask(mRelateCommunityTask);
 		mRelateCommunityTask = new RelateCommunityTask();
-		mRelateCommunityTask.execute(communityName);
+		mRelateCommunityTask.execute(communityName, communityUid);
 		showDialog(DIALOG_PROGRESS);
 	}
 	private class RelateCommunityTask extends AsyncTask<String, Void, ServiceResultObject> {
@@ -366,6 +366,7 @@ public class ChooseCommunityActivity extends BaseActionbarActivity implements On
 				JSONObject queryJsonObject = new JSONObject();
 				queryJsonObject.put("xiaoqu_name", params[0]);
 				queryJsonObject.put("aid", mHomeObject.mHomeAid);
+				queryJsonObject.put("qid", params[1]);
 				if (mHomeObject.mHid > 0) {
 					queryJsonObject.put("xid", String.valueOf(mHomeObject.mHid));
 				}

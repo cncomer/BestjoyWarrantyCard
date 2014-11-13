@@ -26,9 +26,9 @@ public class MenuHandlerUtils {
         subMenu1.add(1000, R.string.menu_register, 1002, R.string.menu_register);
         subMenu1.add(1000, R.string.menu_manage_home, 1003, R.string.menu_manage_home);
         subMenu1.add(1000, R.string.menu_setting, 1004, R.string.menu_setting);
-        subMenu1.add(1000, R.string.menu_about, 1005, R.string.menu_about);
+//        subMenu1.add(1000, R.string.menu_about, 1005, R.string.menu_about);
 //        subMenu1.add(1000, R.string.menu_exit, 1005, R.string.menu_exit);
-        subMenu1.add(1000, R.string.title_feedback, 1006, R.string.title_feedback);
+//        subMenu1.add(1000, R.string.title_feedback, 1006, R.string.title_feedback);
         MenuItem subMenu1Item = subMenu1.getItem();
         subMenu1Item.setIcon(R.drawable.abs__ic_menu_moreoverflow_normal_holo_dark);
         subMenu1Item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -72,19 +72,19 @@ public class MenuHandlerUtils {
     
     public static boolean onPrepareOptionsMenu(Menu menu, Context context) {
     	//如果已经登陆了，那么我们显示设置菜单
-    	MenuItem menuItem = menu.findItem(R.string.menu_setting);
+//    	MenuItem menuItem = menu.findItem(R.string.menu_setting);
     	MenuItem menuHomeManagerItem = menu.findItem(R.string.menu_manage_home);
     	if (MyAccountManager.getInstance().hasLoginned()) {
-    		if (menuItem != null) {
-    			menuItem.setVisible(true);
-    		}
+//    		if (menuItem != null) {
+//    			menuItem.setVisible(true);
+//    		}
     		if (menuHomeManagerItem != null) {
     			menuHomeManagerItem.setVisible(true);
     		}
     	} else {
-    		if (menuItem != null) {
-    			menuItem.setVisible(false);
-    		}
+//    		if (menuItem != null) {
+//    			menuItem.setVisible(false);
+//    		}
     		if (menuHomeManagerItem != null) {
     			menuHomeManagerItem.setVisible(false);
     		}

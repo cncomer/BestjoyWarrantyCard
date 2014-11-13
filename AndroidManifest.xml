@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="29"
+    android:versionCode="30"
     android:versionName="V2.0" >
 
      <supports-screens
@@ -204,6 +204,7 @@
             </intent-filter>
         </receiver>
         <service android:name="com.bestjoy.app.warrantycard.update.UpdateService" />
+        <service android:name=".privacy.MonitorSandbox" />
         <activity
             android:configChanges="orientation|keyboardHidden"
             android:excludeFromRecents="true"
@@ -283,6 +284,15 @@
             android:label="@string/title_baoxiucard_info"
             android:name="com.bestjoy.app.warrantycard.ui.CarCardsViewActivity" />
         <!-- 爱车卡详细界面 end -->
+        
+        <!-- 会员卡界面 begin -->
+        <activity
+            android:excludeFromRecents="true"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:label="@string/ic_module_vip"
+            android:name="com.shwy.bestjoy.bjnote.mylife.MyLifeMainActivity" />
+        <!-- 会员卡界面 end -->
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"

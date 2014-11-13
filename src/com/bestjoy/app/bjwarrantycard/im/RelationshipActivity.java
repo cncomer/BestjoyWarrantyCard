@@ -215,12 +215,12 @@ public class RelationshipActivity extends PullToRefreshListPageActivity{
 		mIsRefresh = true;
 	}
 	@Override
-	protected void onRefreshEnd() {
+	protected void onRefreshPostEnd() {
 		mIsRefresh = false;
 	}
 	
 	@Override
-	protected void onRefreshLoadEnd() {
+	protected void onRefreshEnd() {
 		BjnoteContent.RELATIONSHIP.delete(getContentResolver(), BjnoteContent.RELATIONSHIP.CONTENT_URI, BjnoteContent.RELATIONSHIP.UID_SELECTION, new String[]{MyAccountManager.getInstance().getCurrentAccountUid()});
 	}
 

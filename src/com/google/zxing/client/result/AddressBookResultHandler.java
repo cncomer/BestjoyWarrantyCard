@@ -143,7 +143,7 @@ public final class AddressBookResultHandler extends ResultHandler {
           	  activity.finish();
       	  } else {
       		  //保存联系人
-      		  AddrBookUtils.getInstance().downloadAndViewContactLock(addressResult.getBid(), true);
+      		  AddrBookUtils.getInstance().createContactEntry(addressResult);
       	  }
         break;
       case 2:

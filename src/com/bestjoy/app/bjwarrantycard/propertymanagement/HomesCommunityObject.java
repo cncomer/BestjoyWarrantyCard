@@ -24,6 +24,8 @@ public class HomesCommunityObject implements InfoInterface {
 	public int mDistance;
 	public long mHid, mId;
 	public String mCity, mProv, mDis, mAddressDetail;
+	/**百度查询到的小区的uid*/
+	public String mQid="";
 //	public static HomesCommunityObject getHomesCommunityObject() {
 //		
 //	}
@@ -51,6 +53,7 @@ public class HomesCommunityObject implements InfoInterface {
 				try {
 					jsonObject = communities.getJSONObject(index);
 					HomesCommunityObject homesCommunityObject = new HomesCommunityObject();
+					homesCommunityObject.mQid = jsonObject.getString("uid");
 					homesCommunityObject.mName = jsonObject.getString("name");
 					homesCommunityObject.mAddressDetail = jsonObject.getString("address");
 					JSONObject detail_info = jsonObject.getJSONObject("detail_info");

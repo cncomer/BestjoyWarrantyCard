@@ -21,7 +21,6 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2.TaskType;
-import com.shwy.bestjoy.bjnote.mylife.MyLifeManager;
 import com.shwy.bestjoy.utils.Contents;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.NetworkUtils;
@@ -168,15 +167,16 @@ public class VcfAsyncDownloadTask extends AsyncTask<Void, Void, Boolean>{
 				DebugUtils.logContactAsyncDownload(TAG, "VCF exsited " + mSavedFile.getAbsolutePath());
 				if (!mIsForceUpdate && !isPreview(mTaskType) || !mIsForceUpdate && !isOldFile(mSavedFile)) {
 					//add by chenkai 20130603, 保存下载记录 begin
-					if (mRecordDownload) {
-						if (mMM.endsWith(Contents.MingDang.FLAG_MERCHANT)) {
-							//商家名片
-							MyLifeManager.getInstance().recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
-						} else {
-							//普通名片
-							RecordDownloadUtils.recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
-						}
-					}
+//					if (mRecordDownload) {
+//						if (mMM.endsWith(Contents.MingDang.FLAG_MERCHANT)) {
+//							//商家名片
+//							MyLifeManager.getInstance().recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
+//						} else {
+//							//普通名片
+//							RecordDownloadUtils.recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
+//						}
+//					}
+					//add by chenkai 20130603, 保存下载记录 end
 					//如果不是预览他人名片，那么我们总是直接使用存在的文件；或者是预览他人名片，我们判断是不是需要更新，如果需要，那么删除缓存重新下载
 					notify(EVENT_EXIST_VCF, getDownloadedFile().getAbsolutePath());
 					return false;
@@ -185,11 +185,6 @@ public class VcfAsyncDownloadTask extends AsyncTask<Void, Void, Boolean>{
 					DebugUtils.logContactAsyncDownload(TAG, "force downloading, and delete exsied " + mSavedFile.getAbsolutePath());
 				}
 			}
-			//add by chenkai 20130603, 保存下载记录 end
-//			DebugUtils.logD(TAG, "HttpGet uri=" + mUrl);
-//			HttpGet httpRequest = new HttpGet(mUrl);
-//			HttpClient httpClient = AndroidHttpClient.newInstance("android");
-//			HttpResponse response = httpClient.execute(httpRequest);
 			HttpResponse response = NetworkUtils.openContectionLockedV2(mUrl, MyApplication.getInstance().getSecurityKeyValuesObject());
 			int statusCode = response.getStatusLine().getStatusCode();
 			DebugUtils.logD(TAG, "return HttpStatus is " + statusCode);
@@ -231,15 +226,16 @@ public class VcfAsyncDownloadTask extends AsyncTask<Void, Void, Boolean>{
 			}
 			out.flush();
 			//add by chenkai 20130603, 保存下载记录 begin
-			if (mRecordDownload) {
-				if (mMM.endsWith(Contents.MingDang.FLAG_MERCHANT)) {
-					//商家名片
-					MyLifeManager.getInstance().recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
-				} else {
-					//普通名片
-					RecordDownloadUtils.recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
-				}
-			}
+//			if (mRecordDownload) {
+//				if (mMM.endsWith(Contents.MingDang.FLAG_MERCHANT)) {
+//					//商家名片
+//					MyLifeManager.getInstance().recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
+//				} else {
+//					//普通名片
+//					RecordDownloadUtils.recordDownloadLocked(mMM, MyAccountManager.getInstance().getDefaultPhoneNumber());
+//				}
+//			}
+			//add by chenkai 20130603, 保存下载记录 end
 			return true;
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();

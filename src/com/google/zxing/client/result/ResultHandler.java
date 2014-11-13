@@ -38,7 +38,7 @@ import android.view.View;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.ui.CaptureActivity;
 import com.bestjoy.app.warrantycard.ui.CaptureActivityHandler;
-import com.bestjoy.app.warrantycard.ui.PreferencesActivity;
+import com.bestjoy.app.warrantycard.ui.SettingsPreferenceActivity;
 import com.google.zxing.Result;
 import com.shwy.bestjoy.utils.LocaleManager;
 
@@ -440,14 +440,14 @@ public abstract class ResultHandler {
 			AlertDialog.OnClickListener proceedListener) {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(activity);
-		if (prefs.getBoolean(PreferencesActivity.KEY_NOT_OUR_RESULTS_SHOWN,
+		if (prefs.getBoolean(SettingsPreferenceActivity.KEY_NOT_OUR_RESULTS_SHOWN,
 				false)) {
 			// already seen it, just proceed
 			proceedListener.onClick(null, index);
 		} else {
 			// note the user has seen it
 			prefs.edit().putBoolean(
-					PreferencesActivity.KEY_NOT_OUR_RESULTS_SHOWN, true)
+					SettingsPreferenceActivity.KEY_NOT_OUR_RESULTS_SHOWN, true)
 					.commit();
 			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 			builder.setMessage(R.string.msg_not_our_results);
@@ -458,7 +458,7 @@ public abstract class ResultHandler {
 	
 	private String parseCustomSearchURL() {
 	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-	    String customProductSearch = prefs.getString(PreferencesActivity.KEY_CUSTOM_PRODUCT_SEARCH, null);
+	    String customProductSearch = prefs.getString(SettingsPreferenceActivity.KEY_CUSTOM_PRODUCT_SEARCH, null);
 	    if (customProductSearch != null && customProductSearch.trim().length() == 0) {
 	      return null;
 	    }

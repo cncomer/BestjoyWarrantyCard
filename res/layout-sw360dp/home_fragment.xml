@@ -36,6 +36,7 @@
                 android:id="@+id/line"
                 android:layout_width="fill_parent"
                 android:layout_height="3dip"
+                android:visibility="invisible"
                 android:layout_marginTop="2dip"
                 android:background="@drawable/xuxian" />
 

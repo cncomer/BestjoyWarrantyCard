@@ -15,9 +15,11 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.DeviceDBHelper;
 import com.bestjoy.app.warrantycard.ui.BaseActionbarActivity;
-import com.bestjoy.app.warrantycard.ui.PreferencesActivity;
+import com.bestjoy.app.warrantycard.ui.FeedbackActivity;
+import com.bestjoy.app.warrantycard.ui.SettingsPreferenceActivity;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
 import com.shwy.bestjoy.utils.DebugUtils;
 
@@ -44,8 +46,8 @@ public class AppAboutActivity extends BaseActionbarActivity implements View.OnCl
 		setContentView(R.layout.about_app);
 		
 		SharedPreferences prefs = MyApplication.getInstance().mPreferManager;
-		mCurrentVersion = prefs.getInt(PreferencesActivity.KEY_LATEST_VERSION, 0);
-		mCurrentVersionCodeName = prefs.getString(PreferencesActivity.KEY_LATEST_VERSION_CODE_NAME, "");
+		mCurrentVersion = prefs.getInt(SettingsPreferenceActivity.KEY_LATEST_VERSION, 0);
+		mCurrentVersionCodeName = prefs.getString(SettingsPreferenceActivity.KEY_LATEST_VERSION_CODE_NAME, "");
 		
 		mServiceAppInfo = new ServiceAppInfo();
 		initView();
@@ -69,6 +71,8 @@ public class AppAboutActivity extends BaseActionbarActivity implements View.OnCl
 			mBtIntroduce.setOnClickListener(this);
 			mBtnHome.setOnClickListener(this);
 			mBtnHelp.setOnClickListener(this);
+			
+			findViewById(R.id.button_feedback).setOnClickListener(this);
 			
 			mBtIntroduce.setVisibility(View.GONE);
 			mBtnHome.setVisibility(View.GONE);
@@ -118,6 +122,9 @@ public class AppAboutActivity extends BaseActionbarActivity implements View.OnCl
 			break;
 		case R.id.button_help:
 			break;
+		case R.id.button_feedback:
+			FeedbackActivity.startActivity(mContext, MyAccountManager.getInstance().getCurrentAccountId());
+			break;
 		case R.id.app_device_token://单击复制device token导剪贴板
 			ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 			cm.setText(YouMengMessageHelper.getInstance().getDeviceTotke());
@@ -144,6 +151,11 @@ public class AppAboutActivity extends BaseActionbarActivity implements View.OnCl
 	public static Intent createIntent(Context context) {
 		Intent intent = new Intent(context, AppAboutActivity.class);
 		return intent;
+	}
+	
+	public static void startActivity(Context context) {
+		Intent intent = new Intent(context, AppAboutActivity.class);
+		context.startActivity(intent);
 	}
 
 }

@@ -21,7 +21,6 @@ import com.google.zxing.Result;
 import com.google.zxing.client.result.AddressBookParsedResult;
 import com.google.zxing.client.result.VCardResultParser;
 import com.shwy.bestjoy.bjnote.mylife.MyLifeListItemActivity;
-import com.shwy.bestjoy.bjnote.mylife.MyLifeManager;
 import com.shwy.bestjoy.contacts.AddrBookUtils;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
@@ -120,7 +119,7 @@ public class VcfAsyncDownloadUtils {
 		 * @return
 		 */
 		public static long saveMerchantConatctLocked(AddressBookParsedResult addressBookParsedResult) {
-			return  MyLifeManager.getInstance().createMerchantContactEntryLocked(addressBookParsedResult);
+			return  -1;
 		}
 		
 		@Override
@@ -164,19 +163,20 @@ public class VcfAsyncDownloadUtils {
 								});
 								if (!interrupted) {
 									DebugUtils.logContactAsyncDownload(TAG, "start a thread to saveContacts");
-									if (mAddressBookParsedResult.isMerchant()) {
-										DebugUtils.logContactAsyncDownload(TAG, "mAddressBookParsedResult isMerchantVcard");
-										
-										if (MyAccountManager.getInstance().hasLoginned()) {
-						    				//如果有账户，我们保存到生活圈
-											internalSaveMerchantContactAfterDownload(mAddressBookParsedResult);
-						    		    } else {
-						    		    	//否则，我们保存到通讯录
-						    		    	internalSaveContactAfterDownload(mAddressBookParsedResult);
-						    		    }
-									} else {
-										internalSaveContactAfterDownload(mAddressBookParsedResult);
-									}
+//									if (mAddressBookParsedResult.isMerchant()) {
+//										DebugUtils.logContactAsyncDownload(TAG, "mAddressBookParsedResult isMerchantVcard");
+//										
+//										if (MyAccountManager.getInstance().hasLoginned()) {
+//						    				//如果有账户，我们保存到生活圈
+//											internalSaveMerchantContactAfterDownload(mAddressBookParsedResult);
+//						    		    } else {
+//						    		    	//否则，我们保存到通讯录
+//						    		    	internalSaveContactAfterDownload(mAddressBookParsedResult);
+//						    		    }
+//									} else {
+//										internalSaveContactAfterDownload(mAddressBookParsedResult);
+//									}
+									internalSaveContactAfterDownload(mAddressBookParsedResult);
 								}
 								
 							} else {

@@ -72,16 +72,16 @@ public class JumpActivity extends Activity {
 			int currentVersion = info.versionCode;
 			String currentVersionCodeName = info.versionName;
 
-			int lastVersion = MyApplication.getInstance().mPreferManager.getInt(PreferencesActivity.KEY_LATEST_VERSION, 0);
+			int lastVersion = MyApplication.getInstance().mPreferManager.getInt(SettingsPreferenceActivity.KEY_LATEST_VERSION, 0);
 			if (currentVersion != lastVersion) {// 安装好后第一次启动
 				// 设置版本号
 				DebugUtils.logD(TAG, "showHelpOnFirstLaunch");
 				SharedPreferences.Editor edit = MyApplication.getInstance().mPreferManager.edit();
-				edit.putInt(PreferencesActivity.KEY_LATEST_VERSION, currentVersion);
-				edit.putString(PreferencesActivity.KEY_LATEST_VERSION_CODE_NAME, currentVersionCodeName);
+				edit.putInt(SettingsPreferenceActivity.KEY_LATEST_VERSION, currentVersion);
+				edit.putString(SettingsPreferenceActivity.KEY_LATEST_VERSION_CODE_NAME, currentVersionCodeName);
 				
-				edit.putBoolean(PreferencesActivity.KEY_LATEST_VERSION_INSTALL, true);
-				edit.putLong(PreferencesActivity.KEY_LATEST_VERSION_LEVEL, 0);
+				edit.putBoolean(SettingsPreferenceActivity.KEY_LATEST_VERSION_INSTALL, true);
+				edit.putLong(SettingsPreferenceActivity.KEY_LATEST_VERSION_LEVEL, 0);
 				edit.putLong(ServiceAppInfo.KEY_SERVICE_APP_INFO_CHECK_TIME, -1);
 				edit.commit();
 				//删除下载更新的临时目录，确保没有其他的安装包了
@@ -98,9 +98,9 @@ public class JumpActivity extends Activity {
 					File localApkFile = mServiceAppInfo.buildExternalDownloadAppFile();
 					//如果更新包存在，并且更新包的版本高于当前版本，我们认为是下载了更新包当是没有安装
 					if (localApkFile != null && localApkFile.exists() && mServiceAppInfo.mVersionCode > currentVersion) {
-						if (!MyApplication.getInstance().mPreferManager.getBoolean(PreferencesActivity.KEY_LATEST_VERSION_INSTALL, true)) {
+						if (!MyApplication.getInstance().mPreferManager.getBoolean(SettingsPreferenceActivity.KEY_LATEST_VERSION_INSTALL, true)) {
 							// 是否放弃安装，如果放弃，且重要程度为1则不在进行提示，否则必须安装
-							if (MyApplication.getInstance().mPreferManager.getLong(PreferencesActivity.KEY_LATEST_VERSION_LEVEL, ServiceAppInfo.IMPORTANCE_OPTIONAL) == ServiceAppInfo.IMPORTANCE_OPTIONAL) {
+							if (MyApplication.getInstance().mPreferManager.getLong(SettingsPreferenceActivity.KEY_LATEST_VERSION_LEVEL, ServiceAppInfo.IMPORTANCE_OPTIONAL) == ServiceAppInfo.IMPORTANCE_OPTIONAL) {
 								showDialog(DIALOG_CONFIRM_INSTALL);
 							} else {
 								showDialog(DIALOG_MUST_INSTALL);
@@ -136,7 +136,7 @@ public class JumpActivity extends Activity {
 		final ServiceAppInfo databaseServiceAppInfo = new ServiceAppInfo(MyApplication.PKG_NAME + ".db");
 		final File database = databaseServiceAppInfo.buildLocalDownloadAppFile();
 		final boolean needUpdateDeviceDatabase = database.exists() && databaseServiceAppInfo.mVersionCode > DeviceDBHelper.getDeviceDatabaseVersion();
-		final boolean firstStart = prefers.getBoolean(PreferencesActivity.KEY_FIRST_STARTUP, true);
+		final boolean firstStart = prefers.getBoolean(SettingsPreferenceActivity.KEY_FIRST_STARTUP, true);
 		final boolean needReinstall = DeviceDBHelper.isNeedReinstallDeviceDatabase();
 		StringBuilder sb = new StringBuilder("launchMainActivityDelay()");
 		sb.append("\n").append("firstStart=").append(firstStart);
@@ -153,7 +153,7 @@ public class JumpActivity extends Activity {
 					if (firstStart || needReinstall) {
 						InstallFileUtils.installDatabaseFiles(mContext, "device", ".png", ".db");
 						if (firstStart) {
-							prefers.edit().putBoolean(PreferencesActivity.KEY_FIRST_STARTUP, false).commit();
+							prefers.edit().putBoolean(SettingsPreferenceActivity.KEY_FIRST_STARTUP, false).commit();
 						}
 						DeviceDBHelper.updateDeviceDatabaseVersion(DeviceDBHelper.VERSION);
 					} else if (needUpdateDeviceDatabase) {
@@ -200,7 +200,7 @@ public class JumpActivity extends Activity {
 				builder.setNegativeButton(R.string.button_update_no,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
-								MyApplication.getInstance().mPreferManager.edit().putBoolean(PreferencesActivity.KEY_LATEST_VERSION_INSTALL, true).commit();
+								MyApplication.getInstance().mPreferManager.edit().putBoolean(SettingsPreferenceActivity.KEY_LATEST_VERSION_INSTALL, true).commit();
 								launchMainActivityNoDelay();
 							}
 						});

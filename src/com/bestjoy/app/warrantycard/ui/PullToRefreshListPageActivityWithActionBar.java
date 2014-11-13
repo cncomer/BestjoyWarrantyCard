@@ -82,12 +82,8 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 	protected abstract Query getQuery();
 	protected abstract void onRefreshStart();
 	protected abstract void onRefreshEnd();
-	protected void onRefreshLoadEnd() {
-		
-	}
-	protected void onLoadLocalEnd() {
-		
-	}
+	protected void onRefreshPostEnd() {}
+	protected void onLoadLocalEnd() {}
 	 public void onMovedToScrapHeap(View view) {
 		 
 	 }
@@ -103,6 +99,7 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 		if (this.isFinishing()) {
 			return;
 		}
+		mContext = this;
 		DebugUtils.logD(TAG, "setContentView()");
 		setContentView(getContentLayout());
 		
@@ -124,11 +121,14 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 				// Update the LastUpdatedLabel
 				refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
 				//重设为0，这样我们可以从头开始更新数据
-//				mCurrentPageIndex = DEFAULT_PAGEINDEX;
+				if (mQuery == null) {
+					mQuery = getQuery();
+					if (mQuery.mPageInfo == null) {
+						mQuery.mPageInfo = new PageInfo();
+					}
+				}
 				mQuery.mPageInfo.reset();
 				isNeedRequestAgain = true;
-//				addFooterView();
-//				updateFooterView(false, null);
 				int count = mAdapterWrapper.getCount();
 				mQuery.mPageInfo.computePageSize(count);
 				// Do work to refresh the list here.
@@ -176,7 +176,6 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 		mListView.setAdapter(mAdapterWrapper.getAdapter());
 		mListView.setRecyclerListener(this);
 		removeFooterView();
-		mContext = this;
 		mIsFirstRefresh = true;
 		
 		mListView.setOnScrollListener(new OnScrollListener() {
@@ -420,7 +419,9 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 					List<? extends InfoInterface> serviceInfoList = getServiceInfoList(is, mQuery.mPageInfo);
 					int newCount = serviceInfoList.size();
 					DebugUtils.logD(TAG, "find new date #count = " + newCount + " totalSize = " + mQuery.mPageInfo.mTotalCount);
-					onRefreshLoadEnd();
+					if (mQuery.mPageInfo.mPageIndex == PageInfo.DEFAULT_PAGEINDEX) {
+						onRefreshEnd();
+					}
 					if (newCount == 0) {
 						DebugUtils.logD(TAG, "no more date");
 						isNeedRequestAgain = false;
@@ -467,7 +468,6 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 		protected void onPostExecute(Integer result) {
 			super.onPostExecute(result);
 			if (mDestroyed) return;
-//			showRefreshing(false);
 			if (result == -1){
 				MyApplication.getInstance().showMessage(R.string.msg_network_error_for_receive);
 			} else if (result == -2) {
@@ -482,9 +482,8 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 			mLastRefreshTime = System.currentTimeMillis();
 			// Call onRefreshComplete when the list has been refreshed.
 		    mPullRefreshListView.onRefreshComplete();
-//		    mLoadMoreFootView.setVisibility(View.GONE);
 		    mIsUpdate = false;
-		    onRefreshEnd();
+		    onRefreshPostEnd();
 		    mListView.setEmptyView(mEmptyView);
 		    loadLocalDataAsync();
 		    if (isNeedRequestAgain) {
@@ -495,7 +494,6 @@ public abstract class PullToRefreshListPageActivityWithActionBar extends BaseAct
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
-			 onRefreshEnd();
 		}
 		
 	}

@@ -13,7 +13,7 @@ import android.view.WindowManager;
 
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2.TaskType;
-import com.bestjoy.app.warrantycard.ui.PreferencesActivity;
+import com.bestjoy.app.warrantycard.ui.SettingsPreferenceActivity;
 import com.bestjoy.app.warrantycard.utils.BeepAndVibrate;
 import com.bestjoy.app.warrantycard.utils.VcfAsyncDownloadTask;
 import com.bestjoy.app.warrantycard.utils.VcfAsyncDownloadUtils;
@@ -191,7 +191,7 @@ public class AddrBookUtils {
 	public void downloadAndViewContactLock(String mm, boolean recordDownload) {
 		VcfAsyncDownloadUtils.cancel(mVcfAsyncDownloadTask, true);
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-		boolean viewContact = prefs.getBoolean(PreferencesActivity.KEY_AUTO_REDIRECT, true);
+		boolean viewContact = prefs.getBoolean(SettingsPreferenceActivity.KEY_AUTO_REDIRECT, true);
 		if (!viewContact) {
 			mVcfAsyncDownloadTask = VcfAsyncDownloadUtils.getInstance().executeTask(mm, false, mVcfAsyncDownloadHandler, TaskType.PREVIEW, false, recordDownload);
 		} else {
