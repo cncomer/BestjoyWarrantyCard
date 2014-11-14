@@ -64,7 +64,7 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 	private TextView mFooterViewStatusText;
 	private boolean mIsUpdate = false;
 	
-	private boolean isNeedRequestAgain = true;
+	private boolean isNeedRequestAgain = false;
 	/**如果当前在列表底部了*/
 	private boolean mIsAtListBottom = false;
 	private WakeLock mWakeLock;
@@ -181,6 +181,14 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 					DebugUtils.logExchangeBC(TAG, "we go to load more.");
 					if (isNeedRequestAgain) {
 						updateFooterView(true, null);
+						if (mQuery == null) {
+							mQuery = getQuery();
+							if (mQuery.mPageInfo == null) {
+								mQuery.mPageInfo = new PageInfo();
+							}
+							int count = mAdapterWrapper.getCount();
+							mQuery.mPageInfo.computePageSize(count);
+						}
 						new QueryServiceTask().execute();
 					} else {
 						DebugUtils.logExchangeBC(TAG, "isNeedRequestAgain is false, we not need to load more");

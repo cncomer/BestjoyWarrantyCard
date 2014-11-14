@@ -5,10 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,8 +25,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,7 +39,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -51,7 +55,6 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
-import com.bestjoy.app.warrantycard.ui.HomeManagerActivity;
 import com.bestjoy.app.warrantycard.ui.PullToRefreshListPageActivityWithActionBar;
 import com.bestjoy.app.warrantycard.ui.model.ModleSettings;
 import com.bestjoy.app.warrantycard.view.MarqueeTextView;
@@ -70,7 +73,7 @@ import com.shwy.bestjoy.utils.Query;
 import com.shwy.bestjoy.utils.ServiceResultObject;
 
 public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionBar implements View.OnClickListener{
-	private static final String TAG = "MyLifeMainActivity";
+	public static final String TAG = "MyLifeMainActivity";
 	private static final String TOKEN = MyLifeListAdapter.class.getName();
 	private static final int mAvatorWidth = 1200, mAvatorHeight =1200;
 	private Bundle mBundle;
@@ -105,14 +108,20 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 			}
 			
 		};
+		mPullRefreshListView.setBackgroundResource(R.color.wt);
+		Drawable divider = new ColorDrawable(0x19000000);
+		mListView.setDivider(divider);
 		mListView.setDividerHeight((int) (15*MyApplication.getInstance().mDisplayMetrics.density));
-		mListView.setDivider(new ColorDrawable(Color.parseColor("#19000000")));
-		mListView.setBackgroundResource(R.color.wt);
 		
 		if (savedInstanceState != null) {
 			mNeedUpdateAvatorFromCamera = savedInstanceState.getBoolean("mNeedUpdateAvatorFromCamera");
 			mNeedUpdateAvatorFromGallery = savedInstanceState.getBoolean("mNeedUpdateAvatorFromGallery");
-			DebugUtils.logD(TAG, "onCreate savedInstanceState != null, get mNeedUpdateAvatorFromCamera " + mNeedUpdateAvatorFromCamera + ", mNeedUpdateAvatorFromGallery " + mNeedUpdateAvatorFromGallery);
+			long lifeObjectId = savedInstanceState.getLong(MyLifeObject.PROJECTION[MyLifeObject.INDEX_ID], -1);
+			if (lifeObjectId != -1) {
+				mTempLifeObject = MyLifeObject.getFromDatabaseWithId(lifeObjectId);
+			}
+			
+			DebugUtils.logD(TAG, "onCreate savedInstanceState != null, get mNeedUpdateAvatorFromCamera " + mNeedUpdateAvatorFromCamera + ", mNeedUpdateAvatorFromGallery " + mNeedUpdateAvatorFromGallery + ", lifeObjectId=" + lifeObjectId);
 		}
 	}
 	
@@ -139,15 +148,48 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		return ModleSettings.createActionBarMenu(menu, mBundle);
+		ModleSettings.createActionBarMenu(menu, mBundle);
+		MenuItem item = menu.add(0, R.string.menu_edit_for_delete, 1, R.string.menu_edit_for_delete);
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		item = menu.add(0, R.string.menu_delete, 2, R.string.menu_delete);
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		item = menu.add(0, R.string.menu_done, 3, R.string.menu_done);
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		return true;
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.model_my_member_card).setVisible(!mDeletedMode);
+		menu.findItem(R.string.menu_edit_for_delete).setVisible(!mDeletedMode);
+		menu.findItem(R.string.menu_delete).setVisible(mDeletedMode);
+		menu.findItem(R.string.menu_done).setVisible(mDeletedMode);
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
 		case R.id.model_my_member_card://新建会员卡
-			
 			showEditDialog();
+			return true;
+		case R.string.menu_edit_for_delete:
+			mDeletedMode = true;
+			myLifeListAdapter.notifyDataSetChanged();
+			invalidateOptionsMenu();
+			return true;
+		case R.string.menu_delete:
+			if (mSelectIds.size() == 0) {
+				MyApplication.getInstance().showMessage(R.string.msg_no_selection_for_delete);
+			} else {
+				deleteShopInfoAsync();
+			}
+			return true;
+		case R.string.menu_done:
+			mDeletedMode = false;
+			mSelectIds.clear();
+			myLifeListAdapter.notifyDataSetChanged();
+			invalidateOptionsMenu();
 			return true;
 		default:
 			//当选择了一个Home时候，我们要设置HomeObject对象
@@ -166,6 +208,7 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 		AsyncTaskUtils.cancelTask(mUpdateAvatorTask);
 		AsyncTaskUtils.cancelTask(mDownloadMemberCardImageTask);
 		AsyncTaskUtils.cancelTask(mQueryShopTask);
+		AsyncTaskUtils.cancelTask(mSaveShopAsyncTask);
 	}
 	
 	private void showEditDialog() {
@@ -220,7 +263,7 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 					case 0:
 						Intent intent = new Intent();
 						intent.setAction(Intent.ACTION_VIEW);
-						intent.setDataAndType(Uri.fromFile(MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempInfoAdapterViewHolder.myLifeObject.mMemberCardImage))), "image/*");
+						intent.setDataAndType(Uri.fromFile(MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempLifeObject.mMemberCardImage))), "image/*");
 						Intents.launchIntent(mContext, intent);
 //						Intents.openURL(mContext, Uri.fromFile(MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempInfoAdapterViewHolder.myLifeObject.mMemberCardImage))).toString());
 						break;
@@ -355,7 +398,7 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 				viewHodler.mMarqueeTextView.setText(viewHodler.myLifeObject.mLiveInfo);
 				viewHodler.mMarqueeTextView.startFor0();
 			} else {
-				viewHodler.mMarqueeTextView.setVisibility(View.INVISIBLE);
+				viewHodler.mMarqueeTextView.setVisibility(View.GONE);
 				viewHodler.mMarqueeTextView.stopScroll();
 			}
 			if (MyApplication.getInstance().hasExternalStorage()) {
@@ -367,12 +410,23 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 			viewHodler.mJF.setText(String.format(_format_free_jf, viewHodler.myLifeObject.mFreeJifen));
 			viewHodler.mTotalXiaoFei.setText(String.format(_format_xiaofei_jf, viewHodler.myLifeObject.mTotalXiaofeiJifen));
 			
-			viewHodler.mComTelBtn.setTag(viewHodler);
-			viewHodler.mMemberCardBtn.setTag(viewHodler);
-			viewHodler.mComLocationBtn.setTag(viewHodler);
-			viewHodler.mComTelBtn.setOnClickListener(MyLifeMainActivity.this);
-			viewHodler.mMemberCardBtn.setOnClickListener(MyLifeMainActivity.this);
-			viewHodler.mComLocationBtn.setOnClickListener(MyLifeMainActivity.this);
+			
+			if (mDeletedMode) {
+				viewHodler.mCheckBox.setVisibility(View.VISIBLE);
+				viewHodler.mRightPanel.setVisibility(View.GONE);
+				Boolean checked = mSelectIds.get(viewHodler.myLifeObject.mShopID);
+				if (checked == null) {
+					checked = false;
+				}
+				viewHodler.mCheckBox.setChecked(checked);
+			} else {
+				viewHodler.mCheckBox.setVisibility(View.GONE);
+				viewHodler.mRightPanel.setVisibility(View.VISIBLE);
+				viewHodler.mComTelBtn.setTag(viewHodler);
+				viewHodler.mMemberCardBtn.setTag(viewHodler);
+				viewHodler.mComLocationBtn.setTag(viewHodler);
+				
+			}
 			
 		}
 		
@@ -390,6 +444,14 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 			viewHodler.mTotalXiaoFei = (TextView) view.findViewById(R.id.xiaofei_jf);
 			viewHodler.mMarqueeTextView = (MarqueeTextView) view.findViewById(R.id.guanggao);
 			
+			viewHodler.mRightPanel = view.findViewById(R.id.right_panel);
+			viewHodler.mJfLayout = view.findViewById(R.id.jf_layout);
+			viewHodler.mCheckBox = (CheckBox) view.findViewById(R.id.checkbox);
+			
+			viewHodler.mComTelBtn.setOnClickListener(MyLifeMainActivity.this);
+			viewHodler.mMemberCardBtn.setOnClickListener(MyLifeMainActivity.this);
+			viewHodler.mComLocationBtn.setOnClickListener(MyLifeMainActivity.this);
+			
 			view.setTag(viewHodler);
 			return view;
 		}
@@ -403,6 +465,8 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 		private ImageView qAvator;
 		private ImageView mComTelBtn, mMemberCardBtn, mComLocationBtn;
 		private TextView mComName, mComAddress, mJF, mGuanggao, mTotalXiaoFei;
+		private View mJfLayout, mRightPanel;
+		private CheckBox mCheckBox;
 		private MarqueeTextView mMarqueeTextView;
 		public MyLifeObject myLifeObject = new MyLifeObject();
 	}
@@ -414,14 +478,13 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 			InfoAdapterViewHolder infoAdapterViewHolder = (InfoAdapterViewHolder) object;
 			switch(v.getId()) {
 			case R.id.camera:
-				mTempInfoAdapterViewHolder = infoAdapterViewHolder;
-				MyLifeObject myLifeObject = infoAdapterViewHolder.myLifeObject;
-				if (TextUtils.isEmpty(myLifeObject.mMemberCardImage)) {
+				mTempLifeObject = infoAdapterViewHolder.myLifeObject;
+				if (TextUtils.isEmpty(mTempLifeObject.mMemberCardImage)) {
 					//还没有上传过会员卡,我们直接调用相机
 					mPictureRequest = REQUEST_MEMBER_CARD_IMAGE;
 					onCapturePhoto();
 				} else {
-					File cardImageFile = MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(myLifeObject.mMemberCardImage));
+					File cardImageFile = MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempLifeObject.mMemberCardImage));
 					if (cardImageFile.exists()) {
 						//如果有，我们显示操作选项，查看或是拍摄发票
 						onCreateDialog(DIALOG_BILL_OP_CONFIRM).show();
@@ -449,6 +512,21 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 				Intents.locationBaiduMap(mContext, sb.toString());
 				break;
 			}
+		}
+		
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		if (mDeletedMode) {
+			InfoAdapterViewHolder viewHolder = (InfoAdapterViewHolder) view.getTag();
+			boolean checked = !viewHolder.mCheckBox.isChecked();
+			if (!checked) {
+				mSelectIds.remove(viewHolder.myLifeObject.mShopID);
+			} else {
+				mSelectIds.put(viewHolder.myLifeObject.mShopID, checked);
+			}
+			viewHolder.mCheckBox.setChecked(checked);
 		}
 		
 	}
@@ -513,14 +591,17 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("mNeedUpdateAvatorFromCamera", mNeedUpdateAvatorFromCamera);
 		outState.putBoolean("mNeedUpdateAvatorFromGallery", mNeedUpdateAvatorFromGallery);
-		DebugUtils.logD(TAG, "onSaveInstanceState() save mNeedUpdateAvatorFromCamera " + mNeedUpdateAvatorFromCamera + ", mNeedUpdateAvatorFromGallery " + mNeedUpdateAvatorFromGallery);
+		long myLifeObjectId = mTempLifeObject == null?-1:mTempLifeObject.mId;
+		outState.putLong(MyLifeObject.PROJECTION[MyLifeObject.INDEX_ID], myLifeObjectId);
+		
+		DebugUtils.logD(TAG, "onSaveInstanceState() save mNeedUpdateAvatorFromCamera " + mNeedUpdateAvatorFromCamera + ", mNeedUpdateAvatorFromGallery " + mNeedUpdateAvatorFromGallery+" ,myLifeObjectId="+myLifeObjectId);
 	}
 	
 	
-	private InfoAdapterViewHolder mTempInfoAdapterViewHolder;
+	private MyLifeObject mTempLifeObject;
 	private UpdateAvatorTask mUpdateAvatorTask;
 	private void updateAvatorAsync() {
-		if (mTempInfoAdapterViewHolder == null) {
+		if (mTempLifeObject == null) {
 			return;
 		}
 		AsyncTaskUtils.cancelTask(mUpdateAvatorTask);
@@ -552,20 +633,20 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 				    _newBitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(mAvatorUri), null, options); 
 				}
 				JSONObject queryObject = new JSONObject();
-				queryObject.put("shopid", String.valueOf(mTempInfoAdapterViewHolder.myLifeObject.mShopID));
+				queryObject.put("shopid", String.valueOf(mTempLifeObject.mShopID));
 				queryObject.put("uid", MyAccountManager.getInstance().getCurrentAccountUid());
 				queryObject.put("imgstr", ImageHelper.bitmapToString(_newBitmap, 65));
 				is = NetworkUtils.openPostContectionLocked(ServiceObject.getPostUpdateMemberCardImageUrl(),"para", queryObject.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				if (is != null) {
 					haierResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 					if (haierResultObject.isOpSuccessfully()) {
-						mTempInfoAdapterViewHolder.myLifeObject.mMemberCardImage = haierResultObject.mStrData;
+						mTempLifeObject.mMemberCardImage = haierResultObject.mStrData;
 						ContentValues values = new ContentValues();
 						values.put(MyLifeObject.PROJECTION[MyLifeObject.INDEX_SHOP_MEMBER_CARD_IAMGE], haierResultObject.mStrData);
-						int updated = BjnoteContent.update(MyApplication.getInstance().getContentResolver(), BjnoteContent.MyLife.CONTENT_URI, values, BjnoteContent.ID_SELECTION, new String[]{String.valueOf(mTempInfoAdapterViewHolder.myLifeObject.mId)});
+						int updated = BjnoteContent.update(MyApplication.getInstance().getContentResolver(), BjnoteContent.MyLife.CONTENT_URI, values, BjnoteContent.ID_SELECTION, new String[]{String.valueOf(mTempLifeObject.mId)});
 						DebugUtils.logD(TAG, "UpdateAvatorTask  updated " + updated + ", addr=" + haierResultObject.mStrData);
 						
-						File cardImageFile = MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempInfoAdapterViewHolder.myLifeObject.mMemberCardImage));
+						File cardImageFile = MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempLifeObject.mMemberCardImage));
 						if (mAvatorFile.exists()) {
 							FilesUtils.saveFile(new FileInputStream(mAvatorFile), cardImageFile);
 						}
@@ -592,14 +673,18 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 			super.onPostExecute(result);
 			dismissDialog(DIALOG_PROGRESS);
 			MyApplication.getInstance().showMessage(result.mStatusMessage);
-			mTempInfoAdapterViewHolder = null;
+			if (result.isOpSuccessfully()) {
+				myLifeListAdapter.getCursor().requery();
+				myLifeListAdapter.notifyDataSetChanged();
+			}
+			mTempLifeObject = null;
 		}
 
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
 			dismissDialog(DIALOG_PROGRESS);
-			mTempInfoAdapterViewHolder = null;
+			mTempLifeObject = null;
 		}
 		
 	}
@@ -627,6 +712,9 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 			showDialog(DIALOG_MEDIA_UNMOUNTED);
 			return;
 		}
+		 if (mAvatorFile != null && mAvatorFile.exists()) {
+			 mAvatorFile.delete();
+		}
 		Intent intent = null;
 		if (mPictureRequest == REQUEST_MEMBER_CARD_IMAGE) {
 			intent = ImageHelper.createCaptureIntent(Uri.fromFile(mAvatorFile));
@@ -636,6 +724,10 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 	
 	private DownloadMemberCardImageTask mDownloadMemberCardImageTask;
 	private void downloadMemberCardImageAsync() {
+		if (!MyApplication.getInstance().hasExternalStorage()) {
+			showDialog(DIALOG_MEDIA_UNMOUNTED);
+			return;
+		}
 		AsyncTaskUtils.cancelTask(mDownloadMemberCardImageTask);
 		showDialog(DIALOG_PROGRESS);
 		mDownloadMemberCardImageTask = new DownloadMemberCardImageTask();
@@ -648,8 +740,8 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 		protected Boolean doInBackground(Void... params) {
 			InputStream is = null;
 			try {
-				is = NetworkUtils.openContectionLocked(mTempInfoAdapterViewHolder.myLifeObject.mMemberCardImage, MyApplication.getInstance().getSecurityKeyValuesObject());
-				return PhotoManagerUtilsV2.createCachedBitmapFile(is, MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempInfoAdapterViewHolder.myLifeObject.mMemberCardImage)));
+				is = NetworkUtils.openContectionLocked(mTempLifeObject.mMemberCardImage, MyApplication.getInstance().getSecurityKeyValuesObject());
+				return PhotoManagerUtilsV2.createCachedBitmapFile(is, MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempLifeObject.mMemberCardImage)));
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -663,10 +755,11 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 		@Override
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
+			dismissDialog(DIALOG_PROGRESS);
 			if (result) {
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_VIEW);
-				intent.setDataAndType(Uri.fromFile(MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempInfoAdapterViewHolder.myLifeObject.mMemberCardImage))), "image/*");
+				intent.setDataAndType(Uri.fromFile(MyLifeObject.getImageCachedFile(MyLifeObject.getMemberCardImagePhotoIdFromAddr(mTempLifeObject.mMemberCardImage))), "image/*");
 				Intents.launchIntent(mContext, intent);
 			}
 		}
@@ -674,6 +767,7 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
+			dismissDialog(DIALOG_PROGRESS);
 		}
 		
 	}
@@ -825,6 +919,83 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 					myLifeListAdapter.getCursor().requery();
 					myLifeListAdapter.notifyDataSetChanged();
 				}
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			dismissDialog(DIALOG_PROGRESS);
+		}
+
+	}
+	
+	
+	
+	
+	
+	private HashMap<Long, Boolean> mSelectIds = new HashMap<Long, Boolean>();
+	private boolean mDeletedMode = false;
+	private DeleteShopAsyncTask mDeleteShopAsyncTask;
+	private void deleteShopInfoAsync() {
+		AsyncTaskUtils.cancelTask(mSaveShopAsyncTask);
+		mDeleteShopAsyncTask = new DeleteShopAsyncTask();
+		mDeleteShopAsyncTask.execute();
+		showDialog(DIALOG_PROGRESS);
+	}
+	private class DeleteShopAsyncTask extends AsyncTask<Void, Void, ServiceResultObject> {
+
+		@Override
+		protected ServiceResultObject doInBackground(Void... params) {
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			InputStream is = null;
+			ContentResolver contentResolver = mContext.getContentResolver();
+			try {
+				JSONObject queryObject = new JSONObject();
+				queryObject.put("uid", MyAccountManager.getInstance().getCurrentAccountUid());
+				JSONArray shopArray = new JSONArray();
+				for(Long shopId : mSelectIds.keySet()) {
+					shopArray.put(String.valueOf(shopId));
+				}
+				queryObject.put("shopid", shopArray);
+				DebugUtils.logD(TAG, "DeleteShopAsyncTask queryJson para=" + queryObject.toString());
+			
+				DebugUtils.logD(TAG, "DeleteShopAsyncTask start deleting ShopIds from Service......");
+				is = NetworkUtils.openContectionLocked(ServiceObject.getDeleteRelatedShopsUrl("para", queryObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				if (serviceResultObject.isOpSuccessfully()) {
+					for(Long shopId : mSelectIds.keySet()) {
+						//删除服务器上的数据成功，我们还需要删除本地的
+						int deleted = BjnoteContent.delete(contentResolver, BjnoteContent.MyLife.CONTENT_URI, MyLifeObject.SHOP_ID_WHERE, new String[]{String.valueOf(shopId)});
+						DebugUtils.logD(TAG, "DeleteShopAsyncTask delete local ShopId " + shopId + " " + (deleted > 0));
+					}
+					
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (JSONException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			dismissDialog(DIALOG_PROGRESS);
+			if (result.isOpSuccessfully()) {
+				mDeletedMode = false;
+				mSelectIds.clear();
+				myLifeListAdapter.getCursor().requery();
+				myLifeListAdapter.notifyDataSetChanged();
+				invalidateOptionsMenu();
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}

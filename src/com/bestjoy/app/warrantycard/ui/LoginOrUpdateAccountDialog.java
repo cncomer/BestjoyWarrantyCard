@@ -31,6 +31,7 @@ import com.bestjoy.app.warrantycard.service.IMService;
 import com.bestjoy.app.warrantycard.update.UpdateService;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.YouMengMessageHelper;
+import com.shwy.bestjoy.bjnote.mylife.MyLifeMainActivity;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.Intents;
@@ -109,6 +110,7 @@ public class LoginOrUpdateAccountDialog extends Activity{
 			        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
 			        	//删除会员卡数据
 			        	BjnoteContent.delete(cr, BjnoteContent.MyLife.CONTENT_URI, null, null);
+			        	ComPreferencesManager.getInstance().setFirstLaunch(MyLifeMainActivity.TAG, true);
 			        	
 			        	if (mAccountObject.mAccountHomes.size() == 0) {
 							//Setp2 家数据为空，我们需要创建演示家

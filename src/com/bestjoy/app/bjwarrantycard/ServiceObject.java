@@ -560,6 +560,15 @@ public class ServiceObject {
 			  sb.append("huiyuan/GetRelateUserShop.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
+		  /***
+		   * 删除会员卡调用地址
+		   * @return
+		   */
+		  public static String getDeleteRelatedShopsUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("huiyuan/delhuiyuan.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
 		  /**
 		   * 检查保修政策页面是否存在
 		   * @param ky
@@ -580,6 +589,5 @@ public class ServiceObject {
 			  sb.append("huiyuan/updateCard.ashx?");
 			  return sb.toString();
 		  }
-		  
 		  
 }

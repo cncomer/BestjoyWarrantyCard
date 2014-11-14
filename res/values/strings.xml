@@ -756,13 +756,16 @@
   <string name="preferences_about_app_title">关于</string>
   <string name="preferences_clear_cache_title">清空缓存</string>
   
-  <string name="format_xiaofei_jf">累计消费 :%s元</string>
-  <string name="format_free_jf">会员积分 :%s点</string>
+  <string name="format_xiaofei_jf">累计消费:\n%s元</string>
+  <string name="format_free_jf">会员积分:\n%s点</string>
   
   <string name="msg_choose_phone_title">请选择一个号码</string>
   <string name="msg_input_phone_title">请输入商家电话</string>
   <string name="msg_input_phone_cant_find_shopinfo">没有找到您输入电话的商家信息</string>
   <string name="format_msg_input_phone_find_shopinfo_need_confirm">找到【%s】，您确定要添加到会员卡中？</string>
   <string name="cling_choose_devices_done">"点击右上角的完成按钮，可以将选择结果回填至新建卡中。\n\n点击搜索图标快速查找你所需要的型号。"</string>
+  
+  
+  <string name="msg_no_selection_for_delete">请至少选择一个</string>
   
 </resources>

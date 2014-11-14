@@ -287,6 +287,18 @@ public class MyLifeObject implements InfoInterface {
     	return myLifeObject;
     }
     
+    public static MyLifeObject getFromDatabaseWithId(long id) {
+    	Cursor cursor = MyApplication.getInstance().getContentResolver().query(BjnoteContent.MyLife.CONTENT_URI, PROJECTION, ID_WHERE, new String[]{String.valueOf(id)}, null);
+    	MyLifeObject myLifeObject = null;
+    	if (cursor != null) {
+    		if(cursor.moveToNext()) {
+    			myLifeObject = getFromCursor(cursor);
+    		}
+    	}
+    	DebugUtils.logD(TAG, "getFromDatabaseWithId find id " + id + ", MyLifeObject " + myLifeObject);
+    	return myLifeObject;
+    }
+    
     public static MyLifeObject getFromCursor(Cursor cursor) {
     	MyLifeObject myLifeObject = new MyLifeObject();
     	myLifeObject.mId = cursor.getLong(INDEX_ID);
