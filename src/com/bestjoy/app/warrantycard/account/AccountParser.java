@@ -102,7 +102,7 @@ public class AccountParser extends InfoInterfaceImpl{
 	public static void parseUserData(JSONObject jsonObject, AccountObject accountObject) throws JSONException {
 		//解析userdata
 		JSONObject userData = jsonObject.getJSONObject("account");
-		
+		accountObject.mAccountNickName = userData.getString("nickname");
 		accountObject.mAccountTel = userData.getString("cell");
 		accountObject.mAccountPwd = userData.getString("pwd");
 		accountObject.mAccountName = userData.getString("userName");

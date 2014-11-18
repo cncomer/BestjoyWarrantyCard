@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
+import com.bestjoy.app.bjwarrantycard.bx.order.OrdersListActivity;
 import com.bestjoy.app.bjwarrantycard.im.RelationshipActivity;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.update.UpdateService;
@@ -78,6 +79,13 @@ public class MainActivity20141010 extends BaseActionbarActivity implements View.
 		case R.id.button_scan:
 			Intent scanIntent = new Intent(mContext, CaptureActivity.class);
 			startActivity(scanIntent);
+			break;
+		case R.id.button_maintenance:
+			if (MyAccountManager.getInstance().hasLoginned()) {
+				OrdersListActivity.startActivity(mContext);
+			} else {
+				MyApplication.getInstance().showNeedLoginMessage();
+			}
 			break;
 		case R.id.button_im:
 			if (MyAccountManager.getInstance().hasLoginned()) {

@@ -91,9 +91,8 @@ public class MyApplication extends Application{
 		
 		BitmapUtils.getInstance().setContext(this);
 		
-		MyAccountManager.getInstance().setContext(this);
-		
 		mPreferManager = PreferenceManager.getDefaultSharedPreferences(this);
+		MyAccountManager.getInstance().setContext(this);
 		ServiceObject.setContext(this);
 		
 		mImMgr = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -470,7 +469,7 @@ public class MyApplication extends Application{
     }
     
     /**
-     * 返回缓存在外置存储卡/mnt/sdcard/xxxx/xinghao目录下的型号文件
+     * 返回缓存在外置存储卡/mnt/sdcard/xxxx/cache/xinghao目录下的型号文件
      * @param pingpaiCode
      * @return
      */

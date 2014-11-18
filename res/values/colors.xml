@@ -41,9 +41,9 @@
   <color name="result_view">#b0000000</color>
   
   <!-- 选择设备开始 -->
-  <color name="fenlei">#ff3064b0</color>
-  <color name="fenlei_divider_line">#ff1b395b</color>
-  <color name="fenlei_item">#ff3667ac</color>
+  <color name="fenlei">#ffffffff</color>
+  <color name="fenlei_divider_line">#ff485e82</color>
+  <color name="fenlei_item">#ffffffff</color>
   <!-- 选择设备结束 -->
   
   <!-- mylife -->

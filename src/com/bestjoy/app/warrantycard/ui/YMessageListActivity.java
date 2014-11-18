@@ -37,7 +37,7 @@ public class YMessageListActivity extends BaseActionbarActivity implements OnIte
 	private YmessageCursorAdapter mYmessageCursorAdapter;
 	private int mGategoryId = -1;
 	private static final int[] GATEGORY_ICON = new int[]{
-		-1,
+		R.drawable.ymeng_icon_0,
 		R.drawable.ymeng_icon_1,
 		R.drawable.ymeng_icon_2,
 		R.drawable.ymeng_icon_3,
@@ -45,7 +45,7 @@ public class YMessageListActivity extends BaseActionbarActivity implements OnIte
 		R.drawable.ymeng_icon_5,
 	};
 	private static final int[] GATEGORY_TITLE = new int[]{
-		-1,
+		R.string.title_ymeng_category0,
 		R.string.title_ymeng_category1,
 		R.string.title_ymeng_category2,
 		R.string.title_ymeng_category3,

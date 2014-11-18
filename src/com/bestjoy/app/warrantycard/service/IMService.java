@@ -43,8 +43,8 @@ public class IMService extends Service{
 	private static final String ACTION_CONNECT_IM_SERVICE = "Action.connect";
 	private static final String ACTION_DISCONNECT_IM_SERVICE = "Action.disconnect";
 	//为了简单起见，所有的异常都直接往外抛  
-    private static final String HOST = "115.29.231.29";//"192.168.1.149";//"115.29.231.29";  //要连接的服务端IP地址  
-    private static final int PORT = 1030;   //要连接的服务端对应的监听端口 
+    private static final String HOST = "115.29.231.29";//"192.168.1.107";//"115.29.231.29";  //要连接的服务端IP地址  
+    private static final int PORT = 1040;   //要连接的服务端对应的监听端口 
     private static final int BUFFER_LENGTH = 4 * 1024; //4k
     private CoversationReceiveServerThread mCoversationReceiveServerThread;
 	private DatagramSocket mSocket;
@@ -472,7 +472,7 @@ public class IMService extends Service{
 		    	  if(mSocket == null){
 	  	  		    mSocket = new DatagramSocket(null);
 	  	  		    mSocket.setReuseAddress(true);
-	  	  		    mSocket.bind(new InetSocketAddress(8906)); //8904
+	  	  		    mSocket.bind(new InetSocketAddress(8909)); //8904
 		  	     }
 		    	 DebugUtils.logD(TAG, "准备接受UDP");
 				byte[] buffer = new byte[BUFFER_LENGTH];

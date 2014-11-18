@@ -107,4 +107,18 @@
 		<item>搬家</item>
 		<item>开锁</item>
 	</string-array>
+	<!-- 报修记录各状态对应描述 -->
+	<string-array name="bx_order_statu_text">
+		<item>未知</item>
+		<item>正在派单</item>
+		<item>已派单</item>
+		<item>已完工</item>
+		<item>已评价</item>
+		<item>投诉维权</item>
+	</string-array>
+	
+	<string-array name="delete_or_recapture">
+		<item>重新扫码</item>
+		<item>删除</item>
+	</string-array>
 </resources>

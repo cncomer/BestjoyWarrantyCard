@@ -9,15 +9,19 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -374,12 +378,64 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 	
 	private void doVoiceQuery(String query) {
 		DebugUtils.logD(TAG, "doVoiceQuery() query=" + query);
-		mInputEdit.getText().clear();
-		mInputEdit.append(query);
+//		mInputEdit.getText().clear();
+//		mInputEdit.append(query);
 		//这里是语音识别后进入文本编写界面以便用户修改输入内容
-		updateEditLayout(true);
+//		updateEditLayout(true);
 //		sendMessageLocked();
 		
+		//显示弹出对话框让用户确认输入
+		showCheckVoiceDialog(query);
+		
+	}
+	
+	private void showCheckVoiceDialog(String query) {
+		final EditText input = new EditText(mContext);
+		input.setText(query);
+		input.setSelection(query.length());
+		final AlertDialog dialog = new AlertDialog.Builder(mContext)
+		.setMessage(R.string.text_check_voice_title_for_im_send)
+		.setView(input)
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (!ComConnectivityManager.getInstance().isConnected()) {
+						MyApplication.getInstance().showMessage(MyApplication.getInstance().getGernalNetworkError());
+						return;
+					}
+					String text = input.getText().toString().trim();
+					if (!TextUtils.isEmpty(text)) {
+						if (text.length() > 512) {
+							MyApplication.getInstance().showMessage(R.string.msg_too_long_text_for_conversation);
+						} else {
+							sendMessageAsync(text);
+						}
+					}
+				}
+			})
+		.setNegativeButton(android.R.string.cancel, null)
+		.create();
+		input.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(s.toString().trim().length() > 0);
+			}
+			
+		});
+		
+		dialog.show();
 	}
 	
 	@Override
@@ -443,6 +499,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 				if (serviceResultObject.isOpSuccessfully()) {
 					//发送成功，我们将信息保存在本地
 					ViewConversationObject viewConversationObject = ViewConversationObject.parse(serviceResultObject.mJsonData);
+					viewConversationObject.mSenderNickName = MyAccountManager.getInstance().getAccountObject().mAccountNickName;
 					if (viewConversationObject.saveInDatebase(getContentResolver(), null)) {
 					}
 				}
@@ -549,7 +606,7 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 		public void bindView(View view, Context context, Cursor cursor) {
 			ViewHolder viewHolder = (ViewHolder) view.getTag();
 			viewHolder._ViewConversationObject = ViewConversationObject.getConversationItemObjectFromCursor(cursor);
-			viewHolder._name.setText(viewHolder._ViewConversationObject.mSenderName + "#" + viewHolder._ViewConversationObject.mMID);
+			viewHolder._name.setText(viewHolder._ViewConversationObject.mSenderNickName /*+ "#" + viewHolder._ViewConversationObject.mMID*/);
 			viewHolder._content.setText(viewHolder._ViewConversationObject.mMessage);
 			viewHolder._time.setText(DateUtils.DATE_FULL_TIME_FORMAT.format(viewHolder._ViewConversationObject.mServerTime));
 			viewHolder._error.setVisibility(View.GONE);

@@ -23,7 +23,11 @@
 
          <EditTextPreference
                 android:key="preference_key_account_name"
-                android:title="@string/preference_key_account_name_title" />
+                android:title="@string/preference_key_account_name_title"  />
+         <EditTextPreference
+                android:key="preference_key_account_nickname"
+                android:title="@string/preference_key_account_nickname_title"
+                android:summary="@string/preference_key_account_nickname_summary" />
          
           <Preference
                 android:key="preference_key_account_password"

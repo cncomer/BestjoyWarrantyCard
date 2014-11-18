@@ -1,14 +1,23 @@
 package com.bestjoy.app.warrantycard.database;
 
+import java.util.Date;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
+import android.text.TextUtils;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
+import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
-import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.DebugUtils;
+import com.umeng.message.entity.UMessage;
 
 /**
  * @author Sean Owen
@@ -16,7 +25,7 @@ import com.shwy.bestjoy.utils.DebugUtils;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 22;
+  private static final int DB_VERSION = 25;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -59,6 +68,7 @@ private static final String TAG = "HaierDBHelper";
   public static final String ACCOUNT_DEFAULT = "isDefault";
   public static final String ACCOUNT_TEL = "tel";
   public static final String ACCOUNT_NAME = "name";
+  public static final String ACCOUNT_NICKNAME = "nickname";
   public static final String ACCOUNT_PWD = "password";
   public static final String ACCOUNT_HOME_COUNT = "home_count";
   /**我的卡片的个数*/
@@ -309,11 +319,36 @@ private static final String TAG = "HaierDBHelper";
   public static final String TABLE_VIEW_CONVERSATION = "view_conversation_history";
   public static final String VIEW_CONVERSATION_SENDER_UID = "sender";
   public static final String VIEW_CONVERSATION_SENDER_UNAME = "sender_name";
+  public static final String VIEW_CONVERSATION_SENDER_UNICKNAME = "sender_nickname";
+  
   public static final String VIEW_CONVERSATION_KY = DATA1;
   public static final String VIEW_CONVERSATION_MESSAGE = DATA2;
   public static final String VIEW_CONVERSATION_MID = DATA3;
   public static final String VIEW_CONVERSATION_SERVICE_TIME = DATA4;
   public static final String VIEW_CONVERSATION_LOCAL_TIME = DATA5;
+  
+  //保修卡预约订单
+  public static final String TABLE_BAOXIUCARD_ORDERS = "baoxiucard_orders";
+  /**申请时间*/
+  public static final String BX_ORDER_APPLY_TIME = DATA1;
+  /**产品类别*/
+  public static final String BX_ORDER_APPLY_PRODUCT_TYPE = DATA2;
+  /**产品品牌*/
+  public static final String BX_ORDER_APPLY_PRODUCT_PINPAI = DATA10;
+  /**产品型号*/
+  public static final String BX_ORDER_APPLY_PRODUCT_XINGHAO = DATA3;
+  /**服务类型, 预约类型T01为安装 T02为维修, T15为保养*/
+  public static final String BX_ORDER_APPLY_SERVER_TYPE = DATA4;
+  /**当前状态*/
+  public static final String BX_ORDER_APPLY_STATUS = DATA5;
+  /**是否已经评价*/
+  public static final String BX_ORDER_EVALUATED = DATA6;
+  /**保修卡bid*/
+  public static final String BX_ORDER_BID = DATA7;
+  /**报修sid*/
+  public static final String BX_ORDER_SID = DATA8;
+  /**服务器记录最后修改时间*/
+  public static final String BX_ORDER_STIME = DATA9;
   
   public HaierDBHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
@@ -390,6 +425,8 @@ private static final String TAG = "HaierDBHelper";
   		
   		createCarCardTable(sqLiteDatabase);
   		createViewConversationHistoryTable(sqLiteDatabase);
+  		
+  		createBXOrderTable(sqLiteDatabase);
   }
   
   private void createTriggerForAccountTable(SQLiteDatabase sqLiteDatabase) {
@@ -446,6 +483,7 @@ private static final String TAG = "HaierDBHelper";
 	            ACCOUNT_MYCARD_COUNT + " INTEGER NOT NULL DEFAULT 0, " +
 	            HOME_CARD_COUNT + " INTEGER NOT NULL DEFAULT 0, " +
 	            ACCOUNT_NAME + " TEXT, " +
+	            ACCOUNT_NICKNAME + " TEXT, " +
 	            ACCOUNT_PHONES  + " TEXT, " +
 	            ACCOUNT_HAS_PHOTO + " INTEGER NOT NULL DEFAULT 0, " +
 	            DATE + " TEXT" +
@@ -645,6 +683,7 @@ private static final String TAG = "HaierDBHelper";
 	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +
 	            VIEW_CONVERSATION_SENDER_UID + " TEXT, " +
 	            VIEW_CONVERSATION_SENDER_UNAME + " TEXT, " +
+	            VIEW_CONVERSATION_SENDER_UNICKNAME + " TEXT, " +
 	            VIEW_CONVERSATION_KY + " TEXT, " +
 	            VIEW_CONVERSATION_MESSAGE + " TEXT, " +
 	            VIEW_CONVERSATION_MID + " INTEGER, " +
@@ -689,7 +728,7 @@ private static final String TAG = "HaierDBHelper";
   }
   
   private void createDemoAccountAndHomeData(SQLiteDatabase sqLiteDatabase) {
-	  ComPreferencesManager.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", true).commit();
+	  MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", true).commit();
 	  long id = sqLiteDatabase.insert(TABLE_NAME_ACCOUNTS, null, AccountObject.getDemoAccountObjectContentValues());
 	  DebugUtils.logE(TAG, "createDemoAccountData() newId=" + id);
 	  
@@ -724,6 +763,60 @@ private static final String TAG = "HaierDBHelper";
 	            YOUMENG_MESSAGE_CATEGORY + " INTEGER, " +
 	            YOUMENG_MESSAGE_SERVER_TIME + " TEXT, " +
 	            DATE + " TEXT);");
+	  
+	  
+	  
+	  
+	try {
+		JSONObject defaultObject = new JSONObject();
+		defaultObject.put("msg_id", "uu01093141628913835900");
+		JSONObject body = new JSONObject();
+		  body.put("icon", "");
+		  body.put("text", "亲！欢迎使用小易管家。我们将成为您身边的维修保养顾问专家，提供贴心、便利、快捷的在线维修保养通道，帮您维修保养，精明到家！");
+		  body.put("after_open", "go_activity");
+		  body.put("play_lights", "true");
+		  body.put("builder_id", "0");
+		  body.put("img", "");
+		  body.put("largeIcon", "");
+		  body.put("url", "http://www.baidu.com");
+		  body.put("play_vibrate", "true");
+		  body.put("title", "小易管家");
+		  body.put("ticker", "小易管家");
+		  body.put("sound", "");
+		  body.put("play_sound", "true");
+		  body.put("activity", "com.bestjoy.app.warrantycard.ui.YMessageListActivity");
+		  body.put("custom", "");
+		  
+		  defaultObject.put("body", body);
+		  defaultObject.put("random_min", 0);
+		  defaultObject.put("alias", null);
+		  defaultObject.put("display_type", "notification");
+		  
+		  
+		  JSONObject extra = new JSONObject();
+		  extra.put("type", "0");
+		  extra.put("servertime", new Date().getTime());
+		  defaultObject.put("extra", extra);
+		  
+		   UMessage uMessage = new UMessage(defaultObject);
+		   ContentValues values = new ContentValues();
+		    values.put(HaierDBHelper.YOUMENG_MESSAGE_ID, 0);
+			values.put(HaierDBHelper.YOUMENG_TITLE, uMessage.title);
+			values.put(HaierDBHelper.YOUMENG_TEXT, uMessage.text);
+			values.put(HaierDBHelper.YOUMENG_MESSAGE_ACTIVITY, uMessage.activity);
+			values.put(HaierDBHelper.YOUMENG_MESSAGE_URL, uMessage.url);
+			values.put(HaierDBHelper.YOUMENG_MESSAGE_CUSTOM, uMessage.custom);
+			values.put(HaierDBHelper.YOUMENG_MESSAGE_RAW, uMessage.getRaw().toString());
+			values.put(HaierDBHelper.YOUMENG_MESSAGE_CATEGORY, uMessage.extra.get("type"));
+			values.put(HaierDBHelper.YOUMENG_MESSAGE_SERVER_TIME, uMessage.extra.get("servertime"));
+			values.put(HaierDBHelper.DATE, new Date().getTime());
+				
+			long id = sqLiteDatabase.insert(TABLE_YOUMENG_PUSHMESSAGE_HISTORY, null, values);
+			DebugUtils.logD(TAG, "createYoumengMessageTable insert App default broadcast id=" + id + ", raw=" + uMessage.getRaw().toString());
+	} catch (JSONException e) {
+		e.printStackTrace();
+	}
+	  
   }
   
   private void createImMessageTable(SQLiteDatabase sqLiteDatabase) {
@@ -779,6 +872,24 @@ private static final String TAG = "HaierDBHelper";
 	            DATE + " TEXT);");
   }
   
+  private void createBXOrderTable(SQLiteDatabase sqLiteDatabase) {
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_BAOXIUCARD_ORDERS + " (" +
+	            ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+	            ACCOUNT_UID + " INTEGER NOT NULL DEFAULT 0, " +
+	            BX_ORDER_BID + " INTEGER NOT NULL DEFAULT 0, " +
+	            BX_ORDER_SID + " INTEGER NOT NULL DEFAULT 0, " +
+	            BX_ORDER_APPLY_PRODUCT_TYPE + " TEXT, " +
+	            BX_ORDER_APPLY_PRODUCT_PINPAI + " TEXT, " +
+	            BX_ORDER_APPLY_PRODUCT_XINGHAO + " TEXT, " +
+	            BX_ORDER_APPLY_SERVER_TYPE + " TEXT, " +
+	            BX_ORDER_APPLY_STATUS + " TEXT, " +
+	            BX_ORDER_APPLY_TIME + " TEXT, " +
+	            BX_ORDER_STIME + " TEXT, " +
+	            BX_ORDER_EVALUATED + " INTEGER" +
+	            ");");
+  }
+  
   private void addTextColumn(SQLiteDatabase sqLiteDatabase, String table, String column) {
 	    String alterForTitleSql = "ALTER TABLE " + table +" ADD " + column + " TEXT";
 		sqLiteDatabase.execSQL(alterForTitleSql);
@@ -791,7 +902,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 21) {
+	  if (oldVersion <= 24) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);
@@ -810,6 +921,7 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_CAR_CARD);
 		    
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_VIEW_CONVERSATION);
+		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_BAOXIUCARD_ORDERS);
 		    
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "insert_account");
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "update_default_account");
@@ -825,7 +937,7 @@ private static final String TAG = "HaierDBHelper";
 		    sqLiteDatabase.execSQL("DROP TRIGGER IF EXISTS " + "delete_contact_mycard");
 		    
 		    onCreate(sqLiteDatabase);
-		    ComPreferencesManager.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", true).commit();
+		    MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", true).commit();
 		    return;
 		}
   }

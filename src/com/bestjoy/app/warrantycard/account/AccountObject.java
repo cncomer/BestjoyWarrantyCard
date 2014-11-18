@@ -38,6 +38,7 @@ public class AccountObject implements InfoInterface{
 		HaierDBHelper.ACCOUNT_HOME_COUNT,
 		HaierDBHelper.ACCOUNT_MYCARD_COUNT,     //6
 		HaierDBHelper.HOME_CARD_COUNT,
+		HaierDBHelper.ACCOUNT_NICKNAME,
 	};
 	
 	private static final String[] PROJECTION_UID = new String[]{
@@ -54,6 +55,7 @@ public class AccountObject implements InfoInterface{
 	private static final int KEY_HOME_COUNT = 5;
 	private static final int KEY_MYCARD_COUNT = 6;
 	private static final int KEY_BAOXIUCARD_COUNT = 7;
+	private static final int KEY_NICKNAME = 8;
 	
 	private static final String WHERE_DEFAULT = HaierDBHelper.ACCOUNT_DEFAULT + "=1";
 	private static final String WHERE_UID = HaierDBHelper.ACCOUNT_UID + "=?";
@@ -62,6 +64,7 @@ public class AccountObject implements InfoInterface{
 	public long mAccountUid = -1;
 	public String mAccountName;
 	public String mAccountTel;
+	public String mAccountNickName;
 	public String mAccountPwd;
 	public int mAccountHomeCount;
 	/**保修卡个数*/
@@ -83,6 +86,7 @@ public class AccountObject implements InfoInterface{
 		newAccountObject.mAccountHomeCount = mAccountHomeCount;
 		newAccountObject.mAccountBaoxiuCardCount = mAccountBaoxiuCardCount;
 		newAccountObject.mAccountMyCardCount = mAccountMyCardCount;
+		newAccountObject.mAccountNickName = mAccountNickName;
 		return newAccountObject;
 	}
 	
@@ -119,6 +123,8 @@ public class AccountObject implements InfoInterface{
 				}
 				haierAccount.mAccountUid = c.getLong(KEY_MD);
 				haierAccount.mAccountName = c.getString(KEY_NAME);
+				haierAccount.mAccountNickName = c.getString(KEY_NICKNAME);
+				
 				haierAccount.mAccountTel = c.getString(KEY_TEL);
 				haierAccount.mAccountPwd = c.getString(KEY_PWD);
 				haierAccount.mAccountHomeCount = c.getInt(KEY_HOME_COUNT);
@@ -149,6 +155,7 @@ public class AccountObject implements InfoInterface{
 		values.put(HaierDBHelper.ACCOUNT_NAME, mAccountName);
 		values.put(HaierDBHelper.ACCOUNT_TEL, mAccountTel);
 		values.put(HaierDBHelper.ACCOUNT_PWD, mAccountPwd);
+		values.put(HaierDBHelper.ACCOUNT_NICKNAME, mAccountNickName);
 		//由于我们在HOME表上创建了触发器，一旦发生增删会触发更新Account的ACCOUNT_HOME_COUNT字段，所以，这里就不用更新该字段了
 //		values.put(HaierDBHelper.ACCOUNT_HOME_COUNT, mAccountHomes.size());
 		values.put(HaierDBHelper.DATE, new Date().getTime());

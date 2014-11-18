@@ -219,6 +219,10 @@ public class BjnoteContent {
     	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "car_card");
     }
     
+    public static class MyBXOrder extends BjnoteContent{
+    	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "bx_order");
+    }
+    
     public static long existed(ContentResolver cr, Uri uri, String where, String[] selectionArgs) {
     	long id = -1;
 		Cursor c = cr.query(uri, ID_PROJECTION, where, selectionArgs, null);

@@ -156,7 +156,6 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 		cardObject.mFaDongJi = jsonObject.getString("fadongjihao");
 		
 		cardObject.mBXPhone = jsonObject.getString("changjia_phone");
-		cardObject.mFPaddr = jsonObject.optString("fapiao_addr", "");
 		
 		cardObject.mLastBaoYanTime = jsonObject.getString("shangcibaoyang");
 		cardObject.mLastYanCheTime = jsonObject.getString("shangciyanche");
@@ -205,7 +204,7 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 			cardObject.mMMTwoRelationshipObject = RelationshipObject.parse(mmone);
 		}
 		cardObject.mPdfPath = jsonObject.optString("pdfpath", "");
-		cardObject.mFPaddr = jsonObject.optString("imgaddr", "");
+		cardObject.mFPaddr = jsonObject.optString("fapiao_addr", "");
 		if ("null".equalsIgnoreCase(cardObject.mFPaddr)) {
 			cardObject.mFPaddr = "";
 		}

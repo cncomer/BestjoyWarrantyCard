@@ -11,9 +11,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import com.bestjoy.app.bjwarrantycard.MyApplication;
@@ -39,6 +41,7 @@ public class BjnoteProvider extends ContentProvider{
 			HaierDBHelper.TABLE_CAR_CARD,
 			HaierDBHelper.TABLE_VIEW_CONVERSATION,
 			HaierDBHelper.TABLE_NAME_MYLIFE,
+			HaierDBHelper.TABLE_BAOXIUCARD_ORDERS,
 //			HaierDBHelper.TABLE_HOME_COMMUNITY,
 //			ContactsDBHelper.TABLE_NAME_MYLIFE_CONSUME,
 	};
@@ -88,6 +91,9 @@ public class BjnoteProvider extends ContentProvider{
 	private static final int MY_LIFE = 0x0d00;
 	private static final int MY_LIFE_ID = 0x0d01;
 	
+	private static final int MY_BX_ORDER = 0x0e00;
+	private static final int MY_BX_ORDER_ID = 0x0e01;
+	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	 static {
 	        // URI matching table
@@ -135,6 +141,10 @@ public class BjnoteProvider extends ContentProvider{
 	        
 	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife", MY_LIFE);
 	        matcher.addURI(BjnoteContent.AUTHORITY, "mylife/#", MY_LIFE_ID);
+	        
+	        matcher.addURI(BjnoteContent.AUTHORITY, "bx_order", MY_BX_ORDER);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "bx_order/#", MY_BX_ORDER_ID);
+	        
 	        
 //	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community", HOME_COMMUNITY);
 //	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/#", HOME_COMMUNITY_ID);
@@ -234,7 +244,10 @@ public class BjnoteProvider extends ContentProvider{
 		case MY_LIFE_ID:
 			notify = BjnoteContent.MyLife.CONTENT_URI;
 			break;
-			
+		case MY_BX_ORDER_ID:
+		case MY_BX_ORDER:
+			notify = BjnoteContent.MyBXOrder.CONTENT_URI;
+			break;
 			
     	}
     	ContentResolver resolver = context.getContentResolver();
@@ -323,7 +336,7 @@ public class BjnoteProvider extends ContentProvider{
      	 }
 		 return null;
 	}
-
+	private static final String[] COLUMN_NAME = { MediaStore.Images.ImageColumns.DATA};
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
@@ -350,6 +363,12 @@ public class BjnoteProvider extends ContentProvider{
 //			case YMESSAGE_ID:
 //			case MAINTENCE_POINT:
 //			case MAINTENCE_POINT_ID:
+         case BILL_AVATOR:
+        	 MatrixCursor matrixCursor = new MatrixCursor(COLUMN_NAME);
+        	 File file = MyApplication.getInstance().getProductFaPiaoFile(BaoxiuCardObject.objectUseForbill.getFapiaoPhotoId());
+        	 matrixCursor.addRow(new String[]{file.getAbsolutePath()});
+        	 result = matrixCursor;
+        	 break;
          default:
         	     result = db.query(table, projection, selection, selectionArgs, null, null, sortOrder);
          }
@@ -405,6 +424,7 @@ public class BjnoteProvider extends ContentProvider{
 			case CAR_CARD_ID:
 			case VIEW_CONVERSATION_HISTORY_ID:
 			case MY_LIFE_ID:
+			case MY_BX_ORDER_ID:
 			try {
 				id = ContentUris.parseId(uri);
 			} catch(java.lang.NumberFormatException e) {

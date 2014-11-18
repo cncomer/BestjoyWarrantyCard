@@ -18,7 +18,8 @@
     <FrameLayout
         android:id="@+id/fragment_content"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1.0"
         android:layout_marginLeft="33dip"
         android:layout_marginRight="33dip"
         android:layout_marginTop="34dip" >
@@ -28,7 +29,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:visibility="gone" >
+             >
 
             <TextView
                 style="@style/ProductInfo"
@@ -43,8 +44,9 @@
                 android:layout_marginTop="4dip"
                 android:background="@drawable/register_edittext_bg"
                 android:textColor="#ff5a5a5a"
+                android:singleLine="true"
                 android:textSize="14sp" />
-
+			<requestFocus />
             <TextView
                 style="@style/ProductInfo"
                 android:layout_marginTop="8dip"
@@ -60,9 +62,9 @@
                 android:background="@drawable/register_edittext_bg"
                 android:inputType="phone"
                 android:textColor="#ff5a5a5a"
+                android:singleLine="true"
                 android:textSize="14sp" >
-
-                <requestFocus />
+				<requestFocus />
             </EditText>
 
             <TextView
@@ -79,8 +81,10 @@
                 android:layout_marginTop="4dip"
                 android:background="@drawable/register_edittext_bg"
                 android:digits="@string/password_accept_chars"
+                android:singleLine="true"
                 android:textColor="#ff5a5a5a"
-                android:textSize="14sp" />
+                android:textSize="14sp" >
+			</EditText>
 
             <Button
                 android:id="@+id/button_next"
@@ -92,13 +96,15 @@
                 android:text="@string/button_next"
                 android:textColor="#ffffffff"
                 android:textSize="15sp" />
+            <requestFocus />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/panel2"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical" 
+            android:visibility="gone">
 
             <TextView
                 style="@style/ProductInfo"

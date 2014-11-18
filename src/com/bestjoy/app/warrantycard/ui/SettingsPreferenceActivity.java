@@ -53,15 +53,16 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 	private static final String TAG = "SettingsPreferenceActivity";
 	private static final String KEY_ACCOUNT_CATEGORY = "preferences_account_category";
 	private static final String KEY_ACCOUNT_NAME = "preference_key_account_name";
+	private static final String KEY_ACCOUNT_NICKNAME = "preference_key_account_nickname";
 	private static final String KEY_ACCOUNT_PASSWORD = "preference_key_account_password";
 	
 	public static final int DIALOG_DATA_NOT_CONNECTED = 10006;//数据连接不可用
 	public static final int DIALOG_MOBILE_TYPE_CONFIRM = 10007;//
 	public static final int DIALOG_PROGRESS = 10008;
-	private EditTextPreference mAccountName;
+	private EditTextPreference mAccountName, mAccountNickName;
 	private Preference mAccountPassword;
 	
-	private String mOldName, mOldPassword;
+	private String mOldName, mOldPassword, mOldNickName;
 	private Context mContext;
 	
 	/**程序第一次启动*/
@@ -125,9 +126,12 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 			preferences.removePreference(preferences.findPreference(KEY_ACCOUNT_CATEGORY));
 		} else {
 			mAccountName = (EditTextPreference) preferences.findPreference(KEY_ACCOUNT_NAME);
+			mAccountNickName = (EditTextPreference) preferences.findPreference(KEY_ACCOUNT_NICKNAME);
 			mAccountPassword = (Preference) preferences.findPreference(KEY_ACCOUNT_PASSWORD);
-			updateAccountName(MyAccountManager.getInstance().getAccountObject().mAccountName);
+			updateAccountName();
+			updateAccountNickName();
 			mAccountName.setOnPreferenceChangeListener(this);
+			mAccountNickName.setOnPreferenceChangeListener(this);
 		}
 		
 		preferences.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
@@ -152,10 +156,17 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 		
 	}
     
-    private void updateAccountName(String name) {
+    private void updateAccountName() {
+    	String name = MyAccountManager.getInstance().getAccountObject().mAccountName;
     	mOldName = name;
     	mAccountName.setText(name);
 		mAccountName.setSummary(name);
+    }
+    
+    private void updateAccountNickName() {
+    	String name = MyAccountManager.getInstance().getAccountObject().mAccountNickName;
+    	mOldNickName = name;
+    	mAccountNickName.setText(name);
     }
     
     @Override
@@ -212,6 +223,13 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 				updateAccountNameAsync(newName.trim());
 			}
 			return false;
+		} else if (preference == mAccountNickName) { 
+			String newName = (String) newValue;
+			if (!mOldNickName.equals(newName.trim())) {
+				//用户名发生变化了，我们需要更新
+				updateAccountNickNameAsync(newName.trim());
+			}
+			return false;
 		}
 		return false;
 	}
@@ -229,10 +247,6 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 	    }
 	    
 	  }
-
-	    private boolean check(String text) {
-		    return TextUtils.isDigitsOnly(text)&&text.charAt(0)!='0';
-	    }
 
 	    private void disableLastCheckedPref() {
 		    Collection<CheckBoxPreference> checked = new ArrayList<CheckBoxPreference>(3);
@@ -292,7 +306,7 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 		}
 		@Override
 		protected ServiceResultObject doInBackground(Void... params) {
-			ServiceResultObject ServiceResultObject = new ServiceResultObject();
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
 			sb.append("UpdateUserName.ashx?");
 			String cell = MyAccountManager.getInstance().getAccountObject().mAccountTel;
@@ -305,8 +319,8 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 			try {
 				 is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 			     if (is != null) {
-			    	 ServiceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
-			    	 if (ServiceResultObject.isOpSuccessfully()) {
+			    	 serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+			    	 if (serviceResultObject.isOpSuccessfully()) {
 			    		 //如果更新成功，我们需要同步更新本地数据
 			    		 AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
 			    		 accountObject.mAccountName = _name;
@@ -317,14 +331,14 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 			     }
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				ServiceResultObject.mStatusMessage = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} catch (IOException e) {
 				e.printStackTrace();
-				ServiceResultObject.mStatusMessage = e.getMessage();
+				serviceResultObject.mStatusMessage = e.getMessage();
 			} finally {
 				NetworkUtils.closeInputStream(is);
 			}
-			return ServiceResultObject;
+			return serviceResultObject;
 		}
 
 		@Override
@@ -332,7 +346,76 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 			super.onPostExecute(result);
 			if (result.isOpSuccessfully()) {
 				MyApplication.getInstance().showMessage(R.string.msg_op_successed);
-				updateAccountName(_name);
+				updateAccountName();
+			} else {
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
+			}
+			dismissDialog(DIALOG_PROGRESS);
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			dismissDialog(DIALOG_PROGRESS);
+			MyApplication.getInstance().showMessage(R.string.msg_op_canceled);
+		}
+		
+	}
+	
+	
+	private UpdateAccountNickNameTask mUpdateAccountNickNameTask;
+	private void updateAccountNickNameAsync(String name) {
+		AsyncTaskUtils.cancelTask(mUpdateAccountNickNameTask);
+		showDialog(DIALOG_PROGRESS);
+		mUpdateAccountNickNameTask = new UpdateAccountNickNameTask(name);
+		mUpdateAccountNickNameTask.execute();
+	}
+	
+	private class UpdateAccountNickNameTask extends AsyncTask<Void, Void, ServiceResultObject> {
+
+		private String _name;
+		public UpdateAccountNickNameTask(String name) {
+			_name = name;
+		}
+		@Override
+		protected ServiceResultObject doInBackground(Void... params) {
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
+			StringBuilder sb = new StringBuilder(ServiceObject.SERVICE_URL);
+			sb.append("20140625/updatenickname.ashx?");
+			sb.append("nickname=").append(URLEncoder.encode(_name))
+			.append("&uid=").append(MyAccountManager.getInstance().getAccountObject().mAccountUid);
+			InputStream is = null;
+			try {
+				 is = NetworkUtils.openContectionLocked(sb.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
+			     if (is != null) {
+			    	 serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+			    	 if (serviceResultObject.isOpSuccessfully()) {
+			    		 //如果更新成功，我们需要同步更新本地数据
+			    		 AccountObject accountObject = MyAccountManager.getInstance().getAccountObject();
+			    		 accountObject.mAccountNickName = _name;
+			    		 ContentValues values = new ContentValues();
+			    		 values.put(HaierDBHelper.ACCOUNT_NICKNAME, _name);
+			    		 accountObject.updateAccount(mContext.getContentResolver(), values);
+			    	 }
+			     }
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage = e.getMessage();
+			} finally {
+				NetworkUtils.closeInputStream(is);
+			}
+			return serviceResultObject;
+		}
+
+		@Override
+		protected void onPostExecute(ServiceResultObject result) {
+			super.onPostExecute(result);
+			if (result.isOpSuccessfully()) {
+				MyApplication.getInstance().showMessage(R.string.msg_op_successed);
+				updateAccountNickName();
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);
 			}
@@ -364,7 +447,7 @@ public class SettingsPreferenceActivity extends SherlockPreferenceActivity imple
 			//删除cache目录
 			FilesUtils.deleteFile("DeleteCacheTask ", MyApplication.getInstance().getCacheDir());
 			//删除SD卡cache目录
-			FilesUtils.deleteFile("DeleteCacheTask ", MyApplication.getInstance().getExternalCacheDir());
+			FilesUtils.deleteFile("DeleteCacheTask ", MyApplication.getInstance().getExternalStorageCacheRoot());
 			return null;
 		}
 

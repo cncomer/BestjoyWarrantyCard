@@ -32,6 +32,7 @@
      <string name="tip_find_train">你的意思是车次 %s?</string>
      <string name="text_train">查询车次信息</string>
      <string name="text_check_voice_title">请输入报修品牌/查询航班、高铁</string>
+     <string name="text_check_voice_title_for_im_send">您是否确认发送如下内容</string>
       <string name="menu_picture_gallery">上传手机中的照片</string>
         <string name="menu_picture_camera">拍照上传</string>
         <string name="menu_bill_edit">拍摄发票</string>
@@ -299,6 +300,8 @@
          
          <string name="preference_key_account_title">账户设置</string>
          <string name="preference_key_account_name_title">修改用户名</string>
+         <string name="preference_key_account_nickname_title">修改昵称</string>
+         <string name="preference_key_account_nickname_summary">昵称将用作留言互动时使用，默认是你的用户名</string>
          <string name="preference_key_account_password_title">修改账户密码</string>
          <string name="button_guide">使用说明书</string>
          <string name="hint_input_old_password">请输入你的当前密码</string>
@@ -444,9 +447,9 @@
     <string name="msg_vcf_read_error">"返回的VCF文件预览时读取错误，请检查"</string>
      <string name="msg_vcf_format_error">"抱歉，暂时无法获取名号对应的vcf文件，稍后重试或是换个名号试试~"</string>
    
-   <string name="msg_privacy_multiunknowncall_download_tip">有以下多个商铺可以添加会员卡</string>
-   <string name="msg_privacy_unknowncall_download_tip">是否需要添加商铺到会员卡</string>
-   <string name="msg_privacy_unknowncall_download_contact_tip">是否需要添加商铺到通讯录</string>
+   <string name="msg_privacy_multiunknowncall_download_tip">小易管家提醒您有以下多个号码可以添加到会员卡</string>
+   <string name="msg_privacy_unknowncall_download_tip">小易管家提醒您是否将其加入会员卡</string>
+   <string name="msg_privacy_unknowncall_download_contact_tip">小易管家提醒您是否需要将其添加到通讯录</string>
    <string name="msg_privacy_sms_download_tip">短信中含有名档网联系人信息</string>
    <string name="msg_privacy_unknowncall_download_confirm">添加</string>
    <string name="msg_privacy_unknowncall_download_cancel">忽略</string>
@@ -575,7 +578,7 @@
            <string name="ic_button_im">咨询</string>
            <string name="ic_button_new_card">建卡</string>
            <string name="ic_button_notification">广播</string>
-           <string name="ic_button_maintenance">维修</string>
+           <string name="ic_button_maintenance">查单</string>
            <string name="ic_button_scan">扫码</string>
            <string name="ic_button_remote">遥控</string>
            
@@ -583,7 +586,7 @@
            <string name="ic_module_car">爱车卡</string>
            <string name="ic_module_home">物业卡</string>
            <string name="ic_module_vip">会员卡</string>
-           
+           <string name="title_my_bx_orders">我的维修工单</string>
            
            <string name="monday">周一</string>
            <string name="tuesday">周二</string>
@@ -712,7 +715,7 @@
          <string name="format_car_product_chepai">"车牌: %s"</string>
          
          <string name="button_baoxiucard_price_guide">"参考价格"</string>
-         
+         <string name="title_ymeng_category0">"小易管家"</string>
          <string name="title_ymeng_category1">"小区通告"</string>
          <string name="title_ymeng_category2">"保修"</string>
          <string name="title_ymeng_category3">"汽车"</string>
@@ -768,4 +771,15 @@
   
   <string name="msg_no_selection_for_delete">请至少选择一个</string>
   
+  <string name="button_order_all">家当列表</string>
+  <string name="button_order_complain">投诉维权</string>
+  
+  <string name="bx_order_apply_time">"申请时间: "</string>
+  <string name="bx_order_product_type">"产品类别: %s"</string>
+  <string name="bx_order_product_xinghao">"产品型号: %s"</string>
+  <string name="bx_order_server_type">"产品品牌: %s"</string>
+  <string name="bx_order_status">"当前状态: "</string>
+  <string name="button_evaluate">"服务\n评价"</string>
+  
+  <string name="msg_qrcode_not_car_card">"条码不是汽车码，请确认条码"</string>
 </resources>

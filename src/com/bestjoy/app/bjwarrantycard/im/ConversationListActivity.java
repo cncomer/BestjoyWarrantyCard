@@ -16,7 +16,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -133,8 +135,8 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 				case WHAT_REQUEST_REFRESH_LIST:
 					mConversationAdapter.callSuperOnContentChanged();
 					if (mIsAtListBottom) {
-						mListView.setSelection(mConversationAdapter.getCount());
-					} else {
+						mListView.setSelection(mConversationAdapter.getCount()-1);
+					} else if (mConversationAdapter.getCount() > 0){
 						MyApplication.getInstance().showMessage(R.string.new_msg_comming);
 					}
 					break;
@@ -159,10 +161,8 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			if (!mIsRefreshing) {
-				mCurrentPosition = firstVisibleItem;
-				DebugUtils.logD(TAG, "onScroll() current item position=" + mCurrentPosition);
-			}
+			mCurrentPosition = firstVisibleItem;
+			DebugUtils.logD(TAG, "onScroll() current item position=" + mCurrentPosition);
 		}
 	};
 	
@@ -178,7 +178,7 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
-					sendMessageLocked();
+					sendMessageLocked(mInputEdit.getText().toString().trim());
 				}
 				return false;
 			}
@@ -365,9 +365,60 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		mInputEdit.getText().clear();
 		mInputEdit.append(query);
 		//这里是语音识别后进入文本编写界面以便用户修改输入内容
-		updateEditLayout(true);
+//		updateEditLayout(true);
 //		sendMessageLocked();
 		
+		showCheckVoiceDialog(query);
+		
+	}
+	
+	private void showCheckVoiceDialog(String query) {
+		final EditText input = new EditText(mContext);
+		input.setText(query);
+		input.setSelection(query.length());
+		final AlertDialog dialog = new AlertDialog.Builder(mContext)
+		.setMessage(R.string.text_check_voice_title_for_im_send)
+		.setView(input)
+		.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (!ComConnectivityManager.getInstance().isConnected()) {
+						MyApplication.getInstance().showMessage(MyApplication.getInstance().getGernalNetworkError());
+						return;
+					}
+					String text = input.getText().toString().trim();
+					if (!TextUtils.isEmpty(text)) {
+						if (text.length() > 512) {
+							MyApplication.getInstance().showMessage(R.string.msg_too_long_text_for_conversation);
+						} else {
+							sendMessageLocked(text);
+						}
+					}
+				}
+			})
+		.setNegativeButton(android.R.string.cancel, null)
+		.create();
+		input.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(s.toString().trim().length() > 0);
+			}
+			
+		});
+		
+		dialog.show();
 	}
 	
 	@Override
@@ -400,7 +451,7 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		}
 	}
 	
-	private void sendMessageLocked() {
+	private void sendMessageLocked(String text) {
 		if (!ComConnectivityManager.getInstance().isConnected()) {
 			MyApplication.getInstance().showMessage(MyApplication.getInstance().getGernalNetworkError());
 			return;
@@ -409,7 +460,6 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 			MyApplication.getInstance().showMessage(R.string.msg_im_status_logining);
 			return;
 		}
-		String text = mInputEdit.getText().toString().trim();
 		if (!TextUtils.isEmpty(text)) {
 			mInputEdit.getText().clear();
 			//不允许只输入空白字符，这样的内容是无意义的

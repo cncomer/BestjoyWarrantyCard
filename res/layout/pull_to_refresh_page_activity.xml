@@ -6,6 +6,10 @@
     android:background="@color/wt"
     android:orientation="vertical" >
 
+    <FrameLayout android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/content"/>
+        
     <com.handmark.pulltorefresh.library.PullToRefreshListView
         android:id="@+id/pull_refresh_list"
         android:layout_width="fill_parent"

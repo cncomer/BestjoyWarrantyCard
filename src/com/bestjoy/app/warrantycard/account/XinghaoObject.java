@@ -55,12 +55,11 @@ public class XinghaoObject extends InfoInterfaceImpl{
     	sb.append(pinpaiCode);
     	return sb.toString();
     }
-	public static List<InfoInterface> parse(InputStream is, String pinpaiCode) {
+	public static List<InfoInterface> parse(InputStream is, String pinpaiCode) throws JSONException {
 		 List<InfoInterface> list = new ArrayList<InfoInterface>();
 		if (is == null) {
 			return list;
 		}
-		try {
 			JSONArray jsonArray = new JSONArray(NetworkUtils.getContentFromInput(is));
 			int len = jsonArray.length();
 			 list = new ArrayList<InfoInterface>(len);
@@ -77,9 +76,6 @@ public class XinghaoObject extends InfoInterfaceImpl{
 					list.add(xinghaoObject);
 				}
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 		return list;
 	}
 	

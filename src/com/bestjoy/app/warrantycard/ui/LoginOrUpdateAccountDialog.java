@@ -105,12 +105,12 @@ public class LoginOrUpdateAccountDialog extends Activity{
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete COMMUNITY_SERVICES effected rows#" + deleted);
 						//标识下次不用拉取演示数据了
 			        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
-			        	//标识下次需要拉取数据了
-			        	ComPreferencesManager.getInstance().setFirstLaunch(MyChooseCarCardsActivity.TAG, true);
+			        	
 			        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
 			        	//删除会员卡数据
 			        	BjnoteContent.delete(cr, BjnoteContent.MyLife.CONTENT_URI, null, null);
-			        	ComPreferencesManager.getInstance().setFirstLaunch(MyLifeMainActivity.TAG, true);
+			        	//登录成功这里会重置之前已设置的第一次状态
+			        	ComPreferencesManager.getInstance().resetFirsetLaunch();
 			        	
 			        	if (mAccountObject.mAccountHomes.size() == 0) {
 							//Setp2 家数据为空，我们需要创建演示家

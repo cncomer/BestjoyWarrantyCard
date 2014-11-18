@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -512,53 +513,6 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 		
 	}
 	
-	
-	private Cursor getLocalOrDownload(int id) {
-		switch(id) {
-		case R.id.xinghao:
-			//对于型号来说，由于要从服务器上获取，所以，这里的而处理与前三者不同，我们先要判断是否本地已经缓存了，有则直接使用，没有则先获取数据保存导本地再查询出来。
-			Cursor c = getActivity().getContentResolver().query(BjnoteContent.XingHao.CONTENT_URI, XinghaoObject.XINGHAO_PROJECTION, XinghaoObject.XINGHAO_CODE_SELECTION, new String[]{mPinPaiCode}, null);
-			//TODO 这里可能需要判断即使已经有数据了，也要重新更新型号列表，如新增，目前咱不住处理
-			if (c != null) {
-				if (c.getCount() > 0) {
-					return c;
-				} else {
-					c.close();
-					//下载型号列表
-					InputStream is = null;
-					try {
-						if (!ComConnectivityManager.getInstance().isConnected()) {
-							//没有网络连接，提示用户
-							MyApplication.getInstance().showMessageAsync(R.string.msg_can_not_access_network);
-							return null;
-						}
-						is = NetworkUtils.openContectionLocked(XinghaoObject.getUpdateUrl(mPinPaiCode), MyApplication.getInstance().getSecurityKeyValuesObject());
-						if (is == null) {
-							DebugUtils.logD(TAG, "can't open connection " + XinghaoObject.getUpdateUrl(mPinPaiCode));
-						} else {
-							MyApplication.getInstance().showMessageAsync(R.string.msg_download_xinghao_wait);
-							List<InfoInterface> list = XinghaoObject.parse(is, mPinPaiCode);
-							if (list.size() > 0) {
-								DebugUtils.logD(TAG, "find " + list.size() + " records for pinpaiCode " + mPinPaiCode);
-								ContentResolver cr = getActivity().getContentResolver();
-								for(InfoInterface object:list) {
-									object.saveInDatebase(cr, null);
-								}
-							}
-							return getActivity().getContentResolver().query(BjnoteContent.XingHao.CONTENT_URI, XinghaoObject.XINGHAO_PROJECTION, XinghaoObject.XINGHAO_CODE_SELECTION, new String[]{mPinPaiCode}, null);
-						}
-					} catch (ClientProtocolException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			break;
-		}
-		return null;
-	}
-	
 	public List<InfoInterface> getServiceDataList(int id) {
 		switch(id) {
 		case R.id.xinghao:
@@ -572,7 +526,13 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 					DebugUtils.logD(TAG, "getCachedXinghaoFile exised " + file.getAbsolutePath());
 					is = new FileInputStream(file);
 					DebugUtils.logD(TAG, "parse cachedXinghaoFile " + file.getAbsolutePath());
-					return XinghaoObject.parse(is, mPinPaiCode);
+					try {
+						return XinghaoObject.parse(is, mPinPaiCode);
+					} catch (JSONException e) {
+						e.printStackTrace();
+						boolean deleted = file.delete();
+						DebugUtils.logE(TAG, "getServiceDataList delete cahed xinghao file " + file.getAbsolutePath() +  "deleted "+ deleted + ", reason " + "XinghaoObject.parse(is, mPinPaiCode) return error " + e.getMessage());
+					}
 				} else {
 					//不存在，我们下载型号列表
 					if (!ComConnectivityManager.getInstance().isConnected()) {
@@ -598,7 +558,14 @@ public class NewCardChooseFragment extends SherlockFragment implements View.OnCl
 							NetworkUtils.closeInputStream(is);
 							is = new FileInputStream(file);
 							DebugUtils.logD(TAG, "parse cachedXinghaoFile " + file.getAbsolutePath());
-							return XinghaoObject.parse(is, mPinPaiCode);
+							try {
+								return XinghaoObject.parse(is, mPinPaiCode);
+							} catch (JSONException e) {
+								e.printStackTrace();
+								boolean deleted = file.delete();
+								DebugUtils.logE(TAG, "getServiceDataList delete cahed xinghao file " + file.getAbsolutePath() +  "deleted "+ deleted + ", reason " + "XinghaoObject.parse(is, mPinPaiCode) return error " + e.getMessage());
+								loadDataAsync(mXinghaoListViews);
+							}
 						}
 					}
 					

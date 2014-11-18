@@ -799,34 +799,39 @@ public class NewCarWarrantyCardFragment extends ModleBaseFragment implements Vie
 	
 	@Override
     public void setScanObjectAfterScan(InfoInterface barCodeObject) {
-		CarBaoxiuCardObject object = (CarBaoxiuCardObject) barCodeObject;
-		 mPinPaiInput.setText(object.mPinPai);
-		 mXingHaoInput.setText(object.mXingHao);
-		 mChePaiInput.setText(object.mChePai);
-		 mCheJiaInput.setText(object.mCheJia);
-		 mFaDongJiInput.setText(object.mFaDongJi);
-		 mBaoxiuTelInput.setText(object.mBXPhone);
-		 mBaoxiuCardObject.mKY = object.mKY;
-		 mBaoxiuCardObject.mWY = object.mWY;
-		//这里一般我们只设置品牌、型号、编号和名称
-//		if (!TextUtils.isEmpty(object.mLeiXin)) {
-//			mTypeInput.setText(object.mLeiXin);
-//		}
-//		if (!TextUtils.isEmpty(object.mPinPai)) {
-//			mPinpaiInput.setText(object.mPinPai);
-//		}
-//		if (!TextUtils.isEmpty(object.mSHBianHao)) {
-//			mBianhaoInput.setText(object.mSHBianHao);
-//		}
-//		if (!TextUtils.isEmpty(object.mXingHao)) {
-//			mModelInput.setText(object.mXingHao);
-//		}
-//		if (!TextUtils.isEmpty(object.mBXPhone)) {
-//			mBaoxiuTelInput.setText(object.mBXPhone);
-//		}
-//		if (!TextUtils.isEmpty(object.mWY)) {
-//			mWyInput.setText(object.mWY);
-//		}
+		if (barCodeObject instanceof CarBaoxiuCardObject) {
+			CarBaoxiuCardObject object = (CarBaoxiuCardObject) barCodeObject;
+			 mPinPaiInput.setText(object.mPinPai);
+			 mXingHaoInput.setText(object.mXingHao);
+			 mChePaiInput.setText(object.mChePai);
+			 mCheJiaInput.setText(object.mCheJia);
+			 mFaDongJiInput.setText(object.mFaDongJi);
+			 mBaoxiuTelInput.setText(object.mBXPhone);
+			 mBaoxiuCardObject.mKY = object.mKY;
+			 mBaoxiuCardObject.mWY = object.mWY;
+			//这里一般我们只设置品牌、型号、编号和名称
+//			if (!TextUtils.isEmpty(object.mLeiXin)) {
+//				mTypeInput.setText(object.mLeiXin);
+//			}
+//			if (!TextUtils.isEmpty(object.mPinPai)) {
+//				mPinpaiInput.setText(object.mPinPai);
+//			}
+//			if (!TextUtils.isEmpty(object.mSHBianHao)) {
+//				mBianhaoInput.setText(object.mSHBianHao);
+//			}
+//			if (!TextUtils.isEmpty(object.mXingHao)) {
+//				mModelInput.setText(object.mXingHao);
+//			}
+//			if (!TextUtils.isEmpty(object.mBXPhone)) {
+//				mBaoxiuTelInput.setText(object.mBXPhone);
+//			}
+//			if (!TextUtils.isEmpty(object.mWY)) {
+//				mWyInput.setText(object.mWY);
+//			}
+		} else {
+			MyApplication.getInstance().showMessage(R.string.msg_qrcode_not_car_card);
+		}
+		
 	}
 	
 	@Override

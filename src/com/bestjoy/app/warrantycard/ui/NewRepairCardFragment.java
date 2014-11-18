@@ -2,7 +2,6 @@ package com.bestjoy.app.warrantycard.ui;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -13,8 +12,6 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
-import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -37,6 +34,7 @@ import android.widget.Toast;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.bjwarrantycard.bx.order.OrdersListActivity;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
@@ -44,10 +42,11 @@ import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.utils.DebugUtils;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
+import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.DateUtils;
 import com.shwy.bestjoy.utils.InfoInterface;
-import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
+import com.shwy.bestjoy.utils.ServiceResultObject;
 
 public class NewRepairCardFragment extends ModleBaseFragment implements View.OnClickListener{
 	private static final String TAG = "NewRepairCardFragment";
@@ -232,113 +231,49 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		mCreateRepairCardAsyncTask.execute(param);
 	}
 
-	private class CreateRepairCardAsyncTask extends AsyncTask<String, Void, Boolean> {
-		private String mError;
-		int mStatusCode = -1;
-		String mStatusMessage = null;
+	private class CreateRepairCardAsyncTask extends AsyncTask<String, Void, ServiceResultObject> {
 		@Override
-		protected Boolean doInBackground(String... params) {
-			mError = null;
+		protected ServiceResultObject doInBackground(String... params) {
+			ServiceResultObject serviceResultObject = new ServiceResultObject();
 			InputStream is = null;
-			HomeObject homeObject = HomeObject.getHomeObject(mBundle);
-			final int LENGTH = 14;
-			String[] urls = new String[LENGTH];
-			String[] paths = new String[LENGTH];
-			urls[0] = ServiceObject.SERVICE_URL + "20140514/NAddHaierYY.ashx?LeiXin=";//AddHaierYuyue.ashx
-			paths[0] = mBaoxiuCardObject.mLeiXin;
-			urls[1] = "&PinPai=";
-			paths[1] = mBaoxiuCardObject.mPinPai;
-			urls[2] = "&XingHao=";
-			paths[2] = mBaoxiuCardObject.mXingHao;
-			urls[3] = "&SHBianhao=";
-			paths[3] = mBaoxiuCardObject.mSHBianHao;
-			urls[4] = "&BxPhone=";
-			paths[4] = mBaoxiuCardObject.mBXPhone;
-			urls[5] = "&UserName=";
-			paths[5] = MyAccountManager.getInstance().getAccountObject().mAccountName;
-			urls[6] = "&Cell=";
-			paths[6] = MyAccountManager.getInstance().getAccountObject().mAccountTel;
-			urls[7] = "&address=";
-			paths[7] = homeObject.mHomePlaceDetail;
-			urls[8] = "&dstrictid=";
-			paths[8] = HomeObject.getDisID(getActivity().getContentResolver(), homeObject.mHomeProvince, homeObject.mHomeCity, homeObject.mHomeDis);
-			urls[9] = "&yytime=";
-			paths[9] = BaoxiuCardObject.BUY_DATE_FORMAT_YUYUE_TIME.format(mCalendar.getTime());
-			urls[10] = "&Desc=";
-			paths[10] = mAskInput.getText().toString().trim();
-			urls[11] = "&service_type=";
-			paths[11] = mYuyueType;
-			
-			String timeStr = BaoxiuCardObject.DATE_FORMAT_YUYUE_TIME.format(new Date());
-			String tip = BaoxiuCardObject.getYuyueSecurityTip(timeStr);
-			urls[12] = "&tip=";
-			paths[12] = tip;
-			urls[13] = "&key=";
-			paths[13] = BaoxiuCardObject.getYuyueSecurityKey(MyAccountManager.getInstance().getAccountObject().mAccountTel, timeStr);
-			DebugUtils.logD(TAG, "urls = " + Arrays.toString(urls));
-			DebugUtils.logD(TAG, "paths = " + Arrays.toString(paths));
 			try {
-				is = NetworkUtils.openContectionLocked(urls, paths, MyApplication.getInstance().getSecurityKeyValuesObject());
-				try {
-					JSONObject jsonObject = new JSONObject(NetworkUtils.getContentFromInput(is));
-					mStatusCode = Integer.parseInt(jsonObject.getString("StatusCode"));
-					mStatusMessage = jsonObject.getString("StatusMessage");
-					DebugUtils.logD(TAG, "StatusCode = " + mStatusCode);
-					DebugUtils.logD(TAG, "StatusMessage = " + mStatusMessage);
-					if (mStatusCode == 1) {
-						//操作成功
-						return true;
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-					mError = e.getMessage();
-				}
+				JSONObject jsonQuery = new JSONObject();
+				jsonQuery.put("bid", mBaoxiuCardObject.mBID);
+				jsonQuery.put("date", String.valueOf(mCalendar.getTimeInMillis()));
+				jsonQuery.put("service_type", mYuyueType);
+				jsonQuery.put("ky", mBaoxiuCardObject.mKY);
+				jsonQuery.put("Desc", mAskInput.getText().toString().trim());
+				is = NetworkUtils.openContectionLocked(ServiceObject.getRepairUrl("para", jsonQuery.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				mError = e.getMessage();
+				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 			} catch (IOException e) {
 				e.printStackTrace();
-				mError = e.getMessage();
+				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 			} finally {
 				NetworkUtils.closeInputStream(is);
 			}
-			return false;
+			return serviceResultObject;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(ServiceResultObject result) {
 			super.onPostExecute(result);
 			dissmissDialog(DIALOG_PROGRESS);
-			if (mError != null) {
-//				if (result) {
-//					//服务器上传信息成功，但本地保存失败，请重新登录同步数据
-//					new AlertDialog.Builder(getActivity())
-//					.setTitle(R.string.msg_tip_title)
-//		   			.setMessage(mError)
-//		   			.setCancelable(false)
-//		   			.setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-//		   				@Override
-//		   				public void onClick(DialogInterface dialog, int which) {
-//		   					LoginActivity.startIntent(getActivity(), null);
-//		   				}
-//		   			})
-//		   			.create()
-//		   			.show();
-//				} else {
-//					MyApplication.getInstance().showMessage(mError);
-//				}
-				MyApplication.getInstance().showMessage(mError);
-			} else if (result) {
+			if (result.isOpSuccessfully()) {
 				//预约成功
 				getActivity().finish();
-				MyApplication.getInstance().showMessage(R.string.msg_yuyue_sucess);
+				MyApplication.getInstance().showMessage(result.mStatusMessage);
 				if (MyAccountManager.getInstance().hasBaoxiuCards()) {
 					MyChooseDevicesActivity.startIntent(getActivity(), getArguments());
 				}
-				
-			} else {
-				MyApplication.getInstance().showMessage(mStatusMessage);
+				ComPreferencesManager.getInstance().setFirstLaunch(OrdersListActivity.TAG, true);
 			}
+			MyApplication.getInstance().showMessage(result.mStatusMessage);
 			
 		}
 

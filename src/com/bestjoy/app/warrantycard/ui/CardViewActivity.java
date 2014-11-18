@@ -168,28 +168,80 @@ public class CardViewActivity extends BaseActionbarActivity implements View.OnCl
 	    case R.id.button_malfunction:
 	    	switch(mBundleType) {
 			case R.id.model_my_card:
-				if (ServiceObject.isHaierPinpaiGenaral(mBaoxiuCardObject.mPinPai)) {
-					showNewRepairCardFragment();
-		    	} else {
-		    		new AlertDialog.Builder(this)
-			    	.setMessage(R.string.must_haier_confirm_yuyue)
-			    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
-								Intents.callPhone(mContext, mBaoxiuCardObject.mBXPhone);
-							} else {
-								MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
+				showDialog(DIALOG_PROGRESS);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						ServiceResultObject serviceResultObject = new ServiceResultObject();
+						InputStream is = null;
+						try {
+							is = NetworkUtils.openContectionLocked(ServiceObject.checkCanRepairUrl(mBaoxiuCardObject.mKY), MyApplication.getInstance().getSecurityKeyValuesObject());
+							serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+						} catch (ClientProtocolException e) {
+							e.printStackTrace();
+							serviceResultObject.mStatusMessage = e.getMessage();
+						} catch (IOException e) {
+							e.printStackTrace();
+							serviceResultObject.mStatusMessage = e.getMessage();
+						} finally {
+							NetworkUtils.closeInputStream(is);
+						}
+						final boolean canRepair = serviceResultObject.isOpSuccessfully();
+						MyApplication.getInstance().postAsync(new Runnable() {
+
+							@Override
+							public void run() {
+								dismissDialog(DIALOG_PROGRESS);
+								if (canRepair) {
+									showNewRepairCardFragment();
+								} else {
+									new AlertDialog.Builder(mContext)
+							    	.setMessage(R.string.must_haier_confirm_yuyue)
+							    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
+												Intents.callPhone(mContext, mBaoxiuCardObject.mBXPhone);
+											} else {
+												MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
+											}
+											
+										}
+									})
+									.setNegativeButton(android.R.string.cancel, null)
+									.show();
+								}
 							}
 							
-						}
-					})
-					.setNegativeButton(android.R.string.cancel, null)
-					.show();
-		    	}
+						});
+						
+					}
+					
+				}).start();
+//				if (ServiceObject.isHaierPinpaiGenaral(mBaoxiuCardObject.mPinPai)) {
+//					showNewRepairCardFragment();
+//		    	} else {
+//		    		new AlertDialog.Builder(this)
+//			    	.setMessage(R.string.must_haier_confirm_yuyue)
+//			    	.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//						
+//						@Override
+//						public void onClick(DialogInterface dialog, int which) {
+//							if (!TextUtils.isEmpty(mBaoxiuCardObject.mBXPhone)) {
+//								Intents.callPhone(mContext, mBaoxiuCardObject.mBXPhone);
+//							} else {
+//								MyApplication.getInstance().showMessage(R.string.msg_no_bxphone);
+//							}
+//							
+//						}
+//					})
+//					.setNegativeButton(android.R.string.cancel, null)
+//					.show();
+//		    	}
 				break;
 			case R.id.model_my_car_card:
+				MyApplication.getInstance().showUnsupportMessage();
 				break;
 			}
 			break;

@@ -366,6 +366,13 @@ public class ServiceObject {
 			  .append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
+		  public static String deleteBaoxiucardSalesmanInfo(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("start/DeleteRelation.ashx?")
+			  .append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  
 		  /**
 		   * 从条码中识别出保修卡条码，从网络获取条码的保修卡对象信息
 		   * @return
@@ -515,11 +522,11 @@ public class ServiceObject {
 			  return sb.toString();
 		  }
 		  
-		  public static String postViewConversationUrl(String KY, String uid, String message) {
-			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
-			  sb.append("LeaveMessage/AddKeyMessage.ashx?KY=").append(KY).append("&UID=").append(uid).append("&Message=").append(message);
-			  return sb.toString();
-		  }
+//		  public static String postViewConversationUrl(String KY, String uid, String message) {
+//			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+//			  sb.append("LeaveMessage/AddKeyMessage.ashx?KY=").append(KY).append("&UID=").append(uid).append("&Message=").append(message);
+//			  return sb.toString();
+//		  }
 		  public static String postViewConversationUrl(String para, String jsonString) {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
 			  sb.append("LeaveMessage/AddKeyMessage.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
@@ -587,6 +594,39 @@ public class ServiceObject {
 		  public static String getPostUpdateMemberCardImageUrl() {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
 			  sb.append("huiyuan/updateCard.ashx?");
+			  return sb.toString();
+		  }
+		  
+		  /**
+		   * 检查是否支持维修
+		   * http://www.dzbxk.com/bestjoy/CanRepair.ashx?key=4060D1234
+		   * @param ky
+		   * @return
+		   */
+		  public static String checkCanRepairUrl(String ky) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("CanRepair.ashx?key=").append(ky);
+			  return sb.toString();
+		  }
+		  
+		  
+		  /***
+		   * 增加报修调用地址
+		   * @return
+		   */
+		  public static String getRepairUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("crm/AddYuYueWeiXiu.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
+		  
+		  /***
+		   * 查询报修记录调用地址
+		   * @return
+		   */
+		  public static String getBXOrdersUrl(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("crm/GetYuyueRecord.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
 		  
