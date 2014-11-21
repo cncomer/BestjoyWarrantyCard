@@ -93,22 +93,25 @@ public class LoginOrUpdateAccountDialog extends Activity{
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete AccountObject demo");
 						int deleted = BjnoteContent.delete(cr, BjnoteContent.Homes.CONTENT_URI, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete Homes effected rows#" + deleted);
-						BjnoteContent.delete(cr, BjnoteContent.BaoxiuCard.CONTENT_URI, null, null);
+						deleted = BjnoteContent.delete(cr, BjnoteContent.BaoxiuCard.CONTENT_URI, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete BaoxiuCards effected rows#" + deleted);
-						BjnoteContent.delete(cr, BjnoteContent.RELATIONSHIP.CONTENT_URI, null, null);
+						deleted = BjnoteContent.delete(cr, BjnoteContent.RELATIONSHIP.CONTENT_URI, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete RELATIONSHIP effected rows#" + deleted);
-						BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_FRIEND, null, null);
+						deleted = BjnoteContent.delete(cr, BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI, null, null);
+			        	DebugUtils.logD(TAG, "LoginAsyncTask start to delete RELATIONSHIP_LATEST_CONVERSATION effected rows#" + deleted);
+						deleted = BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_FRIEND, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.FRIEND effected rows#" + deleted);
-						BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_QUN, null, null);
+						deleted = BjnoteContent.delete(cr, BjnoteContent.IM.CONTENT_URI_QUN, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete IM.QUN effected rows#" + deleted);
-						BjnoteContent.delete(cr, HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI, null, null);
+						deleted = BjnoteContent.delete(cr, HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI, null, null);
 						DebugUtils.logD(TAG, "LoginAsyncTask start to delete COMMUNITY_SERVICES effected rows#" + deleted);
 						//标识下次不用拉取演示数据了
 			        	MyApplication.getInstance().mPreferManager.edit().putBoolean("need_load_demo_home", false).commit();
-			        	
 			        	DebugUtils.logD(TAG, "LoginAsyncTask start to reset need_load_demo_home as false");
-			        	//删除会员卡数据
-			        	BjnoteContent.delete(cr, BjnoteContent.MyLife.CONTENT_URI, null, null);
+			        	
+			        	deleted = BjnoteContent.delete(cr, HomesCommunityManager.COMMUNITY_SERVICE_CONTENT_URI, null, null);
+			        	DebugUtils.logD(TAG, "LoginAsyncTask start to delete HomesCommunityService effected rows#" + deleted);
+			        	
 			        	//登录成功这里会重置之前已设置的第一次状态
 			        	ComPreferencesManager.getInstance().resetFirsetLaunch();
 			        	
@@ -187,8 +190,6 @@ public class LoginOrUpdateAccountDialog extends Activity{
 				YouMengMessageHelper.getInstance().saveDeviceTokenStatus(false);
 				//登录成功，我们需要检查是否能够上传设备Token到服务器绑定uid和token
 				UpdateService.startCheckDeviceTokenToService(LoginOrUpdateAccountDialog.this);
-				//每次登录我们都重新设置需要重新拉好友列表
-				ComPreferencesManager.getInstance().setFirstLaunch(RelationshipActivity.FIRST, true);
 				MyApplication.getInstance().showMessage(R.string.msg_login_confirm_success);
 			} else {
 				MyApplication.getInstance().showMessage(result.mStatusMessage);

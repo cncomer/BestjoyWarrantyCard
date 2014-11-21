@@ -451,11 +451,9 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 //				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				isNeedRequestAgain=false;
 				return -1;
 			} catch (IOException e) {
 				e.printStackTrace();
-				isNeedRequestAgain=false;
 				return -1;
 			}
 		}
@@ -473,10 +471,7 @@ public abstract class PullToRefreshListPageActivity extends BaseNoActionBarActiv
 			} else if (result == 0) {
 				MyApplication.getInstance().showMessage(R.string.msg_nomore_for_receive);
 			}
-			if (!isNeedRequestAgain) {
-				removeFooterView();
-				
-			}
+			removeFooterView();
 			mLastRefreshTime = System.currentTimeMillis();
 			// Call onRefreshComplete when the list has been refreshed.
 		    mPullRefreshListView.onRefreshComplete();

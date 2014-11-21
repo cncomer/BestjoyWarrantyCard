@@ -31,7 +31,12 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 	public String mUID, mTargetTitle, mTargetOrg, mTargetCell, mTargetAvator, mTarget, mTargetBrief, mTargetName, mTargetWorkplace, mRelationshipServiceId, mRelationshipId, mLocalDate;
 	public String mXinghao, mLeiXin, mMM;
 	public int mTargetType = IMHelper.TARGET_TYPE_P2P;
+	/**自己是否是服务人员*/
+	public int mIsServiceUser = 0;
 	
+	public int mNewMessageCount = 0;
+	public String mLastNewMessageText = "";
+	public long mLastNewMessageTime;
 	/**
 	 * 是否有头像
 	 * @return
@@ -43,7 +48,7 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 	 *{"StatusCode":"1",
 	 *"   StatusMessage":"登录成功",
 	 *"   Data":{"total":2,"rows":[
-	 *       {"simg":"xxxxx", "brief":"", "sname":"","scell":"", "suid":"682040","userName":"123","LeiXin":"双桶洗衣机","XingHao":"XPB80-1186BS","cell":"18611986102","BuyDate":"20140902","id":"3","uid":"607421","title":"销售人员","org":"国美青岛分部.台东商城","workaddress":"山东省-青岛市-市北区-威海路街道-道口路"},
+	 *       {"isserviceuser":false, "simg":"xxxxx", "brief":"", "sname":"","scell":"", "suid":"682040","userName":"123","LeiXin":"双桶洗衣机","XingHao":"XPB80-1186BS","cell":"18611986102","BuyDate":"20140902","id":"3","uid":"607421","title":"销售人员","org":"国美青岛分部.台东商城","workaddress":"山东省-青岛市-市北区-威海路街道-道口路"},
 	 *        {"simg":"xxxxx", "brief":"", "sname":"","scell":"", "suid":"682038","userName":"123","LeiXin":"手机","XingHao":"A6","cell":"18611986102","BuyDate":"20140911","id":"1","uid":"607421","title":"销售人员","org":"(青岛市内字样)济南人民大润发商业有限公司","workaddress":"山东省-青岛市-市南区-广电大厦附近"}
 	 *     ]}
 	 *     
@@ -74,20 +79,100 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 		return list;
 	}
 	
+	public static List<RelationshipObject> parseRelationshipConversationList(InputStream is, PageInfo pageInfo) {
+		ServiceResultObject serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+		List<RelationshipObject> list = new ArrayList<RelationshipObject>();
+		if (serviceResultObject.isOpSuccessfully()) {
+			try {
+				JSONObject jsonObject = serviceResultObject.mJsonData;
+				pageInfo.mTotalCount = jsonObject.getInt("total");
+				JSONArray rows = jsonObject.getJSONArray("rows");
+				long rowsLen = rows.length();
+				
+				DebugUtils.logD(TAG, "parseList find rows " + rowsLen);
+				JSONObject row = null;
+				JSONObject star = null;
+				JSONObject usr = null;
+				for(int index = 0; index < rowsLen; index++) {
+					row = rows.getJSONObject(index);
+					RelationshipObject relastionship = new RelationshipObject();
+					relastionship.mIsServiceUser = row.optBoolean("isserviceuser", false) ? 1 : 0;
+					relastionship.mLastNewMessageText = row.optString("mcontent", "");
+					relastionship.mLastNewMessageTime = row.optLong("servertime", -1);
+					star = row.getJSONObject("start");
+					usr = row.getJSONObject("user");
+					relastionship.mRelationshipServiceId = row.optString("id", "");
+					if (relastionship.mIsServiceUser == 1) {
+						//uid是对方，自己是服务人员
+						relastionship.mUID = star.getString("uid");
+						relastionship.mMM = "";
+						relastionship.mTarget = usr.getString("UID");
+						relastionship.mTargetName = usr.getString("userName");
+						relastionship.mTargetTitle = "";
+						relastionship.mTargetOrg = "";
+						relastionship.mTargetBrief = "";
+						relastionship.mTargetCell = usr.getString("cell");
+						relastionship.mTargetAvator = "";
+						relastionship.mTargetWorkplace = "";
+					} else {
+						//suid是对方，对方是服务人员
+						relastionship.mUID = usr.getString("UID");
+						
+						relastionship.mTarget = star.getString("uid");
+						relastionship.mMM = star.getString("mm");
+						relastionship.mTargetName = star.getString("username");
+						relastionship.mTargetTitle = star.getString("title");
+						relastionship.mTargetOrg = star.getString("org");
+						relastionship.mTargetBrief = star.getString("brief");
+						relastionship.mTargetCell = star.getString("cell");
+						relastionship.mTargetAvator = star.optString("simg", "");
+						relastionship.mTargetWorkplace = star.getString("workaddress");
+					}
+					
+					list.add(relastionship);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
+	}
+	
 	public static RelationshipObject parse(JSONObject row) {
 		try {
 			RelationshipObject relastionship = new RelationshipObject();
-			relastionship.mUID = row.getString("uid");
-			relastionship.mTarget = row.getString("suid");
-			relastionship.mMM = row.getString("mm");
-			relastionship.mTargetName = row.getString("sname");
-			relastionship.mTargetTitle = row.getString("title");
-			relastionship.mTargetOrg = row.getString("org");
-			relastionship.mTargetBrief = row.getString("brief");
-			relastionship.mTargetCell = row.getString("scell");
-			relastionship.mTargetAvator = row.optString("simg", "");
-			relastionship.mTargetWorkplace = row.getString("workaddress");
 			
+			relastionship.mIsServiceUser = row.optBoolean("isserviceuser", false) ? 1 : 0;
+			if (relastionship.mIsServiceUser == 1) {
+				//uid是对方，自己是服务人员
+				relastionship.mUID = row.getString("suid");
+				relastionship.mMM = "";
+				relastionship.mTarget = row.getString("uid");
+				relastionship.mTargetName = row.getString("userName");
+				relastionship.mTargetTitle = "";
+				relastionship.mTargetOrg = "";
+				relastionship.mTargetBrief = "";
+				relastionship.mTargetCell = row.getString("cell");
+				relastionship.mTargetAvator = "";
+				relastionship.mTargetWorkplace = "";
+			} else {
+				//suid是对方，对方是服务人员
+				relastionship.mUID = row.getString("uid");
+				relastionship.mTarget = row.getString("suid");
+				relastionship.mMM = row.getString("mm");
+				relastionship.mTargetName = row.getString("sname");
+				relastionship.mTargetTitle = row.getString("title");
+				relastionship.mTargetOrg = row.getString("org");
+				relastionship.mTargetBrief = row.getString("brief");
+				relastionship.mTargetCell = row.getString("scell");
+				relastionship.mTargetAvator = row.optString("simg", "");
+				relastionship.mTargetWorkplace = row.getString("workaddress");
+				
+			}
+			
+			relastionship.mNewMessageCount = row.optInt("new_message", 0);
+			relastionship.mLastNewMessageText = row.optString("mcontent", "");
+			relastionship.mLastNewMessageTime = row.optLong("servertime", new Date().getTime());
 			relastionship.mLeiXin = row.optString("LeiXin", "");
 			relastionship.mXinghao = row.getString("XingHao");
 			
@@ -119,6 +204,11 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 		object.mLeiXin = cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_LEIXING);
 		object.mXinghao = cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_XINGHAO);
 		object.mMM = cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_MM);
+		object.mIsServiceUser = cursor.getInt(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_TARGET_IS_SERVER);
+		
+		object.mNewMessageCount = cursor.getInt(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_NEW_MESSAGE_COUNT);
+		object.mLastNewMessageText = cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_NEW_MESSAGE);
+		object.mLastNewMessageTime = cursor.getLong(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_NEW_MESSAGE_TIME);
 		
 		return object;
 	}
@@ -140,7 +230,8 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 		return object;
 	}
 	public static final String WHERE_UID_AND_SID = HaierDBHelper.RELATIONSHIP_UID + "=? and " + HaierDBHelper.RELATIONSHIP_SERVICE_ID + "=?";
-
+	public static final String WHERE_UID_AND_TARGET = HaierDBHelper.RELATIONSHIP_UID + "=? and " + HaierDBHelper.RELATIONSHIP_TARGET + "=?";
+	public static final String WHERE_TARGET_AND_UID = HaierDBHelper.RELATIONSHIP_TARGET + "=? and " + HaierDBHelper.RELATIONSHIP_UID + "=?";
 	public static final String WHERE = HaierDBHelper.RELATIONSHIP_SERVICE_ID + "=? and " + HaierDBHelper.RELATIONSHIP_UID + "=? and " + HaierDBHelper.RELATIONSHIP_TARGET + "=?";
 	@Override
 	public boolean saveInDatebase(ContentResolver cr, ContentValues addtion) {
@@ -162,6 +253,12 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 		values.put(HaierDBHelper.DATA9, mMM);
 		
 		values.put(HaierDBHelper.DATE, new Date().getTime());
+		
+		values.put(HaierDBHelper.RELATIONSHIP_TARGET_IS_SERVER, mIsServiceUser);
+		
+		values.put(HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE_COUNT, mNewMessageCount);
+		values.put(HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE_TIME, mLastNewMessageTime);
+		values.put(HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE, mLastNewMessageText);
 		String[] selectionArgs = new String[]{mRelationshipServiceId, mUID, mTarget};
 		//首先判断是不是存在数据
 		long id = BjnoteContent.existed(cr, BjnoteContent.RELATIONSHIP.CONTENT_URI, WHERE, selectionArgs);
@@ -172,6 +269,46 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 			return update > 0;
 		} else {
 			Uri uri = BjnoteContent.insert(cr, BjnoteContent.RELATIONSHIP.CONTENT_URI, values);
+			DebugUtils.logD(TAG, "saveInDatebase() insert serviceId# " + mRelationshipServiceId + ", name=" + mTargetName + ", uri " + uri);
+			return uri != null;
+		}
+	}
+	
+	public boolean saveInDatebaseForRelationshipConversation(ContentResolver cr, ContentValues addtion) {
+		ContentValues values = new ContentValues();
+		values.put(HaierDBHelper.RELATIONSHIP_UID, mUID);
+		values.put(HaierDBHelper.RELATIONSHIP_NAME, mTargetName);
+		values.put(HaierDBHelper.RELATIONSHIP_TYPE, mTargetType);
+		values.put(HaierDBHelper.RELATIONSHIP_TARGET, mTarget);
+		values.put(HaierDBHelper.RELATIONSHIP_SERVICE_ID, mRelationshipServiceId);
+		values.put(HaierDBHelper.DATA1, mTargetTitle);
+		values.put(HaierDBHelper.DATA2, mTargetOrg);
+		values.put(HaierDBHelper.DATA3, mTargetWorkplace);
+		values.put(HaierDBHelper.DATA4, mTargetBrief);
+		values.put(HaierDBHelper.DATA5, mTargetCell);
+		values.put(HaierDBHelper.DATA6, mTargetAvator);
+		
+		values.put(HaierDBHelper.DATA7, mLeiXin);
+		values.put(HaierDBHelper.DATA8, mXinghao);
+		values.put(HaierDBHelper.DATA9, mMM);
+		
+		values.put(HaierDBHelper.DATE, new Date().getTime());
+		
+		values.put(HaierDBHelper.RELATIONSHIP_TARGET_IS_SERVER, mIsServiceUser);
+		
+		values.put(HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE_COUNT, mNewMessageCount);
+		values.put(HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE_TIME, mLastNewMessageTime);
+		values.put(HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE, mLastNewMessageText);
+		String[] selectionArgs = new String[]{mUID, mTarget};
+		//首先判断是不是存在数据
+		long id = BjnoteContent.existed(cr, BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI, WHERE_UID_AND_TARGET, selectionArgs);
+		if (id > -1) {
+			//已存在，我们仅仅是更新操作
+			int update = BjnoteContent.update(cr, BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI, values, BjnoteContent.ID_SELECTION, new String[]{String.valueOf(id)});
+			DebugUtils.logD(TAG, "saveInDatebase() update exsited serviceId# " + mRelationshipServiceId + ", name=" + mTargetName + ", updated " + update);
+			return update > 0;
+		} else {
+			Uri uri = BjnoteContent.insert(cr, BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI, values);
 			DebugUtils.logD(TAG, "saveInDatebase() insert serviceId# " + mRelationshipServiceId + ", name=" + mTargetName + ", uri " + uri);
 			return uri != null;
 		}
@@ -204,6 +341,9 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 		mLeiXin = in.readString();
 		mXinghao= in.readString();
 		mMM= in.readString();
+		mIsServiceUser= in.readInt();
+		mLastNewMessageText= in.readString();
+		mNewMessageCount= in.readInt();
 	}
 	
 	public RelationshipObject(){};
@@ -232,6 +372,10 @@ public class RelationshipObject implements InfoInterface, Parcelable{
 		dest.writeString(mLeiXin);
 		dest.writeString(mXinghao);
 		dest.writeString(mMM);
+		
+		dest.writeInt(mIsServiceUser);
+		dest.writeString(mLastNewMessageText);
+		dest.writeInt(mNewMessageCount);
 	}
 	
 	

@@ -110,6 +110,7 @@ public class ConversationItemObject implements InfoInterface{
 			selectionArgs = new String[]{mServiceId, mUid, mTarget};
 		}
 		long id = isExsited(cr, url, where, selectionArgs);
+		boolean op = false;
 		if (id != -1) {
 			int updated = cr.update(url, values, where, selectionArgs);
 			if (updated > 0) {
@@ -117,7 +118,7 @@ public class ConversationItemObject implements InfoInterface{
 			} else {
 				DebugUtils.logD(TAG, "saveInDatebase failly update exsited Id#" + id);
 			}
-			return updated > 0;
+			op = updated > 0;
 		} else {
 			values.put(HaierDBHelper.IM_TARGET, mTarget);
 			values.put(HaierDBHelper.IM_TEXT, mMessage);
@@ -129,8 +130,15 @@ public class ConversationItemObject implements InfoInterface{
 			} else {
 				DebugUtils.logD(TAG, "saveInDatebase failly insert ServiceId#" + mServiceId);
 			}
-			return data != null;
+			op = data != null;
 		}
+		if (op) {
+//			values.clear();
+//			values.put(BjnoteContent.RELATIONSHIP.RELATIONSHIP_PROJECTION[BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_NEW_MESSAGE], mMessage);
+//			values.put(BjnoteContent.RELATIONSHIP.RELATIONSHIP_PROJECTION[BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_NEW_MESSAGE_TIME], mServiceDate);
+//			BjnoteContent.update(cr, BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI, values, RelationshipObject.WHERE_UID_AND_TARGET + " or " + RelationshipObject.WHERE_TARGET_AND_UID, new String[]{mUid, mTarget, mTarget, mUid});
+		}
+		return op;
 	}
 	/**
 	 * 通常我们发出一条消息的时候会调用该方法

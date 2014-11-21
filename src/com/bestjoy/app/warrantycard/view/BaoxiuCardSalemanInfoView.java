@@ -332,7 +332,12 @@ public class BaoxiuCardSalemanInfoView extends RelativeLayout implements View.On
 				jsonObject.put("type", mMMType);
 				jsonObject.put("token", SecurityUtils.MD5.md5(sb.toString()));
 				DebugUtils.logD(TAG, "UpdateSalesInfoAsyncTask jsonObject = " + jsonObject.toString());
-				is = NetworkUtils.openContectionLocked(ServiceObject.updateBaoxiucardSalesmanInfo("para", jsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				if (mSalesPerson._baoxiuCardObject instanceof BaoxiuCardObject) {
+					is = NetworkUtils.openContectionLocked(ServiceObject.updateBaoxiucardSalesmanInfo("para", jsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				} else {
+					is = NetworkUtils.openContectionLocked(ServiceObject.updateCarBaoxiucardSalesmanInfo("para", jsonObject.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				}
+				
 				serviceResultObject = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 				if (serviceResultObject.isOpSuccessfully()) {
 					mSalesPerson._addressBookParsedResult = _addressBookParsedResult;

@@ -29,10 +29,14 @@ import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.im.ConversationItemObject;
 import com.bestjoy.app.bjwarrantycard.im.IMHelper;
+import com.bestjoy.app.bjwarrantycard.im.RelationshipConversationFragment;
+import com.bestjoy.app.bjwarrantycard.im.RelationshipObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
+import com.bestjoy.app.warrantycard.database.BjnoteContent;
 import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
+import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.DebugUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NotifyRegistrant;
@@ -72,12 +76,12 @@ public class IMService extends Service{
 	private String mConversationSessionTarget = "";
 	
 	private ContentResolver mContentResolver;
-	WifiManager.MulticastLock mMulticastLock;
+//	WifiManager.MulticastLock mMulticastLock;
 	private Handler mUiHandler;
 	
 	private static final int WHAT_CHECK_SENDING_MESSAGE = 10;
 	private static final int WHAT_CHECK_HEART_BEAT = 11;
-	private static final int CHECK_HEART_BEAT_DELAY = 20 *1000; //10秒中如果没有检查到心跳包，就认为是和服务器暂时无法连接
+	private static final int CHECK_HEART_BEAT_DELAY = 20 *1000; //20秒中如果没有检查到心跳包，就认为是和服务器暂时无法连接
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -166,11 +170,11 @@ public class IMService extends Service{
 			}
 			
 		};
-		WifiManager manager = (WifiManager) this .getSystemService(Context.WIFI_SERVICE);
-		mMulticastLock = manager.createMulticastLock("IMService");
-		if (!mMulticastLock.isHeld()) {
-			mMulticastLock.acquire();
-		}
+//		WifiManager manager = (WifiManager) this .getSystemService(Context.WIFI_SERVICE);
+//		mMulticastLock = manager.createMulticastLock("IMService");
+//		if (!mMulticastLock.isHeld()) {
+//			mMulticastLock.acquire();
+//		}
 		DebugUtils.logD(TAG, "start Conversation.");
 	    //我们开始启动接收UDP包线程
 		if (mCoversationReceiveServerThread == null) {
@@ -247,10 +251,10 @@ public class IMService extends Service{
 			DebugUtils.logD(TAG, "close Conversation.");
 		}
 		
-		if (mMulticastLock.isHeld()) {
-			mMulticastLock.release();
-			mMulticastLock = null;
-		}
+//		if (mMulticastLock.isHeld()) {
+//			mMulticastLock.release();
+//			mMulticastLock = null;
+//		}
 	}
 
 
@@ -365,12 +369,15 @@ public class IMService extends Service{
 						sb.append(conversationItemObject.mUid).append('_').append(conversationItemObject.mTarget).append('_').append(conversationItemObject.mServiceDate);
 						conversationItemObject.mServiceId = sb.toString();
 						DebugUtils.logD(TAG, "getConversationItemObject(JSONObject result) mServiceId " + conversationItemObject.mServiceId);
+						boolean op = false;
+						String[] selectionArgs = new String[]{conversationItemObject.mTarget, conversationItemObject.mUid, conversationItemObject.mUid, conversationItemObject.mTarget};
 						if (IMHelper.TYPE_MESSAGE == type) {
 							if (conversationItemObject.mUid.equals(MyAccountManager.getInstance().getCurrentAccountUid())) {
 								//服务器返回了我们之前发送的信息，表明该条消息发送成功，我们更新本地信息的发送状态
 								conversationItemObject.mMessageStatus = 1;
-								conversationItemObject.updateInDatebase(mContentResolver, null);
+								op = conversationItemObject.updateInDatebase(mContentResolver, null);
 							}
+							selectionArgs = new String[]{conversationItemObject.mUid, conversationItemObject.mTarget, conversationItemObject.mTarget, conversationItemObject.mUid};
 						} else if (IMHelper.TYPE_MESSAGE_FORWARD == type) {
 							//收到其他用户发来的消息，我们只要保存就好了
 							conversationItemObject.mId = -1;
@@ -389,7 +396,19 @@ public class IMService extends Service{
 								conversationItemObject.setReadStatus(ConversationItemObject.UN_SEEN);
 								DebugUtils.logD(TAG, "mark unseen " + conversationItemObject.mMessage);
 							}
-							conversationItemObject.saveInDatebase(mContentResolver, null);
+							op = conversationItemObject.saveInDatebase(mContentResolver, null);
+							selectionArgs = new String[]{conversationItemObject.mTarget, conversationItemObject.mUid, conversationItemObject.mUid, conversationItemObject.mTarget};
+						}
+						if (op) {
+							ContentValues values = new ContentValues();
+							values.clear();
+							values.put(BjnoteContent.RELATIONSHIP.RELATIONSHIP_PROJECTION[BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_NEW_MESSAGE], conversationItemObject.mMessage);
+							values.put(BjnoteContent.RELATIONSHIP.RELATIONSHIP_PROJECTION[BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_NEW_MESSAGE_TIME], conversationItemObject.mServiceDate);
+							values.put(BjnoteContent.RELATIONSHIP.RELATIONSHIP_PROJECTION[BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_LOCAL_DATE], new Date().getTime());
+							int updated = BjnoteContent.update(mContentResolver, BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI, values, RelationshipObject.WHERE_UID_AND_TARGET + " or " + RelationshipObject.WHERE_TARGET_AND_UID, selectionArgs);
+							if (updated == 0) {
+								ComPreferencesManager.getInstance().setFirstLaunch(RelationshipConversationFragment.FIRST, true);
+							}
 						}
 						if (!mIsInConversationSession) {
 							//MyApplication.getInstance().showMessageAsync("Rec message " + conversationItemObject.mMessage);

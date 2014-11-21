@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:name:tc:xliff:document:1.2">
 
-    <string name="app_name">小易管家(电子保修卡)</string>
-    <string name="app_name_2014">电子保修卡 2014</string>
+    <string name="app_name">小宜管家(电子保修卡)</string>
+    <string name="app_name_2014">小宜管家(电子保修卡) 2014</string>
     <string name="app_id">540fbabe</string>
     <string name="button_register">新用户注册</string>
-    <string name="button_register_now">"马上注册>"</string>
+    <string name="button_register_now">"马上注册"</string>
      <string name="button_find_password">找回密码</string>
     <string name="button_new_card">新建保修卡</string>
     <string name="button_edit_card">编辑保修卡</string>
@@ -277,7 +277,7 @@
          <string name="pinpai_tongshuai">统帅</string>
          <string name="msg_pinpai_haier_suppot_only">暂未开放</string>
          <string name="msg_no_bxphone">对不起，该保修卡没有设置售后服务电话</string>
-         <string name="must_haier_confirm_yuyue">目前只有海尔产品才接受电子预约服务，是否直接拨打厂家电话？</string>
+         <string name="must_haier_confirm_yuyue">目前该品牌不接受在线预约服务，是否直接拨打服务电话？</string>
          <string name="none_select_tips">没有选择任何条目</string>
           <string name="msg_local_save_op_failed">服务器上传信息成功，但本地保存失败</string>
          <string name="yuyue_time_too_early_tips">预约时间必须大于当前时间后3个小时</string>
@@ -447,9 +447,9 @@
     <string name="msg_vcf_read_error">"返回的VCF文件预览时读取错误，请检查"</string>
      <string name="msg_vcf_format_error">"抱歉，暂时无法获取名号对应的vcf文件，稍后重试或是换个名号试试~"</string>
    
-   <string name="msg_privacy_multiunknowncall_download_tip">小易管家提醒您有以下多个号码可以添加到会员卡</string>
-   <string name="msg_privacy_unknowncall_download_tip">小易管家提醒您是否将其加入会员卡</string>
-   <string name="msg_privacy_unknowncall_download_contact_tip">小易管家提醒您是否需要将其添加到通讯录</string>
+   <string name="msg_privacy_multiunknowncall_download_tip">小宜管家提醒您有以下多个号码可以添加到会员卡</string>
+   <string name="msg_privacy_unknowncall_download_tip">小宜管家提醒您是否将其加入会员卡</string>
+   <string name="msg_privacy_unknowncall_download_contact_tip">小宜管家提醒您是否需要将其添加到通讯录</string>
    <string name="msg_privacy_sms_download_tip">短信中含有名档网联系人信息</string>
    <string name="msg_privacy_unknowncall_download_confirm">添加</string>
    <string name="msg_privacy_unknowncall_download_cancel">忽略</string>
@@ -715,7 +715,7 @@
          <string name="format_car_product_chepai">"车牌: %s"</string>
          
          <string name="button_baoxiucard_price_guide">"参考价格"</string>
-         <string name="title_ymeng_category0">"小易管家"</string>
+         <string name="title_ymeng_category0">"小宜管家"</string>
          <string name="title_ymeng_category1">"小区通告"</string>
          <string name="title_ymeng_category2">"保修"</string>
          <string name="title_ymeng_category3">"汽车"</string>
@@ -743,7 +743,7 @@
   <string name="preferences_privacy_mynumber_summary">发送名片以及一些其他服务可能会用到本机号码，如果未设置，用到的时候需要人为输入</string>
   <string name="preferences_privacy_mynumber_title">本机号码</string>
   
-  <string name="call_contact_info">"<xliff:g id="info">%s</xliff:g>  [来自小易管家]"</string>
+  <string name="call_contact_info">"<xliff:g id="info">%s</xliff:g>  [来自小宜管家]"</string>
   
   <!-- 条码设置 -->
   <string name="preferences_barcode_general_title">条码识别类型</string>
@@ -782,4 +782,7 @@
   <string name="button_evaluate">"服务\n评价"</string>
   
   <string name="msg_qrcode_not_car_card">"条码不是汽车码，请确认条码"</string>
+  <string name="msg_qrcode_not_bx_card">"条码不是保修卡码，请确认条码"</string>
+  
+  <string name="menu_contact">"联系人"</string>
 </resources>

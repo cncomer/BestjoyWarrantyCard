@@ -385,7 +385,7 @@ public class MyApplication extends Application{
     	return root;
     }
     /**
-     * return mnt/sdcard/xxx/type目录
+     * return mnt/sdcard/xxx/type目录,如果type为空，则返回mnt/sdcard/xxx/目录
      * 返回SD卡的应用根目录，type为子目录名字， 如download、.download
      * @param type
      * @return
@@ -393,6 +393,9 @@ public class MyApplication extends Application{
     public File getExternalStorageRoot(String type) {
     	if (!hasExternalStorage()) {
     		return null;
+    	}
+    	if (TextUtils.isEmpty(type)) {
+    		return getExternalStorageRoot();
     	}
     	File root = new File(getExternalStorageRoot(), type);
     	if (!root.exists()) {

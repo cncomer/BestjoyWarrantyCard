@@ -366,6 +366,12 @@ public class ServiceObject {
 			  .append(para).append("=").appendUrlEncodedString(jsonString);
 			  return sb.toString();
 		  }
+		  public static String updateCarBaoxiucardSalesmanInfo(String para, String jsonString) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("AddCarBIDMM.ashx?")
+			  .append(para).append("=").appendUrlEncodedString(jsonString);
+			  return sb.toString();
+		  }
 		  public static String deleteBaoxiucardSalesmanInfo(String para, String jsonString) {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
 			  sb.append("start/DeleteRelation.ashx?")
@@ -416,6 +422,17 @@ public class ServiceObject {
 		  public static String getRelationshipUrl(String uid, String pwd) {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
 			  sb.append("Start/GetServiceUserByUID.ashx?uid=").append(uid).append("&pwd=").append(pwd);
+			  return sb.toString();
+		  }
+		  /**
+		   * 获取关系最近会话
+		   * @param uid
+		   * @param pwd
+		   * @return
+		   */
+		  public static String getRelationshipConversationUrl(String uid, String pwd) {
+			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
+			  sb.append("Start/GetZhiXunList.ashx?uid=").append(uid).append("&pwd=").append(pwd);
 			  return sb.toString();
 		  }
 		  /**
@@ -614,9 +631,9 @@ public class ServiceObject {
 		   * 增加报修调用地址
 		   * @return
 		   */
-		  public static String getRepairUrl(String para, String jsonString) {
+		  public static String getRepairUrl() {
 			  UrlEncodeStringBuilder sb = new UrlEncodeStringBuilder(SERVICE_URL);
-			  sb.append("crm/AddYuYueWeiXiu.ashx?").append(para).append("=").appendUrlEncodedString(jsonString);
+			  sb.append("crm/AddYuYueWeiXiu.ashx?");
 			  return sb.toString();
 		  }
 		  

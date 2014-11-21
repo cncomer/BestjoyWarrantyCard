@@ -9,6 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="type"
+        android:layout_marginLeft="22dip"
+        android:layout_marginRight="22dip"
         android:orientation="horizontal" >
 
         <RadioButton
@@ -16,6 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
+            android:textColor="#ff5a5a5a"
             android:text="@string/repair_yuyue" >
         </RadioButton>
 
@@ -23,6 +26,7 @@
             android:id="@+id/radio_install"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#ff5a5a5a"
             android:text="@string/install_yuyue" >
         </RadioButton>
 
@@ -30,27 +34,32 @@
             android:id="@+id/radio_maintenance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#ff5a5a5a"
             android:text="@string/maintenance_yuyue" >
         </RadioButton>
     </RadioGroup>
 
     <TextView
-            android:id="@+id/yuyue_info_title"
-            style="@style/PeopleInfo"
-            android:layout_marginTop="5dip"
-            android:text="@string/yuyue_time" />
+        android:id="@+id/yuyue_info_title"
+        style="@style/PeopleInfo"
+        android:layout_marginTop="12dip"
+        android:layout_marginLeft="16dip"
+        android:text="@string/yuyue_time" />
 
     <View
         android:id="@+id/yuyue_info_divider"
         android:layout_width="fill_parent"
         android:layout_height="1dip"
         android:layout_marginTop="5dip"
+         android:layout_marginLeft="16dip"
         android:background="@color/light_green" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:layout_marginTop="6dip"
+        android:layout_marginLeft="22dip"
         android:orientation="horizontal" >
 
         <TextView
@@ -67,7 +76,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:layout_marginTop="6dip"
+        android:layout_marginLeft="22dip" >
 
         <TextView
             style="@style/ProductInfo"

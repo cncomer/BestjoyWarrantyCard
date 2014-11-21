@@ -1,5 +1,6 @@
 package com.bestjoy.app.warrantycard.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -14,6 +15,8 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -44,6 +48,7 @@ import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.ComPreferencesManager;
 import com.shwy.bestjoy.utils.DateUtils;
+import com.shwy.bestjoy.utils.ImageHelper;
 import com.shwy.bestjoy.utils.InfoInterface;
 import com.shwy.bestjoy.utils.NetworkUtils;
 import com.shwy.bestjoy.utils.ServiceResultObject;
@@ -60,7 +65,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	private AccountObject mAccountObject;
 	//预约信息
 	private TextView mYuyueDate, mYuyueTime;
-	private TextView mProductNameView, mProductInfoVew, mAccountInfoView, mContactPlaceView;
+	private TextView mProductInfoVew, mAccountInfoView, mContactPlaceView;
 	private Calendar mCalendar;
 	
 	private EditText mAskInput;
@@ -76,20 +81,32 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	/**预约类型T01为安装 T02为维修, T15为保养, 默认是维修，注意修改默认值需要同步修改布局文件的checked对应的RadioButton*/
 	private String mYuyueType = "T02";
 	private Bundle mBundle;
+	
+	private File mCaptureFile;
+	private static final int REQUEST_PICK_FROM_CAMERA = 1;
+	private ImageView mCaptureButton;
+	private Bitmap mCaptureButtonBitmap;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		getActivity().setTitle(R.string.activity_title_repair);
 		mCalendar = Calendar.getInstance();
+		mCaptureFile = new File(MyApplication.getInstance().getExternalStorageRoot(""), ".capture");
+		
 		if (savedInstanceState == null) {
 			mBundle = getArguments();
 			DebugUtils.logD(TAG, "onCreate() savedInstanceState == null, getArguments() mBundle=" + mBundle);
+			if (mCaptureFile.exists()) {
+				mCaptureFile.delete();
+			}
 		} else {
 			mBundle = savedInstanceState.getBundle(TAG);
 			DebugUtils.logD(TAG, "onCreate() savedInstanceState != null, restore mBundle=" + mBundle);
 		}
 		mBaoxiuCardObject = BaoxiuCardObject.getBaoxiuCardObject(mBundle);
+		
+		
 	}
 	
 	@Override
@@ -99,7 +116,6 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 
 		 mScrollView = (ScrollView) view.findViewById(R.id.scrollview);
 		 
-		 mProductNameView = (TextView) view.findViewById(R.id.product_name);
 		 mProductInfoVew = (TextView) view.findViewById(R.id.product_info);
 		 mAccountInfoView = (TextView) view.findViewById(R.id.account_info);
 		 mContactPlaceView = (TextView) view.findViewById(R.id.contact_place);
@@ -146,6 +162,10 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 		 //mYuyueTime.setText(DateUtils.TOPIC_TIME_FORMAT.format(mCalendar.getTime()));
 		 mYuyueDate.setOnClickListener(this);
 		 mYuyueTime.setOnClickListener(this);
+		 
+		 mCaptureButton = (ImageView) view.findViewById(R.id.button_capture);
+		 mCaptureButton.setOnClickListener(this);
+		 mCaptureButtonBitmap = ((BitmapDrawable)mCaptureButton.getDrawable()).getBitmap();
 		 populateBaoxiuInfoView();
 		 populateHomeInfoView(HomeObject.getHomeObject(mBundle));
 	     populateContactInfoView(MyAccountManager.getInstance().getAccountObject());
@@ -159,8 +179,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	
 	private void populateBaoxiuInfoView() {
 		//init layouts
-		mProductNameView.setText(mBaoxiuCardObject.mLeiXin);
-		mProductInfoVew.setText(mBaoxiuCardObject.mPinPai + " " + mBaoxiuCardObject.mXingHao);
+		mProductInfoVew.setText(mBaoxiuCardObject.mPinPai + "    " + mBaoxiuCardObject.mLeiXin + "    " + mBaoxiuCardObject.mXingHao);
 	}
 	
 	public void setBaoxiuObjectAfterSlideMenu(InfoInterface slideManuObject) {
@@ -171,7 +190,7 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 	}
 	
     public void populateContactInfoView(AccountObject accountObject) {
-    	mAccountInfoView.setText(accountObject.mAccountName + " " + accountObject.mAccountTel);
+    	mAccountInfoView.setText(accountObject.mAccountName + "      " + accountObject.mAccountTel);
 	}
 
 
@@ -197,6 +216,17 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			//如果内容为空，我们显示侧边栏
 			((NewCardActivity) getActivity()).getSlidingMenu().showMenu(true);
 			break;
+		case R.id.button_capture:
+			pickFromCamera(mCaptureFile, REQUEST_PICK_FROM_CAMERA);
+			//获取故障描述补充拍照
+			break;
+		}
+	}
+	
+	@Override
+	protected void onPickFromCameraFinish(int resultCode) {
+		if (REQUEST_PICK_FROM_CAMERA == resultCode) {
+			mCaptureButton.setImageBitmap(ImageHelper.getXBitmap(mCaptureButtonBitmap, ImageHelper.getSmallBitmap(mCaptureFile.getAbsolutePath(), mCaptureButton.getWidth(), mCaptureButton.getHeight())));
 		}
 	}
 
@@ -243,17 +273,23 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 				jsonQuery.put("service_type", mYuyueType);
 				jsonQuery.put("ky", mBaoxiuCardObject.mKY);
 				jsonQuery.put("Desc", mAskInput.getText().toString().trim());
-				is = NetworkUtils.openContectionLocked(ServiceObject.getRepairUrl("para", jsonQuery.toString()), MyApplication.getInstance().getSecurityKeyValuesObject());
+				if (mCaptureFile.exists()) {
+					jsonQuery.put("imgaddr", ImageHelper.bitmapToString(ImageHelper.getSmallBitmap(mCaptureFile.getAbsolutePath(), 1024, 1024), 65));
+				} else {
+					jsonQuery.put("imgaddr", "");
+				}
+				DebugUtils.logD(TAG, "para=" + jsonQuery.toString());
+				is = NetworkUtils.openPostContectionLocked(ServiceObject.getRepairUrl(), "para", jsonQuery.toString(), MyApplication.getInstance().getSecurityKeyValuesObject());
 				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				serviceResultObject.mStatusMessage  = e.getMessage();
 			} catch (IOException e) {
 				e.printStackTrace();
-				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-				serviceResultObject  = ServiceResultObject.parse(NetworkUtils.getContentFromInput(is));
+				serviceResultObject.mStatusMessage  = e.getMessage();
+			} catch (JSONException e) {
+				e.printStackTrace();
+				serviceResultObject.mStatusMessage  = e.getMessage();
 			} finally {
 				NetworkUtils.closeInputStream(is);
 			}
@@ -324,10 +360,10 @@ public class NewRepairCardFragment extends ModleBaseFragment implements View.OnC
 			showEmptyInputToast(R.string.time);
 			return false;
 		}
-		if(TextUtils.isEmpty(mAskInput.getText().toString().trim())){
-			showEmptyInputToast(R.string.error_des);
-			return false;
-		}
+//		if(TextUtils.isEmpty(mAskInput.getText().toString().trim())){
+//			showEmptyInputToast(R.string.error_des);
+//			return false;
+//		}
 		if(!checkInstallDate()) {
 			MyApplication.getInstance().showMessage(R.string.select_date_tips);
 			return false;

@@ -25,7 +25,7 @@ import com.umeng.message.entity.UMessage;
  */
 public final class HaierDBHelper extends SQLiteOpenHelper {
 private static final String TAG = "HaierDBHelper";
-  private static final int DB_VERSION = 25;
+  private static final int DB_VERSION = 27;
   private static final String DB_NAME = "cncom.db";
   public static final String ID = "_id";
   /**0为可见，1为删除，通常用来标记一条数据应该被删除，是不可见的，包含该字段的表查询需要增加deleted=0的条件*/
@@ -299,9 +299,20 @@ private static final String TAG = "HaierDBHelper";
   public static final String RELATIONSHIP_TARGET = IM_TARGET;
   public static final String RELATIONSHIP_NAME = IM_UNAME;
   public static final String RELATIONSHIP_UID = IM_UID;
+  public static final String RELATIONSHIP_TARGET_IS_SERVER = "isserviceuser";
   /**对应于服务器上的id*/
   public static final String RELATIONSHIP_SERVICE_ID = IM_SERVICE_ID;
+  /**关系最新会话表*/
+  public static final String TABLE_ACCOUNT_RELATIONSHIP_CONVERSATION = "account_relationship_conversation";
+  /**关系最新会话信息*/
+  public static final String RELATIONSHIP_CONVERSATION_NEW_MESSAGE = DATA10;
+  /**关系最新会话信息未读个数*/
+  public static final String RELATIONSHIP_CONVERSATION_NEW_MESSAGE_COUNT = DATA11;
+  /**关系最新会话信息的时间*/
+  public static final String RELATIONSHIP_CONVERSATION_NEW_MESSAGE_TIME = DATA12;
+  
   //好友关系 end
+  
   /**社区服务表*/
   public static final String TABLE_HOME_COMMUNITY_SERVICE = "home_community_service";
   /**社区id*/
@@ -772,7 +783,7 @@ private static final String TAG = "HaierDBHelper";
 		defaultObject.put("msg_id", "uu01093141628913835900");
 		JSONObject body = new JSONObject();
 		  body.put("icon", "");
-		  body.put("text", "亲！欢迎使用小易管家。我们将成为您身边的维修保养顾问专家，提供贴心、便利、快捷的在线维修保养通道，帮您维修保养，精明到家！");
+		  body.put("text", "亲！欢迎使用小宜管家。我们将成为您身边的维修保养顾问专家，提供贴心、便利、快捷的在线维修保养通道，帮您维修保养，精明到家！");
 		  body.put("after_open", "go_activity");
 		  body.put("play_lights", "true");
 		  body.put("builder_id", "0");
@@ -780,8 +791,8 @@ private static final String TAG = "HaierDBHelper";
 		  body.put("largeIcon", "");
 		  body.put("url", "http://www.baidu.com");
 		  body.put("play_vibrate", "true");
-		  body.put("title", "小易管家");
-		  body.put("ticker", "小易管家");
+		  body.put("title", "小宜管家");
+		  body.put("ticker", "小宜管家");
 		  body.put("sound", "");
 		  body.put("play_sound", "true");
 		  body.put("activity", "com.bestjoy.app.warrantycard.ui.YMessageListActivity");
@@ -854,6 +865,7 @@ private static final String TAG = "HaierDBHelper";
 	            "CREATE TABLE " + TABLE_ACCOUNT_RELATIONSHIP + " (" +
 	            ID + " INTEGER PRIMARY KEY, " +
 	            RELATIONSHIP_BID + " TEXT, " +
+	            RELATIONSHIP_TARGET_IS_SERVER + " INTEGER NOT NULL DEFAULT 0, " +
 	            RELATIONSHIP_BID_MM_TYPE + " INTEGER, " +
 	            RELATIONSHIP_TYPE + " INTEGER, " + 
 	            RELATIONSHIP_TARGET + " TEXT, " +
@@ -869,7 +881,37 @@ private static final String TAG = "HaierDBHelper";
 	            DATA7 + " TEXT, " +
 	            DATA8 + " TEXT, " +
 	            DATA9 + " TEXT, " +
+	            RELATIONSHIP_CONVERSATION_NEW_MESSAGE + " TEXT, " +
+	            RELATIONSHIP_CONVERSATION_NEW_MESSAGE_COUNT + " TEXT, " +
+	            RELATIONSHIP_CONVERSATION_NEW_MESSAGE_TIME + " TEXT, " +
 	            DATE + " TEXT);");
+	  
+	  sqLiteDatabase.execSQL(
+	            "CREATE TABLE " + TABLE_ACCOUNT_RELATIONSHIP_CONVERSATION + " (" +
+	            ID + " INTEGER PRIMARY KEY, " +
+	            RELATIONSHIP_BID + " TEXT, " +
+	            RELATIONSHIP_TARGET_IS_SERVER + " INTEGER NOT NULL DEFAULT 0, " +
+	            RELATIONSHIP_BID_MM_TYPE + " INTEGER, " +
+	            RELATIONSHIP_TYPE + " INTEGER, " + 
+	            RELATIONSHIP_TARGET + " TEXT, " +
+	            RELATIONSHIP_NAME + " TEXT, " +
+	            RELATIONSHIP_UID + " TEXT, " +
+	            RELATIONSHIP_SERVICE_ID + " TEXT, " +
+	            DATA1 + " TEXT, " +
+	            DATA2 + " TEXT, " +
+	            DATA3 + " TEXT, " +
+	            DATA4 + " TEXT, " +
+	            DATA5 + " TEXT, " +
+	            DATA6 + " TEXT, " +
+	            DATA7 + " TEXT, " +
+	            DATA8 + " TEXT, " +
+	            DATA9 + " TEXT, " +
+	            RELATIONSHIP_CONVERSATION_NEW_MESSAGE + " TEXT, " +
+	            RELATIONSHIP_CONVERSATION_NEW_MESSAGE_COUNT + " TEXT, " +
+	            RELATIONSHIP_CONVERSATION_NEW_MESSAGE_TIME + " TEXT, " +
+	            DATE + " TEXT);");
+	  
+	  
   }
   
   private void createBXOrderTable(SQLiteDatabase sqLiteDatabase) {
@@ -902,7 +944,7 @@ private static final String TAG = "HaierDBHelper";
   @Override
   public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 	  DebugUtils.logD(TAG, "onUpgrade oldVersion " + oldVersion + " newVersion " + newVersion);
-	  if (oldVersion <= 24) {
+	  if (oldVersion <= 26) {
 			sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_ACCOUNTS);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_HOMES);
 		    sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CARDS);

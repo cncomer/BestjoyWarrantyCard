@@ -43,7 +43,7 @@ public class IMHelper {
 	public static final String EXTRA_TEXT = "text";
 	public static final String EXTRA_TOKEN = "n";
 	public static final String EXTRA_TARGET = "target";
-	public static final String EXTRA_SERVICE_TIME = "servicetime";
+	public static final String EXTRA_SERVICE_TIME = "servertime";
 	public static final String EXTRA_SERVICE_ID = "serviceid";
 	public static final String EXTRA_UNAME = "usrname";
 	

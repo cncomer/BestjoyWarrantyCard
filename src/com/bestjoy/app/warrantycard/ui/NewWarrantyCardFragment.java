@@ -44,6 +44,7 @@ import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.bjwarrantycard.ServiceObject.ServiceResultObject;
 import com.bestjoy.app.warrantycard.account.AccountObject;
 import com.bestjoy.app.warrantycard.account.BaoxiuCardObject;
+import com.bestjoy.app.warrantycard.account.CarBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.HomeObject;
 import com.bestjoy.app.warrantycard.account.IBaoxiuCardObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
@@ -804,32 +805,17 @@ public class NewWarrantyCardFragment extends ModleBaseFragment implements View.O
 	
 	@Override
     public void setScanObjectAfterScan(InfoInterface barCodeObject) {
-		 BaoxiuCardObject object = (BaoxiuCardObject) barCodeObject;
-		 mTypeInput.setText(object.mLeiXin);
-		 mPinpaiInput.setText(object.mPinPai);
-		 mBianhaoInput.setText(object.mSHBianHao);
-		 mModelInput.setText(object.mXingHao);
-		 mBaoxiuTelInput.setText(object.mBXPhone);
-		 mWyInput.setText(object.mWY);
-		//这里一般我们只设置品牌、型号、编号和名称
-//		if (!TextUtils.isEmpty(object.mLeiXin)) {
-//			mTypeInput.setText(object.mLeiXin);
-//		}
-//		if (!TextUtils.isEmpty(object.mPinPai)) {
-//			mPinpaiInput.setText(object.mPinPai);
-//		}
-//		if (!TextUtils.isEmpty(object.mSHBianHao)) {
-//			mBianhaoInput.setText(object.mSHBianHao);
-//		}
-//		if (!TextUtils.isEmpty(object.mXingHao)) {
-//			mModelInput.setText(object.mXingHao);
-//		}
-//		if (!TextUtils.isEmpty(object.mBXPhone)) {
-//			mBaoxiuTelInput.setText(object.mBXPhone);
-//		}
-//		if (!TextUtils.isEmpty(object.mWY)) {
-//			mWyInput.setText(object.mWY);
-//		}
+		if (barCodeObject instanceof BaoxiuCardObject) {
+			 BaoxiuCardObject object = (BaoxiuCardObject) barCodeObject;
+			 mTypeInput.setText(object.mLeiXin);
+			 mPinpaiInput.setText(object.mPinPai);
+			 mBianhaoInput.setText(object.mSHBianHao);
+			 mModelInput.setText(object.mXingHao);
+			 mBaoxiuTelInput.setText(object.mBXPhone);
+			 mWyInput.setText(object.mWY);
+		} else {
+			MyApplication.getInstance().showMessage(R.string.msg_qrcode_not_bx_card);
+		}
 	}
 	
 	@Override

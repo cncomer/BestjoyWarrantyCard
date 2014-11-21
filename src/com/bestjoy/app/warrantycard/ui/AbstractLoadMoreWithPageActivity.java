@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.bestjoy.app.bjwarrantycard.MyApplication;
 import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
+import com.bestjoy.app.warrantycard.database.HaierDBHelper;
 import com.shwy.bestjoy.utils.AdapterWrapper;
 import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.DebugUtils;
@@ -61,6 +62,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 	
 	private ProgressBar mFooterViewProgressBar;
 	private TextView mFooterViewStatusText;
+	/**是否在加载更多*/
 	protected boolean mIsLoadingMore = false;
 	
 	private boolean isNeedRequestAgain = true;
@@ -76,6 +78,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 	private WakeLock mWakeLock;
 	protected int mFirstVisibleItem = -1;
 	private Handler mUiHandler;
+	protected long mCurrentMessageId = -1;
 	
 	//子类必须实现的方法
 	/**提供一个CursorAdapter类的包装对象*/
@@ -87,9 +90,73 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 	protected abstract int savedIntoDatabase(ContentResolver contentResolver, List<? extends InfoInterface> infoObjects);
 	protected abstract List<? extends InfoInterface> getServiceInfoList(InputStream is, PageInfo pageInfo);
 	protected abstract Query getQuery();
-	protected abstract void onLoadMoreStart();
-	protected abstract void onLoadMoreEnd();
-	protected abstract void onPostLoadMoreEnd();
+	protected boolean isNeedLoadMoreFirst() {
+		return false;
+	}
+	protected void onLoadMoreStart() {
+		//每次载入更多的时候，我们先要记录下当前的位置
+		final Cursor cursor = mAdapterWrapper.getCursor();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (mLoadMorePosition == LOAD_MORE_TOP) {
+				if (cursor.moveToPosition(mFirstVisibleItem)) {
+					mCurrentMessageId =  cursor.getLong(cursor.getColumnIndex(HaierDBHelper.ID));
+				} 
+			} else if (mLoadMorePosition == LOAD_MORE_BOTTOM) {
+				if (cursor.moveToLast()) {
+					mCurrentMessageId =  cursor.getLong(cursor.getColumnIndex(HaierDBHelper.ID));
+				}
+			}
+			mQuery.mPageInfo.computePageSize(cursor.getCount());
+		}
+		DebugUtils.logD(TAG, "onLoadMoreStart() mCurrentMessageId=" + mCurrentMessageId + ", mFirstVisibleItem=" + mFirstVisibleItem);
+	}
+	protected void onLoadMoreEnd() {
+		DebugUtils.logD(TAG, "onLoadMoreEnd()");
+		final Cursor cursor = loadLocal(mContentResolver);
+		
+		mUiHandler.post(new Runnable() {
+
+			@Override
+			public void run() {
+				DebugUtils.logD(TAG, "onLoadMoreEnd().RUN mCurrentMessageId="+mCurrentMessageId + ", mFirstVisibleItem=" + mFirstVisibleItem);
+				mAdapterWrapper.changeCursor(cursor);
+				if (mCurrentMessageId == -1) {
+					if (mLoadMorePosition == LOAD_MORE_TOP) {
+						mListView.setSelection(cursor.getCount()-1);
+					} else if (mLoadMorePosition == LOAD_MORE_BOTTOM) {
+						mListView.setSelection(0);
+					}
+					
+				}
+			}
+			
+		});
+	}
+	protected void onPostLoadMoreEnd() {
+		DebugUtils.logD(TAG, "onPostLoadMoreEnd()");
+		final Cursor cursor = mAdapterWrapper.getCursor();
+		int position = mFirstVisibleItem;
+		long id = 0;
+		if (mLoadMorePosition == LOAD_MORE_TOP) {
+			for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()) {
+				id =  cursor.getLong(cursor.getColumnIndex(HaierDBHelper.ID));
+				if (mCurrentMessageId == id) {
+					position = cursor.getPosition();
+					break;
+				}
+			}
+		} else if (mLoadMorePosition == LOAD_MORE_BOTTOM) {
+			for(cursor.moveToLast();!cursor.isBeforeFirst();cursor.moveToPrevious()) {
+				id =  cursor.getLong(cursor.getColumnIndex(HaierDBHelper.ID));
+				if (mCurrentMessageId == id) {
+					position = cursor.getPosition();
+					break;
+				}
+			}
+		}
+		if (mCurrentMessageId != -1) mListView.setSelection(position);
+		DebugUtils.logD(TAG, "onPostLoadMoreEnd current item position=" + position + ", mCurrentMessageId=" + mCurrentMessageId + ", mFirstVisibleItem=" + mFirstVisibleItem);
+	}
 	protected abstract int getContentLayout();
 	/***
 	 * 设置加载更多的位置，默认是底部，可以通过传值LOAD_MORE_TOP或者LOAD_MORE_BOTTOM来修改
@@ -176,7 +243,7 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 			}
 			
 		});
-		
+		DebugUtils.logD(TAG, "onScroll mCurrentMessageId=" + mCurrentMessageId + ", mFirstVisibleItem=" + mFirstVisibleItem);
 		PushAgent.getInstance(mContext).onAppStart();
 		PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
 		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -202,10 +269,16 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 	
 	private QueryServiceTask mQueryServiceTask;
 	public void loadMoreAsync() {
-		updateLoadMoreStatusView(true, null);
-		AsyncTaskUtils.cancelTask(mQueryServiceTask);
-		mQueryServiceTask = new QueryServiceTask();
-		mQueryServiceTask.execute();
+		MyApplication.getInstance().postAsync(new Runnable() {
+			@Override
+			public void run() {
+				updateLoadMoreStatusView(true, null);
+				AsyncTaskUtils.cancelTask(mQueryServiceTask);
+				mQueryServiceTask = new QueryServiceTask();
+				mQueryServiceTask.execute();
+			}
+		});
+		
 	}
 	
 	@Override
@@ -310,7 +383,15 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 				
 			} else if (mFirstinit){
 				mFirstinit = false;
-				mListView.setSelection(requestCount-1);
+				if (mLoadMorePosition == LOAD_MORE_BOTTOM) {
+					mListView.setSelection(0);
+				} else if (mLoadMorePosition == LOAD_MORE_TOP) {
+					mListView.setSelection(requestCount-1);
+					loadMoreAsync();
+					
+				}
+				
+				
 			}
 			DebugUtils.logD(TAG, "LoadLocalTask load local data finish....localCount is " + requestCount);
 		}
@@ -331,7 +412,6 @@ public abstract class AbstractLoadMoreWithPageActivity extends BaseNoActionBarAc
 			mIsLoadingMore = true;
 			int insertOrUpdateCount = 0;
 			try {
-				
 				    onLoadMoreStart();
 					DebugUtils.logD(TAG, "openConnection....");
 					DebugUtils.logD(TAG, "start pageIndex " + mQuery.mPageInfo.mPageIndex + " pageSize = " + mQuery.mPageInfo.mPageSize);

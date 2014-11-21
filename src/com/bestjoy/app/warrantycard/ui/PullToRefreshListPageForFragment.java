@@ -62,7 +62,7 @@ public abstract class PullToRefreshListPageForFragment extends BaseFragment impl
 	
 	private ProgressBar mFooterViewProgressBar;
 	private TextView mFooterViewStatusText;
-	private boolean mIsUpdate = false;
+	protected boolean mIsUpdate = false;
 	
 	private boolean isNeedRequestAgain = false;
 	/**如果当前在列表底部了*/
@@ -388,11 +388,9 @@ public abstract class PullToRefreshListPageForFragment extends BaseFragment impl
 //				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				isNeedRequestAgain=false;
 				return -1;
 			} catch (IOException e) {
 				e.printStackTrace();
-				isNeedRequestAgain=false;
 				return -1;
 			}
 		}
@@ -410,10 +408,8 @@ public abstract class PullToRefreshListPageForFragment extends BaseFragment impl
 			} else if (result == 0) {
 				MyApplication.getInstance().showMessage(R.string.msg_nomore_for_receive);
 			}
-			if (!isNeedRequestAgain) {
-				removeFooterView();
+		    removeFooterView();
 				
-			}
 			mLastRefreshTime = System.currentTimeMillis();
 			// Call onRefreshComplete when the list has been refreshed.
 		    mPullRefreshListView.onRefreshComplete();

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bestjoy.app.bjwarrantycard"
-    android:versionCode="33"
-    android:versionName="V2.1" >
+    android:versionCode="36"
+    android:versionName="V2.21" >
 
      <supports-screens
         android:anyDensity="true"
@@ -58,7 +58,7 @@
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <!--uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/-->
     
     <!-- 百度sdk begin-->
      <permission android:name="android.permission.BAIDU_LOCATION_SERVICE" />

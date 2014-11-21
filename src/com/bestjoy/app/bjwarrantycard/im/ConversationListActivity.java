@@ -41,7 +41,7 @@ import com.bestjoy.app.bjwarrantycard.R;
 import com.bestjoy.app.bjwarrantycard.ServiceObject;
 import com.bestjoy.app.warrantycard.account.MyAccountManager;
 import com.bestjoy.app.warrantycard.service.IMService;
-import com.bestjoy.app.warrantycard.ui.LoadMoreWithPageActivity;
+import com.bestjoy.app.warrantycard.ui.AbstractLoadMoreWithPageActivity;
 import com.bestjoy.app.warrantycard.utils.JsonParser;
 import com.bestjoy.app.warrantycard.utils.SpeechRecognizerEngine;
 import com.iflytek.cloud.RecognizerListener;
@@ -55,7 +55,7 @@ import com.shwy.bestjoy.utils.NotifyRegistrant;
 import com.shwy.bestjoy.utils.PageInfo;
 import com.shwy.bestjoy.utils.Query;
 
-public class ConversationListActivity extends LoadMoreWithPageActivity implements View.OnClickListener{
+public class ConversationListActivity extends AbstractLoadMoreWithPageActivity implements View.OnClickListener{
 
 	private static final String TAG = "ConversationListActivity";
 	private static final int WHAT_REQUEST_REFRESH_LIST = 11000;
@@ -70,9 +70,6 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 	
 	private ConversationAdapter mConversationAdapter;
 	private RelationshipObject mRelationshipObject;
-	private long mCurrentMessageId = -1;
-	private int mCurrentPosition = -1;
-	private boolean mIsRefreshing = false;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -133,6 +130,7 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 					if (mImService != null) mImService.setIsInConversationSession(false, mRelationshipObject.mTarget);
 					break;
 				case WHAT_REQUEST_REFRESH_LIST:
+					mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST);
 					mConversationAdapter.callSuperOnContentChanged();
 					if (mIsAtListBottom) {
 						mListView.setSelection(mConversationAdapter.getCount()-1);
@@ -161,8 +159,6 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			mCurrentPosition = firstVisibleItem;
-			DebugUtils.logD(TAG, "onScroll() current item position=" + mCurrentPosition);
 		}
 	};
 	
@@ -524,9 +520,9 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		@Override
 		protected void onContentChanged() {
 			//如果用户正在下拉刷新，我们不要刷新列表数据，因为框架会帮我们查询，changeCursor()
-			if (mIsRefreshing) return;
-			//一秒内延迟刷新，提高性能
-			mUiHandler.removeMessages(WHAT_REQUEST_REFRESH_LIST);
+			if (mIsLoadingMore) {
+				return;
+			}
 			mUiHandler.sendEmptyMessageDelayed(WHAT_REQUEST_REFRESH_LIST, 250);
 		}
 		
@@ -641,27 +637,7 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
     
 	@Override
 	protected Cursor loadLocal(ContentResolver contentResolver) {
-		Cursor cursor = IMHelper.getAllLocalMessage(mContext.getContentResolver(), MyAccountManager.getInstance().getCurrentAccountUid(), mRelationshipObject.mTargetType, mRelationshipObject.mTarget);
-		if (cursor != null) {
-			if (mCurrentMessageId == -1) {
-				//第一次查询
-				if (cursor.moveToLast()) {
-					mCurrentMessageId =  cursor.getLong(IMHelper.INDEX_ID);
-					mCurrentPosition = cursor.getCount() - 1;
-				}
-			} else {
-				long id = -1;
-				while(cursor.moveToNext()) {
-					id = cursor.getLong(IMHelper.INDEX_ID);
-					if (mCurrentMessageId == id) {
-						mCurrentPosition = cursor.getPosition();
-						break;
-					}
-				}
-			}
-		}
-		DebugUtils.logD(TAG, "loadLocal() current item position=" + mCurrentPosition + ", id=" + mCurrentMessageId);
-		return cursor;
+		return IMHelper.getAllLocalMessage(mContext.getContentResolver(), MyAccountManager.getInstance().getCurrentAccountUid(), mRelationshipObject.mTargetType, mRelationshipObject.mTarget);
 	}
 
 	@Override
@@ -680,30 +656,9 @@ public class ConversationListActivity extends LoadMoreWithPageActivity implement
 		query.qServiceUrl = ServiceObject.getMessagesUrlByUidByTid(MyAccountManager.getInstance().getCurrentAccountUid(), mRelationshipObject.mTarget, "p2p");
 		return query;
 	}
-
 	@Override
-	protected void onLoadMoreStart() {
-		mIsRefreshing = true;
-//		mCurrentMessageId = -1;
-		if (mConversationAdapter != null && mCurrentPosition != -1 && mCurrentPosition < mConversationAdapter.getCount()) {
-			Cursor c = mConversationAdapter.getCursor();
-			if (c != null && c.moveToPosition(mCurrentPosition)) {
-				mCurrentMessageId = c.getLong(IMHelper.INDEX_ID);
-			}
-			
-		}
-		DebugUtils.logD(TAG, "onRefreshStart() current item position=" + mCurrentPosition + ", id=" + mCurrentMessageId);
-	}
-
-	@Override
-	protected void onLoadMoreEnd() {
-	}
-
-	@Override
-	protected void onPostLoadMoreEnd() {
-		mIsRefreshing = false;
-		mListView.setSelection(mCurrentPosition);
-		DebugUtils.logD(TAG, "onPostLoadMoreEnd() current item position=" + mCurrentPosition + ", id=" + mCurrentMessageId);
+	protected boolean isNeedLoadMoreFirst() {
+		return true;
 	}
 
 	@Override

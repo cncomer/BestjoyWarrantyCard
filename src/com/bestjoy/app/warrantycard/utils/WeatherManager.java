@@ -52,6 +52,7 @@ public class WeatherManager {
 	public static class WeatherObject {
 		public String _weekday;
 		public String _weatherIcon;
+		public String _tianqiDesc;
 		public List<WeatherEvent> _weatherEventList =  new ArrayList<WeatherEvent>(2);
 		/**
 		 * {"events":[{"name":"加油日","desc":""}],"weekday":"Saturday","tianqi":"多云转晴","icon":"01"}
@@ -63,6 +64,7 @@ public class WeatherManager {
 			WeatherObject weatherObject = new WeatherObject();
 			weatherObject._weekday = jsonObject.getString("weekday");//mWeekdayMap.get(jsonObject.getString("weekday"));
 			weatherObject._weatherIcon = jsonObject.getString("icon");
+			weatherObject._tianqiDesc = jsonObject.getString("tianqi");
 			JSONArray events = jsonObject.optJSONArray("events");
 			if (events != null) {
 				//解析天气事件

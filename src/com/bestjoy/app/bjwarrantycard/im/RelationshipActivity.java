@@ -1,45 +1,26 @@
 package com.bestjoy.app.bjwarrantycard.im;
 
-import java.io.InputStream;
-import java.util.List;
-
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.CursorAdapter;
-import android.widget.TextView;
+import android.support.v4.app.Fragment;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.bestjoy.app.bjwarrantycard.R;
-import com.bestjoy.app.bjwarrantycard.ServiceObject;
-import com.bestjoy.app.warrantycard.account.MyAccountManager;
-import com.bestjoy.app.warrantycard.database.BjnoteContent;
-import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2;
-import com.bestjoy.app.warrantycard.service.PhotoManagerUtilsV2.TaskType;
-import com.bestjoy.app.warrantycard.ui.PullToRefreshListPageActivity;
-import com.bestjoy.app.warrantycard.view.AvatorImageView;
-import com.shwy.bestjoy.utils.AdapterWrapper;
+import com.bestjoy.app.warrantycard.ui.BaseSlidingFragmentActivity;
+import com.bestjoy.app.warrantycard.ui.ModleBaseFragment;
+import com.bestjoy.app.warrantycard.utils.DebugUtils;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.shwy.bestjoy.utils.ComPreferencesManager;
-import com.shwy.bestjoy.utils.InfoInterface;
-import com.shwy.bestjoy.utils.PageInfo;
-import com.shwy.bestjoy.utils.Query;
 
-public class RelationshipActivity extends PullToRefreshListPageActivity{
+public class RelationshipActivity extends BaseSlidingFragmentActivity implements 
+	SlidingMenu.OnOpenedListener, SlidingMenu.OnClosedListener{
 	private static final String TAG = "RelationshipActivity";
-	public static final String FIRST = "RelationshipActivity.FIRST";
 	private Handler mHandler;
-	private static final int WHAT_REFRESH_LIST = 1000;
-	private RelationshipAdapter mRelationshipAdapter;
-	private boolean mIsRefresh = false;
+	private Fragment mContent;
+	private RelationshipFragment mMenu;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,81 +28,124 @@ public class RelationshipActivity extends PullToRefreshListPageActivity{
 		if (isFinishing()) {
 			return;
 		}
-		setShowHomeUp(true);
-		mHandler = new Handler() {
-
-			@Override
-			public void handleMessage(Message msg) {
-				super.handleMessage(msg);
-				switch(msg.what){
-				case WHAT_REFRESH_LIST:
-					mRelationshipAdapter.refreshList();
-					break;
-				}
-			}
-			
-		};
-		PhotoManagerUtilsV2.getInstance().requestToken(TAG);
-	}
-	@Override
-	protected boolean isNeedForceRefreshOnResume() {
-		boolean first = ComPreferencesManager.getInstance().isFirstLaunch(FIRST, true);
-		if (first) {
-			ComPreferencesManager.getInstance().setFirstLaunch(FIRST, false);
+		
+		if (savedInstanceState != null) {
+			mContent = (ModleBaseFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mContent-wuyi");
+			mMenu = (RelationshipFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mMenu-wuyi");
+			DebugUtils.logW(TAG, "onCreate() savedInstanceState != null, we try to get Fragment from FragmentManager, mContent=" + mContent + ", mMenu=" + mMenu);
 		}
-		return first;
+		setContentView(R.layout.content_frame);
+		setBehindContentView(R.layout.menu_frame);
+		if (mContent == null) {
+			mContent = new RelationshipConversationFragment();
+			// set the Above View
+			getSupportFragmentManager()
+			.beginTransaction()
+			.add(R.id.content_frame, mContent)
+			.commit();
+		} else {
+			// set the Above View
+			getSupportFragmentManager()
+			.beginTransaction()
+			.replace(R.id.content_frame, mContent)
+			.commit();
+		}
+		
+		if (mMenu == null) {
+			mMenu = new RelationshipFragment();
+			// set the Behind View
+			getSupportFragmentManager()
+			.beginTransaction()
+			.add(R.id.menu_frame, mMenu)
+			.commit();
+
+		} else {
+			// set the Behind View
+			getSupportFragmentManager()
+			.beginTransaction()
+			.replace(R.id.menu_frame, mMenu)
+			.commit();
+
+		}
+		
+		
+		// customize the SlidingMenu
+		SlidingMenu sm = getSlidingMenu();
+//		sm.setBehindOffsetRes(R.dimen.choose_device_slidingmenu_offset);
+//        sm.setAboveOffsetRes(R.dimen.choose_device_slidingmenu_offset);
+		sm.setShadowWidthRes(R.dimen.shadow_width);
+		sm.setShadowDrawable(R.drawable.shadow);
+		sm.setBehindScrollScale(0.25f);
+		sm.setFadeEnabled(true);
+		sm.setFadeDegree(0.25f);
+		sm.setMode(SlidingMenu.RIGHT);
+		sm.setTouchModeAbove(SlidingMenu.RIGHT);
+		sm.setBehindOffsetRes(R.dimen.choose_device_choose_slidingmenu_offset);
+		sm.setOnOpenedListener(this);
+		sm.setOnClosedListener(this);
+		
+		setSlidingActionBarEnabled(false);
+		
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayShowHomeEnabled(false);
+		
 	}
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
+	
+	
+	@Override
+	public void onOpened() {
+		//当SlidingMenu打开后，我们需要隐藏掉手动打开SlidinMenu按钮
+		this.invalidateOptionsMenu();
+		boolean first = ComPreferencesManager.getInstance().isFirstLaunch(RelationshipFragment.FIRST, true);
+		if (first) {
+			ComPreferencesManager.getInstance().setFirstLaunch(RelationshipFragment.FIRST, false);
+			mMenu.forceRefresh();
+		}
+	}
+
+
+	@Override
+	public void onClosed() {
+		//当SlidingMenu关闭后，我们需要重新显示手动打开SlidinMenu按钮
+		this.invalidateOptionsMenu();
+		
+	}
+	
+	 public boolean onCreateOptionsMenu(Menu menu) {
+		MenuItem item = menu.add(0, R.string.menu_contact, 1, R.string.menu_contact);
+		item.setIcon(R.drawable.menu_contact);
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+         return true;
+     }
+	 @Override
+		public boolean onPrepareOptionsMenu(Menu menu) {
+			MenuItem menuItem = menu.findItem(R.string.menu_contact);
+			if (menuItem != null) {
+				menuItem.setVisible(!getSlidingMenu().isMenuShowing());
+			}
+			return true;
+		}
+	 @Override
+     public boolean onOptionsItemSelected(MenuItem item) {
+         switch (item.getItemId()) {
+         case R.string.menu_contact:
+        	 SlidingMenu sm = getSlidingMenu();
+        	 sm.showMenu();
+        	 return true;
+         }
+         return super.onOptionsItemSelected(item);
+	 }
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		PhotoManagerUtilsV2.getInstance().releaseToken(TAG);
 	}
 	
-	@Override
-	protected AdapterWrapper<? extends BaseAdapter> getAdapterWrapper() {
-		mRelationshipAdapter = new RelationshipAdapter(mContext, null, true);
-		return new AdapterWrapper<CursorAdapter>(mRelationshipAdapter);
-	}
-
-	@Override
-	protected Cursor loadLocal(ContentResolver cr) {
-		return BjnoteContent.RELATIONSHIP.getAllRelationships(cr, MyAccountManager.getInstance().getCurrentAccountUid());
-	}
-
-	@Override
-	protected int savedIntoDatabase(ContentResolver cr, List<? extends InfoInterface> infoObjects) {
-		int insertOrUpdateCount = 0;
-		if (infoObjects != null) {
-			for(InfoInterface object:infoObjects) {
-				if (object.saveInDatebase(cr, null)) {
-					insertOrUpdateCount++;
-				}
-			}
-		}
-		return insertOrUpdateCount;
-	}
-
-	@Override
-	protected List<? extends InfoInterface> getServiceInfoList(InputStream is, PageInfo pageInfo) {
-		return RelationshipObject.parseList(is, pageInfo);
-	}
-
-	@Override
-	protected Query getQuery() {
-		Query query =  new Query();
-		query.qServiceUrl = ServiceObject.getRelationshipUrl(MyAccountManager.getInstance().getCurrentAccountUid(), MyAccountManager.getInstance().getAccountObject().mAccountPwd);
-		
-		return query;
-	}
-	
-	@Override
-	public void onItemClick(AdapterView<?> parent, View itemView, int position, long id) {
-		super.onItemClick(parent, itemView, position, id);
-		ViewHolder viewHolder = (ViewHolder) itemView.getTag();
-		ConversationListActivity.startActivity(mContext, viewHolder._relationshipObject);
-	}
 	@Override
 	protected boolean checkIntent(Intent intent) {
 		return true;
@@ -131,98 +155,6 @@ public class RelationshipActivity extends PullToRefreshListPageActivity{
 		Intent intent = new Intent(context, RelationshipActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
-		
 	}
-	@Override
-	protected int getContentLayout() {
-		return R.layout.pull_to_refresh_page_activity;
-	}
-	
-	private class RelationshipAdapter extends CursorAdapter {
-
-		public RelationshipAdapter(Context context, Cursor c, boolean autoRequery) {
-			super(context, c, autoRequery);
-		}
-
-		@Override
-		protected void onContentChanged() {
-			if (mIsRefresh) {
-				return;
-			}
-			mHandler.removeMessages(WHAT_REFRESH_LIST);
-			mHandler.sendEmptyMessageDelayed(WHAT_REFRESH_LIST, 250);
-		}
-
-
-		private void refreshList() {
-			super.onContentChanged();
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View view = LayoutInflater.from(context).inflate(R.layout.relationship_item, parent, false);
-			ViewHolder viewHolder = new ViewHolder();
-			
-			viewHolder._storeName = (TextView) view.findViewById(R.id.storename);
-			viewHolder._name = (TextView) view.findViewById(R.id.name);
-			viewHolder._title = (TextView) view.findViewById(R.id.title);
-			viewHolder._workExperience = (TextView) view.findViewById(R.id.workexperience);
-			viewHolder._workplace = (TextView) view.findViewById(R.id.workplace);
-			viewHolder._leixing = (TextView) view.findViewById(R.id.typename);
-			viewHolder._avator = (AvatorImageView) view.findViewById(R.id.avator);
-			view.setTag(viewHolder);
-			return view;
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder viewHolder = (ViewHolder) view.getTag();
-			viewHolder._relationshipObject = RelationshipObject.getFromCursor(cursor);
-			viewHolder._name.setText(cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_UNAME));
-			viewHolder._storeName.setText(cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_ORG));
-			viewHolder._workplace.setText(cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_WORKPLACE));
-			String workExperience = cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_BRIEF);
-			if (!TextUtils.isEmpty(workExperience)) {
-				viewHolder._workExperience.setVisibility(View.VISIBLE);
-				viewHolder._workExperience.setText(workExperience);
-			} else {
-				viewHolder._workExperience.setVisibility(View.INVISIBLE);
-			}
-			
-			viewHolder._leixing.setText(cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_LEIXING));
-			String title = cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_TITLE);
-			if (!TextUtils.isEmpty(title)) {
-				viewHolder._title.setText(cursor.getString(BjnoteContent.RELATIONSHIP.INDEX_RELASTIONSHIP_TITLE));
-				viewHolder._title.setVisibility(View.VISIBLE);
-			} else {
-				viewHolder._title.setVisibility(View.GONE);
-			}
-			
-			if (!TextUtils.isEmpty(viewHolder._relationshipObject.mMM)) {
-				PhotoManagerUtilsV2.getInstance().loadPhotoAsync(TAG, viewHolder._avator, viewHolder._relationshipObject.mMM, null, TaskType.PREVIEW);
-			}
-		}
-		
-	}
-	
-	private class ViewHolder {
-		private TextView _name, _leixing, _xinghao, _title, _workplace, _workExperience, _storeName;
-		private AvatorImageView _avator;
-		private RelationshipObject _relationshipObject;
-	}
-	@Override
-	protected void onRefreshStart() {
-		mIsRefresh = true;
-	}
-	@Override
-	protected void onRefreshPostEnd() {
-		mIsRefresh = false;
-	}
-	
-	@Override
-	protected void onRefreshEnd() {
-		BjnoteContent.RELATIONSHIP.delete(getContentResolver(), BjnoteContent.RELATIONSHIP.CONTENT_URI, BjnoteContent.RELATIONSHIP.UID_SELECTION, new String[]{MyAccountManager.getInstance().getCurrentAccountUid()});
-	}
-
 
 }

@@ -78,7 +78,6 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 	private Handler mUiHandler;
 	
 	private ConversationAdapter mConversationAdapter;
-	private long mCurrentMessageId = -1;
 	private Query mQuery;
 	private IBaoxiuCardObject mIBaoxiuCardObject;
 	private Bundle mBundles;
@@ -768,9 +767,6 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 		//每次载入更多的时候，我们先要记录下当前的位置
 		final Cursor cursor = mConversationAdapter.getCursor();
 		if (cursor != null && cursor.getCount() > 0) {
-			if (cursor.moveToPosition(mFirstVisibleItem)) {
-				mCurrentMessageId =  cursor.getLong(ViewConversationObject.INDEX_ID);
-			} 
 			if (cursor.moveToFirst()) {
 				mCurrentMinId = cursor.getLong(ViewConversationObject.INDEX_MID);
 			}
@@ -783,36 +779,4 @@ public class ViewConversationListActivity extends AbstractLoadMoreWithPageActivi
 		mQuery.qServiceUrl = ServiceObject.getViewConversationUrl(mIBaoxiuCardObject.mKY, String.valueOf(mCurrentMinId), String.valueOf(ViewConversationObject.DIRECTION_DOWN));
 		mQuery.mPageInfo.mPageIndex=1;
 	}
-
-	@Override
-	protected void onLoadMoreEnd() {
-		final Cursor cursor = loadLocal(mContentResolver);
-		
-		mUiHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				mConversationAdapter.changeCursor(cursor);
-				if (mCurrentMessageId == -1) {
-					mListView.setSelection(cursor.getCount()-1);
-				}
-			}
-			
-		});
-	}
-	@Override
-	protected void onPostLoadMoreEnd() {
-		final Cursor cursor = mConversationAdapter.getCursor();
-		int position = mFirstVisibleItem;
-		long id = 0;
-		for(cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()) {
-			id =  cursor.getLong(ViewConversationObject.INDEX_ID);
-			if (mCurrentMessageId == id) {
-				position = cursor.getPosition();
-			}
-		}
-		if (mCurrentMessageId != -1) mListView.setSelection(position);
-		DebugUtils.logD(TAG, "onPostLoadMoreEnd current item position=" + position + ", mCurrentMessageId=" + mCurrentMessageId);
-	}
-
 }

@@ -276,10 +276,8 @@ public class MyLifeObject implements InfoInterface {
     	if (cursor != null) {
     		tag:while(cursor.moveToNext()) {
     			myLifeObject = getFromCursor(cursor);
-    			for(String tel:myLifeObject.mComCell) {
-    				if (tel.equals(cell)) {
-    					break tag;
-    				}
+    			if(myLifeObject.mComCellRawStr.contains(cell)) {
+    				break tag;
     			}
     		}
     	}
@@ -379,7 +377,6 @@ public class MyLifeObject implements InfoInterface {
 		mMyLifeObject.mComDist = shop.optString("area", "");
 		
 		mMyLifeObject.mComCellRawStr = shop.optString("phone", "");
-		
 		if (!TextUtils.isEmpty(mMyLifeObject.mComCellRawStr)) {
 			//"phone": "010-88866999,88891666",
 			Matcher matcher = PATTERN_SHOP_CELL.matcher(mMyLifeObject.mComCellRawStr);
@@ -391,10 +388,12 @@ public class MyLifeObject implements InfoInterface {
 			String[] cells = mMyLifeObject.mComCellRawStr.split(",");
 			int index = 0;
 			for(String cell : cells) {
+				cell = cell.replaceAll("[-() ]", "");
 				if (areaCode.length() > 0 && !cell.startsWith(areaCode) && !cell.startsWith("1")) {
-					cells[index] = areaCode + cell;
+					cell = areaCode + cell;
 					DebugUtils.logD(TAG, "parse reset ShopCell from " + cell + " to " + cells[index]);
 				}
+				cells[index] = cell;
 				index ++;
 			}
 			mMyLifeObject.mComCell = cells;

@@ -39,9 +39,9 @@ public class IncomingCallCallbackImp extends MonitorCallbackImp{
 	@Override
 	public void onPhoneRing(boolean outgoing, String number) {
 		super.onPhoneRing(outgoing, number);
-		String phoneNum = Contents.MingDang.buildValidPhoneNumber(number, MyApplication.getInstance().getPreferAreaCode());
-		if (!TextUtils.isEmpty(phoneNum)) {
-			doAsyncQuery(phoneNum);
+//		String phoneNum = Contents.MingDang.buildValidPhoneNumber(number, MyApplication.getInstance().getPreferAreaCode());
+		if (!TextUtils.isEmpty(number)) {
+			doAsyncQuery(number);
 		}
 	}
 

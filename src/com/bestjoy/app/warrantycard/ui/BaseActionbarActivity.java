@@ -96,9 +96,9 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
 	 * @param uri 选择的图库的图片的Uri
 	 * @return
 	 */
-	protected void onPickFromGalleryFinish(Uri uri) {
+	protected void onPickFromGalleryFinish(Uri uri, int resultCode) {
 	}
-    protected void onPickFromCameraFinish() {
+    protected void onPickFromCameraFinish(int resultCode) {
 	}
     protected void onPickFromGalleryStart() {
 	}
@@ -143,6 +143,7 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
 			return;
 		}
     	Intent intent = ImageHelper.createGalleryIntent();
+    	mCurrentPictureRequest = CurrentPictureGalleryRequest;
     	startActivityForResult(intent, questCode);
 	}
 	/**
@@ -155,6 +156,7 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
 			return;
 		}
 		Intent intent = ImageHelper.createCaptureIntent(Uri.fromFile(savedFile));
+		mCurrentPictureRequest = CurrentPictureCameraRequest;
 		startActivityForResult(intent, questCode);
 	}
     
@@ -166,11 +168,10 @@ public abstract class BaseActionbarActivity extends SherlockFragmentActivity {
    	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
    		super.onActivityResult(requestCode, resultCode, data);
    		if (resultCode == Activity.RESULT_OK) {
-   			if (CurrentPictureGalleryRequest == requestCode) {
-   				onPickFromGalleryFinish(data.getData());
-   			} else if (CurrentPictureCameraRequest == requestCode) {
-   				onPickFromCameraFinish();
-   				
+   			if (mCurrentPictureRequest == CurrentPictureGalleryRequest) {
+   				onPickFromGalleryFinish(data.getData(), requestCode);
+   			} else if (mCurrentPictureRequest == CurrentPictureCameraRequest) {
+   				onPickFromCameraFinish(requestCode);
    			}
    		}
    	}

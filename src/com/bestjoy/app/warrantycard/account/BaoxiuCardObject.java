@@ -164,11 +164,13 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
 		JSONObject mmone = jsonObject.optJSONObject("MMOne");
 		if (mmone != null) {
 			cardObject.mMMOneRelationshipObject = RelationshipObject.parse(mmone);
+			cardObject.mMMOne = cardObject.mMMOneRelationshipObject.mRelationshipServiceId;
 		}
 		
 		mmone = jsonObject.optJSONObject("MMTwo");
 		if (mmone != null) {
 			cardObject.mMMTwoRelationshipObject = RelationshipObject.parse(mmone);
+			cardObject.mMMTwo = cardObject.mMMTwoRelationshipObject.mRelationshipServiceId;
 		}
 		
 		cardObject.mPdfPath = jsonObject.optString("pdfpath", "");
@@ -329,9 +331,12 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
     	baoxiuCardObject.mModifiedTime = c.getLong(KEY_CARD_DATE);
     	
     	baoxiuCardObject.mPdfPath = c.getString(KEY_CARD_PDF_PATH);
+    	
+    	baoxiuCardObject.populateRelationshipObject();
+    	
 		return baoxiuCardObject;
 	}
-
+    
 	@Override
 	public boolean saveInDatebase(ContentResolver cr, ContentValues addtion) {
 		ContentValues values = new ContentValues();
@@ -364,12 +369,12 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
 		values.put(PROJECTION[KEY_CARD_MMTWO], mMMTwo);
 		values.put(PROJECTION[KEY_CARD_PDF_PATH], mPdfPath);
 		values.put(PROJECTION[KEY_CARD_DATE], new Date().getTime());
-		
+		boolean op = false;
 		if (id > 0) {
 			int update = cr.update(BjnoteContent.BaoxiuCard.CONTENT_URI, values,  WHERE_UID_AND_AID_AND_BID, selectionArgs);
 			if (update > 0) {
 				DebugUtils.logD(TAG, "saveInDatebase update exsited bid#" + mBID);
-				return true;
+				op = true;
 			} else {
 				DebugUtils.logD(TAG, "saveInDatebase failly update exsited bid#" + mBID);
 			}
@@ -382,12 +387,21 @@ public class BaoxiuCardObject extends IBaoxiuCardObject {
 			if (uri != null) {
 				DebugUtils.logD(TAG, "saveInDatebase insert bid#" + mBID);
 				mId = ContentUris.parseId(uri);
-				return true;
+				op = true;
 			} else {
 				DebugUtils.logD(TAG, "saveInDatebase failly insert bid#" + mBID);
 			}
 		}
-		return false;
+		if (op) {
+			DebugUtils.logD(TAG, "saveInDatebase save RelationshipObject");
+			if (!TextUtils.isEmpty(mMMOne) && mMMOneRelationshipObject != null) {
+				mMMOneRelationshipObject.saveInDatebase(cr, null);
+			}
+			if (!TextUtils.isEmpty(mMMTwo) && mMMTwoRelationshipObject != null) {
+				mMMTwoRelationshipObject.saveInDatebase(cr, null);
+			}
+		}
+		return op;
 	}
 	
 	private long isExsited(ContentResolver cr, String[] selectionArgs) {

@@ -44,9 +44,9 @@ public class BaseFragment extends SherlockFragment{
 	 * @param uri 选择的图库的图片的Uri
 	 * @return
 	 */
-	protected void onPickFromGalleryFinish(Uri uri) {
+	protected void onPickFromGalleryFinish(Uri uri, int resultCode) {
 	}
-    protected void onPickFromCameraFinish() {
+    protected void onPickFromCameraFinish(int resultCode) {
 	}
     protected void onPickFromGalleryStart() {
 	}
@@ -91,6 +91,7 @@ public class BaseFragment extends SherlockFragment{
 			return;
 		}
     	Intent intent = ImageHelper.createGalleryIntent();
+    	mCurrentPictureRequest = CurrentPictureGalleryRequest;
     	startActivityForResult(intent, questCode);
 	}
 	/**
@@ -102,6 +103,7 @@ public class BaseFragment extends SherlockFragment{
 			MyApplication.getInstance().showMessage(R.string.msg_no_sdcard);
 			return;
 		}
+    	mCurrentPictureRequest = CurrentPictureCameraRequest;
 		Intent intent = ImageHelper.createCaptureIntent(Uri.fromFile(savedFile));
 		startActivityForResult(intent, questCode);
 	}
@@ -114,11 +116,10 @@ public class BaseFragment extends SherlockFragment{
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
    		super.onActivityResult(requestCode, resultCode, data);
    		if (resultCode == Activity.RESULT_OK) {
-   			if (CurrentPictureGalleryRequest == requestCode) {
-   				onPickFromGalleryFinish(data.getData());
-   			} else if (CurrentPictureCameraRequest == requestCode) {
-   				onPickFromCameraFinish();
-   				
+   			if (mCurrentPictureRequest == CurrentPictureGalleryRequest) {
+   				onPickFromGalleryFinish(data.getData(), requestCode);
+   			} else if (mCurrentPictureRequest == CurrentPictureCameraRequest) {
+   				onPickFromCameraFinish(requestCode);
    			} else if (requestCode == REQUEST_SCAN) {
    			   //识别到了信息
 			   setScanObjectAfterScan(getScanObjectAfterScan());
@@ -163,11 +164,9 @@ public class BaseFragment extends SherlockFragment{
    				public void onClick(DialogInterface dialog, int which) {
    					switch(which) {
    					case 0: //Gallery
-   						mCurrentPictureRequest = CurrentPictureGalleryRequest;
    						onPickFromGalleryStart();
    						break;
    					case 1: //Camera
-   						mCurrentPictureRequest = CurrentPictureCameraRequest;
    						onPickFromCameraStart();
    						break;
    					}

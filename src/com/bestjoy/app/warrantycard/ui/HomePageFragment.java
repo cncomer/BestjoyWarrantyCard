@@ -80,6 +80,7 @@ import com.shwy.bestjoy.utils.AsyncTaskUtils;
 import com.shwy.bestjoy.utils.BitmapUtils;
 import com.shwy.bestjoy.utils.ComConnectivityManager;
 import com.shwy.bestjoy.utils.ComPreferencesManager;
+import com.shwy.bestjoy.utils.DialogUtils;
 import com.shwy.bestjoy.utils.FilesUtils;
 import com.shwy.bestjoy.utils.Intents;
 import com.shwy.bestjoy.utils.NetworkUtils;
@@ -1150,6 +1151,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 					Button eventlevel1 = (Button) weatherItem.findViewById(R.id.eventlevel1);
 					ImageView eventlevel2 = (ImageView) weatherItem.findViewById(R.id.eventlevel2);
 					TextView eventlevel3 = (TextView) weatherItem.findViewById(R.id.eventlevel3);
+					String eventDes = null;
 					if (weatherObject._weatherEventList.size() > 1) {
 						eventlevel1.setText(R.string.view_weather_event_more);
 //						event.setOnClickListener(new View.OnClickListener() {
@@ -1169,6 +1171,7 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 //						});
 					} else if (weatherObject._weatherEventList.size() == 1) {
 						WeatherEvent weatherEventObject = weatherObject._weatherEventList.get(0);
+						eventDes = weatherEventObject._eventTip;
 						if (weatherEventObject._eventLevel == 1) {
 							//1级事件
 							eventlevel1.setText(weatherEventObject._eventName);
@@ -1192,9 +1195,17 @@ public class HomePageFragment extends BaseFragment implements View.OnClickListen
 						eventlevel1.setVisibility(View.INVISIBLE);
 						eventlevel2.setVisibility(View.GONE);
 						eventlevel3.setVisibility(View.GONE);
+						eventDes = weatherObject._tianqiDesc;
 					}
-					
+					final String text = eventDes;
 					mWeatherLayout.addView(weatherItem);
+					weatherItem.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							DialogUtils.createSimpleConfirmAlertDialog(getActivity(), text, getActivity().getString(android.R.string.ok), null, null);
+						}
+						
+					});
 				}
 				mWeatherLayout.setVisibility(View.VISIBLE);
 			}

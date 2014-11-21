@@ -159,8 +159,10 @@ public class BjnoteContent {
     
     public static class RELATIONSHIP extends BjnoteContent{
     	public static final Uri CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "relationship");
+    	/**最新的关系会话表*/
+    	public static final Uri CONVERSATION_CONTENT_URI = Uri.withAppendedPath(BjnoteContent.CONTENT_URI, "relationship_conversation");
     	public static final String UID_SELECTION = HaierDBHelper.RELATIONSHIP_UID + "=?";
-    	public static final String SORT_BY_SID = HaierDBHelper.RELATIONSHIP_SERVICE_ID + " asc";
+    	public static final String SORT_BY_SID = HaierDBHelper.RELATIONSHIP_SERVICE_ID + " desc";
     	public static final String[] RELATIONSHIP_PROJECTION = new String[]{
     		HaierDBHelper.ID,              //0
     		HaierDBHelper.RELATIONSHIP_SERVICE_ID,   //1
@@ -178,6 +180,10 @@ public class BjnoteContent {
     		HaierDBHelper.DATA8,  //13
     		HaierDBHelper.DATA9,  //14
     		HaierDBHelper.DATE,   //15
+    		HaierDBHelper.RELATIONSHIP_TARGET_IS_SERVER,
+    		HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE,
+    		HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE_COUNT,
+    		HaierDBHelper.RELATIONSHIP_CONVERSATION_NEW_MESSAGE_TIME,
     	};
     	public static final int INDEX_RELASTIONSHIP_ID = 0;
     	public static final int INDEX_RELASTIONSHIP_SERVICE_ID = 1;
@@ -204,10 +210,19 @@ public class BjnoteContent {
     	/**DATA9, MM*/
     	public static final int INDEX_RELASTIONSHIP_MM = 14;
     	public static final int INDEX_RELASTIONSHIP_LOCAL_DATE = 15;
+    	/**自己是否是服务人员*/
+    	public static final int INDEX_RELASTIONSHIP_TARGET_IS_SERVER = 16;
+    	public static final int INDEX_RELASTIONSHIP_NEW_MESSAGE = 17;
+    	public static final int INDEX_RELASTIONSHIP_NEW_MESSAGE_COUNT = 18;
+    	public static final int INDEX_RELASTIONSHIP_NEW_MESSAGE_TIME = 19;
     	/**返回我的全部关系*/
     	public static Cursor getAllRelationships(ContentResolver cr, String uid) {
     		return cr.query(BjnoteContent.RELATIONSHIP.CONTENT_URI, RELATIONSHIP_PROJECTION, UID_SELECTION, new String[]{uid}, SORT_BY_SID);
     	}
+    	public static Cursor getAllRelationshipConversation(ContentResolver cr, String uid) {
+    		return cr.query(BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI, RELATIONSHIP_PROJECTION, UID_SELECTION, new String[]{uid}, SORT_BY_SID);
+    	}
+    	
     	
     }
     

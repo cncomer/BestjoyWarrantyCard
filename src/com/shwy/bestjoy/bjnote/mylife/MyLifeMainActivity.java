@@ -570,7 +570,7 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 	}
 	
 	@Override
-	public void onPickFromGalleryFinish(Uri data) {
+	public void onPickFromGalleryFinish(Uri data, int requestCode) {
 		DebugUtils.logD(TAG, "onPickFromGalleryFinish() mNeedUpdateAvatorFromGallery " + mNeedUpdateAvatorFromGallery + ", mAvatorUri " + data);
 		if (data != null) {
 			mAvatorUri = data;
@@ -579,7 +579,7 @@ public class MyLifeMainActivity extends PullToRefreshListPageActivityWithActionB
 	}
 	
 	@Override
-	public void onPickFromCameraFinish() {
+	public void onPickFromCameraFinish(int requestCode) {
 		DebugUtils.logD(TAG, "onPickFromCameraFinish() mNeedUpdateAvatorFromCamera " + mNeedUpdateAvatorFromCamera + ", mAvatorFile " + mAvatorFile.getAbsolutePath());
 		if (mAvatorFile.exists()) {
 			mNeedUpdateAvatorFromCamera = true;

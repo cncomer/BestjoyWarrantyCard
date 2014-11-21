@@ -42,6 +42,7 @@ public class BjnoteProvider extends ContentProvider{
 			HaierDBHelper.TABLE_VIEW_CONVERSATION,
 			HaierDBHelper.TABLE_NAME_MYLIFE,
 			HaierDBHelper.TABLE_BAOXIUCARD_ORDERS,
+			HaierDBHelper.TABLE_ACCOUNT_RELATIONSHIP_CONVERSATION,
 //			HaierDBHelper.TABLE_HOME_COMMUNITY,
 //			ContactsDBHelper.TABLE_NAME_MYLIFE_CONSUME,
 	};
@@ -93,6 +94,9 @@ public class BjnoteProvider extends ContentProvider{
 	
 	private static final int MY_BX_ORDER = 0x0e00;
 	private static final int MY_BX_ORDER_ID = 0x0e01;
+	
+	private static final int ACCOUNT_RELATIONSHIP_CONVERSATION = 0x0f00;
+	private static final int ACCOUNT_RELATIONSHIP_CONVERSATION_ID = 0x0f01;
 	
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 	 static {
@@ -146,8 +150,8 @@ public class BjnoteProvider extends ContentProvider{
 	        matcher.addURI(BjnoteContent.AUTHORITY, "bx_order/#", MY_BX_ORDER_ID);
 	        
 	        
-//	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community", HOME_COMMUNITY);
-//	        matcher.addURI(BjnoteContent.AUTHORITY, "homes_community/#", HOME_COMMUNITY_ID);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "relationship_conversation", ACCOUNT_RELATIONSHIP_CONVERSATION);
+	        matcher.addURI(BjnoteContent.AUTHORITY, "relationship_conversation/#", ACCOUNT_RELATIONSHIP_CONVERSATION_ID);
 	        
 	        //TODO 增加
 	 }
@@ -227,6 +231,10 @@ public class BjnoteProvider extends ContentProvider{
 		case ACCOUNT_RELATIONSHIP:
 		case ACCOUNT_RELATIONSHIP_ID:
 			notify = BjnoteContent.RELATIONSHIP.CONTENT_URI;
+			break;
+		case ACCOUNT_RELATIONSHIP_CONVERSATION_ID:
+		case ACCOUNT_RELATIONSHIP_CONVERSATION:
+			notify = BjnoteContent.RELATIONSHIP.CONVERSATION_CONTENT_URI;
 			break;
 		case HOME_COMMUNITY_SERVICE:
 		case HOME_COMMUNITY_SERVICE_ID:
@@ -425,6 +433,7 @@ public class BjnoteProvider extends ContentProvider{
 			case VIEW_CONVERSATION_HISTORY_ID:
 			case MY_LIFE_ID:
 			case MY_BX_ORDER_ID:
+			case ACCOUNT_RELATIONSHIP_CONVERSATION_ID:
 			try {
 				id = ContentUris.parseId(uri);
 			} catch(java.lang.NumberFormatException e) {

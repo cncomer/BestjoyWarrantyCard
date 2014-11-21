@@ -197,11 +197,13 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 		JSONObject mmone = jsonObject.optJSONObject("MMOne");
 		if (mmone != null) {
 			cardObject.mMMOneRelationshipObject = RelationshipObject.parse(mmone);
+			cardObject.mMMOne = cardObject.mMMOneRelationshipObject.mRelationshipServiceId;
 		}
 		
 		mmone = jsonObject.optJSONObject("MMTwo");
 		if (mmone != null) {
 			cardObject.mMMTwoRelationshipObject = RelationshipObject.parse(mmone);
+			cardObject.mMMTwo = cardObject.mMMTwoRelationshipObject.mRelationshipServiceId;
 		}
 		cardObject.mPdfPath = jsonObject.optString("pdfpath", "");
 		cardObject.mFPaddr = jsonObject.optString("fapiao_addr", "");
@@ -411,7 +413,7 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
     	
     	baoxiuCardObject.mModifiedTime = c.getLong(INDEX_MODIFIED);
     	baoxiuCardObject.mPdfPath = c.getString(KEY_CARD_PDF_PATH);
-    	
+    	baoxiuCardObject.populateRelationshipObject();
 		return baoxiuCardObject;
 	}
 
@@ -475,10 +477,10 @@ public class CarBaoxiuCardObject extends IBaoxiuCardObject {
 		}
 		if (op) {
 			DebugUtils.logD(TAG, "saveInDatebase save RelationshipObject");
-			if (mMMOneRelationshipObject != null) {
+			if (!TextUtils.isEmpty(mMMOne) && mMMOneRelationshipObject != null) {
 				mMMOneRelationshipObject.saveInDatebase(cr, null);
 			}
-			if (mMMTwoRelationshipObject != null) {
+			if (!TextUtils.isEmpty(mMMTwo) && mMMTwoRelationshipObject != null) {
 				mMMTwoRelationshipObject.saveInDatebase(cr, null);
 			}
 		}

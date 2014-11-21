@@ -67,8 +67,8 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 	
 	/**对应关系表中的service_id*/
 	public String mMMOne="", mMMTwo="";
-	RelationshipObject mMMOneRelationshipObject;
-	RelationshipObject mMMTwoRelationshipObject;
+	public RelationshipObject mMMOneRelationshipObject;
+	public RelationshipObject mMMTwoRelationshipObject;
 	
 	public long mModifiedTime = new Date().getTime();
 	
@@ -208,6 +208,8 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 			baoxiuCardObject.mMMTwo = bundle.getString("mMMTwo");
 			baoxiuCardObject.mModifiedTime = bundle.getLong("mModifiedTime", new Date().getTime());
 			baoxiuCardObject.mPdfPath = bundle.getString("mPdfPath", "");
+			
+			baoxiuCardObject.populateRelationshipObject();
 		}
 	}
 	
@@ -443,5 +445,16 @@ public abstract class IBaoxiuCardObject extends InfoInterfaceImpl {
 	public boolean hasPdf() {
 		return !TextUtils.isEmpty(mPdfPath);
 	}
+	/**
+	 * 从数据表中读取RelationshipObject对象
+	 */
+	public void populateRelationshipObject() {
+    	if (!TextUtils.isEmpty(mMMOne)) {
+    		mMMOneRelationshipObject = RelationshipObject.getFromCursorByServiceId(MyApplication.getInstance().getContentResolver(), String.valueOf(mUID), mMMOne);
+    	}
+    	if (!TextUtils.isEmpty(mMMTwo)) {
+    		mMMTwoRelationshipObject = RelationshipObject.getFromCursorByServiceId(MyApplication.getInstance().getContentResolver(), String.valueOf(mUID), mMMTwo);
+    	}
+    }
 	
 }

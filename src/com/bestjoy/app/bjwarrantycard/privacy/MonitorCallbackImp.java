@@ -265,16 +265,27 @@ public abstract class MonitorCallbackImp implements IMonitorCallback{
 
 		@Override
 		protected MyLifeObject doInBackground(String... query) {
-			return doQueryInBackground(query);
+			return doQueryInBackground(query[0].replaceAll("[-() ]", ""));
 		}
 
 		@Override
 		protected void onPostExecute(MyLifeObject result) {
 			super.onPostExecute(result);
 			if (result != null) {
+				boolean ignore = false;
 				if (result.mId < 0 && !mPendingCloudContacts.contains(result)){
-		        	 mPendingCloudContacts.add(0, result);
-		        	 DebugUtils.logD(TAG, "mPendingCloudContacts add " + result);
+					for(MyLifeObject hasExistedObject : mPendingCloudContacts) {
+						if (hasExistedObject.mId == result.mId) {
+							ignore = true;
+							break;
+						}
+					}
+		        	 if (!ignore) {
+		        		 mPendingCloudContacts.add(0, result);
+		        		 DebugUtils.logD(TAG, "mPendingCloudContacts add " + result);
+		        	 } else {
+		        		 DebugUtils.logD(TAG, "mPendingCloudContacts ignore add existed " + result);
+		        	 }
 		         }
 				onQueryPostExecute(result);
 			}
